@@ -42,14 +42,17 @@ jobs:
           pytest --flake8 -m flake8 .github
       - name: Check for stray outputs, counts and metadata in ipynb files
         uses: ./.github/actions/jupyter/check_metadata
-      - name: Run unit tests
+      - name: Run unit tests (serial)
         run: |
-          pytest -n auto --cov-report html:coverage --cov=minirox tests/unit
-      - name: Run tutorials
+          pytest -n auto --cov-report term-missing:skip-covered --cov-report html:coverage --cov=minirox tests/unit
+      - name: Run unit tests (parallel)
+        run: |
+          mpirun -n 2 pytest tests/unit
+      - name: Run tutorials (serial)
         run: |
           pytest -n auto tutorials
       - name: Upload coverage report as an artifact
         uses: actions/upload-artifact@v2
         with:
-          path: |
-            coverage
+          name: coverage
+          path: coverage
