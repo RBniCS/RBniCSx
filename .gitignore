@@ -1,0 +1,17 @@
+*~
+*.bak
+*.cache
+*.egg
+*.egg-info
+*.h5
+*.m
+*.nbc
+*.nbi
+*.pvd
+*.pvtu
+*.py[cod]
+*.vtu
+*.xdmf
+.pytest_cache
+build
+dist
