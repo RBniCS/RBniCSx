@@ -1,0 +1,47 @@
+name: minirox CI
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: "0 21 * * *"
+  workflow_dispatch:
+
+jobs:
+  test:
+    if: >-
+      (
+        (
+          github.event_name == 'schedule'
+          && github.repository == 'minirox/minirox'
+        ) || (
+            github.event_name != 'schedule'
+            && !(
+              contains(github.event.head_commit.message, '[ci skip]')
+              || contains(github.event.head_commit.message, '[skip ci]')
+            )
+        )
+      )
+    runs-on: ubuntu-latest
+    container: dolfinx/dolfinx
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install minirox
+        run: |
+          pip3 -q install --upgrade itkwidgets matplotlib nbconvert Pygments pytest pytest-flake8 pytest-xdist pyvista sympy
+          PYVISTA_INIT=$(python3 -c 'import os, pyvista; print(os.path.join(os.path.dirname(pyvista.__file__), "__init__.py"))')
+          sed -i "s/os.makedirs(USER_DATA_PATH)/os.makedirs(USER_DATA_PATH, exist_ok=True)/g" ${PYVISTA_INIT}
+          python3 setup.py -q install
+      - name: Run flake8 checks
+        run: |
+          pytest --flake8 -m flake8
+          pytest --flake8 -m flake8 .github
+      - name: Check for stray outputs, counts and metadata in ipynb files
+        uses: ./.github/actions/jupyter/check_metadata
+      - name: Run tutorials
+        run: |
+          pytest -n auto tutorials
