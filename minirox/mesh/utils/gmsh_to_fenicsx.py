@@ -4,13 +4,11 @@
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
 
+import dolfinx.cpp
+import dolfinx.io
+import dolfinx.mesh
+import mpi4py
 import numpy as np
-from mpi4py import MPI
-from dolfinx.io import extract_gmsh_geometry, extract_gmsh_topology_and_markers, ufl_mesh_from_gmsh
-from dolfinx.cpp.io import distribute_entity_data, perm_gmsh
-from dolfinx.cpp.mesh import cell_entity_type, to_type
-from dolfinx.cpp.graph import AdjacencyList_int32
-from dolfinx.mesh import create_mesh, create_meshtags
 
 
 def gmsh_to_fenicsx(model, gdim):
@@ -29,13 +27,13 @@ def gmsh_to_fenicsx(model, gdim):
     J. S. Dokken, http://jsdokken.com/converted_files/tutorial_gmsh.html
     """
 
-    assert MPI.COMM_WORLD.size == 1, "This function has been simplified to the case of serial computations"
+    assert mpi4py.MPI.COMM_WORLD.size == 1, "This function has been simplified to the case of serial computations"
 
     # Get mesh geometry
-    x = extract_gmsh_geometry(model)
+    x = dolfinx.io.extract_gmsh_geometry(model)
 
     # Get mesh topology for each element
-    topologies = extract_gmsh_topology_and_markers(model)
+    topologies = dolfinx.io.extract_gmsh_topology_and_markers(model)
 
     # Get information about each cell type from the msh files
     num_cell_types = len(topologies.keys())
@@ -66,33 +64,33 @@ def gmsh_to_fenicsx(model, gdim):
     facet_values = np.asarray(topologies[gmsh_facet_id]["cell_data"], dtype=np.int32)
 
     # Create distributed mesh
-    ufl_domain = ufl_mesh_from_gmsh(cell_id, gdim)
-    gmsh_cell_perm = perm_gmsh(to_type(str(ufl_domain.ufl_cell())), num_nodes)
+    ufl_domain = dolfinx.io.ufl_mesh_from_gmsh(cell_id, gdim)
+    gmsh_cell_perm = dolfinx.cpp.io.perm_gmsh(
+        dolfinx.cpp.mesh.to_type(str(ufl_domain.ufl_cell())), num_nodes)
     cells = cells[:, gmsh_cell_perm]
-    mesh = create_mesh(MPI.COMM_WORLD, cells, x[:, :gdim], ufl_domain)
+    mesh = dolfinx.mesh.create_mesh(mpi4py.MPI.COMM_WORLD, cells, x[:, :gdim], ufl_domain)
 
     # Create MeshTags for cells
-    entities, values = distribute_entity_data(
+    entities, values = dolfinx.cpp.io.distribute_entity_data(
         mesh, mesh.topology.dim, cells, cell_values)
     mesh.topology.create_connectivity(mesh.topology.dim, 0)
-    adj = AdjacencyList_int32(entities)
-    ct = create_meshtags(mesh, mesh.topology.dim,
-                         adj, np.int32(values))
+    adj = dolfinx.cpp.graph.AdjacencyList_int32(entities)
+    ct = dolfinx.mesh.create_meshtags(
+        mesh, mesh.topology.dim, adj, np.int32(values))
     ct.name = "subdomains"
 
     # Create MeshTags for facets
-    facet_type = cell_entity_type(to_type(str(ufl_domain.ufl_cell())),
-                                  mesh.topology.dim - 1, 0)
-    gmsh_facet_perm = perm_gmsh(facet_type, num_facet_nodes)
+    facet_type = dolfinx.cpp.mesh.cell_entity_type(
+        dolfinx.cpp.mesh.to_type(str(ufl_domain.ufl_cell())), mesh.topology.dim - 1, 0)
+    gmsh_facet_perm = dolfinx.cpp.io.perm_gmsh(facet_type, num_facet_nodes)
     marked_facets = marked_facets[:, gmsh_facet_perm]
-
-    entities, values = distribute_entity_data(
+    entities, values = dolfinx.cpp.io.distribute_entity_data(
         mesh, mesh.topology.dim - 1, marked_facets, facet_values)
     mesh.topology.create_connectivity(
         mesh.topology.dim - 1, mesh.topology.dim)
-    adj = AdjacencyList_int32(entities)
-    ft = create_meshtags(mesh, mesh.topology.dim - 1,
-                         adj, np.int32(values))
+    adj = dolfinx.cpp.graph.AdjacencyList_int32(entities)
+    ft = dolfinx.mesh.create_meshtags(
+        mesh, mesh.topology.dim - 1, adj, np.int32(values))
     ft.name = "boundaries"
 
     return mesh, ct, ft

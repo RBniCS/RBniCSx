@@ -4,10 +4,10 @@
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
 
+import dolfinx.plot
 import numpy as np
 import plotly.graph_objects as go
 import pyvista
-import dolfinx.plot
 
 
 def _dolfinx_to_pyvista_mesh(mesh, dim=None):
