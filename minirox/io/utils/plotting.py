@@ -17,7 +17,7 @@ def _dolfinx_to_pyvista_mesh(mesh: dolfinx.mesh.Mesh, dim: int = None) -> pyvist
     if dim is None:
         dim = mesh.topology.dim
     mesh.topology.create_connectivity(dim, dim)
-    num_cells = mesh.topology.index_map(dim).size_local
+    num_cells = mesh.topology.index_map(dim).size_local + mesh.topology.index_map(dim).num_ghosts
     cell_entities = np.arange(num_cells, dtype=np.int32)
     pyvista_cells, cell_types = dolfinx.plot.create_vtk_topology(
         mesh, dim, cell_entities)
@@ -88,7 +88,7 @@ def plot_mesh_tags(mesh_tags: dolfinx.mesh.MeshTags) -> None:
 
 
 def _plot_mesh_entities_pyvista(mesh: dolfinx.mesh.Mesh, dim: int, indices: np.ndarray, values: np.ndarray) -> None:
-    num_cells = mesh.topology.index_map(dim).size_local
+    num_cells = mesh.topology.index_map(dim).size_local + mesh.topology.index_map(dim).num_ghosts
     all_values = np.zeros(num_cells)
     for (index, value) in zip(indices, values):
         assert value > 0
