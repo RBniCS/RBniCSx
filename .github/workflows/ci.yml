@@ -44,13 +44,10 @@ jobs:
         uses: ./.github/actions/jupyter/check_metadata
       - name: Run unit tests
         run: |
-          pytest -n auto tests/unit
+          pytest -n auto --cov-report html:coverage --cov=minirox tests/unit
       - name: Run tutorials
         run: |
           pytest -n auto tutorials
-      - name: Run coverage report
-        run: |
-          pytest --cov-report html:coverage --cov=minirox tests/unit
       - name: Upload coverage report as an artifact
         uses: actions/upload-artifact@v2
         with:
