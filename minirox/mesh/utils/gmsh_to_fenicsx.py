@@ -3,15 +3,21 @@
 # This file is part of minirox.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
+"""Utilities to convert a gmsh model to dolfinx."""
+
+
+import typing
 
 import dolfinx.cpp
 import dolfinx.io
 import dolfinx.mesh
+import gmsh
 import mpi4py
 import numpy as np
 
 
-def gmsh_to_fenicsx(model, gdim):
+def gmsh_to_fenicsx(model: gmsh.model, gdim: int) -> typing.Tuple[
+        dolfinx.mesh.Mesh, dolfinx.mesh.MeshTags, dolfinx.mesh.MeshTags]:
     """
     Given a GMSH model, create a DOLFINx mesh and MeshTags.
 
@@ -26,7 +32,6 @@ def gmsh_to_fenicsx(model, gdim):
     ----------
     J. S. Dokken, http://jsdokken.com/converted_files/tutorial_gmsh.html
     """
-
     assert mpi4py.MPI.COMM_WORLD.size == 1, "This function has been simplified to the case of serial computations"
 
     # Get mesh geometry
