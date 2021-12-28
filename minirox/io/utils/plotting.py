@@ -3,14 +3,17 @@
 # This file is part of minirox.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
+"""Utilities for plotting dolfinx objects with plotly and pyvista."""
 
+import dolfinx.fem
+import dolfinx.mesh
 import dolfinx.plot
 import numpy as np
 import plotly.graph_objects as go
 import pyvista
 
 
-def _dolfinx_to_pyvista_mesh(mesh, dim=None):
+def _dolfinx_to_pyvista_mesh(mesh: dolfinx.mesh.Mesh, dim: int = None) -> pyvista.UnstructuredGrid:
     if dim is None:
         dim = mesh.topology.dim
     mesh.topology.create_connectivity(dim, dim)
@@ -18,18 +21,25 @@ def _dolfinx_to_pyvista_mesh(mesh, dim=None):
     cell_entities = np.arange(num_cells, dtype=np.int32)
     pyvista_cells, cell_types = dolfinx.plot.create_vtk_topology(
         mesh, dim, cell_entities)
-    grid = pyvista.UnstructuredGrid(pyvista_cells, cell_types, mesh.geometry.x)
-    return grid
+    return pyvista.UnstructuredGrid(pyvista_cells, cell_types, mesh.geometry.x)
 
 
-def plot_mesh(mesh):
+def plot_mesh(mesh: dolfinx.mesh.Mesh) -> None:
+    """
+    Plot a dolfinx.mesh.Mesh with plotly (in 1D) or pyvista (in 2D or 3D).
+
+    Parameters
+    ----------
+    mesh : dolfinx.mesh.Mesh
+        Mesh to be plotted.
+    """
     if mesh.topology.dim == 1:
         _plot_mesh_plotly(mesh)
     else:
         _plot_mesh_pyvista(mesh)
 
 
-def _plot_mesh_plotly(mesh):
+def _plot_mesh_plotly(mesh: dolfinx.mesh.Mesh) -> None:
     fig = go.Figure(data=go.Scatter(
         x=mesh.geometry.x[:, 0], y=np.zeros(mesh.geometry.x.shape[0]),
         line=dict(color="blue", width=2, dash="solid"),
@@ -39,25 +49,45 @@ def _plot_mesh_plotly(mesh):
     fig.show()
 
 
-def _plot_mesh_pyvista(mesh):
+def _plot_mesh_pyvista(mesh: dolfinx.mesh.Mesh) -> None:
     grid = _dolfinx_to_pyvista_mesh(mesh)
     plotter = pyvista.PlotterITK()
     plotter.add_mesh(grid)
     plotter.show()
 
 
-def plot_mesh_entities(mesh, dim, entities):
+def plot_mesh_entities(mesh: dolfinx.mesh.Mesh, dim: int, entities: np.ndarray) -> None:
+    """
+    Plot dolfinx.mesh.Mesh with pyvista, highlighting the provided `dim`-dimensional entities.
+
+    Parameters
+    ----------
+    mesh : dolfinx.mesh.Mesh
+        Mesh to be plotted. Current implementation is limited to 2D or 3D meshes.
+    dim : int
+        Dimension of the entities
+    entities : np.ndarray
+        Array containing the IDs of the entities to be highlighted.
+    """
     assert mesh.topology.dim > 1
     _plot_mesh_entities_pyvista(mesh, dim, entities, np.ones_like(entities))
 
 
-def plot_mesh_tags(mesh_tags):
+def plot_mesh_tags(mesh_tags: dolfinx.mesh.MeshTags) -> None:
+    """
+    Plot dolfinx.mesh.MeshTags with pyvista.
+
+    Parameters
+    ----------
+    mesh : dolfinx.mesh.MeshTags
+        MeshTags to be plotted. Current implementation is limited to 2D or 3D underlying meshes.
+    """
     mesh = mesh_tags.mesh
     assert mesh.topology.dim > 1
     _plot_mesh_entities_pyvista(mesh, mesh_tags.dim, mesh_tags.indices, mesh_tags.values)
 
 
-def _plot_mesh_entities_pyvista(mesh, dim, indices, values):
+def _plot_mesh_entities_pyvista(mesh: dolfinx.mesh.Mesh, dim: int, indices: np.ndarray, values: np.ndarray) -> None:
     num_cells = mesh.topology.index_map(dim).size_local
     all_values = np.zeros(num_cells)
     for (index, value) in zip(indices, values):
@@ -76,7 +106,21 @@ def _plot_mesh_entities_pyvista(mesh, dim, indices, values):
     plotter.show()
 
 
-def plot_scalar_field(scalar_field, name, warp_factor=0.0):
+def plot_scalar_field(scalar_field: dolfinx.fem.Function, name: str, warp_factor: float = 0.0) -> None:
+    """
+    Plot a scalar field with plotly (in 1D) or pyvista (in 2D or 3D).
+
+    Parameters
+    ----------
+    scalar_field : dolfinx.fem.Function
+        Function to be plotted, which contains a scalar field.
+    name : str
+        Name of the quantity stored in the scalar field.
+    warp_factor : float, optional
+        This argument is ignored for a field on a 1D mesh.
+        For a 2D mesh: if provided then the factor is used to produce a warped representation
+        the field; if not provided then the scalar field will be plotted on the mesh.
+    """
     mesh = scalar_field.function_space.mesh
     if mesh.topology.dim == 1:
         _plot_scalar_field_plotly(mesh, scalar_field, name)
@@ -84,7 +128,7 @@ def plot_scalar_field(scalar_field, name, warp_factor=0.0):
         _plot_scalar_field_pyvista(mesh, scalar_field, name, warp_factor)
 
 
-def _plot_scalar_field_plotly(mesh, scalar_field, name):
+def _plot_scalar_field_plotly(mesh: dolfinx.mesh.Mesh, scalar_field: dolfinx.fem.Function, name: str) -> None:
     fig = go.Figure(data=go.Scatter(
         x=mesh.geometry.x[:, 0], y=scalar_field.compute_point_values().reshape(-1),
         line=dict(color="blue", width=2, dash="solid"),
@@ -95,7 +139,8 @@ def _plot_scalar_field_plotly(mesh, scalar_field, name):
     fig.show()
 
 
-def _plot_scalar_field_pyvista(mesh, scalar_field, name, warp_factor):
+def _plot_scalar_field_pyvista(
+        mesh: dolfinx.mesh.Mesh, scalar_field: dolfinx.fem.Function, name: str, warp_factor: float) -> None:
     grid = _dolfinx_to_pyvista_mesh(mesh)
     grid.point_data[name] = scalar_field.compute_point_values()
     grid.set_active_scalars(name)
@@ -109,13 +154,32 @@ def _plot_scalar_field_pyvista(mesh, scalar_field, name, warp_factor):
     plotter.show()
 
 
-def plot_vector_field(vector_field, name, glyph_factor=0.0, warp_factor=0.0):
+def plot_vector_field(
+        vector_field: dolfinx.fem.Function, name: str, glyph_factor: float = 0.0, warp_factor: float = 0.0) -> None:
+    """
+    Plot a vector field with pyvista.
+
+    Parameters
+    ----------
+    vector_field : dolfinx.fem.Function
+        Function to be plotted, which contains a vector field.
+    name : str
+        Name of the quantity stored in the vector field.
+    glyph_factor : float, optional
+        If provided, the vector field is represented using a gylph, scaled by this factor.
+    warp_factor : float, optional
+        If provided then the factor is used to produce a warped representation
+        the field; if not provided then the magnitude of the vector field will be plotted on the mesh.
+        Only used when `glyph_factor` is not provided.
+    """
     mesh = vector_field.function_space.mesh
     assert mesh.topology.dim > 1
     _plot_vector_field_pyvista(mesh, vector_field, name, glyph_factor, warp_factor)
 
 
-def _plot_vector_field_pyvista(mesh, vector_field, name, glyph_factor, warp_factor):
+def _plot_vector_field_pyvista(
+        mesh: dolfinx.mesh.Mesh, vector_field: dolfinx.fem.Function, name: str, glyph_factor: float,
+        warp_factor: float) -> None:
     grid = _dolfinx_to_pyvista_mesh(mesh)
     values = np.zeros((mesh.geometry.x.shape[0], 3))
     values[:, :2] = vector_field.compute_point_values()

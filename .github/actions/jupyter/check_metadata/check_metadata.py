@@ -8,8 +8,8 @@
 
 
 """
-Script to check that outputs and unnecessary metadata are not contained
-in jupyter notebooks to be stored in git.
+Script to check that outputs and unnecessary metadata are not contained in jupyter notebooks to be stored in git.
+
 Acknowledgements:
   * https://github.com/kynan/nbstripout/blob/master/nbstripout/_utils.py
   * https://github.com/kynan/nbstripout/issues/96
@@ -18,13 +18,16 @@ Acknowledgements:
 
 import io
 import sys
+
 import nbformat
 
 
 class MetadataError(RuntimeError):
-    def __init__(self, arg):
+    """Class to throw an error on the notebook metadata."""
+
+    def __init__(self, error_string: str, filename: str) -> None:
         super().__init__(
-            arg + " found in notebook " + filename + ".\nPlease\n"
+            error_string + " found in notebook " + filename + ".\nPlease\n"
             + "\t(1) install the jupyter_notebook_config.py hook available at "
             + "https://gist.github.com/francesco-ballarin/379ba630499559fa1072b2c526e57706\n"
             + "\t(2) open again each ipynb file that you changed, and save them again from "
@@ -34,9 +37,8 @@ class MetadataError(RuntimeError):
         )
 
 
-def check_recursive(d, key):
-    """Check for `key` in `d` where `key` is a `.`-delimited list of nested keys.
-    """
+def check_recursive(d: dict, key: str) -> bool:
+    """Check for `key` in `d` where `key` is a `.`-delimited list of nested keys."""
     nested = key.split(".")
     current = d
     for k in nested[:-1]:
@@ -93,20 +95,20 @@ with io.open(filename, "r", encoding="utf8") as f:
 # Check metadata fields
 for field in keys["metadata"]:
     if check_recursive(nb.metadata, field):
-        raise MetadataError("Metadata " + field)
+        raise MetadataError("Metadata " + field, filename)
 
 for cell in nb.cells:
     # Check for cell outputs
     if "outputs" in cell and len(cell["outputs"]) > 0:
-        raise MetadataError("Cell outputs")
+        raise MetadataError("Cell outputs", filename)
 
     # Check for cell execution counts
     if "execution_count" in cell and cell["execution_count"] is not None:
-        raise MetadataError("Cell execution counts")
+        raise MetadataError("Cell execution counts", filename)
 
     # Check cell metadata fields
     if "metadata" in cell:
         for fields in keys["cell"]["metadata"]:
             for field in fields:
                 if check_recursive(cell.metadata, field):
-                    raise MetadataError("Cell metadata " + field)
+                    raise MetadataError("Cell metadata " + field, filename)
