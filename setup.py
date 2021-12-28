@@ -3,6 +3,7 @@
 # This file is part of minirox.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
+"""minirox setup script."""
 
 from setuptools import find_packages, setup
 
@@ -34,8 +35,13 @@ setup(name="minirox",
           "pyvista"
       ],
       tests_require=[
+          "flake8-annotations",
+          "flake8-docstrings",
+          "flake8-isort",
+          "flake8-quotes",
           "nbconvert",
           "pytest",
+          "pytest-cov",
           "pytest-flake8"
       ],
       )

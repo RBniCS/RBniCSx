@@ -12,6 +12,7 @@
 *.py[cod]
 *.vtu
 *.xdmf
+.coverage
 .pytest_cache
 build
 dist
