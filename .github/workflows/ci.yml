@@ -41,12 +41,14 @@ jobs:
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> $GITHUB_ENV
           echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
-      - name: Install minirox
+      - name: Install dependencies
         run: |
           pip3 -q install --upgrade flake8==3.9.2 flake8-annotations flake8-docstrings flake8-isort flake8-quotes itkwidgets nbconvert numpy Pygments pytest pytest-cov pytest-flake8 pytest-xdist pyvista sympy
           PYVISTA_INIT=$(python3 -c 'import os, pyvista; print(os.path.join(os.path.dirname(pyvista.__file__), "__init__.py"))')
           sed -i "s/os.makedirs(USER_DATA_PATH)/os.makedirs(USER_DATA_PATH, exist_ok=True)/g" ${PYVISTA_INIT}
-          python3 setup.py -q install
+      - name: Install minirox
+        run: |
+          pip3 install .
       - name: Run flake8 checks
         run: |
           pytest --flake8 -m flake8
@@ -55,15 +57,35 @@ jobs:
         uses: ./.github/actions/jupyter/check_metadata
       - name: Run unit tests (serial)
         run: |
-          pytest -n auto --cov-report term-missing:skip-covered --cov-report html:coverage --cov=minirox tests/unit
+          pytest -n auto --cov=minirox tests/unit
+      - name: Upload coverage report as an artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-${{ matrix.petsc_arch }}
+          path: .coverage
+          retention-days: 1
       - name: Run unit tests (parallel)
         run: |
           mpirun -n 2 pytest tests/unit
       - name: Run tutorials (serial)
         run: |
           pytest -n auto tutorials
-      - name: Upload coverage report as an artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: coverage
-          path: coverage
+
+  combine_coverage_reports:
+    runs-on: ubuntu-latest
+    container: ubuntu
+    needs: [test]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          apt-get -qq update
+          export DEBIAN_FRONTEND="noninteractive"
+          apt-get install -qq python3-pip
+          pip3 -q install coverage
+      - name: Download coverage reports from artifacts
+        uses: actions/download-artifact@v2
+      - name: Combine coverage reports
+        run: |
+          coverage combine coverage-real/.coverage coverage-complex/.coverage
+          coverage report -m
