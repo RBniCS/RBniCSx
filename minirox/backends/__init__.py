@@ -11,9 +11,12 @@ from minirox.backends.export import (export_function, export_functions, export_m
 from minirox.backends.functions_list import FunctionsList
 from minirox.backends.import_ import (import_function, import_functions, import_matrices, import_matrix, import_vector,
                                       import_vectors)
+from minirox.backends.projection import create_online_matrix, create_online_vector
 from minirox.backends.tensors_list import TensorsList
 
 __all__ = [
+    "create_online_matrix",
+    "create_online_vector",
     "export_function",
     "export_functions",
     "export_matrices",
