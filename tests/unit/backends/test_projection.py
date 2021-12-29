@@ -53,11 +53,9 @@ def test_projection_online_matrix_set() -> None:
             online_mat.setValue(i, j, i * 2 + j + 1)
     online_mat.assemble()
     online_mat.view()
-    # Elemental backend does not support __getitem___, so temporarily convert to dense backend.
-    online_mat_dense = online_mat.convert(petsc4py.PETSc.Mat.Type.DENSE)
     for i in range(2):
         for j in range(3):
-            assert online_mat_dense[i, j] == i * 2 + j + 1
+            assert online_mat[i, j] == i * 2 + j + 1
 
 
 def test_projection_online_linear_solve() -> None:
@@ -73,7 +71,6 @@ def test_projection_online_linear_solve() -> None:
     ksp = petsc4py.PETSc.KSP().create(online_solution.comm)
     ksp.setType(petsc4py.PETSc.KSP.Type.PREONLY)
     ksp.getPC().setType(petsc4py.PETSc.PC.Type.LU)
-    ksp.getPC().setFactorSolverType("elemental")
     ksp.setFromOptions()
     ksp.setOperators(online_mat)
     ksp.solve(online_vec, online_solution)
@@ -94,7 +91,7 @@ def test_projection_online_eigenvalue_solve() -> None:
     online_mat_right.assemble()
 
     eps = slepc4py.SLEPc.EPS().create(online_mat_left.comm)
-    eps.setType(slepc4py.SLEPc.EPS.Type.ELEMENTAL)
+    eps.setType(slepc4py.SLEPc.EPS.Type.LAPACK)
     eps.setProblemType(slepc4py.SLEPc.EPS.ProblemType.GHEP)
     eps.setWhichEigenpairs(slepc4py.SLEPc.EPS.Which.SMALLEST_REAL)
     eps.setFromOptions()
@@ -132,7 +129,6 @@ def test_projection_online_nonlinear_solve() -> None:
     snes = petsc4py.PETSc.SNES().create(mpi4py.MPI.COMM_SELF)
     snes.getKSP().setType(petsc4py.PETSc.KSP.Type.PREONLY)
     snes.getKSP().getPC().setType(petsc4py.PETSc.PC.Type.LU)
-    snes.getKSP().getPC().setFactorSolverType("elemental")
 
     problem = NonlinearProblem()
     online_residual = minirox.backends.create_online_vector(2)

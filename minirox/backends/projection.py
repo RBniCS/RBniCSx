@@ -41,7 +41,7 @@ def create_online_matrix(M: int, N: int) -> petsc4py.PETSc.Mat:
         Allocated online matrix.
     """
     mat = petsc4py.PETSc.Mat().create(comm=mpi4py.MPI.COMM_SELF)
-    mat.setType(petsc4py.PETSc.Mat.Type.ELEMENTAL)
+    mat.setType(petsc4py.PETSc.Mat.Type.DENSE)
     mat.setSizes((M, N))
     mat.setUp()
     return mat
