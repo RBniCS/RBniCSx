@@ -11,10 +11,11 @@ import os
 import typing
 
 import dolfinx.fem
+import numpy as np
 import petsc4py
 
-from minirox.backends.export import export_function
-from minirox.backends.import_ import import_function
+from minirox.backends.export import export_functions
+from minirox.backends.import_ import import_functions
 
 
 class FunctionsList(object):
@@ -30,15 +31,18 @@ class FunctionsList(object):
     ----------
     _space : dolfinx.fem.FunctionSpace
         Finite element space provided as input.
-    _list : List[dolfinx.fem.FunctionSpace]
+    _comm : mpi4py.MPI.Intracomm
+        MPI communicator, derived from the finite element space provided as input.
+    _list : tpying.List[dolfinx.fem.Function]
         Internal storage.
     """
 
     def __init__(self, space: dolfinx.fem.FunctionSpace) -> None:
         self._space = space
+        self._comm = space.mesh.comm
         self._list = list()
 
-    def enrich(self, function: dolfinx.fem.Function) -> None:
+    def append(self, function: dolfinx.fem.Function) -> None:
         """
         Append a dolfinx.fem.Function to the list.
 
@@ -65,12 +69,11 @@ class FunctionsList(object):
             Name of the file where to export the list.
         """
         # Save length
-        if self._space.comm.rank == 0:
+        if self._comm.rank == 0:
             with open(os.path.join(directory, filename + ".length"), "w") as length_file:
                 length_file.write(str(len(self._list)))
         # Save functions
-        for (index, function) in enumerate(self._list):
-            export_function(function, directory, filename + "_" + str(index))
+        export_functions(self._list, np.arange(len(self._list), dtype=float), directory, filename)
 
     def load(self, directory: str, filename: str) -> None:
         """
@@ -85,17 +88,13 @@ class FunctionsList(object):
         """
         assert len(self._list) == 0
         # Load length
-        if self._space.comm.rank == 0:
-            with open(os.path.join(str(directory), filename + ".length"), "r") as length_file:
+        length = 0
+        if self._comm.rank == 0:
+            with open(os.path.join(directory, filename + ".length"), "r") as length_file:
                 length = int(length_file.readline())
-        else:
-            length = 0
-        length = self._space.comm.bcast(length, root=0)
+        length = self._comm.bcast(length, root=0)
         # Load functions
-        for index in range(length):
-            function = dolfinx.fem.Function(self._space)
-            import_function(function, directory, filename + "_" + str(index))
-            self.enrich(function)
+        self._list = import_functions(self._space, directory, filename)
 
     def __mul__(self, other: petsc4py.PETSc.Vec) -> dolfinx.fem.Function:
         """
@@ -113,7 +112,14 @@ class FunctionsList(object):
         """
         if isinstance(other, petsc4py.PETSc.Vec):
             assert other.getType() == petsc4py.PETSc.Vec.Type.SEQ
-            pass  # TODO functions list mul online vector
+            assert other.size == len(self._list)
+            if other.size == 0:
+                return None
+            else:
+                output = dolfinx.fem.Function(self._space)
+                for i in range(other.size):
+                    output.vector.axpy(other[i], self._list[i].vector)
+                return output
         else:
             return NotImplemented
 
@@ -127,12 +133,12 @@ class FunctionsList(object):
 
         Parameters
         ----------
-        key : int or slice
+        key : typing.Union[int, slice]
             Index (if int) or indices (if slice) to be extracted.
 
         Returns
         -------
-        dolfinx.fem.Function or FunctionsList
+        typing.Union[dolfinx.fem.Function, FunctionsList]
             Function at position `key` if `key` is an integer, otherwise FunctionsList obtained by
             storing every element at the indices in the slice `key`.
         """
