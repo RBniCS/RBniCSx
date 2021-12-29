@@ -9,6 +9,7 @@ import dolfinx.fem
 import dolfinx.mesh
 import dolfinx.plot
 import numpy as np
+import numpy.typing as npt
 import plotly.graph_objects as go
 import pyvista
 
@@ -56,7 +57,7 @@ def _plot_mesh_pyvista(mesh: dolfinx.mesh.Mesh) -> None:
     plotter.show()
 
 
-def plot_mesh_entities(mesh: dolfinx.mesh.Mesh, dim: int, entities: np.ndarray) -> None:
+def plot_mesh_entities(mesh: dolfinx.mesh.Mesh, dim: int, entities: npt.NDArray[int]) -> None:
     """
     Plot dolfinx.mesh.Mesh with pyvista, highlighting the provided `dim`-dimensional entities.
 
@@ -66,7 +67,7 @@ def plot_mesh_entities(mesh: dolfinx.mesh.Mesh, dim: int, entities: np.ndarray) 
         Mesh to be plotted. Current implementation is limited to 2D or 3D meshes.
     dim : int
         Dimension of the entities
-    entities : np.ndarray
+    entities : numpy.typing.NDArray[int]
         Array containing the IDs of the entities to be highlighted.
     """
     assert mesh.topology.dim > 1
@@ -87,7 +88,8 @@ def plot_mesh_tags(mesh_tags: dolfinx.mesh.MeshTags) -> None:
     _plot_mesh_entities_pyvista(mesh, mesh_tags.dim, mesh_tags.indices, mesh_tags.values)
 
 
-def _plot_mesh_entities_pyvista(mesh: dolfinx.mesh.Mesh, dim: int, indices: np.ndarray, values: np.ndarray) -> None:
+def _plot_mesh_entities_pyvista(
+        mesh: dolfinx.mesh.Mesh, dim: int, indices: npt.NDArray[int], values: npt.NDArray[int]) -> None:
     num_cells = mesh.topology.index_map(dim).size_local + mesh.topology.index_map(dim).num_ghosts
     all_values = np.zeros(num_cells)
     for (index, value) in zip(indices, values):
