@@ -58,7 +58,7 @@ def test_export_import_vector(mesh: dolfinx.mesh.Mesh, tempdir: str) -> None:
     """Check I/O for a petsc4py.PETSc.Vec."""
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
     v = ufl.TestFunction(V)
-    linear_form = v * ufl.dx
+    linear_form = ufl.inner(1, v) * ufl.dx
     vector = dolfinx.fem.assemble_vector(linear_form)
     minirox.backends.export_vector(vector, tempdir, "vector")
 
@@ -70,7 +70,7 @@ def test_export_import_vectors(mesh: dolfinx.mesh.Mesh, tempdir: str) -> None:
     """Check I/O for a list of petsc4py.PETSc.Vec."""
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
     v = ufl.TestFunction(V)
-    linear_forms = [(i + 1) * v * ufl.dx for i in range(2)]
+    linear_forms = [ufl.inner(i + 1, v) * ufl.dx for i in range(2)]
     vectors = [dolfinx.fem.assemble_vector(linear_form) for linear_form in linear_forms]
     minirox.backends.export_vectors(vectors, tempdir, "vectors")
 
@@ -85,7 +85,7 @@ def test_export_import_matrix(mesh: dolfinx.mesh.Mesh, tempdir: str) -> None:
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
     u = ufl.TrialFunction(V)
     v = ufl.TestFunction(V)
-    bilinear_form = u * v * ufl.dx
+    bilinear_form = ufl.inner(u, v) * ufl.dx
     matrix = dolfinx.fem.assemble_matrix(bilinear_form)
     matrix.assemble()
     minirox.backends.export_matrix(matrix, tempdir, "matrix")
@@ -99,7 +99,7 @@ def test_export_import_matrices(mesh: dolfinx.mesh.Mesh, tempdir: str) -> None:
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
     u = ufl.TrialFunction(V)
     v = ufl.TestFunction(V)
-    bilinear_forms = [(i + 1) * u * v * ufl.dx for i in range(2)]
+    bilinear_forms = [(i + 1) * ufl.inner(u, v) * ufl.dx for i in range(2)]
     matrices = [dolfinx.fem.assemble_matrix(bilinear_form) for bilinear_form in bilinear_forms]
     [matrix.assemble() for matrix in matrices]
     minirox.backends.export_matrices(matrices, tempdir, "matrices")

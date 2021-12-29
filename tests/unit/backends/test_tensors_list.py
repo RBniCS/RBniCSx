@@ -31,7 +31,7 @@ def tensors_list_vec(mesh: dolfinx.mesh.Mesh) -> minirox.backends.TensorsList:
     """Generate a minirox.backends.TensorsList with two petsc4py.PETSc.Vec entries."""
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
     v = ufl.TestFunction(V)
-    linear_forms = [(i + 1) * v * ufl.dx for i in range(2)]
+    linear_forms = [ufl.inner(i + 1, v) * ufl.dx for i in range(2)]
     vectors = [dolfinx.fem.assemble_vector(linear_form) for linear_form in linear_forms]
     tensors_list = minirox.backends.TensorsList(linear_forms[0], mesh.comm)
     [tensors_list.append(vector) for vector in vectors]
@@ -44,7 +44,7 @@ def tensors_list_mat(mesh: dolfinx.mesh.Mesh) -> minirox.backends.TensorsList:
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
     u = ufl.TrialFunction(V)
     v = ufl.TestFunction(V)
-    bilinear_forms = [(i + 1) * u * v * ufl.dx for i in range(2)]
+    bilinear_forms = [(i + 1) * ufl.inner(u, v) * ufl.dx for i in range(2)]
     matrices = [dolfinx.fem.assemble_matrix(bilinear_form) for bilinear_form in bilinear_forms]
     [matrix.assemble() for matrix in matrices]
     tensors_list = minirox.backends.TensorsList(bilinear_forms[0], mesh.comm)
