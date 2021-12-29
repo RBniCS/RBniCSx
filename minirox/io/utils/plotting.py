@@ -6,12 +6,14 @@
 """Utilities for plotting dolfinx objects with plotly and pyvista."""
 
 import os
+import typing
 
 import dolfinx.fem
 import dolfinx.mesh
 import dolfinx.plot
 import numpy as np
 import numpy.typing as npt
+import petsc4py
 import plotly.graph_objects as go
 import pyvista
 
@@ -93,7 +95,8 @@ def plot_mesh_tags(mesh_tags: dolfinx.mesh.MeshTags) -> None:
 
 
 def _plot_mesh_entities_pyvista(
-        mesh: dolfinx.mesh.Mesh, dim: int, indices: npt.NDArray[int], values: npt.NDArray[int]) -> None:
+    mesh: dolfinx.mesh.Mesh, dim: int, indices: npt.NDArray[int], values: npt.NDArray[int]
+) -> None:
     num_cells = mesh.topology.index_map(dim).size_local + mesh.topology.index_map(dim).num_ghosts
     all_values = np.zeros(num_cells)
     for (index, value) in zip(indices, values):
@@ -113,7 +116,9 @@ def _plot_mesh_entities_pyvista(
         plotter.show()
 
 
-def plot_scalar_field(scalar_field: dolfinx.fem.Function, name: str, warp_factor: float = 0.0) -> None:
+def plot_scalar_field(
+    scalar_field: dolfinx.fem.Function, name: str, warp_factor: float = 0.0, part: str = "real"
+) -> None:
     """
     Plot a scalar field with plotly (in 1D) or pyvista (in 2D or 3D).
 
@@ -127,17 +132,24 @@ def plot_scalar_field(scalar_field: dolfinx.fem.Function, name: str, warp_factor
         This argument is ignored for a field on a 1D mesh.
         For a 2D mesh: if provided then the factor is used to produce a warped representation
         the field; if not provided then the scalar field will be plotted on the mesh.
+    part : str, optional
+        Part of the solution (real or imag) to be plotted. By default, the real part is plotted.
+        The argument is ignored when plotting a real field.
     """
     mesh = scalar_field.function_space.mesh
     if mesh.topology.dim == 1:
-        _plot_scalar_field_plotly(mesh, scalar_field, name)
+        _plot_scalar_field_plotly(mesh, scalar_field, name, part)
     else:
-        _plot_scalar_field_pyvista(mesh, scalar_field, name, warp_factor)
+        _plot_scalar_field_pyvista(mesh, scalar_field, name, warp_factor, part)
 
 
-def _plot_scalar_field_plotly(mesh: dolfinx.mesh.Mesh, scalar_field: dolfinx.fem.Function, name: str) -> None:
+def _plot_scalar_field_plotly(
+    mesh: dolfinx.mesh.Mesh, scalar_field: dolfinx.fem.Function, name: str, part: str
+) -> None:
+    values = scalar_field.compute_point_values().reshape(-1)
+    values, name = _extract_part(values, name, part)
     fig = go.Figure(data=go.Scatter(
-        x=mesh.geometry.x[:, 0], y=scalar_field.compute_point_values().reshape(-1),
+        x=mesh.geometry.x[:, 0], y=values,
         line=dict(color="blue", width=2, dash="solid"),
         marker=dict(color="blue", size=10),
         mode="lines+markers"))
@@ -148,9 +160,12 @@ def _plot_scalar_field_plotly(mesh: dolfinx.mesh.Mesh, scalar_field: dolfinx.fem
 
 
 def _plot_scalar_field_pyvista(
-        mesh: dolfinx.mesh.Mesh, scalar_field: dolfinx.fem.Function, name: str, warp_factor: float) -> None:
+    mesh: dolfinx.mesh.Mesh, scalar_field: dolfinx.fem.Function, name: str, warp_factor: float, part: str
+) -> None:
+    values = scalar_field.compute_point_values()
+    values, name = _extract_part(values, name, part)
     grid = _dolfinx_to_pyvista_mesh(mesh)
-    grid.point_data[name] = scalar_field.compute_point_values()
+    grid.point_data[name] = values
     grid.set_active_scalars(name)
     plotter = pyvista.PlotterITK()
     if warp_factor != 0.0:
@@ -164,7 +179,9 @@ def _plot_scalar_field_pyvista(
 
 
 def plot_vector_field(
-        vector_field: dolfinx.fem.Function, name: str, glyph_factor: float = 0.0, warp_factor: float = 0.0) -> None:
+    vector_field: dolfinx.fem.Function, name: str, glyph_factor: float = 0.0, warp_factor: float = 0.0,
+    part: str = "real"
+) -> None:
     """
     Plot a vector field with pyvista.
 
@@ -180,18 +197,23 @@ def plot_vector_field(
         If provided then the factor is used to produce a warped representation
         the field; if not provided then the magnitude of the vector field will be plotted on the mesh.
         Only used when `glyph_factor` is not provided.
+    part : str, optional
+        Part of the solution (real or imag) to be plotted. By default, the real part is plotted.
+        The argument is ignored when plotting a real field.
     """
     mesh = vector_field.function_space.mesh
     assert mesh.topology.dim > 1
-    _plot_vector_field_pyvista(mesh, vector_field, name, glyph_factor, warp_factor)
+    _plot_vector_field_pyvista(mesh, vector_field, name, glyph_factor, warp_factor, part)
 
 
 def _plot_vector_field_pyvista(
-        mesh: dolfinx.mesh.Mesh, vector_field: dolfinx.fem.Function, name: str, glyph_factor: float,
-        warp_factor: float) -> None:
+    mesh: dolfinx.mesh.Mesh, vector_field: dolfinx.fem.Function, name: str, glyph_factor: float,
+    warp_factor: float, part: str
+) -> None:
     grid = _dolfinx_to_pyvista_mesh(mesh)
     values = np.zeros((mesh.geometry.x.shape[0], 3))
     values[:, :2] = vector_field.compute_point_values()
+    values, name = _extract_part(values, name, part)
     grid.point_data[name] = values
     plotter = pyvista.PlotterITK()
     if glyph_factor == 0.0:
@@ -211,3 +233,16 @@ def _plot_vector_field_pyvista(
         plotter.add_mesh(grid_background)
     if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
         plotter.show()
+
+
+def _extract_part(
+    values: npt.NDArray[petsc4py.PETSc.ScalarType], name: str, part: str
+) -> typing.Tuple[npt.NDArray[float], str]:
+    if np.issubdtype(petsc4py.PETSc.ScalarType, np.complexfloating):
+        if part == "real":
+            values = values.real
+            name = "real(" + name + ")"
+        elif part == "imag":
+            values = values.imag
+            name = "imag(" + name + ")"
+    return values, name

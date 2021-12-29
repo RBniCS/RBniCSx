@@ -9,6 +9,7 @@
 import dolfinx.mesh
 import mpi4py
 import numpy as np
+import petsc4py
 import pytest
 
 import minirox.io.utils
@@ -74,7 +75,11 @@ def test_plot_scalar_field_1d(mesh_1d: dolfinx.mesh.Mesh) -> None:
     u = dolfinx.fem.Function(V)
     with u.vector.localForm() as u_local:
         u_local[:] = np.arange(u_local.size)
-    minirox.io.utils.plot_scalar_field(u, "u")
+    if not np.issubdtype(petsc4py.PETSc.ScalarType, np.complexfloating):
+        minirox.io.utils.plot_scalar_field(u, "u")
+    else:
+        minirox.io.utils.plot_scalar_field(u, "u", part="real")
+        minirox.io.utils.plot_scalar_field(u, "u", part="imag")
 
 
 def test_plot_scalar_field_2d(mesh_2d: dolfinx.mesh.Mesh) -> None:
@@ -83,7 +88,11 @@ def test_plot_scalar_field_2d(mesh_2d: dolfinx.mesh.Mesh) -> None:
     u = dolfinx.fem.Function(V)
     with u.vector.localForm() as u_local:
         u_local[:] = np.arange(u_local.size)
-    minirox.io.utils.plot_scalar_field(u, "u")
+    if not np.issubdtype(petsc4py.PETSc.ScalarType, np.complexfloating):
+        minirox.io.utils.plot_scalar_field(u, "u")
+    else:
+        minirox.io.utils.plot_scalar_field(u, "u", part="real")
+        minirox.io.utils.plot_scalar_field(u, "u", part="imag")
     minirox.io.utils.plot_scalar_field(u, "u", warp_factor=1.0)
 
 
@@ -93,6 +102,10 @@ def test_plot_vector_field_2d(mesh_2d: dolfinx.mesh.Mesh) -> None:
     u = dolfinx.fem.Function(V)
     with u.vector.localForm() as u_local:
         u_local[:] = np.arange(u_local.size)
-    minirox.io.utils.plot_vector_field(u, "u")
+    if not np.issubdtype(petsc4py.PETSc.ScalarType, np.complexfloating):
+        minirox.io.utils.plot_vector_field(u, "u")
+    else:
+        minirox.io.utils.plot_vector_field(u, "u", part="real")
+        minirox.io.utils.plot_vector_field(u, "u", part="imag")
     minirox.io.utils.plot_vector_field(u, "u", glyph_factor=1.0)
     minirox.io.utils.plot_vector_field(u, "u", warp_factor=1.0)
