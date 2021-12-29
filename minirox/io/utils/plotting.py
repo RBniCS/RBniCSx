@@ -5,6 +5,8 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Utilities for plotting dolfinx objects with plotly and pyvista."""
 
+import os
+
 import dolfinx.fem
 import dolfinx.mesh
 import dolfinx.plot
@@ -47,14 +49,16 @@ def _plot_mesh_plotly(mesh: dolfinx.mesh.Mesh) -> None:
         marker=dict(color="blue", size=10),
         mode="lines+markers"))
     fig.update_xaxes(title_text="x")
-    fig.show()
+    if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
+        fig.show()
 
 
 def _plot_mesh_pyvista(mesh: dolfinx.mesh.Mesh) -> None:
     grid = _dolfinx_to_pyvista_mesh(mesh)
     plotter = pyvista.PlotterITK()
     plotter.add_mesh(grid)
-    plotter.show()
+    if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
+        plotter.show()
 
 
 def plot_mesh_entities(mesh: dolfinx.mesh.Mesh, dim: int, entities: npt.NDArray[int]) -> None:
@@ -105,7 +109,8 @@ def _plot_mesh_entities_pyvista(
     grid.set_active_scalars(name)
     plotter = pyvista.PlotterITK()
     plotter.add_mesh(grid)
-    plotter.show()
+    if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
+        plotter.show()
 
 
 def plot_scalar_field(scalar_field: dolfinx.fem.Function, name: str, warp_factor: float = 0.0) -> None:
@@ -138,7 +143,8 @@ def _plot_scalar_field_plotly(mesh: dolfinx.mesh.Mesh, scalar_field: dolfinx.fem
         mode="lines+markers"))
     fig.update_xaxes(title_text="x")
     fig.update_yaxes(title_text=name)
-    fig.show()
+    if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
+        fig.show()
 
 
 def _plot_scalar_field_pyvista(
@@ -153,7 +159,8 @@ def _plot_scalar_field_pyvista(
         plotter.add_mesh(warped)
     else:
         plotter.add_mesh(grid)
-    plotter.show()
+    if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
+        plotter.show()
 
 
 def plot_vector_field(
@@ -202,4 +209,5 @@ def _plot_vector_field_pyvista(
         plotter.add_mesh(glyphs)
         grid_background = _dolfinx_to_pyvista_mesh(mesh, mesh.topology.dim - 1)
         plotter.add_mesh(grid_background)
-    plotter.show()
+    if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
+        plotter.show()
