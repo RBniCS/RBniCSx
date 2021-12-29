@@ -28,8 +28,19 @@ jobs:
       )
     runs-on: ubuntu-latest
     container: dolfinx/dolfinx
+    strategy:
+      matrix:
+        petsc_arch: [real, complex]
+      fail-fast: false
     steps:
       - uses: actions/checkout@v2
+      - name: Set PETSc scalar type
+        run: |
+          . /usr/local/bin/dolfinx-${{ matrix.petsc_arch }}-mode
+          echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> $GITHUB_ENV
+          echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
       - name: Install minirox
         run: |
           pip3 -q install --upgrade flake8==3.9.2 flake8-annotations flake8-docstrings flake8-isort flake8-quotes itkwidgets nbconvert numpy Pygments pytest pytest-cov pytest-flake8 pytest-xdist pyvista sympy
