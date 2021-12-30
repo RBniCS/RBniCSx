@@ -90,4 +90,4 @@ jobs:
       - name: Combine coverage reports
         run: |
           coverage combine coverage-real/.coverage coverage-complex/.coverage
-          coverage report -m
+          coverage report --fail-under=100 --show-missing --skip-covered
