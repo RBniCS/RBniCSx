@@ -10,7 +10,6 @@ import mpi4py
 import numpy as np
 import petsc4py
 import slepc4py
-import slepc4py.SLEPc
 
 import minirox.backends
 

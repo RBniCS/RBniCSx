@@ -11,7 +11,7 @@ This file is mainly responsible to call garbage collection and put a MPI barrier
 
 import gc
 
-import mpi4py.MPI
+import mpi4py
 
 
 def pytest_runtest_setup(item):
