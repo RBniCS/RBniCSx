@@ -1,0 +1,8 @@
+flake8-annotations
+flake8-docstrings
+flake8-isort
+flake8-quotes
+nbconvert
+pytest
+pytest-cov
+pytest-flake8

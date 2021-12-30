@@ -1,0 +1,5 @@
+fenics-dolfinx
+mpi4py
+numpy
+petsc4py
+slepc4py

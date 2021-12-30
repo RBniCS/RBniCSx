@@ -7,6 +7,11 @@
 
 from setuptools import find_packages, setup
 
+with open("requirements.txt") as f:
+    install_requires = f.read().splitlines()
+with open("tutorials/requirements.txt") as f:
+    install_requires += f.read().splitlines()
+
 setup(name="minirox",
       description="Reduced order modelling tutorials in FEniCSx",
       long_description="Reduced order modelling tutorials in FEniCSx",
@@ -29,19 +34,5 @@ setup(name="minirox",
       ],
       packages=find_packages(),
       include_package_data=True,
-      install_requires=[
-          "fenics-dolfinx",
-          "plotly",
-          "pyvista"
-      ],
-      tests_require=[
-          "flake8-annotations",
-          "flake8-docstrings",
-          "flake8-isort",
-          "flake8-quotes",
-          "nbconvert",
-          "pytest",
-          "pytest-cov",
-          "pytest-flake8"
-      ],
+      install_requires=install_requires
       )
