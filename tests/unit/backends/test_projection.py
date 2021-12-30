@@ -21,6 +21,14 @@ def test_projection_online_vector_size() -> None:
     assert global_size == 2
 
 
+def test_projection_online_vector_block_size() -> None:
+    """Check that the created online vector has the correct dimension (block initialization)."""
+    online_vec = minirox.backends.create_online_vector_block([2, 3])
+    local_size, global_size = online_vec.getSizes()
+    assert local_size == global_size
+    assert global_size == 5
+
+
 def test_projection_online_matrix_size() -> None:
     """Check that the created online matrix has the correct dimension."""
     online_mat = minirox.backends.create_online_matrix(2, 3)
@@ -33,6 +41,18 @@ def test_projection_online_matrix_size() -> None:
     assert global_size1 == 3
 
 
+def test_projection_online_matrix_block_size() -> None:
+    """Check that the created online matrix has the correct dimension (block initialization)."""
+    online_mat = minirox.backends.create_online_matrix_block([2, 3], [4, 5])
+    dimension0, dimension1 = online_mat.getSizes()
+    local_size0, global_size0 = dimension0
+    local_size1, global_size1 = dimension1
+    assert local_size0 == global_size0
+    assert local_size1 == global_size1
+    assert global_size0 == 5
+    assert global_size1 == 9
+
+
 def test_projection_online_vector_set() -> None:
     """Set some entries in the created online vector."""
     online_vec = minirox.backends.create_online_vector(2)
@@ -41,6 +61,37 @@ def test_projection_online_vector_set() -> None:
     online_vec.view()
     for i in range(2):
         assert online_vec[i] == i + 1
+
+
+def test_projection_online_vector_set_local() -> None:
+    """Set some entries in the created online vector using the local setter."""
+    online_vec = minirox.backends.create_online_vector(2)
+    for i in range(2):
+        online_vec.setValueLocal(i, i + 1)
+    online_vec.view()
+    for i in range(2):
+        assert online_vec[i] == i + 1
+
+
+def test_projection_online_vector_block_set() -> None:
+    """Set some entries in the created online vector (block initialization and fill)."""
+    N = [2, 3]
+    online_vec = minirox.backends.create_online_vector_block(N)
+    blocks = np.hstack((0, np.cumsum(N)))
+    for I in range(2):  # noqa: E741
+        is_I = petsc4py.PETSc.IS().createGeneral(
+            np.arange(*blocks[I:I + 2], dtype=np.int32), comm=online_vec.comm)
+        is_I.view()
+        online_vec_I = online_vec.getSubVector(is_I)
+        for i in range(N[I]):
+            # online_vec_I.setValueLocal(i, ...) raises an error
+            online_vec_I.setValue(i, (I + 1) * 10 + (i + 1))
+        online_vec.restoreSubVector(is_I, online_vec_I)
+        is_I.destroy()
+    online_vec.view()
+    for I in range(2):  # noqa: E741
+        for i in range(N[I]):
+            assert online_vec[blocks[I] + i] == (I + 1) * 10 + (i + 1)
 
 
 def test_projection_online_matrix_set() -> None:
@@ -54,6 +105,53 @@ def test_projection_online_matrix_set() -> None:
     for i in range(2):
         for j in range(3):
             assert online_mat[i, j] == i * 2 + j + 1
+
+
+def test_projection_online_matrix_set_local() -> None:
+    """Set some entries in the created online matrix using the local setter."""
+    online_mat = minirox.backends.create_online_matrix(2, 3)
+    for i in range(2):
+        for j in range(3):
+            online_mat.setValueLocal(i, j, i * 2 + j + 1)
+    online_mat.assemble()
+    online_mat.view()
+    for i in range(2):
+        for j in range(3):
+            assert online_mat[i, j] == i * 2 + j + 1
+
+
+def test_projection_online_matrix_block_set() -> None:
+    """Set some entries in the created online matrix (block initialization and fill)."""
+    M = [2, 3]
+    N = [4, 5]
+    online_mat = minirox.backends.create_online_matrix_block(M, N)
+    row_blocks = np.hstack((0, np.cumsum(M)))
+    col_blocks = np.hstack((0, np.cumsum(N)))
+    for I in range(2):  # noqa: E741
+        is_I = petsc4py.PETSc.IS().createGeneral(
+            np.arange(*row_blocks[I:I + 2], dtype=np.int32), comm=online_mat.comm)
+        is_I.view()
+        for J in range(2):
+            is_J = petsc4py.PETSc.IS().createGeneral(
+                np.arange(*col_blocks[J:J + 2], dtype=np.int32), comm=online_mat.comm)
+            is_J.view()
+            online_mat_IJ = online_mat.getLocalSubMatrix(is_I, is_J)
+            for i in range(M[I]):
+                for j in range(N[J]):
+                    # online_mat_IJ.setValue(i, j, ...) causes a segmentation fault
+                    online_mat_IJ.setValueLocal(i, j, (I + 1) * 1000 + (J + 1) * 100 + (i + 1) * 10 + (j + 1))
+            online_mat_IJ.restoreLocalSubMatrix(is_I, is_J, online_mat_IJ)
+            is_J.destroy()
+        is_I.destroy()
+    online_mat.assemble()
+    online_mat.view()
+    for I in range(2):  # noqa: E741
+        for J in range(2):
+            for i in range(M[I]):
+                for j in range(N[J]):
+                    assert (
+                        online_mat[row_blocks[I] + i, col_blocks[J] + j]
+                        == (I + 1) * 1000 + (J + 1) * 100 + (i + 1) * 10 + (j + 1))
 
 
 def test_projection_online_linear_solve() -> None:
