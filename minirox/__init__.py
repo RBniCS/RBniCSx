@@ -3,7 +3,6 @@
 # This file is part of minirox.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
-
 """minirox main module."""
 
 # Simplify import of mpi4py.MPI, petsc4py.PETSc and slepc4py.SLEPc in internal modules

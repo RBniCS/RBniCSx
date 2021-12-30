@@ -5,8 +5,6 @@
 # This file is part of minirox.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
-
-
 """
 Script to check that outputs and unnecessary metadata are not contained in jupyter notebooks to be stored in git.
 

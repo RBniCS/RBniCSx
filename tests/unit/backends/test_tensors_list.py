@@ -3,7 +3,6 @@
 # This file is part of minirox.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
-
 """Tests for minirox.backends.tensors_list module."""
 
 import dolfinx.mesh

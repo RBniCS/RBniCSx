@@ -3,7 +3,6 @@
 # This file is part of minirox.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
-
 """minirox backends module."""
 
 from minirox.backends.export import (export_function, export_functions, export_matrices, export_matrix, export_vector,

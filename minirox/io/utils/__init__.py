@@ -3,7 +3,6 @@
 # This file is part of minirox.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
-
 """minirox io utils module."""
 
 from minirox.io.utils.plotting import (plot_mesh, plot_mesh_entities, plot_mesh_tags, plot_scalar_field,
