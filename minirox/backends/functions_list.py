@@ -116,7 +116,7 @@ class FunctionsList(object):
 
     def __getitem__(self, key: typing.Union[int, slice]) -> typing.Union[dolfinx.fem.Function, FunctionsList]:
         """
-        Extract a single function from the list, or slice the list before its end.
+        Extract a single function from the list, or slice the list.
 
         Parameters
         ----------
@@ -132,9 +132,6 @@ class FunctionsList(object):
         if isinstance(key, int):
             return self._list[key]
         elif isinstance(key, slice):
-            assert key.start is None
-            assert key.step is None
-            assert key.stop is not None
             output = FunctionsList(self._space)
             output._list = self._list[key]
             return output

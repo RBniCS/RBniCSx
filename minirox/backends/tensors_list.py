@@ -159,7 +159,7 @@ class TensorsList(object):
     def __getitem__(self, key: typing.Union[int, slice]) -> typing.Union[
             petsc4py.PETSc.Mat, petsc4py.PETSc.Vec, TensorsList]:
         """
-        Extract a single tensor from the list, or slice the list before its end.
+        Extract a single tensor from the list, or slice the list.
 
         Parameters
         ----------
@@ -175,9 +175,6 @@ class TensorsList(object):
         if isinstance(key, int):
             return self._list[key]
         elif isinstance(key, slice):
-            assert key.start is None
-            assert key.step is None
-            assert key.stop is not None
             output = TensorsList(self._form, self._comm)
             output._list = self._list[key]
             return output

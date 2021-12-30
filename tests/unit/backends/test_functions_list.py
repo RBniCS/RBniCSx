@@ -60,7 +60,7 @@ def test_functions_list_getitem_int(functions_list: minirox.backends.FunctionsLi
 
 def test_functions_list_getitem_slice(functions_list: minirox.backends.FunctionsList) -> None:
     """Check minirox.backends.FunctionsList.__getitem__ with slice input."""
-    functions_list2 = functions_list[:2]
+    functions_list2 = functions_list[0:2]
     assert len(functions_list2) == 2
     assert np.allclose(functions_list2[0].vector.array, 1)
     assert np.allclose(functions_list2[1].vector.array, 2)

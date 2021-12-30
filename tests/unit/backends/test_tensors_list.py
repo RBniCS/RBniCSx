@@ -120,7 +120,7 @@ def test_tensors_list_getitem_int_mat(tensors_list_mat: minirox.backends.Tensors
 def test_tensors_list_getitem_slice_vec(tensors_list_vec: minirox.backends.TensorsList) -> None:
     """Check minirox.backends.TensorsList.__getitem__ with slice input in the case of petsc4py.PETSc.Vec content."""
     first_vector = dolfinx.fem.assemble_vector(tensors_list_vec._form)
-    tensors_list_vec2 = tensors_list_vec[:2]
+    tensors_list_vec2 = tensors_list_vec[0:2]
     assert len(tensors_list_vec2) == 2
     assert np.allclose(tensors_list_vec2[0].array, first_vector.array)
     assert np.allclose(tensors_list_vec2[1].array, 2 * first_vector.array)
@@ -130,7 +130,7 @@ def test_tensors_list_getitem_slice_mat(tensors_list_mat: minirox.backends.Tenso
     """Check minirox.backends.TensorsList.__getitem__ with slice input in the case of petsc4py.PETSc.Mat content."""
     first_matrix = dolfinx.fem.assemble_matrix(tensors_list_mat._form)
     first_matrix.assemble()
-    tensors_list_mat2 = tensors_list_mat[:2]
+    tensors_list_mat2 = tensors_list_mat[0:2]
     assert len(tensors_list_mat2) == 2
     assert np.allclose(utils.to_dense_matrix(tensors_list_mat2[0]), utils.to_dense_matrix(first_matrix))
     assert np.allclose(utils.to_dense_matrix(tensors_list_mat2[1]), 2 * utils.to_dense_matrix(first_matrix))
