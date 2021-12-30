@@ -74,7 +74,7 @@ def test_functions_list_getitem_wrong_type(functions_list: minirox.backends.Func
 
 def test_functions_list_setitem(functions_list: minirox.backends.FunctionsList) -> None:
     """Check minirox.backends.FunctionsList.__setitem__."""
-    V = functions_list[0].function_space
+    V = functions_list.function_space
     new_function = dolfinx.fem.Function(V)
     new_function.vector.set(3)
     functions_list[0] = new_function
@@ -87,7 +87,7 @@ def test_functions_list_save_load(functions_list: minirox.backends.FunctionsList
     """Check I/O for a minirox.backends.FunctionsList."""
     functions_list.save(tempdir, "functions_list")
 
-    V = functions_list[0].function_space
+    V = functions_list.function_space
     functions_list2 = minirox.backends.FunctionsList(V)
     functions_list2.load(tempdir, "functions_list")
 

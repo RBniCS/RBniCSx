@@ -16,13 +16,13 @@ import ufl
 from minirox.io import on_rank_zero
 
 
-def import_function(space: dolfinx.fem.FunctionSpace, directory: str, filename: str) -> dolfinx.fem.Function:
+def import_function(function_space: dolfinx.fem.FunctionSpace, directory: str, filename: str) -> dolfinx.fem.Function:
     """
     Import a dolfinx.fem.Function from file.
 
     Parameters
     ----------
-    space : dolfinx.fem.FunctionSpace
+    function_space : dolfinx.fem.FunctionSpace
         Finite element space on which the function to be imported lives.
     directory : str
         Directory where to import the function from.
@@ -34,8 +34,8 @@ def import_function(space: dolfinx.fem.FunctionSpace, directory: str, filename: 
     dolfinx.fem.Function
         Function imported from file.
     """
-    comm = space.mesh.comm
-    function = dolfinx.fem.Function(space)
+    comm = function_space.mesh.comm
+    function = dolfinx.fem.Function(function_space)
     viewer = petsc4py.PETSc.Viewer().createBinary(os.path.join(directory, filename + ".dat"), "r", comm)
     function.vector.load(viewer)
     viewer.destroy()
@@ -43,14 +43,14 @@ def import_function(space: dolfinx.fem.FunctionSpace, directory: str, filename: 
 
 
 def import_functions(
-    space: dolfinx.fem.FunctionSpace, directory: str, filename: str
+    function_space: dolfinx.fem.FunctionSpace, directory: str, filename: str
 ) -> typing.List[dolfinx.fem.Function]:
     """
     Import a list of dolfinx.fem.Function from file.
 
     Parameters
     ----------
-    space : dolfinx.fem.FunctionSpace
+    function_space : dolfinx.fem.FunctionSpace
         Finite element space on which the function to be imported lives.
     directory : str
         Directory where to import the function from.
@@ -62,7 +62,7 @@ def import_functions(
     typing.List[dolfinx.fem.Function]
         Functions imported from file.
     """
-    comm = space.mesh.comm
+    comm = function_space.mesh.comm
 
     # Read in length of the list
     def read_length() -> int:
@@ -75,7 +75,7 @@ def import_functions(
     for index in range(length):
         viewer = petsc4py.PETSc.Viewer().createBinary(
             os.path.join(directory, filename, str(index) + ".dat"), "r", comm)
-        function = dolfinx.fem.Function(space)
+        function = dolfinx.fem.Function(function_space)
         function.vector.load(viewer)
         functions.append(function)
         viewer.destroy()

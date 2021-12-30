@@ -23,12 +23,12 @@ class FunctionsList(object):
 
     Parameters
     ----------
-    space : dolfinx.fem.FunctionSpace
+    function_space : dolfinx.fem.FunctionSpace
         Common finite element space of any Function that will be added to this list.
 
     Attributes
     ----------
-    _space : dolfinx.fem.FunctionSpace
+    _function_space : dolfinx.fem.FunctionSpace
         Finite element space provided as input.
     _comm : mpi4py.MPI.Intracomm
         MPI communicator, derived from the finite element space provided as input.
@@ -36,10 +36,15 @@ class FunctionsList(object):
         Internal storage.
     """
 
-    def __init__(self, space: dolfinx.fem.FunctionSpace) -> None:
-        self._space = space
-        self._comm = space.mesh.comm
+    def __init__(self, function_space: dolfinx.fem.FunctionSpace) -> None:
+        self._function_space = function_space
+        self._comm = function_space.mesh.comm
         self._list = list()
+
+    @property
+    def function_space(self) -> dolfinx.fem.FunctionSpace:
+        """Return the common finite element space of any Function that will be added to this list."""
+        return self._function_space
 
     def append(self, function: dolfinx.fem.Function) -> None:
         """
@@ -81,7 +86,7 @@ class FunctionsList(object):
             Name of the file where to import the list from.
         """
         assert len(self._list) == 0
-        self._list = import_functions(self._space, directory, filename)
+        self._list = import_functions(self._function_space, directory, filename)
 
     def __mul__(self, other: petsc4py.PETSc.Vec) -> dolfinx.fem.Function:
         """
@@ -103,7 +108,7 @@ class FunctionsList(object):
             if other.size == 0:
                 return None
             else:
-                output = dolfinx.fem.Function(self._space)
+                output = dolfinx.fem.Function(self._function_space)
                 for i in range(other.size):
                     output.vector.axpy(other[i], self._list[i].vector)
                 return output
@@ -132,7 +137,7 @@ class FunctionsList(object):
         if isinstance(key, int):
             return self._list[key]
         elif isinstance(key, slice):
-            output = FunctionsList(self._space)
+            output = FunctionsList(self._function_space)
             output._list = self._list[key]
             return output
         else:
