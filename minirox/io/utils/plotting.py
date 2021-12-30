@@ -14,8 +14,16 @@ import dolfinx.plot
 import numpy as np
 import numpy.typing as npt
 import petsc4py
-import plotly.graph_objects as go
-import pyvista
+
+try:
+    import plotly.graph_objects as go
+except ImportError:  # pragma: no cover
+    pass
+
+try:
+    import pyvista
+except ImportError:  # pragma: no cover
+    pass
 
 
 def _dolfinx_to_pyvista_mesh(mesh: dolfinx.mesh.Mesh, dim: int = None) -> pyvista.UnstructuredGrid:

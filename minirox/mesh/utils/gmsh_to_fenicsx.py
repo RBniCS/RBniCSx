@@ -11,9 +11,13 @@ import typing
 import dolfinx.cpp
 import dolfinx.io
 import dolfinx.mesh
-import gmsh
 import mpi4py
 import numpy as np
+
+try:
+    import gmsh
+except ImportError:  # pragma: no cover
+    pass
 
 
 def gmsh_to_fenicsx(model: gmsh.model, gdim: int) -> typing.Tuple[
