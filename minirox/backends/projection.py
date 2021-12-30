@@ -123,7 +123,7 @@ def project_vector(L: ufl.Form, B: FunctionsList) -> petsc4py.PETSc.Vec:
     return b
 
 
-@project_vector.register(petsc4py.PETSc.Vec)
+@project_vector.register
 def _(b: petsc4py.PETSc.Vec, L: ufl.Form, B: FunctionsList) -> None:
     """
     Project a linear form onto the reduced basis.
@@ -169,7 +169,7 @@ def project_vector_block(L: typing.List[ufl.Form], B: typing.List[FunctionsList]
     return b
 
 
-@project_vector_block.register(petsc4py.PETSc.Vec)
+@project_vector_block.register
 def _(b: petsc4py.PETSc.Vec, L: typing.List[ufl.Form], B: typing.List[FunctionsList]) -> None:
     """
     Project a list of linear forms onto the reduced basis.
@@ -226,7 +226,7 @@ def project_matrix(
     return A
 
 
-@project_matrix.register(petsc4py.PETSc.Mat)
+@project_matrix.register
 def _(
     A: petsc4py.PETSc.Mat, a: ufl.Form, B: typing.Union[FunctionsList, typing.Tuple[FunctionsList]]
 ) -> None:
@@ -296,7 +296,7 @@ def project_matrix_block(
     return A
 
 
-@project_matrix_block.register(petsc4py.PETSc.Mat)
+@project_matrix_block.register
 def _(
     A: petsc4py.PETSc.Mat,
     a: typing.List[typing.List[ufl.Form]],
