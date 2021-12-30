@@ -43,7 +43,9 @@ jobs:
           echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
       - name: Install dependencies
         run: |
-          pip3 -q install --upgrade flake8==3.9.2 flake8-annotations flake8-docstrings flake8-isort flake8-quotes itkwidgets nbconvert numpy Pygments pytest pytest-cov pytest-flake8 pytest-xdist pyvista sympy
+          pip3 -q install flake8==3.9.2
+          pip3 -q install --upgrade numpy
+          pip3 -q install -r requirements.txt -r tests/requirements.txt -r tutorials/requirements.txt
           PYVISTA_INIT=$(python3 -c 'import os, pyvista; print(os.path.join(os.path.dirname(pyvista.__file__), "__init__.py"))')
           sed -i "s/os.makedirs(USER_DATA_PATH)/os.makedirs(USER_DATA_PATH, exist_ok=True)/g" ${PYVISTA_INIT}
       - name: Install minirox
