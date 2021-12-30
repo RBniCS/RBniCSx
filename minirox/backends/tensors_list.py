@@ -16,6 +16,7 @@ import petsc4py
 
 from minirox.backends.export import export_matrices, export_vectors
 from minirox.backends.import_ import import_matrices, import_vectors
+from minirox.io import on_rank_zero
 
 
 class TensorsList(object):
@@ -87,14 +88,12 @@ class TensorsList(object):
             Name of the file where to export the list.
         """
         # Save type
-        if self._comm.rank == 0:
+        def save_type() -> None:
             with open(os.path.join(directory, filename + ".type"), "w") as type_file:
                 type_file.write(self._type)
-        # Save length
-        if self._comm.rank == 0:
-            with open(os.path.join(directory, filename + ".length"), "w") as length_file:
-                length_file.write(str(len(self._list)))
-        # Save functions
+        on_rank_zero(self._comm, save_type)
+
+        # Save tensors
         if self._type == "Mat":
             export_matrices(self._list, directory, filename)
         elif self._type == "Vec":
@@ -112,19 +111,14 @@ class TensorsList(object):
             Name of the file where to import the list from.
         """
         assert len(self._list) == 0
+
         # Load type
-        type_ = 0
-        if self._comm.rank == 0:
+        def load_type() -> str:
             with open(os.path.join(directory, filename + ".type"), "r") as type_file:
-                type_ = type_file.readline()
-        self._type = self._comm.bcast(type_, root=0)
-        # Load length
-        length = 0
-        if self._comm.rank == 0:
-            with open(os.path.join(directory, filename + ".length"), "r") as length_file:
-                length = int(length_file.readline())
-        length = self._comm.bcast(length, root=0)
-        # Load functions
+                return type_file.readline()
+        self._type = on_rank_zero(self._comm, load_type)
+
+        # Load tensors
         if self._type == "Mat":
             self._list = import_matrices(self._form, self._comm, directory, filename)
         elif self._type == "Vec":
@@ -198,7 +192,7 @@ class TensorsList(object):
         ----------
         key : int
             Index to be updated.
-        function : typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]
+        item : typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]
             Tensor to be stored.
         """
         self._list[key] = item

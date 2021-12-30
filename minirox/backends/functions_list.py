@@ -7,7 +7,6 @@
 
 from __future__ import annotations
 
-import os
 import typing
 
 import dolfinx.fem
@@ -68,11 +67,6 @@ class FunctionsList(object):
         filename : str
             Name of the file where to export the list.
         """
-        # Save length
-        if self._comm.rank == 0:
-            with open(os.path.join(directory, filename + ".length"), "w") as length_file:
-                length_file.write(str(len(self._list)))
-        # Save functions
         export_functions(self._list, np.arange(len(self._list), dtype=float), directory, filename)
 
     def load(self, directory: str, filename: str) -> None:
@@ -87,13 +81,6 @@ class FunctionsList(object):
             Name of the file where to import the list from.
         """
         assert len(self._list) == 0
-        # Load length
-        length = 0
-        if self._comm.rank == 0:
-            with open(os.path.join(directory, filename + ".length"), "r") as length_file:
-                length = int(length_file.readline())
-        length = self._comm.bcast(length, root=0)
-        # Load functions
         self._list = import_functions(self._space, directory, filename)
 
     def __mul__(self, other: petsc4py.PETSc.Vec) -> dolfinx.fem.Function:
@@ -162,7 +149,7 @@ class FunctionsList(object):
         ----------
         key : int
             Index to be updated.
-        function : dolfinx.fem.Function
+        item : dolfinx.fem.Function
             Function to be stored.
         """
         self._list[key] = item

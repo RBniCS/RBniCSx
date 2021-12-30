@@ -12,6 +12,8 @@ import dolfinx.fem
 import mpi4py
 import petsc4py
 
+from minirox.io import on_rank_zero
+
 
 def import_function(space: dolfinx.fem.FunctionSpace, directory: str, filename: str) -> dolfinx.fem.Function:
     """
@@ -60,12 +62,13 @@ def import_functions(
         Functions imported from file.
     """
     comm = space.mesh.comm
+
     # Read in length of the list
-    length = 0
-    if comm.rank == 0:
+    def read_length() -> int:
         with open(os.path.join(directory, filename, "length.dat"), "r") as length_file:
-            length = int(length_file.readline())
-    length = comm.bcast(length, root=0)
+            return int(length_file.readline())
+    length = on_rank_zero(comm, read_length)
+
     # Read in the list
     functions = list()
     for index in range(length):
@@ -130,11 +133,11 @@ def import_matrices(
         Matrices imported from file.
     """
     # Read in length of the list
-    length = 0
-    if comm.rank == 0:
+    def read_length() -> int:
         with open(os.path.join(directory, filename, "length.dat"), "r") as length_file:
-            length = int(length_file.readline())
-    length = comm.bcast(length, root=0)
+            return int(length_file.readline())
+    length = on_rank_zero(comm, read_length)
+
     # Read in the list
     mats = list()
     for index in range(length):
@@ -199,11 +202,11 @@ def import_vectors(
         Vectors imported from file.
     """
     # Read in length of the list
-    length = 0
-    if comm.rank == 0:
+    def read_length() -> int:
         with open(os.path.join(directory, filename, "length.dat"), "r") as length_file:
-            length = int(length_file.readline())
-    length = comm.bcast(length, root=0)
+            return int(length_file.readline())
+    length = on_rank_zero(comm, read_length)
+
     # Read in the list
     vecs = list()
     for index in range(length):

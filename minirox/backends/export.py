@@ -13,6 +13,8 @@ import dolfinx.io
 import numpy.typing as npt
 import petsc4py
 
+from minirox.io import on_rank_zero
+
 
 def export_function(function: dolfinx.fem.Function, directory: str, filename: str) -> None:
     """
@@ -98,11 +100,14 @@ def export_matrices(mats: typing.List[petsc4py.PETSc.Mat], directory: str, filen
         Name of the file where to export the matrix.
     """
     os.makedirs(os.path.join(directory, filename), exist_ok=True)
-    # Write out length of the list
     comm = mats[0].comm
-    if comm.rank == 0:
+
+    # Write out length of the list
+    def write_length() -> None:
         with open(os.path.join(directory, filename, "length.dat"), "w") as length_file:
             length_file.write(str(len(mats)))
+    on_rank_zero(comm, write_length)
+
     # Write out the list
     for (index, mat) in enumerate(mats):
         viewer = petsc4py.PETSc.Viewer().createBinary(
@@ -144,11 +149,14 @@ def export_vectors(vecs: typing.List[petsc4py.PETSc.Vec], directory: str, filena
         Name of the file where to export the vector.
     """
     os.makedirs(os.path.join(directory, filename), exist_ok=True)
-    # Write out length of the list
     comm = vecs[0].comm
-    if comm.rank == 0:
+
+    # Write out length of the list
+    def write_length() -> None:
         with open(os.path.join(directory, filename, "length.dat"), "w") as length_file:
             length_file.write(str(len(vecs)))
+    on_rank_zero(comm, write_length)
+
     # Write out the list
     for (index, vec) in enumerate(vecs):
         viewer = petsc4py.PETSc.Viewer().createBinary(
