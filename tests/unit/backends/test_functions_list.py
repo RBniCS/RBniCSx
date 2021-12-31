@@ -35,6 +35,20 @@ def functions_list(mesh: dolfinx.mesh.Mesh) -> minirox.backends.FunctionsList:
     return functions_list
 
 
+def test_functions_list_function_space(functions_list: minirox.backends.FunctionsList) -> None:
+    """Check minirox.backends.FunctionsList.function_space."""
+    assert functions_list.function_space == functions_list[0].function_space
+
+
+def test_functions_list_extend(functions_list: minirox.backends.FunctionsList) -> None:
+    """Check minirox.backends.FunctionsList.extend."""
+    functions_list2 = minirox.backends.FunctionsList(functions_list.function_space)
+    functions_list2.extend(functions_list)
+    assert len(functions_list2) == 2
+    for i in range(2):
+        assert functions_list2[i] == functions_list[i]
+
+
 def test_functions_list_len(functions_list: minirox.backends.FunctionsList) -> None:
     """Check minirox.backends.FunctionsList.__len__."""
     assert len(functions_list) == 2

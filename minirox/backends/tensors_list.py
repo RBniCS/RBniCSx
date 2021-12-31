@@ -46,6 +46,21 @@ class TensorsList(object):
         self._list = list()
         self._type = None
 
+    @property
+    def form(self) -> str:
+        """Return the form which is used to assmemble the tensors."""
+        return self._form
+
+    @property
+    def comm(self) -> str:
+        """Return the common MPI communicator that the PETSc objects will use."""
+        return self._comm
+
+    @property
+    def type(self) -> str:
+        """Return the type of tensors (Mat or Vec) currently stored."""
+        return self._type
+
     def append(self, tensor: typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]) -> None:
         """
         Append a PETSc Mat or Vec to the list.
@@ -71,6 +86,20 @@ class TensorsList(object):
 
         # Append to storage
         self._list.append(tensor)
+
+    def extend(
+        self, tensors: typing.Union[typing.Iterable[petsc4py.PETSc.Mat], typing.Iterable[petsc4py.PETSc.Vec]]
+    ) -> None:
+        """
+        Extend the current list with an iterable of PETSc Mat or an iterable of Vec.
+
+        Parameters
+        ----------
+        tensors : typing.Union[typing.Iterable[petsc4py.PETSc.Mat], typing.Iterable[petsc4py.PETSc.Vec]]
+            Tensors to be appended.
+        """
+        for tensor in tensors:
+            self.append(tensor)
 
     def clear(self) -> None:
         """Clear the storage."""

@@ -57,6 +57,17 @@ class FunctionsList(object):
         """
         self._list.append(function)
 
+    def extend(self, functions: typing.Iterable[dolfinx.fem.Function]) -> None:
+        """
+        Extend the current list with an iterable of dolfinx.fem.Function.
+
+        Parameters
+        ----------
+        functions : typing.Iterable[dolfinx.fem.Function]
+            Functions to be appended.
+        """
+        self._list.extend(functions)
+
     def clear(self) -> None:
         """Clear the storage."""
         self._list = list()
