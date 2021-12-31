@@ -9,6 +9,7 @@ import dolfinx.mesh
 import dolfinx_utils.test.fixtures
 import mpi4py
 import numpy as np
+import petsc4py
 import pytest
 import ufl
 
@@ -59,6 +60,7 @@ def test_export_import_vector(mesh: dolfinx.mesh.Mesh, tempdir: str) -> None:
     v = ufl.TestFunction(V)
     linear_form = ufl.inner(1, v) * ufl.dx
     vector = dolfinx.fem.assemble_vector(linear_form)
+    vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
     minirox.backends.export_vector(vector, tempdir, "vector")
 
     vector2 = minirox.backends.import_vector(linear_form, mesh.comm, tempdir, "vector")
@@ -71,6 +73,8 @@ def test_export_import_vectors(mesh: dolfinx.mesh.Mesh, tempdir: str) -> None:
     v = ufl.TestFunction(V)
     linear_forms = [ufl.inner(i + 1, v) * ufl.dx for i in range(2)]
     vectors = [dolfinx.fem.assemble_vector(linear_form) for linear_form in linear_forms]
+    [vector.ghostUpdate(
+        addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE) for vector in vectors]
     minirox.backends.export_vectors(vectors, tempdir, "vectors")
 
     vectors2 = minirox.backends.import_vectors(linear_forms[0], mesh.comm, tempdir, "vectors")

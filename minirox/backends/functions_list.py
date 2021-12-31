@@ -122,6 +122,8 @@ class FunctionsList(object):
                 output = dolfinx.fem.Function(self._function_space)
                 for i in range(other.size):
                     output.vector.axpy(other[i], self._list[i].vector)
+                output.vector.ghostUpdate(
+                    addv=petsc4py.PETSc.InsertMode.INSERT, mode=petsc4py.PETSc.ScatterMode.FORWARD)
                 return output
         else:
             return NotImplemented

@@ -177,6 +177,9 @@ class TensorsList(object):
                 output.zeroEntries()
                 for i in range(other.size):
                     output.axpy(other[i], self._list[i])
+                if self._type == "Vec":
+                    output.ghostUpdate(
+                        addv=petsc4py.PETSc.InsertMode.INSERT, mode=petsc4py.PETSc.ScatterMode.FORWARD)
                 return output
         else:
             return NotImplemented

@@ -32,6 +32,8 @@ def tensors_list_vec(mesh: dolfinx.mesh.Mesh) -> minirox.backends.TensorsList:
     v = ufl.TestFunction(V)
     linear_forms = [ufl.inner(i + 1, v) * ufl.dx for i in range(2)]
     vectors = [dolfinx.fem.assemble_vector(linear_form) for linear_form in linear_forms]
+    [vector.ghostUpdate(
+        addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE) for vector in vectors]
     tensors_list = minirox.backends.TensorsList(linear_forms[0], mesh.comm)
     [tensors_list.append(vector) for vector in vectors]
     return tensors_list
@@ -115,6 +117,7 @@ def test_tensors_list_clear(tensors_list: minirox.backends.TensorsList) -> None:
 def test_tensors_list_iter_vec(tensors_list_vec: minirox.backends.TensorsList) -> None:
     """Check minirox.backends.TensorsList.__iter__ in the case of petsc4py.PETSc.Vec content."""
     first_vector = dolfinx.fem.assemble_vector(tensors_list_vec.form)
+    first_vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
     for (index, vector) in enumerate(tensors_list_vec):
         assert np.allclose(vector.array, (index + 1) * first_vector.array)
 
@@ -130,6 +133,7 @@ def test_tensors_list_iter_mat(tensors_list_mat: minirox.backends.TensorsList) -
 def test_tensors_list_getitem_int_vec(tensors_list_vec: minirox.backends.TensorsList) -> None:
     """Check minirox.backends.TensorsList.__getitem__ with integer input in the case of petsc4py.PETSc.Vec content."""
     first_vector = dolfinx.fem.assemble_vector(tensors_list_vec.form)
+    first_vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
     assert np.allclose(tensors_list_vec[0].array, first_vector.array)
     assert np.allclose(tensors_list_vec[1].array, 2 * first_vector.array)
 
@@ -145,6 +149,7 @@ def test_tensors_list_getitem_int_mat(tensors_list_mat: minirox.backends.Tensors
 def test_tensors_list_getitem_slice_vec(tensors_list_vec: minirox.backends.TensorsList) -> None:
     """Check minirox.backends.TensorsList.__getitem__ with slice input in the case of petsc4py.PETSc.Vec content."""
     first_vector = dolfinx.fem.assemble_vector(tensors_list_vec.form)
+    first_vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
     tensors_list_vec2 = tensors_list_vec[0:2]
     assert len(tensors_list_vec2) == 2
     assert np.allclose(tensors_list_vec2[0].array, first_vector.array)
@@ -170,9 +175,11 @@ def test_tensors_list_getitem_wrong_type(tensors_list_vec: minirox.backends.Tens
 def test_tensors_list_setitem_vec(tensors_list_vec: minirox.backends.TensorsList) -> None:
     """Check minirox.backends.TensorsList.__setitem__ in the case of petsc4py.PETSc.Vec content."""
     new_vector = dolfinx.fem.assemble_vector(3 * tensors_list_vec.form)
+    new_vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
     tensors_list_vec[0] = new_vector
 
     first_vector = dolfinx.fem.assemble_vector(tensors_list_vec.form)
+    first_vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
     assert np.allclose(tensors_list_vec[0].array, 3 * first_vector.array)
     assert np.allclose(tensors_list_vec[1].array, 2 * first_vector.array)
 
@@ -223,7 +230,8 @@ def test_tensors_list_mul_vec(tensors_list_vec: minirox.backends.TensorsList) ->
 
     vector = tensors_list_vec * online_vec
     first_vector = dolfinx.fem.assemble_vector(tensors_list_vec.form)
-    assert np.allclose(vector.array, 13 * first_vector)
+    first_vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
+    assert np.allclose(vector.array, 13 * first_vector.array)
 
 
 def test_tensors_list_mul_mat(tensors_list_mat: minirox.backends.TensorsList) -> None:
