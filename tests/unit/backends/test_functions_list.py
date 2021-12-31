@@ -30,7 +30,8 @@ def functions_list(mesh: dolfinx.mesh.Mesh) -> minirox.backends.FunctionsList:
     functions_list = minirox.backends.FunctionsList(V)
     for i in range(2):
         function = dolfinx.fem.Function(V)
-        function.vector.set(i + 1)
+        with function.vector.localForm() as function_local:
+            function_local.set(i + 1)
         functions_list.append(function)
     return functions_list
 
