@@ -8,6 +8,7 @@
 from minirox.backends.export import (export_function, export_functions, export_matrices, export_matrix, export_vector,
                                      export_vectors)
 from minirox.backends.functions_list import FunctionsList
+from minirox.backends.gram_schmidt import gram_schmidt, gram_schmidt_block
 from minirox.backends.import_ import (import_function, import_functions, import_matrices, import_matrix, import_vector,
                                       import_vectors)
 from minirox.backends.projection import (create_online_matrix, create_online_matrix_block, create_online_vector,
@@ -29,6 +30,8 @@ __all__ = [
     "export_vector",
     "export_vectors",
     "FunctionsList",
+    "gram_schmidt",
+    "gram_schmidt_block",
     "import_function",
     "import_functions",
     "import_matrices",
