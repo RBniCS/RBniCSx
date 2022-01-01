@@ -1,5 +1,7 @@
+flake8-alphabetize
 flake8-annotations
 flake8-docstrings
+flake8-import-restrictions
 flake8-isort
 flake8-quotes
 nbconvert
