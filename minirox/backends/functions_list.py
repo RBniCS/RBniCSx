@@ -143,7 +143,7 @@ class FunctionsList(object):
 
         Returns
         -------
-        typing.Union[dolfinx.fem.Function, FunctionsList]
+        typing.Union[dolfinx.fem.Function, minirox.backends.FunctionsList]
             Function at position `key` if `key` is an integer, otherwise FunctionsList obtained by
             storing every element at the indices in the slice `key`.
         """

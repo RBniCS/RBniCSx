@@ -38,6 +38,8 @@ class TensorsList(object):
         MPI communicator provided as input.
     _list : tpying.List[typing.Union[petsc4py.PETSc.Mat, PETSc.Vec]]
         Internal storage.
+    _type : str
+        A string representing the type of tensors (Mat or Vec) currently stored.
     """
 
     def __init__(self, form: ufl.Form, comm: mpi4py.MPI.Intracomm) -> None:
@@ -200,7 +202,7 @@ class TensorsList(object):
 
         Returns
         -------
-        typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec, TensorsList]
+        typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec, minirox.backends.TensorsList]
             Tensor at position `key` if `key` is an integer, otherwise TensorsList obtained by
             storing every element at the indices in the slice `key`.
         """

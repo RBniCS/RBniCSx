@@ -32,9 +32,13 @@ def gmsh_to_fenicsx(model: gmsh.model, gdim: int) -> typing.Tuple[
     gdim: int
         Geometrical dimension of problem.
 
-    Author
+    Notes
+    -----
+    Adapted from [1]_.
+
+    References
     ----------
-    J. S. Dokken, http://jsdokken.com/converted_files/tutorial_gmsh.html
+    .. [1] J.S. Dokken, http://jsdokken.com/converted_files/tutorial_gmsh.html
     """
     assert mpi4py.MPI.COMM_WORLD.size == 1, "This function has been simplified to the case of serial computations"
 

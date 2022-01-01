@@ -274,10 +274,8 @@ def project_matrix_block(
     ----------
     a : typing.List[typing.List[ufl.Form]]
         Bilinear forms to be projected.
-    B : typing.Union[
-            typing.List[minirox.backends.FunctionsList],
-            typing.Tuple[typing.List[minirox.backends.FunctionsList]]
-        ]
+    B : typing.Union[typing.List[minirox.backends.FunctionsList], \
+                     typing.Tuple[typing.List[minirox.backends.FunctionsList]]]
         Functions spanning the reduced basis space associated to each solution component.
         Two different basis of the same space can be provided, e.g. as in Petrov-Galerkin methods.
 
