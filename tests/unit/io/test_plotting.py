@@ -3,7 +3,7 @@
 # This file is part of minirox.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""Tests for minirox.io.utils.plotting module."""
+"""Tests for minirox.io.plotting module."""
 
 import dolfinx.mesh
 import mpi4py
@@ -11,7 +11,7 @@ import numpy as np
 import petsc4py
 import pytest
 
-import minirox.io.utils
+import minirox.io
 
 
 @pytest.fixture
@@ -28,26 +28,26 @@ def mesh_2d() -> dolfinx.mesh.Mesh:
 
 def test_plot_mesh_1d(mesh_1d: dolfinx.mesh.Mesh) -> None:
     """Check that plot_mesh executes without errors (1D case)."""
-    minirox.io.utils.plot_mesh(mesh_1d)
+    minirox.io.plot_mesh(mesh_1d)
 
 
 def test_plot_mesh_2d(mesh_2d: dolfinx.mesh.Mesh) -> None:
     """Check that plot_mesh executes without errors (2D case)."""
-    minirox.io.utils.plot_mesh(mesh_2d)
+    minirox.io.plot_mesh(mesh_2d)
 
 
 def test_plot_mesh_entities_2d(mesh_2d: dolfinx.mesh.Mesh) -> None:
     """Check that plot_mesh_entities executes without errors (2D mesh, 2D entities)."""
     cell_entities = dolfinx.mesh.locate_entities(
         mesh_2d, mesh_2d.topology.dim, lambda x: np.full((x.shape[1], ), True))
-    minirox.io.utils.plot_mesh_entities(mesh_2d, mesh_2d.topology.dim, cell_entities)
+    minirox.io.plot_mesh_entities(mesh_2d, mesh_2d.topology.dim, cell_entities)
 
 
 def test_plot_mesh_entities_boundary_2d(mesh_2d: dolfinx.mesh.Mesh) -> None:
     """Check that plot_mesh_entities executes without errors (2D mesh, 1D entities)."""
     boundary_entities = dolfinx.mesh.locate_entities_boundary(
         mesh_2d, mesh_2d.topology.dim - 1, lambda x: np.full((x.shape[1], ), True))
-    minirox.io.utils.plot_mesh_entities(mesh_2d, mesh_2d.topology.dim - 1, boundary_entities)
+    minirox.io.plot_mesh_entities(mesh_2d, mesh_2d.topology.dim - 1, boundary_entities)
 
 
 def test_plot_mesh_tags_2d(mesh_2d: dolfinx.mesh.Mesh) -> None:
@@ -56,7 +56,7 @@ def test_plot_mesh_tags_2d(mesh_2d: dolfinx.mesh.Mesh) -> None:
         mesh_2d, mesh_2d.topology.dim, lambda x: np.full((x.shape[1], ), True))
     cell_tags = dolfinx.mesh.MeshTags(
         mesh_2d, mesh_2d.topology.dim, cell_entities, np.ones_like(cell_entities))
-    minirox.io.utils.plot_mesh_tags(cell_tags)
+    minirox.io.plot_mesh_tags(cell_tags)
 
 
 def test_plot_mesh_tags_boundary_2d(mesh_2d: dolfinx.mesh.Mesh) -> None:
@@ -65,7 +65,7 @@ def test_plot_mesh_tags_boundary_2d(mesh_2d: dolfinx.mesh.Mesh) -> None:
         mesh_2d, mesh_2d.topology.dim - 1, lambda x: np.full((x.shape[1], ), True))
     boundary_tags = dolfinx.mesh.MeshTags(
         mesh_2d, mesh_2d.topology.dim - 1, boundary_entities, np.ones_like(boundary_entities))
-    minirox.io.utils.plot_mesh_tags(boundary_tags)
+    minirox.io.plot_mesh_tags(boundary_tags)
 
 
 def test_plot_scalar_field_1d(mesh_1d: dolfinx.mesh.Mesh) -> None:
@@ -75,10 +75,10 @@ def test_plot_scalar_field_1d(mesh_1d: dolfinx.mesh.Mesh) -> None:
     with u.vector.localForm() as u_local:
         u_local[:] = np.arange(u_local.size)
     if not np.issubdtype(petsc4py.PETSc.ScalarType, np.complexfloating):
-        minirox.io.utils.plot_scalar_field(u, "u")
+        minirox.io.plot_scalar_field(u, "u")
     else:
-        minirox.io.utils.plot_scalar_field(u, "u", part="real")
-        minirox.io.utils.plot_scalar_field(u, "u", part="imag")
+        minirox.io.plot_scalar_field(u, "u", part="real")
+        minirox.io.plot_scalar_field(u, "u", part="imag")
 
 
 def test_plot_scalar_field_2d(mesh_2d: dolfinx.mesh.Mesh) -> None:
@@ -88,11 +88,11 @@ def test_plot_scalar_field_2d(mesh_2d: dolfinx.mesh.Mesh) -> None:
     with u.vector.localForm() as u_local:
         u_local[:] = np.arange(u_local.size)
     if not np.issubdtype(petsc4py.PETSc.ScalarType, np.complexfloating):
-        minirox.io.utils.plot_scalar_field(u, "u")
+        minirox.io.plot_scalar_field(u, "u")
     else:
-        minirox.io.utils.plot_scalar_field(u, "u", part="real")
-        minirox.io.utils.plot_scalar_field(u, "u", part="imag")
-    minirox.io.utils.plot_scalar_field(u, "u", warp_factor=1.0)
+        minirox.io.plot_scalar_field(u, "u", part="real")
+        minirox.io.plot_scalar_field(u, "u", part="imag")
+    minirox.io.plot_scalar_field(u, "u", warp_factor=1.0)
 
 
 def test_plot_vector_field_2d(mesh_2d: dolfinx.mesh.Mesh) -> None:
@@ -102,9 +102,9 @@ def test_plot_vector_field_2d(mesh_2d: dolfinx.mesh.Mesh) -> None:
     with u.vector.localForm() as u_local:
         u_local[:] = np.arange(u_local.size)
     if not np.issubdtype(petsc4py.PETSc.ScalarType, np.complexfloating):
-        minirox.io.utils.plot_vector_field(u, "u")
+        minirox.io.plot_vector_field(u, "u")
     else:
-        minirox.io.utils.plot_vector_field(u, "u", part="real")
-        minirox.io.utils.plot_vector_field(u, "u", part="imag")
-    minirox.io.utils.plot_vector_field(u, "u", glyph_factor=1.0)
-    minirox.io.utils.plot_vector_field(u, "u", warp_factor=1.0)
+        minirox.io.plot_vector_field(u, "u", part="real")
+        minirox.io.plot_vector_field(u, "u", part="imag")
+    minirox.io.plot_vector_field(u, "u", glyph_factor=1.0)
+    minirox.io.plot_vector_field(u, "u", warp_factor=1.0)

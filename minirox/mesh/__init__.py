@@ -4,3 +4,9 @@
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """minirox mesh module."""
+
+from minirox.mesh.gmsh_to_fenicsx import gmsh_to_fenicsx
+
+__all__ = [
+    "gmsh_to_fenicsx"
+]

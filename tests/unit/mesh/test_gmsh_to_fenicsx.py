@@ -3,12 +3,12 @@
 # This file is part of minirox.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""Tests for minirox.io.utils.plotting module."""
+"""Tests for minirox.mesh.gmsh_to_fenicsx module."""
 
 import dolfinx_utils.test.skips
 import gmsh
 
-import minirox.mesh.utils
+import minirox.mesh
 
 
 @dolfinx_utils.test.skips.skip_in_parallel
@@ -37,5 +37,5 @@ def test_gmsh_to_fenicsx() -> None:
     gmsh.model.addPhysicalGroup(2, [domain], 1)
     gmsh.model.mesh.generate(2)
 
-    mesh, subdomains, boundaries = minirox.mesh.utils.gmsh_to_fenicsx(gmsh.model, gdim=2)
+    mesh, subdomains, boundaries = minirox.mesh.gmsh_to_fenicsx(gmsh.model, gdim=2)
     gmsh.finalize()

@@ -5,6 +5,8 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Tests for minirox.backends.export and minirox.backends.import_ modules."""
 
+import typing
+
 import dolfinx.mesh
 import dolfinx_utils.test.fixtures
 import mpi4py
@@ -14,7 +16,6 @@ import pytest
 import ufl
 
 import minirox.backends
-import utils  # noqa: I001
 
 tempdir = dolfinx_utils.test.fixtures.tempdir
 
@@ -83,7 +84,7 @@ def test_export_import_vectors(mesh: dolfinx.mesh.Mesh, tempdir: str) -> None:
         assert np.allclose(vector2.array, vector.array)
 
 
-def test_export_import_matrix(mesh: dolfinx.mesh.Mesh, tempdir: str) -> None:
+def test_export_import_matrix(mesh: dolfinx.mesh.Mesh, tempdir: str, to_dense_matrix: typing.Callable) -> None:
     """Check I/O for a petsc4py.PETSc.Mat."""
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
     u = ufl.TrialFunction(V)
@@ -94,10 +95,10 @@ def test_export_import_matrix(mesh: dolfinx.mesh.Mesh, tempdir: str) -> None:
     minirox.backends.export_matrix(matrix, tempdir, "matrix")
 
     matrix2 = minirox.backends.import_matrix(bilinear_form, mesh.comm, tempdir, "matrix")
-    assert np.allclose(utils.to_dense_matrix(matrix2), utils.to_dense_matrix(matrix))
+    assert np.allclose(to_dense_matrix(matrix2), to_dense_matrix(matrix))
 
 
-def test_export_import_matrices(mesh: dolfinx.mesh.Mesh, tempdir: str) -> None:
+def test_export_import_matrices(mesh: dolfinx.mesh.Mesh, tempdir: str, to_dense_matrix: typing.Callable) -> None:
     """Check I/O for a list of petsc4py.PETSc.Mat."""
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
     u = ufl.TrialFunction(V)
@@ -109,4 +110,4 @@ def test_export_import_matrices(mesh: dolfinx.mesh.Mesh, tempdir: str) -> None:
 
     matrices2 = minirox.backends.import_matrices(bilinear_forms[0], mesh.comm, tempdir, "matrices")
     for (matrix, matrix2) in zip(matrices, matrices2):
-        assert np.allclose(utils.to_dense_matrix(matrix2), utils.to_dense_matrix(matrix))
+        assert np.allclose(to_dense_matrix(matrix2), to_dense_matrix(matrix))

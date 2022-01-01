@@ -5,6 +5,8 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Tests for minirox.backends.tensors_list module."""
 
+import typing
+
 import dolfinx.mesh
 import dolfinx_utils.test.fixtures
 import mpi4py
@@ -14,7 +16,6 @@ import pytest
 import ufl
 
 import minirox.backends
-import utils  # noqa: I001
 
 tempdir = dolfinx_utils.test.fixtures.tempdir
 
@@ -122,12 +123,14 @@ def test_tensors_list_iter_vec(tensors_list_vec: minirox.backends.TensorsList) -
         assert np.allclose(vector.array, (index + 1) * first_vector.array)
 
 
-def test_tensors_list_iter_mat(tensors_list_mat: minirox.backends.TensorsList) -> None:
+def test_tensors_list_iter_mat(
+    tensors_list_mat: minirox.backends.TensorsList, to_dense_matrix: typing.Callable
+) -> None:
     """Check minirox.backends.TensorsList.__iter__ in the case of petsc4py.PETSc.Mat content."""
     first_matrix = dolfinx.fem.assemble_matrix(tensors_list_mat.form)
     first_matrix.assemble()
     for (index, matrix) in enumerate(tensors_list_mat):
-        assert np.allclose(utils.to_dense_matrix(matrix), (index + 1) * utils.to_dense_matrix(first_matrix))
+        assert np.allclose(to_dense_matrix(matrix), (index + 1) * to_dense_matrix(first_matrix))
 
 
 def test_tensors_list_getitem_int_vec(tensors_list_vec: minirox.backends.TensorsList) -> None:
@@ -138,15 +141,19 @@ def test_tensors_list_getitem_int_vec(tensors_list_vec: minirox.backends.Tensors
     assert np.allclose(tensors_list_vec[1].array, 2 * first_vector.array)
 
 
-def test_tensors_list_getitem_int_mat(tensors_list_mat: minirox.backends.TensorsList) -> None:
+def test_tensors_list_getitem_int_mat(
+    tensors_list_mat: minirox.backends.TensorsList, to_dense_matrix: typing.Callable
+) -> None:
     """Check minirox.backends.TensorsList.__getitem__ with integer input in the case of petsc4py.PETSc.Mat content."""
     first_matrix = dolfinx.fem.assemble_matrix(tensors_list_mat.form)
     first_matrix.assemble()
-    assert np.allclose(utils.to_dense_matrix(tensors_list_mat[0]), utils.to_dense_matrix(first_matrix))
-    assert np.allclose(utils.to_dense_matrix(tensors_list_mat[1]), 2 * utils.to_dense_matrix(first_matrix))
+    assert np.allclose(to_dense_matrix(tensors_list_mat[0]), to_dense_matrix(first_matrix))
+    assert np.allclose(to_dense_matrix(tensors_list_mat[1]), 2 * to_dense_matrix(first_matrix))
 
 
-def test_tensors_list_getitem_slice_vec(tensors_list_vec: minirox.backends.TensorsList) -> None:
+def test_tensors_list_getitem_slice_vec(
+    tensors_list_vec: minirox.backends.TensorsList, to_dense_matrix: typing.Callable
+) -> None:
     """Check minirox.backends.TensorsList.__getitem__ with slice input in the case of petsc4py.PETSc.Vec content."""
     first_vector = dolfinx.fem.assemble_vector(tensors_list_vec.form)
     first_vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
@@ -156,14 +163,16 @@ def test_tensors_list_getitem_slice_vec(tensors_list_vec: minirox.backends.Tenso
     assert np.allclose(tensors_list_vec2[1].array, 2 * first_vector.array)
 
 
-def test_tensors_list_getitem_slice_mat(tensors_list_mat: minirox.backends.TensorsList) -> None:
+def test_tensors_list_getitem_slice_mat(
+    tensors_list_mat: minirox.backends.TensorsList, to_dense_matrix: typing.Callable
+) -> None:
     """Check minirox.backends.TensorsList.__getitem__ with slice input in the case of petsc4py.PETSc.Mat content."""
     first_matrix = dolfinx.fem.assemble_matrix(tensors_list_mat.form)
     first_matrix.assemble()
     tensors_list_mat2 = tensors_list_mat[0:2]
     assert len(tensors_list_mat2) == 2
-    assert np.allclose(utils.to_dense_matrix(tensors_list_mat2[0]), utils.to_dense_matrix(first_matrix))
-    assert np.allclose(utils.to_dense_matrix(tensors_list_mat2[1]), 2 * utils.to_dense_matrix(first_matrix))
+    assert np.allclose(to_dense_matrix(tensors_list_mat2[0]), to_dense_matrix(first_matrix))
+    assert np.allclose(to_dense_matrix(tensors_list_mat2[1]), 2 * to_dense_matrix(first_matrix))
 
 
 def test_tensors_list_getitem_wrong_type(tensors_list_vec: minirox.backends.TensorsList) -> None:
@@ -184,7 +193,9 @@ def test_tensors_list_setitem_vec(tensors_list_vec: minirox.backends.TensorsList
     assert np.allclose(tensors_list_vec[1].array, 2 * first_vector.array)
 
 
-def test_tensors_list_setitem_mat(tensors_list_mat: minirox.backends.TensorsList) -> None:
+def test_tensors_list_setitem_mat(
+    tensors_list_mat: minirox.backends.TensorsList, to_dense_matrix: typing.Callable
+) -> None:
     """Check minirox.backends.TensorsList.__setitem__ in the case of petsc4py.PETSc.Mat content."""
     new_matrix = dolfinx.fem.assemble_matrix(3 * tensors_list_mat.form)
     new_matrix.assemble()
@@ -192,8 +203,8 @@ def test_tensors_list_setitem_mat(tensors_list_mat: minirox.backends.TensorsList
 
     first_matrix = dolfinx.fem.assemble_matrix(tensors_list_mat.form)
     first_matrix.assemble()
-    assert np.allclose(utils.to_dense_matrix(tensors_list_mat[0]), 3 * utils.to_dense_matrix(first_matrix))
-    assert np.allclose(utils.to_dense_matrix(tensors_list_mat[1]), 2 * utils.to_dense_matrix(first_matrix))
+    assert np.allclose(to_dense_matrix(tensors_list_mat[0]), 3 * to_dense_matrix(first_matrix))
+    assert np.allclose(to_dense_matrix(tensors_list_mat[1]), 2 * to_dense_matrix(first_matrix))
 
 
 def test_tensors_list_save_load_vec(tensors_list_vec: minirox.backends.TensorsList, tempdir: str) -> None:
@@ -209,7 +220,9 @@ def test_tensors_list_save_load_vec(tensors_list_vec: minirox.backends.TensorsLi
         assert np.allclose(vector2.array, vector.array)
 
 
-def test_tensors_list_save_load_mat(tensors_list_mat: minirox.backends.TensorsList, tempdir: str) -> None:
+def test_tensors_list_save_load_mat(
+    tensors_list_mat: minirox.backends.TensorsList, tempdir: str, to_dense_matrix: typing.Callable
+) -> None:
     """Check I/O for a minirox.backends.TensorsList in the case of petsc4py.PETSc.Mat content."""
     tensors_list_mat.save(tempdir, "tensors_list_mat")
 
@@ -219,7 +232,7 @@ def test_tensors_list_save_load_mat(tensors_list_mat: minirox.backends.TensorsLi
 
     assert len(tensors_list_mat2) == 2
     for (matrix, matrix2) in zip(tensors_list_mat, tensors_list_mat2):
-        assert np.allclose(utils.to_dense_matrix(matrix2), utils.to_dense_matrix(matrix))
+        assert np.allclose(to_dense_matrix(matrix2), to_dense_matrix(matrix))
 
 
 def test_tensors_list_mul_vec(tensors_list_vec: minirox.backends.TensorsList) -> None:
@@ -234,7 +247,9 @@ def test_tensors_list_mul_vec(tensors_list_vec: minirox.backends.TensorsList) ->
     assert np.allclose(vector.array, 13 * first_vector.array)
 
 
-def test_tensors_list_mul_mat(tensors_list_mat: minirox.backends.TensorsList) -> None:
+def test_tensors_list_mul_mat(
+    tensors_list_mat: minirox.backends.TensorsList, to_dense_matrix: typing.Callable
+) -> None:
     """Check minirox.backends.TensorsList.__mul__ in the case of petsc4py.PETSc.Mat content."""
     online_vec = petsc4py.PETSc.Vec().createSeq(2, comm=mpi4py.MPI.COMM_SELF)
     online_vec[0] = 3
@@ -243,7 +258,7 @@ def test_tensors_list_mul_mat(tensors_list_mat: minirox.backends.TensorsList) ->
     matrix = tensors_list_mat * online_vec
     first_matrix = dolfinx.fem.assemble_matrix(tensors_list_mat.form)
     first_matrix.assemble()
-    assert np.allclose(utils.to_dense_matrix(matrix), 13 * utils.to_dense_matrix(first_matrix))
+    assert np.allclose(to_dense_matrix(matrix), 13 * to_dense_matrix(first_matrix))
 
 
 def test_tensors_list_mul_empty(mesh: dolfinx.mesh.Mesh) -> None:

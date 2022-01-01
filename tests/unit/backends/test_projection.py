@@ -5,6 +5,8 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Tests for minirox.backends.projection module."""
 
+import typing
+
 import dolfinx.fem
 import dolfinx.mesh
 import mpi4py
@@ -15,7 +17,6 @@ import slepc4py
 import ufl
 
 import minirox.backends
-import utils  # noqa: I001
 
 
 @pytest.fixture
@@ -307,7 +308,7 @@ def test_projection_vector_block(mesh: dolfinx.mesh.Mesh, functions_list: miniro
 
 
 def test_projection_matrix_galerkin(
-    mesh: dolfinx.mesh.Mesh, functions_list: minirox.backends.FunctionsList
+    mesh: dolfinx.mesh.Mesh, functions_list: minirox.backends.FunctionsList, to_dense_matrix: typing.Callable
 ) -> None:
     """Test projection of a bilinear form onto the reduced basis (for use in Galerkin methods)."""
     basis_functions = functions_list[:2]
@@ -325,11 +326,11 @@ def test_projection_matrix_galerkin(
     online_mat2 = minirox.backends.project_matrix(0.4 * bilinear_form, basis_functions)
     minirox.backends.project_matrix(online_mat2, 0.6 * bilinear_form, basis_functions)
     assert online_mat2.size == (2, 2)
-    assert np.allclose(utils.to_dense_matrix(online_mat2), utils.to_dense_matrix(online_mat))
+    assert np.allclose(to_dense_matrix(online_mat2), to_dense_matrix(online_mat))
 
 
 def test_projection_matrix_petrov_galerkin(
-    mesh: dolfinx.mesh.Mesh, functions_list: minirox.backends.FunctionsList
+    mesh: dolfinx.mesh.Mesh, functions_list: minirox.backends.FunctionsList, to_dense_matrix: typing.Callable
 ) -> None:
     """Test projection of a bilinear form onto the reduced basis (for use in Petrov-Galerkin methods)."""
     basis_functions = (functions_list[:2], functions_list[2:5])
@@ -347,11 +348,11 @@ def test_projection_matrix_petrov_galerkin(
     online_mat2 = minirox.backends.project_matrix(0.4 * bilinear_form, basis_functions)
     minirox.backends.project_matrix(online_mat2, 0.6 * bilinear_form, basis_functions)
     assert online_mat2.size == (2, 3)
-    assert np.allclose(utils.to_dense_matrix(online_mat2), utils.to_dense_matrix(online_mat))
+    assert np.allclose(to_dense_matrix(online_mat2), to_dense_matrix(online_mat))
 
 
 def test_projection_matrix_block_galerkin(
-    mesh: dolfinx.mesh.Mesh, functions_list: minirox.backends.FunctionsList
+    mesh: dolfinx.mesh.Mesh, functions_list: minirox.backends.FunctionsList, to_dense_matrix: typing.Callable
 ) -> None:
     """Test projection of a matrix of bilinear forms onto the reduced basis (for use in Galerkin methods)."""
     basis_functions = [functions_list[:2], functions_list[2:5]]
@@ -382,11 +383,11 @@ def test_projection_matrix_block_galerkin(
         [[0.6 * bilinear_form for bilinear_form in bilinear_forms_] for bilinear_forms_ in bilinear_forms],
         basis_functions)
     assert online_mat2.size == (5, 5)
-    assert np.allclose(utils.to_dense_matrix(online_mat2), utils.to_dense_matrix(online_mat))
+    assert np.allclose(to_dense_matrix(online_mat2), to_dense_matrix(online_mat))
 
 
 def test_projection_matrix_block_petrov_galerkin(
-    mesh: dolfinx.mesh.Mesh, functions_list: minirox.backends.FunctionsList
+    mesh: dolfinx.mesh.Mesh, functions_list: minirox.backends.FunctionsList, to_dense_matrix: typing.Callable
 ) -> None:
     """Test projection of a matrix of bilinear forms onto the reduced basis (for use in Petrov-Galerkin methods)."""
     basis_functions = ([functions_list[:2], functions_list[2:5]], [functions_list[5:9], functions_list[9:14]])
@@ -417,4 +418,4 @@ def test_projection_matrix_block_petrov_galerkin(
         [[0.6 * bilinear_form for bilinear_form in bilinear_forms_] for bilinear_forms_ in bilinear_forms],
         basis_functions)
     assert online_mat2.size == (5, 9)
-    assert np.allclose(utils.to_dense_matrix(online_mat2), utils.to_dense_matrix(online_mat))
+    assert np.allclose(to_dense_matrix(online_mat2), to_dense_matrix(online_mat))

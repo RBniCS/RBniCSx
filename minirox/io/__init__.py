@@ -6,7 +6,13 @@
 """minirox io module."""
 
 from minirox.io.on_rank_zero import on_rank_zero
+from minirox.io.plotting import plot_mesh, plot_mesh_entities, plot_mesh_tags, plot_scalar_field, plot_vector_field
 
 __all__ = [
-    "on_rank_zero"
+    "on_rank_zero",
+    "plot_mesh",
+    "plot_mesh_entities",
+    "plot_mesh_tags",
+    "plot_scalar_field",
+    "plot_vector_field"
 ]
