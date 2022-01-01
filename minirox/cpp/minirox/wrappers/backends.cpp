@@ -1,4 +1,4 @@
-// Copyright (C) 2021 by the minirox authors
+// Copyright (C) 2021-2022 by the minirox authors
 //
 // This file is part of minirox.
 //
