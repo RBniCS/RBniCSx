@@ -17,13 +17,15 @@ import minirox.io
 @pytest.fixture
 def mesh_1d() -> dolfinx.mesh.Mesh:
     """Generate a unit interval mesh for use in tests in this file."""
-    return dolfinx.mesh.create_unit_interval(mpi4py.MPI.COMM_WORLD, 4)
+    comm = mpi4py.MPI.COMM_WORLD
+    return dolfinx.mesh.create_unit_interval(comm, 4 * comm.size)
 
 
 @pytest.fixture
 def mesh_2d() -> dolfinx.mesh.Mesh:
     """Generate a unit square mesh for use in tests in this file."""
-    return dolfinx.mesh.create_unit_square(mpi4py.MPI.COMM_WORLD, 2, 2)
+    comm = mpi4py.MPI.COMM_WORLD
+    return dolfinx.mesh.create_unit_square(comm, 2 * comm.size, 2 * comm.size)
 
 
 def test_plot_mesh_1d(mesh_1d: dolfinx.mesh.Mesh) -> None:

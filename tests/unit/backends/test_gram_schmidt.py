@@ -20,7 +20,8 @@ import minirox.backends
 @pytest.fixture
 def mesh() -> dolfinx.mesh.Mesh:
     """Generate a unit square mesh for use in tests in this file."""
-    return dolfinx.mesh.create_unit_square(mpi4py.MPI.COMM_WORLD, 2, 2)
+    comm = mpi4py.MPI.COMM_WORLD
+    return dolfinx.mesh.create_unit_square(comm, 2 * comm.size, 2 * comm.size)
 
 
 @pytest.fixture
