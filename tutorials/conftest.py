@@ -20,6 +20,11 @@ import nbformat
 import pytest
 
 
+def pytest_addoption(parser):
+    """Add option to write out to notebook files after run."""
+    parser.addoption("--nb-write-out", action="store_true", help="write out to notebook files after run")
+
+
 def pytest_collect_file(path, parent):
     """Collect tutorial files."""
     if path.ext == ".ipynb":
@@ -54,8 +59,9 @@ class TutorialItem(pytest.Item):
         try:
             execute_preprocessor.preprocess(nb)
         finally:
-            with open(self.parent.fspath, "w") as f:
-                nbformat.write(nb, f)
+            if self.config.getoption("--nb-write-out"):
+                with open(self.parent.fspath, "w") as f:
+                    nbformat.write(nb, f)
 
     def reportinfo(self):
         """Report information on the tutorial item."""
