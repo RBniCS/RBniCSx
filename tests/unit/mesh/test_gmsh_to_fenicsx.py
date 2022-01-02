@@ -5,13 +5,16 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Tests for minirox.mesh.gmsh_to_fenicsx module."""
 
-import dolfinx_utils.test.skips
 import gmsh
+import mpi4py
+import pytest
 
 import minirox.mesh
 
 
-@dolfinx_utils.test.skips.skip_in_parallel
+@pytest.mark.skipif(
+    mpi4py.MPI.COMM_WORLD.size > 2,
+    reason="Mesh is so small that it cannot be partitioned by more than 2 processors.")
 def test_gmsh_to_fenicsx() -> None:
     """Check that gmsh_to_fenicsx executes without errors."""
     gmsh.initialize()
@@ -39,3 +42,8 @@ def test_gmsh_to_fenicsx() -> None:
 
     mesh, subdomains, boundaries = minirox.mesh.gmsh_to_fenicsx(gmsh.model, gdim=2)
     gmsh.finalize()
+
+    dim = mesh.topology.dim
+    assert dim == 2
+    num_cells = mesh.topology.index_map(dim).size_local + mesh.topology.index_map(dim).num_ghosts
+    assert num_cells == 4
