@@ -40,7 +40,8 @@ def gram_schmidt(functions_list: FunctionsList, new_function: dolfinx.fem.Functi
             dolfinx.fem.assemble_scalar(ufl.replace(inner_product, {test: function_i, trial: function_j})),
             op=mpi4py.MPI.SUM)
 
-    orthonormalized = new_function.copy()
+    orthonormalized = dolfinx.fem.Function(new_function.function_space)
+    orthonormalized.x.array[:] = new_function.x.array
     for function_n in functions_list:
         orthonormalized.vector.axpy(
             - compute_inner_product(function_n, orthonormalized), function_n.vector)
