@@ -43,7 +43,6 @@ jobs:
           echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
       - name: Install dependencies
         run: |
-          pip3 -q install flake8==3.9.2
           pip3 -q install --upgrade numpy
           pip3 -q install -r requirements.txt -r tests/requirements.txt -r tutorials/requirements.txt
           PYVISTA_INIT=$(python3 -c 'import os, pyvista; print(os.path.join(os.path.dirname(pyvista.__file__), "__init__.py"))')
@@ -53,7 +52,8 @@ jobs:
           pip3 install .
       - name: Run flake8 checks
         run: |
-          pytest --flake8 -m flake8
+          flake8 .
+          nbqa flake8 .
       - name: Check for stray outputs, counts and metadata in ipynb files
         uses: RBniCS/check-jupyter-metadata-action@main
         with:

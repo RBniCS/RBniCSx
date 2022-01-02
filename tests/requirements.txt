@@ -5,6 +5,6 @@ flake8-import-restrictions
 flake8-isort
 flake8-quotes
 nbconvert
+nbqa
 pytest
 pytest-cov
-pytest-flake8
