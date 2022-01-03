@@ -73,9 +73,18 @@ jobs:
       - name: Run unit tests (parallel)
         run: |
           mpirun -n 2 pytest tests/unit
+      - name: Run notebooks tests (serial)
+        run: |
+          pytest -n auto --dist loadscope tests/notebooks
+      - name: Run notebooks tests (parallel)
+        run: |
+          pytest --np 2 tests/notebooks
       - name: Run tutorials (serial)
         run: |
-          pytest -n auto tutorials
+          pytest -n auto --dist loadscope tutorials
+      - name: Run tutorials (parallel)
+        run: |
+          pytest --np 2 tutorials
 
   combine_coverage_reports:
     runs-on: ubuntu-latest
