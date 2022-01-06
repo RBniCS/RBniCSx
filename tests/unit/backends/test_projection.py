@@ -237,6 +237,8 @@ def test_projection_online_eigenvalue_solve() -> None:
 def test_projection_online_nonlinear_solve() -> None:
     """Solve a nonlinear problem with online data structures."""
     class NonlinearProblem(object):
+        """Define a nonlinear problem."""
+
         def F(self, snes: petsc4py.PETSc.SNES, x: petsc4py.PETSc.Vec, F_vec: petsc4py.PETSc.Vec) -> None:
             """Assemble the residual of the problem."""
             F_vec[0] = (x[0] - 1)**2
@@ -244,6 +246,7 @@ def test_projection_online_nonlinear_solve() -> None:
 
         def J(self, snes: petsc4py.PETSc.SNES, x: petsc4py.PETSc.Vec, J_mat: petsc4py.PETSc.Mat,
               P_mat: petsc4py.PETSc.Mat) -> None:
+            """Assemble the jacobian of the problem."""
             J_mat[0, 0] = 2 * x[0] - 2
             J_mat[1, 1] = 2 * x[1] - 4
             J_mat.assemble()

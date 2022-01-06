@@ -7,6 +7,7 @@
 
 import typing
 
+import _pytest.fixtures
 import dolfinx.mesh
 import dolfinx_utils.test.fixtures
 import mpi4py
@@ -56,7 +57,7 @@ def tensors_list_mat(mesh: dolfinx.mesh.Mesh) -> minirox.backends.TensorsList:
 
 
 @pytest.fixture(params=["tensors_list_vec", "tensors_list_mat"])
-def tensors_list(request: object) -> minirox.backends.TensorsList:
+def tensors_list(request: _pytest.fixtures.SubRequest) -> minirox.backends.TensorsList:
     """Parameterize minirox.backends.TensorsList on petsc4py.PETSc.Mat and petsc4py.PETSc.Vec."""
     return request.getfixturevalue(request.param)
 
