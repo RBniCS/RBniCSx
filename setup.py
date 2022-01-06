@@ -5,12 +5,15 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """minirox setup script."""
 
+import re
+
 import setuptools
 
 with open("requirements.txt") as f:
     install_requires = f.read().splitlines()
 with open("tutorials/requirements.txt") as f:
     install_requires += f.read().splitlines()
+install_requires = [re.sub(r"(git\+.*egg=(.*))", r"\2 @ \1", requirement) for requirement in install_requires]
 
 setuptools.setup(
     name="minirox",

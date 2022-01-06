@@ -1,4 +1,4 @@
-flake8-alphabetize
+coverage
 flake8-annotations
 flake8-docstrings
 flake8-import-restrictions
@@ -9,4 +9,3 @@ nbconvert
 nbqa
 nbval
 pytest
-pytest-cov
