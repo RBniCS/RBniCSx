@@ -8,7 +8,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: "0 21 * * *"
+    - cron: "0 3 * * *"
   workflow_dispatch:
 
 jobs:
@@ -43,13 +43,13 @@ jobs:
           echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
       - name: Install dependencies
         run: |
-          pip3 -q install --upgrade numpy
           pip3 -q install -r requirements.txt -r tests/requirements.txt -r tutorials/requirements.txt
           PYVISTA_INIT=$(python3 -c 'import os, pyvista; print(os.path.join(os.path.dirname(pyvista.__file__), "__init__.py"))')
           sed -i "s/os.makedirs(USER_DATA_PATH)/os.makedirs(USER_DATA_PATH, exist_ok=True)/g" ${PYVISTA_INIT}
       - name: Install minirox
         run: |
           pip3 install .
+          python3 -c "import minirox.cpp"
       - name: Run flake8 checks
         run: |
           flake8 .
@@ -57,50 +57,27 @@ jobs:
       - name: Check for stray outputs, counts and metadata in ipynb files
         uses: RBniCS/check-jupyter-metadata-action@main
         with:
-          pattern: "tutorials/*.ipynb"
+          pattern: "tutorials/**/*.ipynb"
       - name: Run documentation generation
         run: |
           cd docs && make html
       - name: Run unit tests (serial)
+        id: run_unit_tests_serial
         run: |
-          pytest -n auto --cov=minirox tests/unit
-      - name: Upload coverage report as an artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: coverage-${{ matrix.petsc_arch }}
-          path: .coverage
-          retention-days: 1
+          COVERAGE_FILE=.coverage_unit_serial coverage run --source=minirox -m pytest -n auto tests/unit
       - name: Run unit tests (parallel)
+        id: run_unit_tests_parallel
         run: |
-          mpirun -n 2 pytest tests/unit
-      - name: Run notebooks tests (serial)
+          COVERAGE_FILE=.coverage_unit_parallel mpirun -n 2 coverage run --source=minirox --parallel-mode -m pytest tests/unit
+      - name: Combine coverage reports
         run: |
-          pytest -n auto --dist loadscope tests/notebooks
-      - name: Run notebooks tests (parallel)
-        run: |
-          pytest --np 2 tests/notebooks
+          coverage combine .coverage*
+          coverage report --fail-under=100 --show-missing --skip-covered
       - name: Run tutorials (serial)
+        id: run_tutorials_serial
         run: |
           pytest -n auto --dist loadscope tutorials
       - name: Run tutorials (parallel)
+        id: run_tutorials_parallel
         run: |
           pytest --np 2 tutorials
-
-  combine_coverage_reports:
-    runs-on: ubuntu-latest
-    container: ubuntu
-    needs: [test]
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install dependencies
-        run: |
-          apt-get -qq update
-          export DEBIAN_FRONTEND="noninteractive"
-          apt-get install -qq python3-pip
-          pip3 -q install coverage
-      - name: Download coverage reports from artifacts
-        uses: actions/download-artifact@v2
-      - name: Combine coverage reports
-        run: |
-          coverage combine coverage-real/.coverage coverage-complex/.coverage
-          coverage report --fail-under=100 --show-missing --skip-covered
