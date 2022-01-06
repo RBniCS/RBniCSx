@@ -3,34 +3,9 @@
 # This file is part of minirox.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""
-pytest configuration file for unit tests.
+"""pytest configuration file for unit tests."""
 
-This file is mainly responsible to call garbage collection and put a MPI barrier after each test.
-"""
+import multiphenicsx.test.unit_tests
 
-import gc
-
-import mpi4py
-import mpi4py.MPI
-
-
-def pytest_runtest_setup(item):
-    """Disable garbage collection before running tests."""
-    # Do the normal setup
-    item.setup()
-    # Disable garbage collection
-    gc.disable()
-
-
-def pytest_runtest_teardown(item, nextitem):
-    """Force garbage collection and put a MPI barrier after running tests."""
-    # Do the normal teardown
-    item.teardown()
-    # Re-enable garbage collection
-    gc.enable()
-    # Run garbage gollection
-    del item
-    gc.collect()
-    # Add a MPI barrier in parallel
-    mpi4py.MPI.COMM_WORLD.Barrier()
+pytest_runtest_setup = multiphenicsx.test.unit_tests.runtest_setup
+pytest_runtest_teardown = multiphenicsx.test.unit_tests.runtest_teardown
