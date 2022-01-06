@@ -8,7 +8,7 @@
 *.nbi
 *.py[cod]
 *.xdmf
-.coverage
+.coverage*
 .pytest_cache
 build
 dist
