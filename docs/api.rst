@@ -6,4 +6,3 @@ API reference
 
    minirox.backends
    minirox.io
-   minirox.mesh
