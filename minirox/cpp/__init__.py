@@ -8,19 +8,16 @@
 import os
 
 import mpi4py
+import multiphenicsx.cpp
 
-from minirox.cpp.compile_code import compile_code
-from minirox.cpp.compile_package import compile_package
-
-cpp_library = compile_package(
+cpp_library = multiphenicsx.cpp.compile_package(
     mpi4py.MPI.COMM_WORLD,
     "minirox",
     os.path.dirname(os.path.abspath(__file__)),
     "backends/frobenius_inner_product.cpp"
 )
 
-__all__ = [
-    "compile_code",
-    "compile_package",
-    "cpp_library"
-]
+del mpi4py
+del multiphenicsx.cpp
+
+del os
