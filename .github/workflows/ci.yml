@@ -81,3 +81,9 @@ jobs:
         id: run_tutorials_parallel
         run: |
           pytest --np 2 tutorials
+      - name: Warn if scheduled workflow is about to be disabled
+        if: github.repository == 'minirox/minirox' && github.ref == 'refs/heads/main' && github.event_name == 'schedule'
+        uses: fem-on-colab/warn-workflow-about-to-be-disabled-action@main
+        with:
+          workflow-filename: ci.yml
+          days-elapsed: 55
