@@ -143,7 +143,9 @@ def _(b: petsc4py.PETSc.Vec, L: ufl.Form, B: FunctionsList) -> None:
     for (n, fun) in enumerate(B):
         b.setValue(  # cannot use setValueLocal due to incompatibility with getSubVector
             n,
-            comm.allreduce(dolfinx.fem.assemble_scalar(ufl.replace(L, {test: fun})), op=mpi4py.MPI.SUM),
+            comm.allreduce(
+                dolfinx.fem.assemble_scalar(dolfinx.fem.form(ufl.replace(L, {test: fun}))),
+                op=mpi4py.MPI.SUM),
             addv=petsc4py.PETSc.InsertMode.ADD)
 
 
@@ -256,7 +258,7 @@ def _(
             A.setValueLocal(  # cannot use setValue due to incompatibility with getLocalSubMatrix
                 m, n,
                 comm.allreduce(
-                    dolfinx.fem.assemble_scalar(ufl.replace(a, {test: fun_m, trial: fun_n})),
+                    dolfinx.fem.assemble_scalar(dolfinx.fem.form(ufl.replace(a, {test: fun_m, trial: fun_n}))),
                     op=mpi4py.MPI.SUM),
                 addv=petsc4py.PETSc.InsertMode.ADD)
     A.assemble()
