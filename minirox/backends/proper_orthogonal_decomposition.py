@@ -11,7 +11,6 @@ import typing
 import dolfinx.fem
 import mpi4py
 import numpy as np
-import numpy.typing as npt
 import petsc4py
 import slepc4py
 import ufl
@@ -26,7 +25,7 @@ from minirox.cpp import cpp_library
 def proper_orthogonal_decomposition(
     snapshots: typing.Iterable, N: int, tol: float, normalize: bool = True
 ) -> typing.Tuple[
-    npt.NDArray[float], typing.Iterable, typing.List[petsc4py.PETSc.Vec]
+    np.typing.NDArray[float], typing.Iterable, typing.List[petsc4py.PETSc.Vec]
 ]:
     """
     Compute the proper orthogonal decomposition of a set of snapshots or tensors.
@@ -40,7 +39,7 @@ def proper_orthogonal_decomposition(
 def _(
     functions_list: FunctionsList, inner_product: ufl.Form, N: int, tol: float, normalize: bool = True
 ) -> typing.Tuple[
-    npt.NDArray[float], FunctionsList, typing.List[petsc4py.PETSc.Vec]
+    np.typing.NDArray[float], FunctionsList, typing.List[petsc4py.PETSc.Vec]
 ]:
     """
     Compute the proper orthogonal decomposition of a set of snapshots.
@@ -61,7 +60,7 @@ def _(
 
     Returns
     -------
-    npt.NDArray[float]
+    np.typing.NDArray[float]
         Eigenvalues of the correlation matrix, largest first. All computed eigenvalues are returned.
     minirox.backends.FunctionsList
         Retained modes from the snapshots. Only the first few modes are returned, till either the
@@ -93,7 +92,7 @@ def proper_orthogonal_decomposition_block(
     functions_lists: FunctionsList, inner_products: typing.List[ufl.Form], N: typing.Union[int, typing.List[int]],
     tol: typing.Union[float, typing.List[float]], normalize: bool = True
 ) -> typing.Tuple[
-    typing.List[npt.NDArray[float]], typing.List[FunctionsList], typing.List[typing.List[petsc4py.PETSc.Vec]]
+    typing.List[np.typing.NDArray[float]], typing.List[FunctionsList], typing.List[typing.List[petsc4py.PETSc.Vec]]
 ]:
     """
     Compute the proper orthogonal decomposition of a set of snapshots, where each snapshot is made of several blocks.
@@ -118,7 +117,7 @@ def proper_orthogonal_decomposition_block(
 
     Returns
     -------
-    typing.List[npt.NDArray[float]]
+    typing.List[np.typing.NDArray[float]]
         Eigenvalues of the correlation matrix, largest first. All computed eigenvalues are returned.
         The outer list collects the eigenvalues of different blocks.
     typing.List[minirox.backends.FunctionsList]
@@ -154,7 +153,7 @@ def proper_orthogonal_decomposition_block(
 def _(
     tensors_list: TensorsList, N: int, tol: float, normalize: bool = True
 ) -> typing.Tuple[
-    npt.NDArray[float], TensorsList, typing.List[petsc4py.PETSc.Vec]
+    np.typing.NDArray[float], TensorsList, typing.List[petsc4py.PETSc.Vec]
 ]:
     """
     Compute the proper orthogonal decomposition of a set of tensors.
@@ -172,7 +171,7 @@ def _(
 
     Returns
     -------
-    npt.NDArray[float]
+    np.typing.NDArray[float]
         Eigenvalues of the correlation matrix, largest first. All computed eigenvalues are returned.
     minirox.backends.TensorsList
         Retained modes from the tensors. Only the first few modes are returned, till either the
@@ -207,7 +206,7 @@ def _solve_eigenvalue_problem(
     snapshots: typing.Union[FunctionsList, TensorsList], compute_inner_product: typing.Callable,
     scale: typing.Callable, N: int, tol: float, normalize: bool
 ) -> typing.Tuple[
-    npt.NDArray[float],
+    np.typing.NDArray[float],
     typing.Union[
         typing.List[dolfinx.fem.Function], typing.List[petsc4py.PETSc.Mat], typing.List[petsc4py.PETSc.Vec]
     ],
@@ -233,7 +232,7 @@ def _solve_eigenvalue_problem(
 
     Returns
     -------
-    npt.NDArray[float]
+    np.typing.NDArray[float]
         Eigenvalues of the correlation matrix, largest first. All computed eigenvalues are returned.
     typing.Union[
         typing.List[dolfinx.fem.Function], typing.List[petsc4py.PETSc.Mat], typing.List[petsc4py.PETSc.Vec]

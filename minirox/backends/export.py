@@ -10,7 +10,7 @@ import typing
 
 import dolfinx.fem
 import dolfinx.io
-import numpy.typing as npt
+import numpy as np
 import petsc4py
 
 from minirox.io import on_rank_zero
@@ -40,7 +40,7 @@ def export_function(function: dolfinx.fem.Function, directory: str, filename: st
 
 
 def export_functions(
-    functions: typing.List[dolfinx.fem.Function], indices: npt.NDArray[float], directory: str, filename: str
+    functions: typing.List[dolfinx.fem.Function], indices: np.typing.NDArray[float], directory: str, filename: str
 ) -> None:
     """
     Export a list of dolfinx.fem.Function to file.

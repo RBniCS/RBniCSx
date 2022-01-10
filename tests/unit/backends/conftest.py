@@ -11,7 +11,7 @@ This file declares common fixtures used across several files.
 
 import typing
 
-import numpy.typing as npt
+import numpy as np
 import petsc4py
 import pytest
 import scipy.sparse
@@ -20,7 +20,7 @@ import scipy.sparse
 @pytest.fixture(scope="module")
 def to_dense_matrix() -> typing.Callable:
     """Fixture that returns a function to convert the local part of a sparse PETSc Mat into a dense numpy ndarray."""
-    def _(mat: petsc4py.PETSc.Mat) -> npt.NDArray[petsc4py.PETSc.ScalarType]:
+    def _(mat: petsc4py.PETSc.Mat) -> np.typing.NDArray[petsc4py.PETSc.ScalarType]:
         """Convert the local part of a sparse PETSc Mat into a dense numpy ndarray."""
         ai, aj, av = mat.getValuesCSR()
         return scipy.sparse.csr_matrix((av, aj, ai), shape=(mat.getLocalSize()[0], mat.getSize()[1])).toarray()
