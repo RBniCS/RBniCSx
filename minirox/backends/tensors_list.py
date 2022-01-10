@@ -10,9 +10,9 @@ from __future__ import annotations
 import os
 import typing
 
+import dolfinx.fem
 import mpi4py
 import petsc4py
-import ufl
 
 from minirox.backends.export import export_matrices, export_vectors
 from minirox.backends.import_ import import_matrices, import_vectors
@@ -25,14 +25,14 @@ class TensorsList(object):
 
     Parameters
     ----------
-    form : ufl.Form
+    form : dolfinx.fem.Form
         The form which is used to assmemble the tensors.
     comm : mpi4py.MPI.Intracomm
         Common MPI communicator that the PETSc objects will use.
 
     Attributes
     ----------
-    _form : ufl.Form
+    _form : dolfinx.fem.Form
         Form provided as input.
     _comm : mpi4py.MPI.Intracomm
         MPI communicator provided as input.
@@ -42,14 +42,14 @@ class TensorsList(object):
         A string representing the type of tensors (Mat or Vec) currently stored.
     """
 
-    def __init__(self, form: ufl.Form, comm: mpi4py.MPI.Intracomm) -> None:
+    def __init__(self, form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm) -> None:
         self._form = form
         self._comm = comm
         self._list = list()
         self._type = None
 
     @property
-    def form(self) -> str:
+    def form(self) -> dolfinx.fem.Form:
         """Return the form which is used to assmemble the tensors."""
         return self._form
 

@@ -34,11 +34,13 @@ def tensors_list_vec(mesh: dolfinx.mesh.Mesh) -> minirox.backends.TensorsList:
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
     v = ufl.TestFunction(V)
     linear_forms = [ufl.inner(i + 1, v) * ufl.dx for i in range(2)]
-    vectors = [dolfinx.fem.assemble_vector(linear_form) for linear_form in linear_forms]
+    linear_forms_cpp = dolfinx.fem.form(linear_forms)
+    vectors = [dolfinx.fem.assemble_vector(linear_form_cpp) for linear_form_cpp in linear_forms_cpp]
     [vector.ghostUpdate(
         addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE) for vector in vectors]
-    tensors_list = minirox.backends.TensorsList(linear_forms[0], mesh.comm)
+    tensors_list = minirox.backends.TensorsList(linear_forms_cpp[0], mesh.comm)
     [tensors_list.append(vector) for vector in vectors]
+    tensors_list.form_ufl = linear_forms[0]  # for test_tensors_list_setitem_vec
     return tensors_list
 
 
@@ -49,10 +51,12 @@ def tensors_list_mat(mesh: dolfinx.mesh.Mesh) -> minirox.backends.TensorsList:
     u = ufl.TrialFunction(V)
     v = ufl.TestFunction(V)
     bilinear_forms = [(i + 1) * ufl.inner(u, v) * ufl.dx for i in range(2)]
-    matrices = [dolfinx.fem.assemble_matrix(bilinear_form) for bilinear_form in bilinear_forms]
+    bilinear_forms_cpp = dolfinx.fem.form(bilinear_forms)
+    matrices = [dolfinx.fem.assemble_matrix(bilinear_form_cpp) for bilinear_form_cpp in bilinear_forms_cpp]
     [matrix.assemble() for matrix in matrices]
-    tensors_list = minirox.backends.TensorsList(bilinear_forms[0], mesh.comm)
+    tensors_list = minirox.backends.TensorsList(bilinear_forms_cpp[0], mesh.comm)
     [tensors_list.append(matrix) for matrix in matrices]
+    tensors_list.form_ufl = bilinear_forms[0]  # for test_tensors_list_setitem_mat
     return tensors_list
 
 
@@ -185,7 +189,7 @@ def test_tensors_list_getitem_wrong_type(tensors_list_vec: minirox.backends.Tens
 
 def test_tensors_list_setitem_vec(tensors_list_vec: minirox.backends.TensorsList) -> None:
     """Check minirox.backends.TensorsList.__setitem__ in the case of petsc4py.PETSc.Vec content."""
-    new_vector = dolfinx.fem.assemble_vector(3 * tensors_list_vec.form)
+    new_vector = dolfinx.fem.assemble_vector(dolfinx.fem.form(3 * tensors_list_vec.form_ufl))
     new_vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
     tensors_list_vec[0] = new_vector
 
@@ -199,7 +203,7 @@ def test_tensors_list_setitem_mat(
     tensors_list_mat: minirox.backends.TensorsList, to_dense_matrix: typing.Callable
 ) -> None:
     """Check minirox.backends.TensorsList.__setitem__ in the case of petsc4py.PETSc.Mat content."""
-    new_matrix = dolfinx.fem.assemble_matrix(3 * tensors_list_mat.form)
+    new_matrix = dolfinx.fem.assemble_matrix(dolfinx.fem.form(3 * tensors_list_mat.form_ufl))
     new_matrix.assemble()
     tensors_list_mat[0] = new_matrix
 
