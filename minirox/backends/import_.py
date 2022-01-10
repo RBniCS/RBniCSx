@@ -11,7 +11,6 @@ import typing
 import dolfinx.fem
 import mpi4py
 import petsc4py
-import ufl
 
 from minirox.io import on_rank_zero
 
@@ -83,14 +82,14 @@ def import_functions(
 
 
 def import_matrix(
-    form: ufl.Form, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+    form: dolfinx.fem.FormMetaClass, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
 ) -> petsc4py.PETSc.Mat:
     """
     Import a petsc4py.PETSc.Mat from file.
 
     Parameters
     ----------
-    form : ufl.Form
+    form : dolfinx.fem.FormMetaClass
         The form which is used to assmemble the tensors.
     comm : mpi4py.MPI.Intracomm
         Communicator to be used while creating the matrix.
@@ -112,14 +111,14 @@ def import_matrix(
 
 
 def import_matrices(
-    form: ufl.Form, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+    form: dolfinx.fem.FormMetaClass, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
 ) -> typing.List[petsc4py.PETSc.Mat]:
     """
     Import a petsc4py.PETSc.Mat from file.
 
     Parameters
     ----------
-    form : ufl.Form
+    form : dolfinx.fem.FormMetaClass
         The form which is used to assmemble the tensors.
     comm : mpi4py.MPI.Intracomm
         Communicator to be used while creating the matrix.
@@ -152,14 +151,14 @@ def import_matrices(
 
 
 def import_vector(
-    form: ufl.Form, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+    form: dolfinx.fem.FormMetaClass, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
 ) -> petsc4py.PETSc.Vec:
     """
     Import a petsc4py.PETSc.Vec from file.
 
     Parameters
     ----------
-    form : ufl.Form
+    form : dolfinx.fem.FormMetaClass
         The form which is used to assmemble the tensors.
     comm : mpi4py.MPI.Intracomm
         Communicator to be used while creating the vector.
@@ -181,14 +180,14 @@ def import_vector(
 
 
 def import_vectors(
-    form: ufl.Form, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+    form: dolfinx.fem.FormMetaClass, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
 ) -> typing.List[petsc4py.PETSc.Vec]:
     """
     Import a petsc4py.PETSc.Vec from file.
 
     Parameters
     ----------
-    form : ufl.Form
+    form : dolfinx.fem.FormMetaClass
         The form which is used to assmemble the tensors.
     comm : mpi4py.MPI.Intracomm
         Communicator to be used while creating the vector.
