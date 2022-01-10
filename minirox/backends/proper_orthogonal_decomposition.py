@@ -74,7 +74,8 @@ def _(
 
     def compute_inner_product(function_i: dolfinx.fem.Function, function_j: dolfinx.fem.Function) -> float:
         return comm.allreduce(
-            dolfinx.fem.assemble_scalar(ufl.replace(inner_product, {test: function_i, trial: function_j})),
+            dolfinx.fem.assemble_scalar(
+                dolfinx.fem.form(ufl.replace(inner_product, {test: function_i, trial: function_j}))),
             op=mpi4py.MPI.SUM)
 
     def scale(function: dolfinx.fem.Function, factor: float) -> None:

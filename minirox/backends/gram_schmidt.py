@@ -37,7 +37,8 @@ def gram_schmidt(functions_list: FunctionsList, new_function: dolfinx.fem.Functi
 
     def compute_inner_product(function_i: dolfinx.fem.Function, function_j: dolfinx.fem.Function) -> float:
         return comm.allreduce(
-            dolfinx.fem.assemble_scalar(ufl.replace(inner_product, {test: function_i, trial: function_j})),
+            dolfinx.fem.assemble_scalar(
+                dolfinx.fem.form(ufl.replace(inner_product, {test: function_i, trial: function_j}))),
             op=mpi4py.MPI.SUM)
 
     orthonormalized = dolfinx.fem.Function(new_function.function_space)

@@ -54,7 +54,8 @@ def compute_inner_product(
     comm = function_i.function_space.mesh.comm
     test, trial = inner_product.arguments()
     return comm.allreduce(
-        dolfinx.fem.assemble_scalar(ufl.replace(inner_product, {test: function_i, trial: function_j})),
+        dolfinx.fem.assemble_scalar(
+            dolfinx.fem.form(ufl.replace(inner_product, {test: function_i, trial: function_j}))),
         op=mpi4py.MPI.SUM)
 
 
