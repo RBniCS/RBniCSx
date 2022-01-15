@@ -1,7 +1,0 @@
-cppimport
-fenics-dolfinx
-git+https://github.com/multiphenics/multiphenicsx.git#egg=multiphenicsx
-mpi4py
-numpy>=1.21.0
-petsc4py
-slepc4py
