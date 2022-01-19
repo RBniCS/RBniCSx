@@ -6,3 +6,4 @@ API reference
 
    minirox.backends
    minirox.io
+   minirox.test
