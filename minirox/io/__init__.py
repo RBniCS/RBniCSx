@@ -6,3 +6,5 @@
 """minirox io module."""
 
 from minirox.io.on_rank_zero import on_rank_zero
+from minirox.io.text_box import TextBox
+from minirox.io.text_line import TextLine
