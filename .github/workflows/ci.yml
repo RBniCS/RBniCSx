@@ -67,7 +67,7 @@ jobs:
           pattern: "tutorials/*.ipynb"
       - name: Run tutorials (serial)
         run: |
-          pytest -n auto --dist loadscope tutorials
+          pytest tutorials
       - name: Run tutorials (parallel)
         run: |
           pytest --np 2 tutorials
