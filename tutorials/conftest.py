@@ -5,10 +5,11 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """pytest configuration file for tutorials tests."""
 
-import multiphenicsx.test.notebooks
+import nbvalx.pytest_hooks_notebooks
 
-pytest_addoption = multiphenicsx.test.notebooks.addoption
-pytest_collect_file = multiphenicsx.test.notebooks.collect_file
-pytest_runtest_setup = multiphenicsx.test.notebooks.runtest_setup
-pytest_runtest_makereport = multiphenicsx.test.notebooks.runtest_makereport
-pytest_runtest_teardown = multiphenicsx.test.notebooks.runtest_teardown
+pytest_addoption = nbvalx.pytest_hooks_notebooks.addoption
+pytest_sessionstart = nbvalx.pytest_hooks_notebooks.sessionstart
+pytest_collect_file = nbvalx.pytest_hooks_notebooks.collect_file
+pytest_runtest_setup = nbvalx.pytest_hooks_notebooks.runtest_setup
+pytest_runtest_makereport = nbvalx.pytest_hooks_notebooks.runtest_makereport
+pytest_runtest_teardown = nbvalx.pytest_hooks_notebooks.runtest_teardown
