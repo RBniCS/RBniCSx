@@ -53,7 +53,7 @@ jobs:
           cd docs && make html
       - name: Run unit tests (serial)
         run: |
-          COVERAGE_FILE=.coverage_unit_serial python3 -m coverage run --source=minirox -m pytest -n auto tests/unit
+          COVERAGE_FILE=.coverage_unit_serial python3 -m coverage run --source=minirox -m pytest tests/unit
       - name: Run unit tests (parallel)
         run: |
           COVERAGE_FILE=.coverage_unit_parallel mpirun -n 2 python3 -m coverage run --source=minirox --parallel-mode -m pytest tests/unit
