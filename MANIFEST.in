@@ -1,2 +1,2 @@
-recursive-include minirox *.cpp *.h *.py
+recursive-include rbnicsx *.cpp *.h *.py
 global-exclude __pycache__ *.pyc
