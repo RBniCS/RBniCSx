@@ -12,7 +12,7 @@ import dolfinx.fem
 import mpi4py
 import petsc4py
 
-from minirox.io import on_rank_zero
+from rbnicsx.io import on_rank_zero
 
 
 def import_function(function_space: dolfinx.fem.FunctionSpace, directory: str, filename: str) -> dolfinx.fem.Function:

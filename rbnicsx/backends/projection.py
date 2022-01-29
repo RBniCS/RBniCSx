@@ -14,7 +14,7 @@ import numpy as np
 import petsc4py
 import ufl
 
-from minirox.backends.functions_list import FunctionsList
+from rbnicsx.backends.functions_list import FunctionsList
 
 
 def create_online_vector(N: int) -> petsc4py.PETSc.Vec:
@@ -110,7 +110,7 @@ def project_vector(L: ufl.Form, B: FunctionsList) -> petsc4py.PETSc.Vec:
     ----------
     L : ufl.Form
         Linear form to be projected.
-    B : minirox.backends.FunctionsList
+    B : rbnicsx.backends.FunctionsList
         Functions spanning the reduced basis space.
 
     Returns
@@ -135,7 +135,7 @@ def _(b: petsc4py.PETSc.Vec, L: ufl.Form, B: FunctionsList) -> None:
         The vector is not zeroed before assembly.
     L : ufl.Form
         Linear form to be projected.
-    B : minirox.backends.FunctionsList
+    B : rbnicsx.backends.FunctionsList
         Functions spanning the reduced basis space.
     """
     test, = L.arguments()
@@ -158,7 +158,7 @@ def project_vector_block(L: typing.List[ufl.Form], B: typing.List[FunctionsList]
     ----------
     L : typing.List[ufl.Form]
         Linear forms to be projected.
-    B : typing.List[minirox.backends.FunctionsList]
+    B : typing.List[rbnicsx.backends.FunctionsList]
         Functions spanning the reduced basis space associated to each solution component.
 
     Returns
@@ -183,7 +183,7 @@ def _(b: petsc4py.PETSc.Vec, L: typing.List[ufl.Form], B: typing.List[FunctionsL
         The vector is not zeroed before assembly.
     L : typing.List[ufl.Form]
         Linear forms to be projected.
-    B : typing.List[minirox.backends.FunctionsList]
+    B : typing.List[rbnicsx.backends.FunctionsList]
         Functions spanning the reduced basis space associated to each solution component.
     """
     assert len(L) == len(B)
@@ -209,7 +209,7 @@ def project_matrix(
     ----------
     a : ufl.Form
         Bilinear form to be projected.
-    B : typing.Union[minirox.backends.FunctionsList, typing.Tuple[minirox.backends.FunctionsList]]
+    B : typing.Union[rbnicsx.backends.FunctionsList, typing.Tuple[rbnicsx.backends.FunctionsList]]
         Functions spanning the reduced basis space. Two different basis of the same space
         can be provided, e.g. as in Petrov-Galerkin methods.
 
@@ -242,7 +242,7 @@ def _(
         The matrix is not zeroed before assembly.
     a : ufl.Form
         Bilinear form to be projected.
-    B : typing.Union[minirox.backends.FunctionsList, typing.Tuple[minirox.backends.FunctionsList]]
+    B : typing.Union[rbnicsx.backends.FunctionsList, typing.Tuple[rbnicsx.backends.FunctionsList]]
         Functions spanning the reduced basis space. Two different basis of the same space
         can be provided, e.g. as in Petrov-Galerkin methods.
     """
@@ -276,8 +276,8 @@ def project_matrix_block(
     ----------
     a : typing.List[typing.List[ufl.Form]]
         Bilinear forms to be projected.
-    B : typing.Union[typing.List[minirox.backends.FunctionsList], \
-                     typing.Tuple[typing.List[minirox.backends.FunctionsList]]]
+    B : typing.Union[typing.List[rbnicsx.backends.FunctionsList], \
+                     typing.Tuple[typing.List[rbnicsx.backends.FunctionsList]]]
         Functions spanning the reduced basis space associated to each solution component.
         Two different basis of the same space can be provided, e.g. as in Petrov-Galerkin methods.
 
@@ -313,8 +313,8 @@ def _(
     a : typing.List[typing.List[ufl.Form]]
         Bilinear forms to be projected.
     B : typing.Union[
-            typing.List[minirox.backends.FunctionsList],
-            typing.Tuple[typing.List[minirox.backends.FunctionsList]]
+            typing.List[rbnicsx.backends.FunctionsList],
+            typing.Tuple[typing.List[rbnicsx.backends.FunctionsList]]
         ]
         Functions spanning the reduced basis space associated to each solution component.
         Two different basis of the same space can be provided, e.g. as in Petrov-Galerkin methods.

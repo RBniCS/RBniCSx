@@ -3,7 +3,7 @@
 # This file is part of RBniCSx.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""Tests for minirox.backends.tensors_list module."""
+"""Tests for rbnicsx.backends.tensors_list module."""
 
 import typing
 
@@ -16,7 +16,7 @@ import petsc4py
 import pytest
 import ufl
 
-import minirox.backends
+import rbnicsx.backends
 
 tempdir = dolfinx_utils.test.fixtures.tempdir
 
@@ -29,8 +29,8 @@ def mesh() -> dolfinx.mesh.Mesh:
 
 
 @pytest.fixture
-def tensors_list_vec(mesh: dolfinx.mesh.Mesh) -> minirox.backends.TensorsList:
-    """Generate a minirox.backends.TensorsList with two petsc4py.PETSc.Vec entries."""
+def tensors_list_vec(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsList:
+    """Generate a rbnicsx.backends.TensorsList with two petsc4py.PETSc.Vec entries."""
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
     v = ufl.TestFunction(V)
     linear_forms = [ufl.inner(i + 1, v) * ufl.dx for i in range(2)]
@@ -38,15 +38,15 @@ def tensors_list_vec(mesh: dolfinx.mesh.Mesh) -> minirox.backends.TensorsList:
     vectors = [dolfinx.fem.assemble_vector(linear_form_cpp) for linear_form_cpp in linear_forms_cpp]
     [vector.ghostUpdate(
         addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE) for vector in vectors]
-    tensors_list = minirox.backends.TensorsList(linear_forms_cpp[0], mesh.comm)
+    tensors_list = rbnicsx.backends.TensorsList(linear_forms_cpp[0], mesh.comm)
     [tensors_list.append(vector) for vector in vectors]
     tensors_list.form_ufl = linear_forms[0]  # for test_tensors_list_setitem_vec
     return tensors_list
 
 
 @pytest.fixture
-def tensors_list_mat(mesh: dolfinx.mesh.Mesh) -> minirox.backends.TensorsList:
-    """Generate a minirox.backends.TensorsList with two petsc4py.PETSc.Mat entries."""
+def tensors_list_mat(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsList:
+    """Generate a rbnicsx.backends.TensorsList with two petsc4py.PETSc.Mat entries."""
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
     u = ufl.TrialFunction(V)
     v = ufl.TestFunction(V)
@@ -54,37 +54,37 @@ def tensors_list_mat(mesh: dolfinx.mesh.Mesh) -> minirox.backends.TensorsList:
     bilinear_forms_cpp = dolfinx.fem.form(bilinear_forms)
     matrices = [dolfinx.fem.assemble_matrix(bilinear_form_cpp) for bilinear_form_cpp in bilinear_forms_cpp]
     [matrix.assemble() for matrix in matrices]
-    tensors_list = minirox.backends.TensorsList(bilinear_forms_cpp[0], mesh.comm)
+    tensors_list = rbnicsx.backends.TensorsList(bilinear_forms_cpp[0], mesh.comm)
     [tensors_list.append(matrix) for matrix in matrices]
     tensors_list.form_ufl = bilinear_forms[0]  # for test_tensors_list_setitem_mat
     return tensors_list
 
 
 @pytest.fixture(params=["tensors_list_vec", "tensors_list_mat"])
-def tensors_list(request: _pytest.fixtures.SubRequest) -> minirox.backends.TensorsList:
-    """Parameterize minirox.backends.TensorsList on petsc4py.PETSc.Mat and petsc4py.PETSc.Vec."""
+def tensors_list(request: _pytest.fixtures.SubRequest) -> rbnicsx.backends.TensorsList:
+    """Parameterize rbnicsx.backends.TensorsList on petsc4py.PETSc.Mat and petsc4py.PETSc.Vec."""
     return request.getfixturevalue(request.param)
 
 
-def test_tensors_list_type_vec(tensors_list_vec: minirox.backends.TensorsList) -> None:
-    """Check minirox.backends.TensorsList.type in the case of petsc4py.PETSc.Vec content."""
+def test_tensors_list_type_vec(tensors_list_vec: rbnicsx.backends.TensorsList) -> None:
+    """Check rbnicsx.backends.TensorsList.type in the case of petsc4py.PETSc.Vec content."""
     tensors_list_vec.type == "Vec"
 
 
-def test_tensors_list_type_mat(tensors_list_mat: minirox.backends.TensorsList) -> None:
-    """Check minirox.backends.TensorsList.type in the case of petsc4py.PETSc.Mat content."""
+def test_tensors_list_type_mat(tensors_list_mat: rbnicsx.backends.TensorsList) -> None:
+    """Check rbnicsx.backends.TensorsList.type in the case of petsc4py.PETSc.Mat content."""
     tensors_list_mat.type == "Mat"
 
 
-def test_tensors_list_type_none(tensors_list_mat: minirox.backends.TensorsList) -> None:
-    """Check minirox.backends.TensorsList.type at initialization."""
-    tensors_list = minirox.backends.TensorsList("fake_form", mpi4py.MPI.COMM_WORLD)
+def test_tensors_list_type_none(tensors_list_mat: rbnicsx.backends.TensorsList) -> None:
+    """Check rbnicsx.backends.TensorsList.type at initialization."""
+    tensors_list = rbnicsx.backends.TensorsList("fake_form", mpi4py.MPI.COMM_WORLD)
     assert tensors_list.type is None
 
 
 def test_tensors_list_append_mixed_types(
-        tensors_list_vec: minirox.backends.TensorsList, tensors_list_mat: minirox.backends.TensorsList) -> None:
-    """Check minirox.backends.TensorsList.append mixing up Mat and Vec objects."""
+        tensors_list_vec: rbnicsx.backends.TensorsList, tensors_list_mat: rbnicsx.backends.TensorsList) -> None:
+    """Check rbnicsx.backends.TensorsList.append mixing up Mat and Vec objects."""
     first_vector = dolfinx.fem.assemble_vector(tensors_list_vec.form)
     first_matrix = dolfinx.fem.assemble_matrix(tensors_list_mat.form)
 
@@ -95,34 +95,34 @@ def test_tensors_list_append_mixed_types(
         tensors_list_mat.append(first_vector)
 
 
-def test_tensors_list_append_wrong_type(tensors_list_vec: minirox.backends.TensorsList) -> None:
-    """Check minirox.backends.TensorsList.append when providing neither a Mat nor a Vec object."""
+def test_tensors_list_append_wrong_type(tensors_list_vec: rbnicsx.backends.TensorsList) -> None:
+    """Check rbnicsx.backends.TensorsList.append when providing neither a Mat nor a Vec object."""
     with pytest.raises(RuntimeError):
         tensors_list_vec.append(None)
 
 
-def test_tensors_list_extend(tensors_list: minirox.backends.TensorsList) -> None:
-    """Check minirox.backends.TensorsList.extend."""
-    tensors_list2 = minirox.backends.TensorsList(tensors_list.form, tensors_list.comm)
+def test_tensors_list_extend(tensors_list: rbnicsx.backends.TensorsList) -> None:
+    """Check rbnicsx.backends.TensorsList.extend."""
+    tensors_list2 = rbnicsx.backends.TensorsList(tensors_list.form, tensors_list.comm)
     tensors_list2.extend(tensors_list)
     assert len(tensors_list2) == 2
     for i in range(2):
         assert tensors_list2[i] == tensors_list[i]
 
 
-def test_tensors_list_len(tensors_list: minirox.backends.TensorsList) -> None:
-    """Check minirox.backends.TensorsList.__len__."""
+def test_tensors_list_len(tensors_list: rbnicsx.backends.TensorsList) -> None:
+    """Check rbnicsx.backends.TensorsList.__len__."""
     assert len(tensors_list) == 2
 
 
-def test_tensors_list_clear(tensors_list: minirox.backends.TensorsList) -> None:
-    """Check minirox.backends.TensorsList.clear."""
+def test_tensors_list_clear(tensors_list: rbnicsx.backends.TensorsList) -> None:
+    """Check rbnicsx.backends.TensorsList.clear."""
     tensors_list.clear()
     assert len(tensors_list) == 0
 
 
-def test_tensors_list_iter_vec(tensors_list_vec: minirox.backends.TensorsList) -> None:
-    """Check minirox.backends.TensorsList.__iter__ in the case of petsc4py.PETSc.Vec content."""
+def test_tensors_list_iter_vec(tensors_list_vec: rbnicsx.backends.TensorsList) -> None:
+    """Check rbnicsx.backends.TensorsList.__iter__ in the case of petsc4py.PETSc.Vec content."""
     first_vector = dolfinx.fem.assemble_vector(tensors_list_vec.form)
     first_vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
     for (index, vector) in enumerate(tensors_list_vec):
@@ -130,17 +130,17 @@ def test_tensors_list_iter_vec(tensors_list_vec: minirox.backends.TensorsList) -
 
 
 def test_tensors_list_iter_mat(
-    tensors_list_mat: minirox.backends.TensorsList, to_dense_matrix: typing.Callable
+    tensors_list_mat: rbnicsx.backends.TensorsList, to_dense_matrix: typing.Callable
 ) -> None:
-    """Check minirox.backends.TensorsList.__iter__ in the case of petsc4py.PETSc.Mat content."""
+    """Check rbnicsx.backends.TensorsList.__iter__ in the case of petsc4py.PETSc.Mat content."""
     first_matrix = dolfinx.fem.assemble_matrix(tensors_list_mat.form)
     first_matrix.assemble()
     for (index, matrix) in enumerate(tensors_list_mat):
         assert np.allclose(to_dense_matrix(matrix), (index + 1) * to_dense_matrix(first_matrix))
 
 
-def test_tensors_list_getitem_int_vec(tensors_list_vec: minirox.backends.TensorsList) -> None:
-    """Check minirox.backends.TensorsList.__getitem__ with integer input in the case of petsc4py.PETSc.Vec content."""
+def test_tensors_list_getitem_int_vec(tensors_list_vec: rbnicsx.backends.TensorsList) -> None:
+    """Check rbnicsx.backends.TensorsList.__getitem__ with integer input in the case of petsc4py.PETSc.Vec content."""
     first_vector = dolfinx.fem.assemble_vector(tensors_list_vec.form)
     first_vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
     assert np.allclose(tensors_list_vec[0].array, first_vector.array)
@@ -148,9 +148,9 @@ def test_tensors_list_getitem_int_vec(tensors_list_vec: minirox.backends.Tensors
 
 
 def test_tensors_list_getitem_int_mat(
-    tensors_list_mat: minirox.backends.TensorsList, to_dense_matrix: typing.Callable
+    tensors_list_mat: rbnicsx.backends.TensorsList, to_dense_matrix: typing.Callable
 ) -> None:
-    """Check minirox.backends.TensorsList.__getitem__ with integer input in the case of petsc4py.PETSc.Mat content."""
+    """Check rbnicsx.backends.TensorsList.__getitem__ with integer input in the case of petsc4py.PETSc.Mat content."""
     first_matrix = dolfinx.fem.assemble_matrix(tensors_list_mat.form)
     first_matrix.assemble()
     assert np.allclose(to_dense_matrix(tensors_list_mat[0]), to_dense_matrix(first_matrix))
@@ -158,9 +158,9 @@ def test_tensors_list_getitem_int_mat(
 
 
 def test_tensors_list_getitem_slice_vec(
-    tensors_list_vec: minirox.backends.TensorsList, to_dense_matrix: typing.Callable
+    tensors_list_vec: rbnicsx.backends.TensorsList, to_dense_matrix: typing.Callable
 ) -> None:
-    """Check minirox.backends.TensorsList.__getitem__ with slice input in the case of petsc4py.PETSc.Vec content."""
+    """Check rbnicsx.backends.TensorsList.__getitem__ with slice input in the case of petsc4py.PETSc.Vec content."""
     first_vector = dolfinx.fem.assemble_vector(tensors_list_vec.form)
     first_vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
     tensors_list_vec2 = tensors_list_vec[0:2]
@@ -170,9 +170,9 @@ def test_tensors_list_getitem_slice_vec(
 
 
 def test_tensors_list_getitem_slice_mat(
-    tensors_list_mat: minirox.backends.TensorsList, to_dense_matrix: typing.Callable
+    tensors_list_mat: rbnicsx.backends.TensorsList, to_dense_matrix: typing.Callable
 ) -> None:
-    """Check minirox.backends.TensorsList.__getitem__ with slice input in the case of petsc4py.PETSc.Mat content."""
+    """Check rbnicsx.backends.TensorsList.__getitem__ with slice input in the case of petsc4py.PETSc.Mat content."""
     first_matrix = dolfinx.fem.assemble_matrix(tensors_list_mat.form)
     first_matrix.assemble()
     tensors_list_mat2 = tensors_list_mat[0:2]
@@ -181,14 +181,14 @@ def test_tensors_list_getitem_slice_mat(
     assert np.allclose(to_dense_matrix(tensors_list_mat2[1]), 2 * to_dense_matrix(first_matrix))
 
 
-def test_tensors_list_getitem_wrong_type(tensors_list_vec: minirox.backends.TensorsList) -> None:
-    """Check minirox.backends.TensorsList.__getitem__ with unsupported input."""
+def test_tensors_list_getitem_wrong_type(tensors_list_vec: rbnicsx.backends.TensorsList) -> None:
+    """Check rbnicsx.backends.TensorsList.__getitem__ with unsupported input."""
     with pytest.raises(RuntimeError):
         tensors_list_vec[0, 0]
 
 
-def test_tensors_list_setitem_vec(tensors_list_vec: minirox.backends.TensorsList) -> None:
-    """Check minirox.backends.TensorsList.__setitem__ in the case of petsc4py.PETSc.Vec content."""
+def test_tensors_list_setitem_vec(tensors_list_vec: rbnicsx.backends.TensorsList) -> None:
+    """Check rbnicsx.backends.TensorsList.__setitem__ in the case of petsc4py.PETSc.Vec content."""
     new_vector = dolfinx.fem.assemble_vector(dolfinx.fem.form(3 * tensors_list_vec.form_ufl))
     new_vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
     tensors_list_vec[0] = new_vector
@@ -200,9 +200,9 @@ def test_tensors_list_setitem_vec(tensors_list_vec: minirox.backends.TensorsList
 
 
 def test_tensors_list_setitem_mat(
-    tensors_list_mat: minirox.backends.TensorsList, to_dense_matrix: typing.Callable
+    tensors_list_mat: rbnicsx.backends.TensorsList, to_dense_matrix: typing.Callable
 ) -> None:
-    """Check minirox.backends.TensorsList.__setitem__ in the case of petsc4py.PETSc.Mat content."""
+    """Check rbnicsx.backends.TensorsList.__setitem__ in the case of petsc4py.PETSc.Mat content."""
     new_matrix = dolfinx.fem.assemble_matrix(dolfinx.fem.form(3 * tensors_list_mat.form_ufl))
     new_matrix.assemble()
     tensors_list_mat[0] = new_matrix
@@ -213,12 +213,12 @@ def test_tensors_list_setitem_mat(
     assert np.allclose(to_dense_matrix(tensors_list_mat[1]), 2 * to_dense_matrix(first_matrix))
 
 
-def test_tensors_list_save_load_vec(tensors_list_vec: minirox.backends.TensorsList, tempdir: str) -> None:
-    """Check I/O for a minirox.backends.TensorsList in the case of petsc4py.PETSc.Vec content."""
+def test_tensors_list_save_load_vec(tensors_list_vec: rbnicsx.backends.TensorsList, tempdir: str) -> None:
+    """Check I/O for a rbnicsx.backends.TensorsList in the case of petsc4py.PETSc.Vec content."""
     tensors_list_vec.save(tempdir, "tensors_list_vec")
 
     form, comm = tensors_list_vec.form, tensors_list_vec.comm
-    tensors_list_vec2 = minirox.backends.TensorsList(form, comm)
+    tensors_list_vec2 = rbnicsx.backends.TensorsList(form, comm)
     tensors_list_vec2.load(tempdir, "tensors_list_vec")
 
     assert len(tensors_list_vec2) == 2
@@ -227,13 +227,13 @@ def test_tensors_list_save_load_vec(tensors_list_vec: minirox.backends.TensorsLi
 
 
 def test_tensors_list_save_load_mat(
-    tensors_list_mat: minirox.backends.TensorsList, tempdir: str, to_dense_matrix: typing.Callable
+    tensors_list_mat: rbnicsx.backends.TensorsList, tempdir: str, to_dense_matrix: typing.Callable
 ) -> None:
-    """Check I/O for a minirox.backends.TensorsList in the case of petsc4py.PETSc.Mat content."""
+    """Check I/O for a rbnicsx.backends.TensorsList in the case of petsc4py.PETSc.Mat content."""
     tensors_list_mat.save(tempdir, "tensors_list_mat")
 
     form, comm = tensors_list_mat.form, tensors_list_mat.comm
-    tensors_list_mat2 = minirox.backends.TensorsList(form, comm)
+    tensors_list_mat2 = rbnicsx.backends.TensorsList(form, comm)
     tensors_list_mat2.load(tempdir, "tensors_list_mat")
 
     assert len(tensors_list_mat2) == 2
@@ -241,8 +241,8 @@ def test_tensors_list_save_load_mat(
         assert np.allclose(to_dense_matrix(matrix2), to_dense_matrix(matrix))
 
 
-def test_tensors_list_mul_vec(tensors_list_vec: minirox.backends.TensorsList) -> None:
-    """Check minirox.backends.TensorsList.__mul__ in the case of petsc4py.PETSc.Vec content."""
+def test_tensors_list_mul_vec(tensors_list_vec: rbnicsx.backends.TensorsList) -> None:
+    """Check rbnicsx.backends.TensorsList.__mul__ in the case of petsc4py.PETSc.Vec content."""
     online_vec = petsc4py.PETSc.Vec().createSeq(2, comm=mpi4py.MPI.COMM_SELF)
     online_vec[0] = 3
     online_vec[1] = 5
@@ -254,9 +254,9 @@ def test_tensors_list_mul_vec(tensors_list_vec: minirox.backends.TensorsList) ->
 
 
 def test_tensors_list_mul_mat(
-    tensors_list_mat: minirox.backends.TensorsList, to_dense_matrix: typing.Callable
+    tensors_list_mat: rbnicsx.backends.TensorsList, to_dense_matrix: typing.Callable
 ) -> None:
-    """Check minirox.backends.TensorsList.__mul__ in the case of petsc4py.PETSc.Mat content."""
+    """Check rbnicsx.backends.TensorsList.__mul__ in the case of petsc4py.PETSc.Mat content."""
     online_vec = petsc4py.PETSc.Vec().createSeq(2, comm=mpi4py.MPI.COMM_SELF)
     online_vec[0] = 3
     online_vec[1] = 5
@@ -268,16 +268,16 @@ def test_tensors_list_mul_mat(
 
 
 def test_tensors_list_mul_empty(mesh: dolfinx.mesh.Mesh) -> None:
-    """Check minirox.backends.TensorsList.__mul__ with empty list."""
+    """Check rbnicsx.backends.TensorsList.__mul__ with empty list."""
     fake_form = None
-    empty_tensors_list = minirox.backends.TensorsList(fake_form, mesh.comm)
+    empty_tensors_list = rbnicsx.backends.TensorsList(fake_form, mesh.comm)
 
     online_vec = petsc4py.PETSc.Vec().createSeq(0, comm=mpi4py.MPI.COMM_SELF)
     should_be_none = empty_tensors_list * online_vec
     assert should_be_none is None
 
 
-def test_tensors_list_mul_not_implemented(tensors_list_vec: minirox.backends.TensorsList) -> None:
-    """Check minirox.backends.TensorsList.__mul__ with an incorrect type."""
+def test_tensors_list_mul_not_implemented(tensors_list_vec: rbnicsx.backends.TensorsList) -> None:
+    """Check rbnicsx.backends.TensorsList.__mul__ with an incorrect type."""
     with pytest.raises(TypeError):
         tensors_list_vec * None

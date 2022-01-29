@@ -6,7 +6,7 @@
 
 #include <petscmat.h>
 
-namespace minirox::backends
+namespace rbnicsx::backends
 {
     /// Frobenius inner product between two matrices, with code adapted from the
     /// implementation of MatAXPY in PETSc.

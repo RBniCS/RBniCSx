@@ -3,7 +3,7 @@
 # This file is part of RBniCSx.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""Tests for minirox.backends.projection module."""
+"""Tests for rbnicsx.backends.projection module."""
 
 import typing
 
@@ -16,7 +16,7 @@ import pytest
 import slepc4py
 import ufl
 
-import minirox.backends
+import rbnicsx.backends
 
 
 @pytest.fixture
@@ -27,10 +27,10 @@ def mesh() -> dolfinx.mesh.Mesh:
 
 
 @pytest.fixture
-def functions_list(mesh: dolfinx.mesh.Mesh) -> minirox.backends.FunctionsList:
-    """Generate a minirox.backends.FunctionsList with several entries."""
+def functions_list(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.FunctionsList:
+    """Generate a rbnicsx.backends.FunctionsList with several entries."""
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
-    functions_list = minirox.backends.FunctionsList(V)
+    functions_list = rbnicsx.backends.FunctionsList(V)
     for i in range(14):
         function = dolfinx.fem.Function(V)
         with function.vector.localForm() as function_local:
@@ -41,7 +41,7 @@ def functions_list(mesh: dolfinx.mesh.Mesh) -> minirox.backends.FunctionsList:
 
 def test_projection_online_vector_size() -> None:
     """Check that the created online vector has the correct dimension."""
-    online_vec = minirox.backends.create_online_vector(2)
+    online_vec = rbnicsx.backends.create_online_vector(2)
     local_size, global_size = online_vec.getSizes()
     assert local_size == global_size
     assert global_size == 2
@@ -49,7 +49,7 @@ def test_projection_online_vector_size() -> None:
 
 def test_projection_online_vector_block_size() -> None:
     """Check that the created online vector has the correct dimension (block initialization)."""
-    online_vec = minirox.backends.create_online_vector_block([2, 3])
+    online_vec = rbnicsx.backends.create_online_vector_block([2, 3])
     local_size, global_size = online_vec.getSizes()
     assert local_size == global_size
     assert global_size == 5
@@ -57,7 +57,7 @@ def test_projection_online_vector_block_size() -> None:
 
 def test_projection_online_matrix_size() -> None:
     """Check that the created online matrix has the correct dimension."""
-    online_mat = minirox.backends.create_online_matrix(2, 3)
+    online_mat = rbnicsx.backends.create_online_matrix(2, 3)
     dimension0, dimension1 = online_mat.getSizes()
     local_size0, global_size0 = dimension0
     local_size1, global_size1 = dimension1
@@ -69,7 +69,7 @@ def test_projection_online_matrix_size() -> None:
 
 def test_projection_online_matrix_block_size() -> None:
     """Check that the created online matrix has the correct dimension (block initialization)."""
-    online_mat = minirox.backends.create_online_matrix_block([2, 3], [4, 5])
+    online_mat = rbnicsx.backends.create_online_matrix_block([2, 3], [4, 5])
     dimension0, dimension1 = online_mat.getSizes()
     local_size0, global_size0 = dimension0
     local_size1, global_size1 = dimension1
@@ -81,7 +81,7 @@ def test_projection_online_matrix_block_size() -> None:
 
 def test_projection_online_vector_set() -> None:
     """Set some entries in the created online vector."""
-    online_vec = minirox.backends.create_online_vector(2)
+    online_vec = rbnicsx.backends.create_online_vector(2)
     for i in range(2):
         online_vec.setValue(i, i + 1)
     online_vec.view()
@@ -91,7 +91,7 @@ def test_projection_online_vector_set() -> None:
 
 def test_projection_online_vector_set_local() -> None:
     """Set some entries in the created online vector using the local setter."""
-    online_vec = minirox.backends.create_online_vector(2)
+    online_vec = rbnicsx.backends.create_online_vector(2)
     for i in range(2):
         online_vec.setValueLocal(i, i + 1)
     online_vec.view()
@@ -102,7 +102,7 @@ def test_projection_online_vector_set_local() -> None:
 def test_projection_online_vector_block_set() -> None:
     """Set some entries in the created online vector (block initialization and fill)."""
     N = [2, 3]
-    online_vec = minirox.backends.create_online_vector_block(N)
+    online_vec = rbnicsx.backends.create_online_vector_block(N)
     blocks = np.hstack((0, np.cumsum(N)))
     for I in range(2):  # noqa: E741
         is_I = petsc4py.PETSc.IS().createGeneral(
@@ -122,7 +122,7 @@ def test_projection_online_vector_block_set() -> None:
 
 def test_projection_online_matrix_set() -> None:
     """Set some entries in the created online matrix."""
-    online_mat = minirox.backends.create_online_matrix(2, 3)
+    online_mat = rbnicsx.backends.create_online_matrix(2, 3)
     for i in range(2):
         for j in range(3):
             online_mat.setValue(i, j, i * 2 + j + 1)
@@ -135,7 +135,7 @@ def test_projection_online_matrix_set() -> None:
 
 def test_projection_online_matrix_set_local() -> None:
     """Set some entries in the created online matrix using the local setter."""
-    online_mat = minirox.backends.create_online_matrix(2, 3)
+    online_mat = rbnicsx.backends.create_online_matrix(2, 3)
     for i in range(2):
         for j in range(3):
             online_mat.setValueLocal(i, j, i * 2 + j + 1)
@@ -150,7 +150,7 @@ def test_projection_online_matrix_block_set() -> None:
     """Set some entries in the created online matrix (block initialization and fill)."""
     M = [2, 3]
     N = [4, 5]
-    online_mat = minirox.backends.create_online_matrix_block(M, N)
+    online_mat = rbnicsx.backends.create_online_matrix_block(M, N)
     row_blocks = np.hstack((0, np.cumsum(M)))
     col_blocks = np.hstack((0, np.cumsum(N)))
     for I in range(2):  # noqa: E741
@@ -182,9 +182,9 @@ def test_projection_online_matrix_block_set() -> None:
 
 def test_projection_online_linear_solve() -> None:
     """Solve a linear problem with online data structures."""
-    online_vec = minirox.backends.create_online_vector(2)
-    online_solution = minirox.backends.create_online_vector(2)
-    online_mat = minirox.backends.create_online_matrix(2, 2)
+    online_vec = rbnicsx.backends.create_online_vector(2)
+    online_solution = rbnicsx.backends.create_online_vector(2)
+    online_mat = rbnicsx.backends.create_online_matrix(2, 2)
     for i in range(2):
         online_vec.setValue(i, i + 1)
         online_mat.setValue(i, i, 1 / (i + 1))
@@ -204,8 +204,8 @@ def test_projection_online_linear_solve() -> None:
 
 def test_projection_online_eigenvalue_solve() -> None:
     """Solve an eigenvalue problem with online data structures."""
-    online_mat_left = minirox.backends.create_online_matrix(2, 2)
-    online_mat_right = minirox.backends.create_online_matrix(2, 2)
+    online_mat_left = rbnicsx.backends.create_online_matrix(2, 2)
+    online_mat_right = rbnicsx.backends.create_online_matrix(2, 2)
     for i in range(2):
         online_mat_left.setValue(i, i, i + 1)
         online_mat_right.setValue(i, i, 1 / (i + 1))
@@ -223,8 +223,8 @@ def test_projection_online_eigenvalue_solve() -> None:
     assert eps.getConverged() == 2
     for i in range(2):
         assert np.isclose(eps.getEigenvalue(i), (i + 1)**2)
-        eigv_i_real = minirox.backends.create_online_vector(2)
-        eigv_i_imag = minirox.backends.create_online_vector(2)
+        eigv_i_real = rbnicsx.backends.create_online_vector(2)
+        eigv_i_imag = rbnicsx.backends.create_online_vector(2)
         eps.getEigenvector(i, eigv_i_real, eigv_i_imag)
         eigv_i_real.view()
         eigv_i_imag.view()
@@ -256,15 +256,15 @@ def test_projection_online_nonlinear_solve() -> None:
     snes.getKSP().getPC().setType(petsc4py.PETSc.PC.Type.LU)
 
     problem = NonlinearProblem()
-    online_residual = minirox.backends.create_online_vector(2)
+    online_residual = rbnicsx.backends.create_online_vector(2)
     snes.setFunction(problem.F, online_residual)
-    online_jacobian = minirox.backends.create_online_matrix(2, 2)
+    online_jacobian = rbnicsx.backends.create_online_matrix(2, 2)
     snes.setJacobian(problem.J, J=online_jacobian, P=None)
 
     snes.setTolerances(atol=1e-14, rtol=1e-14)
     snes.setMonitor(lambda _, it, residual: print(it, residual))
 
-    online_solution = minirox.backends.create_online_vector(2)
+    online_solution = rbnicsx.backends.create_online_vector(2)
     snes.solve(None, online_solution)
     online_solution.view()
 
@@ -272,7 +272,7 @@ def test_projection_online_nonlinear_solve() -> None:
         assert np.isclose(online_solution[i], i + 1)
 
 
-def test_projection_vector(mesh: dolfinx.mesh.Mesh, functions_list: minirox.backends.FunctionsList) -> None:
+def test_projection_vector(mesh: dolfinx.mesh.Mesh, functions_list: rbnicsx.backends.FunctionsList) -> None:
     """Test projection of a linear form onto the reduced basis."""
     basis_functions = functions_list[:2]
 
@@ -280,17 +280,17 @@ def test_projection_vector(mesh: dolfinx.mesh.Mesh, functions_list: minirox.back
     v = ufl.TestFunction(V)
     linear_form = ufl.inner(1, v) * ufl.dx
 
-    online_vec = minirox.backends.project_vector(linear_form, basis_functions)
+    online_vec = rbnicsx.backends.project_vector(linear_form, basis_functions)
     assert online_vec.size == 2
     assert np.allclose(online_vec.array, [1, 2])
 
-    online_vec2 = minirox.backends.project_vector(0.4 * linear_form, basis_functions)
-    minirox.backends.project_vector(online_vec2, 0.6 * linear_form, basis_functions)
+    online_vec2 = rbnicsx.backends.project_vector(0.4 * linear_form, basis_functions)
+    rbnicsx.backends.project_vector(online_vec2, 0.6 * linear_form, basis_functions)
     assert online_vec2.size == 2
     assert np.allclose(online_vec2.array, online_vec.array)
 
 
-def test_projection_vector_block(mesh: dolfinx.mesh.Mesh, functions_list: minirox.backends.FunctionsList) -> None:
+def test_projection_vector_block(mesh: dolfinx.mesh.Mesh, functions_list: rbnicsx.backends.FunctionsList) -> None:
     """Test projection of a list of linear forms onto the reduced basis."""
     basis_functions = [functions_list[:2], functions_list[2:5]]
 
@@ -298,21 +298,21 @@ def test_projection_vector_block(mesh: dolfinx.mesh.Mesh, functions_list: miniro
     v = ufl.TestFunction(V)
     linear_forms = [ufl.inner(10**i, v) * ufl.dx for i in range(2)]
 
-    online_vec = minirox.backends.project_vector_block(linear_forms, basis_functions)
+    online_vec = rbnicsx.backends.project_vector_block(linear_forms, basis_functions)
     assert online_vec.size == 5
     assert np.allclose(online_vec[0:2], [1, 2])
     assert np.allclose(online_vec[2:5], np.array([3, 4, 5]) * 10)
 
-    online_vec2 = minirox.backends.project_vector_block(
+    online_vec2 = rbnicsx.backends.project_vector_block(
         [0.4 * linear_form for linear_form in linear_forms], basis_functions)
-    minirox.backends.project_vector_block(
+    rbnicsx.backends.project_vector_block(
         online_vec2, [0.6 * linear_form for linear_form in linear_forms], basis_functions)
     assert online_vec2.size == 5
     assert np.allclose(online_vec2.array, online_vec.array)
 
 
 def test_projection_matrix_galerkin(
-    mesh: dolfinx.mesh.Mesh, functions_list: minirox.backends.FunctionsList, to_dense_matrix: typing.Callable
+    mesh: dolfinx.mesh.Mesh, functions_list: rbnicsx.backends.FunctionsList, to_dense_matrix: typing.Callable
 ) -> None:
     """Test projection of a bilinear form onto the reduced basis (for use in Galerkin methods)."""
     basis_functions = functions_list[:2]
@@ -322,19 +322,19 @@ def test_projection_matrix_galerkin(
     v = ufl.TestFunction(V)
     bilinear_form = ufl.inner(u, v) * ufl.dx
 
-    online_mat = minirox.backends.project_matrix(bilinear_form, basis_functions)
+    online_mat = rbnicsx.backends.project_matrix(bilinear_form, basis_functions)
     assert online_mat.size == (2, 2)
     assert np.allclose(online_mat[0, :], [1, 2])
     assert np.allclose(online_mat[1, :], np.array([1, 2]) * 2)
 
-    online_mat2 = minirox.backends.project_matrix(0.4 * bilinear_form, basis_functions)
-    minirox.backends.project_matrix(online_mat2, 0.6 * bilinear_form, basis_functions)
+    online_mat2 = rbnicsx.backends.project_matrix(0.4 * bilinear_form, basis_functions)
+    rbnicsx.backends.project_matrix(online_mat2, 0.6 * bilinear_form, basis_functions)
     assert online_mat2.size == (2, 2)
     assert np.allclose(to_dense_matrix(online_mat2), to_dense_matrix(online_mat))
 
 
 def test_projection_matrix_petrov_galerkin(
-    mesh: dolfinx.mesh.Mesh, functions_list: minirox.backends.FunctionsList, to_dense_matrix: typing.Callable
+    mesh: dolfinx.mesh.Mesh, functions_list: rbnicsx.backends.FunctionsList, to_dense_matrix: typing.Callable
 ) -> None:
     """Test projection of a bilinear form onto the reduced basis (for use in Petrov-Galerkin methods)."""
     basis_functions = (functions_list[:2], functions_list[2:5])
@@ -344,19 +344,19 @@ def test_projection_matrix_petrov_galerkin(
     v = ufl.TestFunction(V)
     bilinear_form = ufl.inner(u, v) * ufl.dx
 
-    online_mat = minirox.backends.project_matrix(bilinear_form, basis_functions)
+    online_mat = rbnicsx.backends.project_matrix(bilinear_form, basis_functions)
     assert online_mat.size == (2, 3)
     assert np.allclose(online_mat[0, :], [3, 4, 5])
     assert np.allclose(online_mat[1, :], np.array([3, 4, 5]) * 2)
 
-    online_mat2 = minirox.backends.project_matrix(0.4 * bilinear_form, basis_functions)
-    minirox.backends.project_matrix(online_mat2, 0.6 * bilinear_form, basis_functions)
+    online_mat2 = rbnicsx.backends.project_matrix(0.4 * bilinear_form, basis_functions)
+    rbnicsx.backends.project_matrix(online_mat2, 0.6 * bilinear_form, basis_functions)
     assert online_mat2.size == (2, 3)
     assert np.allclose(to_dense_matrix(online_mat2), to_dense_matrix(online_mat))
 
 
 def test_projection_matrix_block_galerkin(
-    mesh: dolfinx.mesh.Mesh, functions_list: minirox.backends.FunctionsList, to_dense_matrix: typing.Callable
+    mesh: dolfinx.mesh.Mesh, functions_list: rbnicsx.backends.FunctionsList, to_dense_matrix: typing.Callable
 ) -> None:
     """Test projection of a matrix of bilinear forms onto the reduced basis (for use in Galerkin methods)."""
     basis_functions = [functions_list[:2], functions_list[2:5]]
@@ -366,7 +366,7 @@ def test_projection_matrix_block_galerkin(
     v = ufl.TestFunction(V)
     bilinear_forms = [[10**i * (-1)**j * ufl.inner(u, v) * ufl.dx for j in range(2)] for i in range(2)]
 
-    online_mat = minirox.backends.project_matrix_block(bilinear_forms, basis_functions)
+    online_mat = rbnicsx.backends.project_matrix_block(bilinear_forms, basis_functions)
     assert online_mat.size == (5, 5)
     assert np.allclose(online_mat[0, 0:2], [1, 2])
     assert np.allclose(online_mat[0, 2:5], np.array([3, 4, 5]) * -1)
@@ -379,10 +379,10 @@ def test_projection_matrix_block_galerkin(
     assert np.allclose(online_mat[4, 0:2], np.array([1, 2]) * 50)
     assert np.allclose(online_mat[4, 2:5], np.array([3, 4, 5]) * -50)
 
-    online_mat2 = minirox.backends.project_matrix_block(
+    online_mat2 = rbnicsx.backends.project_matrix_block(
         [[0.4 * bilinear_form for bilinear_form in bilinear_forms_] for bilinear_forms_ in bilinear_forms],
         basis_functions)
-    minirox.backends.project_matrix_block(
+    rbnicsx.backends.project_matrix_block(
         online_mat2,
         [[0.6 * bilinear_form for bilinear_form in bilinear_forms_] for bilinear_forms_ in bilinear_forms],
         basis_functions)
@@ -391,7 +391,7 @@ def test_projection_matrix_block_galerkin(
 
 
 def test_projection_matrix_block_petrov_galerkin(
-    mesh: dolfinx.mesh.Mesh, functions_list: minirox.backends.FunctionsList, to_dense_matrix: typing.Callable
+    mesh: dolfinx.mesh.Mesh, functions_list: rbnicsx.backends.FunctionsList, to_dense_matrix: typing.Callable
 ) -> None:
     """Test projection of a matrix of bilinear forms onto the reduced basis (for use in Petrov-Galerkin methods)."""
     basis_functions = ([functions_list[:2], functions_list[2:5]], [functions_list[5:9], functions_list[9:14]])
@@ -401,7 +401,7 @@ def test_projection_matrix_block_petrov_galerkin(
     v = ufl.TestFunction(V)
     bilinear_forms = [[10**i * (-1)**j * ufl.inner(u, v) * ufl.dx for j in range(2)] for i in range(2)]
 
-    online_mat = minirox.backends.project_matrix_block(bilinear_forms, basis_functions)
+    online_mat = rbnicsx.backends.project_matrix_block(bilinear_forms, basis_functions)
     assert online_mat.size == (5, 9)
     assert np.allclose(online_mat[0, 0:4], [6, 7, 8, 9])
     assert np.allclose(online_mat[0, 4:9], np.array([10, 11, 12, 13, 14]) * -1)
@@ -414,10 +414,10 @@ def test_projection_matrix_block_petrov_galerkin(
     assert np.allclose(online_mat[4, 0:4], np.array([6, 7, 8, 9]) * 50)
     assert np.allclose(online_mat[4, 4:9], np.array([10, 11, 12, 13, 14]) * -50)
 
-    online_mat2 = minirox.backends.project_matrix_block(
+    online_mat2 = rbnicsx.backends.project_matrix_block(
         [[0.4 * bilinear_form for bilinear_form in bilinear_forms_] for bilinear_forms_ in bilinear_forms],
         basis_functions)
-    minirox.backends.project_matrix_block(
+    rbnicsx.backends.project_matrix_block(
         online_mat2,
         [[0.6 * bilinear_form for bilinear_form in bilinear_forms_] for bilinear_forms_ in bilinear_forms],
         basis_functions)

@@ -8,15 +8,15 @@
 #include <pybind11/complex.h>
 #include <pybind11/pybind11.h>
 
-#include <minirox/backends/frobenius_inner_product.h>
+#include <rbnicsx/backends/frobenius_inner_product.h>
 
 namespace py = pybind11;
 
-namespace minirox_wrappers
+namespace rbnicsx_wrappers
 {
     void backends(py::module& m)
     {
-        m.def("frobenius_inner_product", &minirox::backends::frobenius_inner_product,
+        m.def("frobenius_inner_product", &rbnicsx::backends::frobenius_inner_product,
               "Frobenius inner product between PETSc Mat objects.");
     }
 }

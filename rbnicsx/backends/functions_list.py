@@ -13,8 +13,8 @@ import dolfinx.fem
 import numpy as np
 import petsc4py
 
-from minirox.backends.export import export_functions
-from minirox.backends.import_ import import_functions
+from rbnicsx.backends.export import export_functions
+from rbnicsx.backends.import_ import import_functions
 
 
 class FunctionsList(object):
@@ -143,7 +143,7 @@ class FunctionsList(object):
 
         Returns
         -------
-        typing.Union[dolfinx.fem.Function, minirox.backends.FunctionsList]
+        typing.Union[dolfinx.fem.Function, rbnicsx.backends.FunctionsList]
             Function at position `key` if `key` is an integer, otherwise FunctionsList obtained by
             storing every element at the indices in the slice `key`.
         """

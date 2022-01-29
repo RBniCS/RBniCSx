@@ -3,7 +3,7 @@
 # This file is part of RBniCSx.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""minirox setup script."""
+"""RBniCSx setup script."""
 
 import site
 import sys

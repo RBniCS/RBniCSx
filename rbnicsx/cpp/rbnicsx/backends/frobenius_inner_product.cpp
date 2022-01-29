@@ -6,9 +6,9 @@
 
 #include <dolfinx/la/petsc.h>  // for dolfinx::la::petsc::error
 
-#include <minirox/backends/frobenius_inner_product.h>
+#include <rbnicsx/backends/frobenius_inner_product.h>
 
-PetscScalar minirox::backends::frobenius_inner_product(Mat a, Mat b)
+PetscScalar rbnicsx::backends::frobenius_inner_product(Mat a, Mat b)
 {
     PetscInt start_a, end_a, ncols_a, start_b, end_b, ncols_b;
     PetscErrorCode ierr;

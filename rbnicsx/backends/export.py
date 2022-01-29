@@ -13,7 +13,7 @@ import dolfinx.io
 import numpy as np
 import petsc4py
 
-from minirox.io import on_rank_zero
+from rbnicsx.io import on_rank_zero
 
 
 def export_function(function: dolfinx.fem.Function, directory: str, filename: str) -> None:

@@ -8,7 +8,7 @@
 
 namespace py = pybind11;
 
-namespace minirox_wrappers
+namespace rbnicsx_wrappers
 {
     void backends(py::module& m);
 }
@@ -16,9 +16,9 @@ namespace minirox_wrappers
 PYBIND11_MODULE(SIGNATURE, m)
 {
     // Create module for C++ wrappers
-    m.doc() = "minirox Python interface";
+    m.doc() = "RBniCSx Python interface";
 
     // Create backends submodule
     py::module backends = m.def_submodule("backends", "backends module");
-    minirox_wrappers::backends(backends);
+    rbnicsx_wrappers::backends(backends);
 }

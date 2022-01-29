@@ -3,13 +3,13 @@
 # This file is part of RBniCSx.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""Tests for minirox.io.on_rank_zero module."""
+"""Tests for rbnicsx.io.on_rank_zero module."""
 
 import mpi4py
 import petsc4py
 import pytest
 
-import minirox.io
+import rbnicsx.io
 
 
 def test_on_rank_zero_no_return() -> None:
@@ -17,7 +17,7 @@ def test_on_rank_zero_no_return() -> None:
     def no_return_function() -> None:
         return None
 
-    assert minirox.io.on_rank_zero(mpi4py.MPI.COMM_WORLD, no_return_function) is None
+    assert rbnicsx.io.on_rank_zero(mpi4py.MPI.COMM_WORLD, no_return_function) is None
 
 
 def test_on_rank_zero_int_return() -> None:
@@ -27,7 +27,7 @@ def test_on_rank_zero_int_return() -> None:
     def int_return_function() -> int:
         return comm.rank
 
-    assert minirox.io.on_rank_zero(comm, int_return_function) == 0
+    assert rbnicsx.io.on_rank_zero(comm, int_return_function) == 0
 
 
 def test_on_rank_zero_raise() -> None:
@@ -38,7 +38,7 @@ def test_on_rank_zero_raise() -> None:
         raise RuntimeError
 
     with pytest.raises(RuntimeError):
-        minirox.io.on_rank_zero(comm, raise_function)
+        rbnicsx.io.on_rank_zero(comm, raise_function)
 
 
 def test_on_rank_zero_petsc4py_comm() -> None:
@@ -48,4 +48,4 @@ def test_on_rank_zero_petsc4py_comm() -> None:
     def int_return_function() -> int:
         return comm.rank
 
-    assert minirox.io.on_rank_zero(comm, int_return_function) == 0
+    assert rbnicsx.io.on_rank_zero(comm, int_return_function) == 0

@@ -3,7 +3,7 @@
 # This file is part of RBniCSx.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""Tests for minirox.backends.proper_orthogonal_decomposition module."""
+"""Tests for rbnicsx.backends.proper_orthogonal_decomposition module."""
 
 import typing
 
@@ -15,7 +15,7 @@ import petsc4py
 import pytest
 import ufl
 
-import minirox.backends
+import rbnicsx.backends
 
 
 @pytest.fixture
@@ -26,10 +26,10 @@ def mesh() -> dolfinx.mesh.Mesh:
 
 
 @pytest.fixture
-def functions_list(mesh: dolfinx.mesh.Mesh) -> minirox.backends.FunctionsList:
-    """Generate a minirox.backends.FunctionsList with four linearly dependent entries."""
+def functions_list(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.FunctionsList:
+    """Generate a rbnicsx.backends.FunctionsList with four linearly dependent entries."""
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
-    functions_list = minirox.backends.FunctionsList(V)
+    functions_list = rbnicsx.backends.FunctionsList(V)
     for i in range(4):
         function = dolfinx.fem.Function(V)
         with function.vector.localForm() as function_local:
@@ -60,8 +60,8 @@ def compute_inner_product(
 
 
 @pytest.fixture
-def tensors_list_vec(mesh: dolfinx.mesh.Mesh) -> minirox.backends.TensorsList:
-    """Generate a minirox.backends.TensorsList with two linearly dependent petsc4py.PETSc.Vec entries."""
+def tensors_list_vec(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsList:
+    """Generate a rbnicsx.backends.TensorsList with two linearly dependent petsc4py.PETSc.Vec entries."""
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
     v = ufl.TestFunction(V)
     linear_forms = [ufl.inner(i + 1, v) * ufl.dx for i in range(2)]
@@ -69,14 +69,14 @@ def tensors_list_vec(mesh: dolfinx.mesh.Mesh) -> minirox.backends.TensorsList:
     vectors = [dolfinx.fem.assemble_vector(linear_form_cpp) for linear_form_cpp in linear_forms_cpp]
     [vector.ghostUpdate(
         addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE) for vector in vectors]
-    tensors_list = minirox.backends.TensorsList(linear_forms_cpp[0], mesh.comm)
+    tensors_list = rbnicsx.backends.TensorsList(linear_forms_cpp[0], mesh.comm)
     [tensors_list.append(vector) for vector in vectors]
     return tensors_list
 
 
 @pytest.fixture
-def tensors_list_mat(mesh: dolfinx.mesh.Mesh) -> minirox.backends.TensorsList:
-    """Generate a minirox.backends.TensorsList with two linearly dependent petsc4py.PETSc.Mat entries."""
+def tensors_list_mat(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsList:
+    """Generate a rbnicsx.backends.TensorsList with two linearly dependent petsc4py.PETSc.Mat entries."""
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
     u = ufl.TrialFunction(V)
     v = ufl.TestFunction(V)
@@ -84,17 +84,17 @@ def tensors_list_mat(mesh: dolfinx.mesh.Mesh) -> minirox.backends.TensorsList:
     bilinear_forms_cpp = dolfinx.fem.form(bilinear_forms)
     matrices = [dolfinx.fem.assemble_matrix(bilinear_form_cpp) for bilinear_form_cpp in bilinear_forms_cpp]
     [matrix.assemble() for matrix in matrices]
-    tensors_list = minirox.backends.TensorsList(bilinear_forms_cpp[0], mesh.comm)
+    tensors_list = rbnicsx.backends.TensorsList(bilinear_forms_cpp[0], mesh.comm)
     [tensors_list.append(matrix) for matrix in matrices]
     return tensors_list
 
 
 @pytest.mark.parametrize("normalize", [True, False])
 def test_proper_orthogonal_decomposition_functions(
-    functions_list: minirox.backends.FunctionsList, inner_product: ufl.Form, normalize: bool
+    functions_list: rbnicsx.backends.FunctionsList, inner_product: ufl.Form, normalize: bool
 ) -> None:
-    """Check minirox.backends.proper_orthogonal_decomposition for the case of dolfinx.fem.Function snapshots."""
-    eigenvalues, modes, eigenvectors = minirox.backends.proper_orthogonal_decomposition(
+    """Check rbnicsx.backends.proper_orthogonal_decomposition for the case of dolfinx.fem.Function snapshots."""
+    eigenvalues, modes, eigenvectors = rbnicsx.backends.proper_orthogonal_decomposition(
         functions_list[:2], inner_product, N=2, tol=0.0, normalize=normalize)
     assert len(eigenvalues) == 2
     assert np.isclose(eigenvalues[0], 5)
@@ -109,14 +109,14 @@ def test_proper_orthogonal_decomposition_functions(
 
 @pytest.mark.parametrize("normalize", [True, False])
 def test_proper_orthogonal_decomposition_functions_tol(
-    functions_list: minirox.backends.FunctionsList, inner_product: ufl.Form, normalize: bool
+    functions_list: rbnicsx.backends.FunctionsList, inner_product: ufl.Form, normalize: bool
 ) -> None:
     """
-    Check minirox.backends.proper_orthogonal_decomposition for the case of dolfinx.fem.Function snapshots.
+    Check rbnicsx.backends.proper_orthogonal_decomposition for the case of dolfinx.fem.Function snapshots.
 
     The case of non zero tolerance is tested here.
     """
-    eigenvalues, modes, eigenvectors = minirox.backends.proper_orthogonal_decomposition(
+    eigenvalues, modes, eigenvectors = rbnicsx.backends.proper_orthogonal_decomposition(
         functions_list[:2], inner_product, N=2, tol=1e-8, normalize=normalize)
     assert len(eigenvalues) == 2
     assert np.isclose(eigenvalues[0], 5)
@@ -133,11 +133,11 @@ def test_proper_orthogonal_decomposition_functions_tol(
     "stopping_criterion_generator",
     [lambda arg: arg, lambda arg: [arg, arg]])
 def test_proper_orthogonal_decomposition_block(
-    functions_list: minirox.backends.FunctionsList, inner_product: ufl.Form, normalize: bool,
+    functions_list: rbnicsx.backends.FunctionsList, inner_product: ufl.Form, normalize: bool,
     stopping_criterion_generator: typing.Callable
 ) -> None:
-    """Check minirox.backends.proper_orthogonal_decomposition_block."""
-    eigenvalues, modes, eigenvectors = minirox.backends.proper_orthogonal_decomposition_block(
+    """Check rbnicsx.backends.proper_orthogonal_decomposition_block."""
+    eigenvalues, modes, eigenvectors = rbnicsx.backends.proper_orthogonal_decomposition_block(
         [functions_list[:2], functions_list[2:4]], [inner_product, 2 * inner_product],
         N=stopping_criterion_generator(2), tol=stopping_criterion_generator(0.0), normalize=normalize)
     assert len(eigenvalues) == 2
@@ -161,10 +161,10 @@ def test_proper_orthogonal_decomposition_block(
 
 @pytest.mark.parametrize("normalize", [True, False])
 def test_proper_orthogonal_decomposition_vectors(
-    tensors_list_vec: minirox.backends.TensorsList, normalize: bool
+    tensors_list_vec: rbnicsx.backends.TensorsList, normalize: bool
 ) -> None:
-    """Check minirox.backends.proper_orthogonal_decomposition for the case of petsc4py.PETSc.Vec snapshots."""
-    eigenvalues, modes, eigenvectors = minirox.backends.proper_orthogonal_decomposition(
+    """Check rbnicsx.backends.proper_orthogonal_decomposition for the case of petsc4py.PETSc.Vec snapshots."""
+    eigenvalues, modes, eigenvectors = rbnicsx.backends.proper_orthogonal_decomposition(
         tensors_list_vec, N=2, tol=0.0, normalize=normalize)
     assert len(eigenvalues) == 2
     assert eigenvalues[0] > 0
@@ -177,10 +177,10 @@ def test_proper_orthogonal_decomposition_vectors(
 
 @pytest.mark.parametrize("normalize", [True, False])
 def test_proper_orthogonal_decomposition_matrices(
-    tensors_list_mat: minirox.backends.TensorsList, normalize: bool
+    tensors_list_mat: rbnicsx.backends.TensorsList, normalize: bool
 ) -> None:
-    """Check minirox.backends.proper_orthogonal_decomposition for the case of petsc4py.PETSc.Mat snapshots."""
-    eigenvalues, modes, eigenvectors = minirox.backends.proper_orthogonal_decomposition(
+    """Check rbnicsx.backends.proper_orthogonal_decomposition for the case of petsc4py.PETSc.Mat snapshots."""
+    eigenvalues, modes, eigenvectors = rbnicsx.backends.proper_orthogonal_decomposition(
         tensors_list_mat, N=2, tol=0.0, normalize=normalize)
     assert len(eigenvalues) == 2
     assert eigenvalues[0] > 0
@@ -195,11 +195,11 @@ def test_proper_orthogonal_decomposition_matrices(
 def test_proper_orthogonal_decomposition_zero(
     mesh: dolfinx.mesh.Mesh, inner_product: ufl.Form, normalize: bool
 ) -> None:
-    """Check minirox.backends.proper_orthogonal_decomposition for the case of all zero snapshots."""
+    """Check rbnicsx.backends.proper_orthogonal_decomposition for the case of all zero snapshots."""
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
-    functions_list = minirox.backends.FunctionsList(V)
+    functions_list = rbnicsx.backends.FunctionsList(V)
     functions_list.extend([dolfinx.fem.Function(V) for _ in range(2)])
-    eigenvalues, modes, eigenvectors = minirox.backends.proper_orthogonal_decomposition(
+    eigenvalues, modes, eigenvectors = rbnicsx.backends.proper_orthogonal_decomposition(
         functions_list[:2], inner_product, N=2, tol=0.0, normalize=normalize)
     assert len(eigenvalues) == 2
     assert np.isclose(eigenvalues[0], 0)
@@ -211,6 +211,6 @@ def test_proper_orthogonal_decomposition_zero(
 
 
 def test_proper_orthogonal_decomposition_wrong_iterable() -> None:
-    """Check minirox.backends.proper_orthogonal_decomposition raises when providing a plain list."""
+    """Check rbnicsx.backends.proper_orthogonal_decomposition raises when providing a plain list."""
     with pytest.raises(RuntimeError):
-        minirox.backends.proper_orthogonal_decomposition(list(), N=0, tol=0.0)
+        rbnicsx.backends.proper_orthogonal_decomposition(list(), N=0, tol=0.0)

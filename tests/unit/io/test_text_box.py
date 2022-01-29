@@ -3,16 +3,16 @@
 # This file is part of RBniCSx.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""Tests for minirox.io.text_box module."""
+"""Tests for rbnicsx.io.text_box module."""
 
-import minirox.io
+import rbnicsx.io
 
 
 def test_text_box() -> None:
     """Unit test for TextBox.__str__."""
     greet = ["Hello, World!", "Ciao mondo!"]
     fill = "#"
-    text_box = minirox.io.TextBox("\n".join(greet), fill=fill)
+    text_box = rbnicsx.io.TextBox("\n".join(greet), fill=fill)
     text_box_str = str(text_box)
     text_box_lines = text_box_str.split("\n")
     assert len(text_box_lines) == 4

@@ -3,7 +3,7 @@
 # This file is part of RBniCSx.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""minirox cpp module."""
+"""RBniCSx cpp module."""
 
 import os
 
@@ -12,7 +12,7 @@ import multiphenicsx.cpp
 
 cpp_library = multiphenicsx.cpp.compile_package(
     mpi4py.MPI.COMM_WORLD,
-    "minirox",
+    "rbnicsx",
     os.path.dirname(os.path.abspath(__file__)),
     "backends/frobenius_inner_product.cpp"
 )

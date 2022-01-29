@@ -69,7 +69,7 @@ class Timer(object):
 
 def store_elapsed_time(storage: typing.Iterable[float], index: int) -> typing.Callable:
     """
-    Auxiliary function to be passed as third argument to minirox.io.Timer.
+    Auxiliary function to be passed as third argument to rbnicsx.io.Timer.
 
     This function handles the frequent case in which the user wants to store
     the elapsed time in an iterable object such as a list or a numpy array.

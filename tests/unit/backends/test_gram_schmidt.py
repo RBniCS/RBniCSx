@@ -3,7 +3,7 @@
 # This file is part of RBniCSx.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""Tests for minirox.backends.gram_schmidt module."""
+"""Tests for rbnicsx.backends.gram_schmidt module."""
 
 import typing
 
@@ -14,7 +14,7 @@ import numpy as np
 import pytest
 import ufl
 
-import minirox.backends
+import rbnicsx.backends
 
 
 @pytest.fixture
@@ -63,17 +63,17 @@ def compute_inner_product(
 
 
 def test_gram_schmidt(functions: typing.List[dolfinx.fem.Function], inner_product: ufl.Form) -> None:
-    """Check minirox.backends.gram_schmidt."""
+    """Check rbnicsx.backends.gram_schmidt."""
     V = functions[0].function_space
-    functions_list = minirox.backends.FunctionsList(V)
+    functions_list = rbnicsx.backends.FunctionsList(V)
     assert len(functions_list) == 0
 
-    minirox.backends.gram_schmidt(functions_list, functions[0], inner_product)
+    rbnicsx.backends.gram_schmidt(functions_list, functions[0], inner_product)
     assert len(functions_list) == 1
     assert np.isclose(compute_inner_product(inner_product, functions_list[0], functions_list[0]), 1)
     assert np.allclose(functions_list[0].vector.array, 1)
 
-    minirox.backends.gram_schmidt(functions_list, functions[1], inner_product)
+    rbnicsx.backends.gram_schmidt(functions_list, functions[1], inner_product)
     assert len(functions_list) == 2
     assert np.isclose(compute_inner_product(inner_product, functions_list[0], functions_list[0]), 1)
     assert np.isclose(compute_inner_product(inner_product, functions_list[1], functions_list[1]), 1)
@@ -86,32 +86,32 @@ def test_gram_schmidt(functions: typing.List[dolfinx.fem.Function], inner_produc
 
 
 def test_gram_schmidt_zero(mesh: dolfinx.mesh.Mesh, inner_product: ufl.Form) -> None:
-    """Check minirox.backends.gram_schmidt when adding a linearly dependent function (e.g., zero)."""
+    """Check rbnicsx.backends.gram_schmidt when adding a linearly dependent function (e.g., zero)."""
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
 
-    functions_list = minirox.backends.FunctionsList(V)
+    functions_list = rbnicsx.backends.FunctionsList(V)
     assert len(functions_list) == 0
 
     zero = dolfinx.fem.Function(V)
-    minirox.backends.gram_schmidt(functions_list, zero, inner_product)
+    rbnicsx.backends.gram_schmidt(functions_list, zero, inner_product)
     assert len(functions_list) == 0
 
 
 def test_gram_schmidt_block(functions: typing.List[dolfinx.fem.Function], inner_product: ufl.Form) -> None:
-    """Check minirox.backends.gram_schmidt_block."""
+    """Check rbnicsx.backends.gram_schmidt_block."""
     V = functions[0].function_space
-    functions_lists = [minirox.backends.FunctionsList(V) for _ in range(2)]
+    functions_lists = [rbnicsx.backends.FunctionsList(V) for _ in range(2)]
     for functions_list in functions_lists:
         assert len(functions_list) == 0
 
-    minirox.backends.gram_schmidt_block(
+    rbnicsx.backends.gram_schmidt_block(
         functions_lists, [functions[0], functions[2]], [inner_product, 2 * inner_product])
     for (functions_list, factor) in zip(functions_lists, [1, 2]):
         assert len(functions_list) == 1
         assert np.isclose(compute_inner_product(factor * inner_product, functions_list[0], functions_list[0]), 1)
         assert np.allclose(functions_list[0].vector.array, 1 / np.sqrt(factor))
 
-    minirox.backends.gram_schmidt_block(
+    rbnicsx.backends.gram_schmidt_block(
         functions_lists, [functions[1], functions[3]], [inner_product, 2 * inner_product])
     for (functions_list, factor, expected1_expr) in zip(
             functions_lists, [1, 2], [lambda x: 2 * x[0] + x[1] - 1.5, lambda x: x[0] + 2 * x[1] - 1.5]):

@@ -14,9 +14,9 @@ import dolfinx.fem
 import mpi4py
 import petsc4py
 
-from minirox.backends.export import export_matrices, export_vectors
-from minirox.backends.import_ import import_matrices, import_vectors
-from minirox.io import on_rank_zero
+from rbnicsx.backends.export import export_matrices, export_vectors
+from rbnicsx.backends.import_ import import_matrices, import_vectors
+from rbnicsx.io import on_rank_zero
 
 
 class TensorsList(object):
@@ -202,7 +202,7 @@ class TensorsList(object):
 
         Returns
         -------
-        typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec, minirox.backends.TensorsList]
+        typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec, rbnicsx.backends.TensorsList]
             Tensor at position `key` if `key` is an integer, otherwise TensorsList obtained by
             storing every element at the indices in the slice `key`.
         """

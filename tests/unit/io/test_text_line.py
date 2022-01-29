@@ -3,16 +3,16 @@
 # This file is part of RBniCSx.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""Tests for minirox.io.text_line module."""
+"""Tests for rbnicsx.io.text_line module."""
 
-import minirox.io
+import rbnicsx.io
 
 
 def test_text_line() -> None:
     """Unit test for TextLine.__str__."""
     greet = "Hello, World!"
     fill = "#"
-    text_line = minirox.io.TextLine(greet, fill=fill)
+    text_line = rbnicsx.io.TextLine(greet, fill=fill)
     text_line_str = str(text_line)
     text_line_len = len(text_line_str)
     first_space = text_line_str.find(" ")

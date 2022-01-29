@@ -3,7 +3,7 @@
 # This file is part of RBniCSx.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""Tests for minirox.io.timer module."""
+"""Tests for rbnicsx.io.timer module."""
 
 import time
 
@@ -11,7 +11,7 @@ import mpi4py
 import petsc4py
 import pytest
 
-import minirox.io
+import rbnicsx.io
 
 
 def _expected_measured_time(sleep_time: float, comm: mpi4py.MPI.Intracomm, op: mpi4py.MPI.Op) -> float:
@@ -34,6 +34,6 @@ def _expected_measured_time(sleep_time: float, comm: mpi4py.MPI.Intracomm, op: m
 def test_timer(comm: mpi4py.MPI.Intracomm, op: mpi4py.MPI.Op) -> None:
     """Test timer with different communicators and operations."""
     timings = [None]
-    with minirox.io.Timer(comm, op, minirox.io.store_elapsed_time(timings, 0)):
+    with rbnicsx.io.Timer(comm, op, rbnicsx.io.store_elapsed_time(timings, 0)):
         time.sleep(0.05)
     assert timings[0] >= _expected_measured_time(0.05, comm, op)

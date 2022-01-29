@@ -13,7 +13,7 @@ import numpy as np
 import petsc4py
 import ufl
 
-from minirox.backends.functions_list import FunctionsList
+from rbnicsx.backends.functions_list import FunctionsList
 
 
 def gram_schmidt(functions_list: FunctionsList, new_function: dolfinx.fem.Function, inner_product: ufl.Form) -> None:
@@ -24,7 +24,7 @@ def gram_schmidt(functions_list: FunctionsList, new_function: dolfinx.fem.Functi
 
     Parameters
     ----------
-    functions_list : minirox.backends.FunctionsList
+    functions_list : rbnicsx.backends.FunctionsList
         A set of orthonormal functions.
     new_function : dolfinx.fem.Function
         New function to be orthonormalized and added to the set.
@@ -64,7 +64,7 @@ def gram_schmidt_block(
 
     Parameters
     ----------
-    functions_lists : typing.List[minirox.backends.FunctionsList]
+    functions_lists : typing.List[rbnicsx.backends.FunctionsList]
         A set of orthonormal functions. Each function is made of several blocks, defined on possibly different
         function spaces. The inner FunctionsList contains all orthonormal functions of a single block, while
         the outer list collects the different blocks.

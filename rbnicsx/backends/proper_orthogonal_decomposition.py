@@ -15,10 +15,10 @@ import petsc4py
 import slepc4py
 import ufl
 
-from minirox.backends.functions_list import FunctionsList
-from minirox.backends.projection import create_online_matrix, create_online_vector
-from minirox.backends.tensors_list import TensorsList
-from minirox.cpp import cpp_library
+from rbnicsx.backends.functions_list import FunctionsList
+from rbnicsx.backends.projection import create_online_matrix, create_online_vector
+from rbnicsx.backends.tensors_list import TensorsList
+from rbnicsx.cpp import cpp_library
 
 
 @functools.singledispatch
@@ -46,7 +46,7 @@ def _(
 
     Parameters
     ----------
-    functions_list : minirox.backends.FunctionsList
+    functions_list : rbnicsx.backends.FunctionsList
         Collected snapshots.
     inner_product : ufl.Form
         Bilinear form which defines the inner product. The resulting modes will be orthonormal
@@ -62,7 +62,7 @@ def _(
     -------
     np.typing.NDArray[float]
         Eigenvalues of the correlation matrix, largest first. All computed eigenvalues are returned.
-    minirox.backends.FunctionsList
+    rbnicsx.backends.FunctionsList
         Retained modes from the snapshots. Only the first few modes are returned, till either the
         maximum number N is reached or the tolerance on the retained energy is fulfilled.
     typing.List[petsc4py.PETSc.Vec]
@@ -100,7 +100,7 @@ def proper_orthogonal_decomposition_block(
 
     Parameters
     ----------
-    functions_lists : typing.List[minirox.backends.FunctionsList]
+    functions_lists : typing.List[rbnicsx.backends.FunctionsList]
         Collected snapshots. Each snapshot is made of several blocks, defined on possibly different function spaces.
         The inner FunctionsList contains all snapshots of a single block, while the outer list collects the different
         blocks.
@@ -121,7 +121,7 @@ def proper_orthogonal_decomposition_block(
     typing.List[np.typing.NDArray[float]]
         Eigenvalues of the correlation matrix, largest first. All computed eigenvalues are returned.
         The outer list collects the eigenvalues of different blocks.
-    typing.List[minirox.backends.FunctionsList]
+    typing.List[rbnicsx.backends.FunctionsList]
         Retained modes from the snapshots. Only the first few modes are returned, till either the
         maximum number N is reached or the tolerance on the retained energy is fulfilled.
         The outer list collects the retained modes of different blocks.
@@ -161,7 +161,7 @@ def _(
 
     Parameters
     ----------
-    tensors_list : minirox.backends.TensorsList
+    tensors_list : rbnicsx.backends.TensorsList
         Collected tensors.
     N : int
         Maximum number of modes to be computed.
@@ -174,7 +174,7 @@ def _(
     -------
     np.typing.NDArray[float]
         Eigenvalues of the correlation matrix, largest first. All computed eigenvalues are returned.
-    minirox.backends.TensorsList
+    rbnicsx.backends.TensorsList
         Retained modes from the tensors. Only the first few modes are returned, till either the
         maximum number N is reached or the tolerance on the retained energy is fulfilled.
     typing.List[petsc4py.PETSc.Vec]
@@ -218,7 +218,7 @@ def _solve_eigenvalue_problem(
 
     Parameters
     ----------
-    snapshots : typing.Union[minirox.backends.FunctionsList, minirox.backends.TensorsList]
+    snapshots : typing.Union[rbnicsx.backends.FunctionsList, rbnicsx.backends.TensorsList]
         Collected snapshots.
     compute_inner_product : typing.Callable
         A function that computes the inner product between two snapshots.
