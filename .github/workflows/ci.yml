@@ -1,4 +1,4 @@
-name: minirox CI
+name: RBniCSx CI
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
   test:
     uses: multiphenics/multiphenicsx/.github/workflows/flake8_tests_tutorials.yml@main
     with:
-      repository: "minirox/minirox"
-      library: "minirox"
+      repository: "RBniCS/RBniCSx"
+      library: "rbnicsx"
     secrets:
       REPO_ACCESS_TOKEN: ${{ secrets.SCHEDULED_ACTIONS_WARNING_API_TOKEN }}
