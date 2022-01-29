@@ -1,13 +1,13 @@
-# Copyright (C) 2021-2022 by the minirox authors
+# Copyright (C) 2021-2022 by the RBniCSx authors
 #
-# This file is part of minirox.
+# This file is part of RBniCSx.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """minirox documentation configuration."""
 
 # Project information
 project = "minirox"
-copyright = "2021-2022, the minirox authors"
+copyright = "2021-2022, the RBniCSx authors"
 author = "Francesco Ballarin (and contributors)"
 
 # General configuration

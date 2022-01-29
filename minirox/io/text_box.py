@@ -1,6 +1,6 @@
-# Copyright (C) 2021-2022 by the minirox authors
+# Copyright (C) 2021-2022 by the RBniCSx authors
 #
-# This file is part of minirox.
+# This file is part of RBniCSx.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Draw a box of text surrounded by a fill character."""
