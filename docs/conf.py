@@ -3,10 +3,10 @@
 # This file is part of RBniCSx.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""minirox documentation configuration."""
+"""RBniCSx documentation configuration."""
 
 # Project information
-project = "minirox"
+project = "RBniCSx"
 copyright = "2021-2022, the RBniCSx authors"
 author = "Francesco Ballarin (and contributors)"
 

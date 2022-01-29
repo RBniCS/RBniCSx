@@ -1,4 +1,4 @@
-minirox documentation
+RBniCSx documentation
 =====================
 
 .. toctree::

@@ -4,6 +4,6 @@ API reference
 .. autosummary::
    :toctree: generated
 
-   minirox.backends
-   minirox.io
-   minirox.test
+   rbnicsx.backends
+   rbnicsx.io
+   rbnicsx.test
