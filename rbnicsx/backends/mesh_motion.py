@@ -62,11 +62,9 @@ class MeshMotion(object):
     def deformation(self) -> dolfinx.fem.Function:
         """Return the deformation, i.e. the difference between the shape parametrization and the identity map."""
         deformation = dolfinx.fem.Function(self._shape_parametrization.function_space)
-        with (
-            deformation.vector.localForm() as deformation_local,
-            self._shape_parametrization.vector.localForm() as extended_local,
-            self.identity.vector.localForm() as identity_local
-        ):
+        with deformation.vector.localForm() as deformation_local, \
+                self._shape_parametrization.vector.localForm() as extended_local, \
+                self.identity.vector.localForm() as identity_local:
             deformation_local[:] = extended_local - identity_local
         return deformation
 
