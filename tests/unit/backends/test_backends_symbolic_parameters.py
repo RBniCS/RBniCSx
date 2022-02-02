@@ -23,7 +23,7 @@ def mesh() -> dolfinx.mesh.Mesh:
 
 
 @pytest.mark.parametrize("shape", [(), (2,), (2, 2)])
-def test_symbolic_parameters_shape(mesh: dolfinx.mesh.Mesh, shape: typing.Tuple[int]) -> None:
+def test_backends_symbolic_parameters_shape(mesh: dolfinx.mesh.Mesh, shape: typing.Tuple[int]) -> None:
     """Check null initialization of symbolic parameters."""
     mu = rbnicsx.backends.SymbolicParameters(mesh, shape=shape)
     assert mu.ufl_shape == shape
@@ -31,13 +31,13 @@ def test_symbolic_parameters_shape(mesh: dolfinx.mesh.Mesh, shape: typing.Tuple[
     assert np.allclose(mu.value, 0.0)
 
 
-def test_symbolic_parameters_mesh(mesh: dolfinx.mesh.Mesh) -> None:
+def test_backends_symbolic_parameters_mesh(mesh: dolfinx.mesh.Mesh) -> None:
     """Check mesh initialization of symbolic parameters."""
     mu = rbnicsx.backends.SymbolicParameters(mesh, shape=())
     assert mu.ufl_domain() == mesh.ufl_domain()
 
 
-def test_symbolic_parameters_name(mesh: dolfinx.mesh.Mesh) -> None:
+def test_backends_symbolic_parameters_name(mesh: dolfinx.mesh.Mesh) -> None:
     """Check name initialization of symbolic parameters."""
     mu = rbnicsx.backends.SymbolicParameters(mesh, shape=())
     assert mu._name == "mu"

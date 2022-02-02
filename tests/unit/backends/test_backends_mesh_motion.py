@@ -74,7 +74,9 @@ def identity(mesh: dolfinx.mesh.Mesh) -> dolfinx.fem.Function:
     return identity
 
 
-def test_mesh_motion_context_manager(mesh: dolfinx.mesh.Mesh, shape_parametrization: dolfinx.fem.Function) -> None:
+def test_backends_mesh_motion_context_manager(
+    mesh: dolfinx.mesh.Mesh, shape_parametrization: dolfinx.fem.Function
+) -> None:
     """Test that the mesh coordinates change inside the MeshMotion context manager, and reset afterwards."""
     reference_coordinates = mesh.geometry.x.copy()
 
@@ -87,7 +89,7 @@ def test_mesh_motion_context_manager(mesh: dolfinx.mesh.Mesh, shape_parametrizat
     assert np.allclose(mesh.geometry.x[:], reference_coordinates)
 
 
-def test_mesh_motion_shape_parametrization_property(
+def test_backends_mesh_motion_shape_parametrization_property(
     mesh: dolfinx.mesh.Mesh, shape_parametrization: dolfinx.fem.Function
 ) -> None:
     """Test that the shape parametrization property stores the provided function."""
@@ -95,7 +97,7 @@ def test_mesh_motion_shape_parametrization_property(
     assert mesh_motion.shape_parametrization is shape_parametrization
 
 
-def test_mesh_motion_identity(
+def test_backends_mesh_motion_identity(
     mesh: dolfinx.mesh.Mesh, shape_parametrization: dolfinx.fem.Function, identity: dolfinx.fem.Function
 ) -> None:
     """Test that the identity property initializes and stores a function."""
@@ -106,7 +108,7 @@ def test_mesh_motion_identity(
     assert np.allclose(mesh_motion._identity.vector.array, identity.vector.array)
 
 
-def test_mesh_motion_deformation(mesh: dolfinx.mesh.Mesh, identity: dolfinx.fem.Function) -> None:
+def test_backends_mesh_motion_deformation(mesh: dolfinx.mesh.Mesh, identity: dolfinx.fem.Function) -> None:
     """Test that the deformation property computes the difference between shape parametrization and identity map."""
     mesh_motion = rbnicsx.backends.MeshMotion(mesh, identity)
     assert np.allclose(mesh_motion.deformation.vector.array, 0)

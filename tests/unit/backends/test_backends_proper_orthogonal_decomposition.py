@@ -90,7 +90,7 @@ def tensors_list_mat(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsList:
 
 
 @pytest.mark.parametrize("normalize", [True, False])
-def test_proper_orthogonal_decomposition_functions(
+def test_backends_proper_orthogonal_decomposition_functions(
     functions_list: rbnicsx.backends.FunctionsList, inner_product: ufl.Form, normalize: bool
 ) -> None:
     """Check rbnicsx.backends.proper_orthogonal_decomposition for the case of dolfinx.fem.Function snapshots."""
@@ -108,7 +108,7 @@ def test_proper_orthogonal_decomposition_functions(
 
 
 @pytest.mark.parametrize("normalize", [True, False])
-def test_proper_orthogonal_decomposition_functions_tol(
+def test_backends_proper_orthogonal_decomposition_functions_tol(
     functions_list: rbnicsx.backends.FunctionsList, inner_product: ufl.Form, normalize: bool
 ) -> None:
     """
@@ -132,7 +132,7 @@ def test_proper_orthogonal_decomposition_functions_tol(
 @pytest.mark.parametrize(
     "stopping_criterion_generator",
     [lambda arg: arg, lambda arg: [arg, arg]])
-def test_proper_orthogonal_decomposition_block(
+def test_backends_proper_orthogonal_decomposition_block(
     functions_list: rbnicsx.backends.FunctionsList, inner_product: ufl.Form, normalize: bool,
     stopping_criterion_generator: typing.Callable
 ) -> None:
@@ -160,7 +160,7 @@ def test_proper_orthogonal_decomposition_block(
 
 
 @pytest.mark.parametrize("normalize", [True, False])
-def test_proper_orthogonal_decomposition_vectors(
+def test_backends_proper_orthogonal_decomposition_vectors(
     tensors_list_vec: rbnicsx.backends.TensorsList, normalize: bool
 ) -> None:
     """Check rbnicsx.backends.proper_orthogonal_decomposition for the case of petsc4py.PETSc.Vec snapshots."""
@@ -176,7 +176,7 @@ def test_proper_orthogonal_decomposition_vectors(
 
 
 @pytest.mark.parametrize("normalize", [True, False])
-def test_proper_orthogonal_decomposition_matrices(
+def test_backends_proper_orthogonal_decomposition_matrices(
     tensors_list_mat: rbnicsx.backends.TensorsList, normalize: bool
 ) -> None:
     """Check rbnicsx.backends.proper_orthogonal_decomposition for the case of petsc4py.PETSc.Mat snapshots."""
@@ -192,7 +192,7 @@ def test_proper_orthogonal_decomposition_matrices(
 
 
 @pytest.mark.parametrize("normalize", [True, False])
-def test_proper_orthogonal_decomposition_zero(
+def test_backends_proper_orthogonal_decomposition_zero(
     mesh: dolfinx.mesh.Mesh, inner_product: ufl.Form, normalize: bool
 ) -> None:
     """Check rbnicsx.backends.proper_orthogonal_decomposition for the case of all zero snapshots."""
@@ -210,7 +210,7 @@ def test_proper_orthogonal_decomposition_zero(
     assert len(eigenvectors) == 2
 
 
-def test_proper_orthogonal_decomposition_wrong_iterable() -> None:
+def test_backends_proper_orthogonal_decomposition_wrong_iterable() -> None:
     """Check rbnicsx.backends.proper_orthogonal_decomposition raises when providing a plain list."""
     with pytest.raises(RuntimeError):
         rbnicsx.backends.proper_orthogonal_decomposition(list(), N=0, tol=0.0)

@@ -62,7 +62,7 @@ def compute_inner_product(
         op=mpi4py.MPI.SUM)
 
 
-def test_gram_schmidt(functions: typing.List[dolfinx.fem.Function], inner_product: ufl.Form) -> None:
+def test_backends_gram_schmidt(functions: typing.List[dolfinx.fem.Function], inner_product: ufl.Form) -> None:
     """Check rbnicsx.backends.gram_schmidt."""
     V = functions[0].function_space
     functions_list = rbnicsx.backends.FunctionsList(V)
@@ -85,7 +85,7 @@ def test_gram_schmidt(functions: typing.List[dolfinx.fem.Function], inner_produc
     assert np.allclose(functions_list[1].vector.array, expected1.vector.array)
 
 
-def test_gram_schmidt_zero(mesh: dolfinx.mesh.Mesh, inner_product: ufl.Form) -> None:
+def test_backends_gram_schmidt_zero(mesh: dolfinx.mesh.Mesh, inner_product: ufl.Form) -> None:
     """Check rbnicsx.backends.gram_schmidt when adding a linearly dependent function (e.g., zero)."""
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
 
@@ -97,7 +97,7 @@ def test_gram_schmidt_zero(mesh: dolfinx.mesh.Mesh, inner_product: ufl.Form) -> 
     assert len(functions_list) == 0
 
 
-def test_gram_schmidt_block(functions: typing.List[dolfinx.fem.Function], inner_product: ufl.Form) -> None:
+def test_backends_gram_schmidt_block(functions: typing.List[dolfinx.fem.Function], inner_product: ufl.Form) -> None:
     """Check rbnicsx.backends.gram_schmidt_block."""
     V = functions[0].function_space
     functions_lists = [rbnicsx.backends.FunctionsList(V) for _ in range(2)]

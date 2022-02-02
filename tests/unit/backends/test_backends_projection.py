@@ -37,7 +37,7 @@ def functions_list(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.FunctionsList:
     return functions_list
 
 
-def test_projection_vector(mesh: dolfinx.mesh.Mesh, functions_list: rbnicsx.backends.FunctionsList) -> None:
+def test_backends_projection_vector(mesh: dolfinx.mesh.Mesh, functions_list: rbnicsx.backends.FunctionsList) -> None:
     """Test projection of a linear form onto the reduced basis."""
     basis_functions = functions_list[:2]
 
@@ -55,7 +55,9 @@ def test_projection_vector(mesh: dolfinx.mesh.Mesh, functions_list: rbnicsx.back
     assert np.allclose(online_vec2.array, online_vec.array)
 
 
-def test_projection_vector_block(mesh: dolfinx.mesh.Mesh, functions_list: rbnicsx.backends.FunctionsList) -> None:
+def test_backends_projection_vector_block(
+    mesh: dolfinx.mesh.Mesh, functions_list: rbnicsx.backends.FunctionsList
+) -> None:
     """Test projection of a list of linear forms onto the reduced basis."""
     basis_functions = [functions_list[:2], functions_list[2:5]]
 
@@ -76,7 +78,7 @@ def test_projection_vector_block(mesh: dolfinx.mesh.Mesh, functions_list: rbnics
     assert np.allclose(online_vec2.array, online_vec.array)
 
 
-def test_projection_matrix_galerkin(
+def test_backends_projection_matrix_galerkin(
     mesh: dolfinx.mesh.Mesh, functions_list: rbnicsx.backends.FunctionsList, to_dense_matrix: typing.Callable
 ) -> None:
     """Test projection of a bilinear form onto the reduced basis (for use in Galerkin methods)."""
@@ -98,7 +100,7 @@ def test_projection_matrix_galerkin(
     assert np.allclose(to_dense_matrix(online_mat2), to_dense_matrix(online_mat))
 
 
-def test_projection_matrix_petrov_galerkin(
+def test_backends_projection_matrix_petrov_galerkin(
     mesh: dolfinx.mesh.Mesh, functions_list: rbnicsx.backends.FunctionsList, to_dense_matrix: typing.Callable
 ) -> None:
     """Test projection of a bilinear form onto the reduced basis (for use in Petrov-Galerkin methods)."""
@@ -120,7 +122,7 @@ def test_projection_matrix_petrov_galerkin(
     assert np.allclose(to_dense_matrix(online_mat2), to_dense_matrix(online_mat))
 
 
-def test_projection_matrix_block_galerkin(
+def test_backends_projection_matrix_block_galerkin(
     mesh: dolfinx.mesh.Mesh, functions_list: rbnicsx.backends.FunctionsList, to_dense_matrix: typing.Callable
 ) -> None:
     """Test projection of a matrix of bilinear forms onto the reduced basis (for use in Galerkin methods)."""
@@ -155,7 +157,7 @@ def test_projection_matrix_block_galerkin(
     assert np.allclose(to_dense_matrix(online_mat2), to_dense_matrix(online_mat))
 
 
-def test_projection_matrix_block_petrov_galerkin(
+def test_backends_projection_matrix_block_petrov_galerkin(
     mesh: dolfinx.mesh.Mesh, functions_list: rbnicsx.backends.FunctionsList, to_dense_matrix: typing.Callable
 ) -> None:
     """Test projection of a matrix of bilinear forms onto the reduced basis (for use in Petrov-Galerkin methods)."""
