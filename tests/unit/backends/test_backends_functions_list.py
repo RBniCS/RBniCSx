@@ -40,6 +40,11 @@ def test_backends_functions_list_function_space(functions_list: rbnicsx.backends
     assert functions_list.function_space == functions_list[0].function_space
 
 
+def test_backends_functions_list_comm(functions_list: rbnicsx.backends.FunctionsList) -> None:
+    """Check rbnicsx.backends.FunctionsList.comm."""
+    assert functions_list.comm == functions_list[0].function_space.mesh.comm
+
+
 def test_backends_functions_list_extend(functions_list: rbnicsx.backends.FunctionsList) -> None:
     """Check rbnicsx.backends.FunctionsList.extend."""
     functions_list2 = rbnicsx.backends.FunctionsList(functions_list.function_space)
