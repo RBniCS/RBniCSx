@@ -8,12 +8,12 @@
 import typing
 
 import dolfinx.fem
-import mpi4py
 import numpy as np
 import petsc4py
 import ufl
 
 from rbnicsx.backends.functions_list import FunctionsList
+from rbnicsx.backends.projection import bilinear_form_action
 
 
 def gram_schmidt(functions_list: FunctionsList, new_function: dolfinx.fem.Function, inner_product: ufl.Form) -> None:
@@ -32,14 +32,7 @@ def gram_schmidt(functions_list: FunctionsList, new_function: dolfinx.fem.Functi
         Bilinear form which defines the inner product. The resulting modes will be orthonormal
         w.r.t. this inner product.
     """
-    comm = functions_list.function_space.mesh.comm
-    test, trial = inner_product.arguments()
-
-    def compute_inner_product(function_i: dolfinx.fem.Function, function_j: dolfinx.fem.Function) -> float:
-        return comm.allreduce(
-            dolfinx.fem.assemble_scalar(
-                dolfinx.fem.form(ufl.replace(inner_product, {test: function_i, trial: function_j}))),
-            op=mpi4py.MPI.SUM)
+    compute_inner_product = bilinear_form_action(inner_product)
 
     orthonormalized = dolfinx.fem.Function(new_function.function_space)
     orthonormalized.x.array[:] = new_function.x.array

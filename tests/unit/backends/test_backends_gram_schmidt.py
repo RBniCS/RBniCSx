@@ -11,6 +11,7 @@ import dolfinx.fem
 import dolfinx.mesh
 import mpi4py
 import numpy as np
+import petsc4py
 import pytest
 import ufl
 
@@ -52,14 +53,10 @@ def inner_product(mesh: dolfinx.mesh.Mesh) -> ufl.Form:
 
 def compute_inner_product(
     inner_product: ufl.Form, function_i: dolfinx.fem.Function, function_j: dolfinx.fem.Function
-) -> float:
+) -> petsc4py.PETSc.ScalarType:
     """Evaluate the inner product between two functions."""
-    comm = function_i.function_space.mesh.comm
-    test, trial = inner_product.arguments()
-    return comm.allreduce(
-        dolfinx.fem.assemble_scalar(
-            dolfinx.fem.form(ufl.replace(inner_product, {test: function_i, trial: function_j}))),
-        op=mpi4py.MPI.SUM)
+    inner_product_action = rbnicsx.backends.bilinear_form_action(inner_product)
+    return inner_product_action(function_i, function_j)
 
 
 def test_backends_gram_schmidt(functions: typing.List[dolfinx.fem.Function], inner_product: ufl.Form) -> None:

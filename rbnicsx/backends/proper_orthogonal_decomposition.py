@@ -9,7 +9,6 @@ import functools
 import typing
 
 import dolfinx.fem
-import mpi4py
 import numpy as np
 import petsc4py
 import slepc4py
@@ -17,6 +16,7 @@ import ufl
 
 import rbnicsx.online
 from rbnicsx.backends.functions_list import FunctionsList
+from rbnicsx.backends.projection import bilinear_form_action
 from rbnicsx.backends.tensors_list import TensorsList
 from rbnicsx.cpp import cpp_library
 
@@ -69,14 +69,7 @@ def _(
         Eigenvectors of the correlation matrix. Only the first few eigenvectors are returned, till
         either the maximum number N is reached or the tolerance on the retained energy is fulfilled.
     """
-    comm = functions_list.function_space.mesh.comm
-    test, trial = inner_product.arguments()
-
-    def compute_inner_product(function_i: dolfinx.fem.Function, function_j: dolfinx.fem.Function) -> float:
-        return comm.allreduce(
-            dolfinx.fem.assemble_scalar(
-                dolfinx.fem.form(ufl.replace(inner_product, {test: function_i, trial: function_j}))),
-            op=mpi4py.MPI.SUM)
+    compute_inner_product = bilinear_form_action(inner_product)
 
     def scale(function: dolfinx.fem.Function, factor: float) -> None:
         with function.vector.localForm() as function_local:

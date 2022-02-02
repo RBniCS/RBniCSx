@@ -3,18 +3,20 @@
 # This file is part of RBniCSx.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""Backend to project matrices and vectors on the reduced basis."""
+"""Backend to project UFL forms with arguments on a dolfinx function space on the reduced basis."""
 
 import functools
 import typing
 
 import dolfinx.fem
 import mpi4py
-import numpy as np
 import petsc4py
 import ufl
 
 import rbnicsx.online
+from rbnicsx._backends.projection import (
+    project_matrix as project_matrix_super, project_matrix_block as project_matrix_block_super,
+    project_vector as project_vector_super, project_vector_block as project_vector_block_super)
 from rbnicsx.backends.functions_list import FunctionsList
 
 
@@ -55,15 +57,7 @@ def _(b: petsc4py.PETSc.Vec, L: ufl.Form, B: FunctionsList) -> None:
     B : rbnicsx.backends.FunctionsList
         Functions spanning the reduced basis space.
     """
-    test, = L.arguments()
-    comm = B.function_space.mesh.comm
-    for (n, fun) in enumerate(B):
-        b.setValue(  # cannot use setValueLocal due to incompatibility with getSubVector
-            n,
-            comm.allreduce(
-                dolfinx.fem.assemble_scalar(dolfinx.fem.form(ufl.replace(L, {test: fun}))),
-                op=mpi4py.MPI.SUM),
-            addv=petsc4py.PETSc.InsertMode.ADD)
+    project_vector_super(b, linear_form_action(L), B)
 
 
 @functools.singledispatch
@@ -103,16 +97,7 @@ def _(b: petsc4py.PETSc.Vec, L: typing.List[ufl.Form], B: typing.List[FunctionsL
     B : typing.List[rbnicsx.backends.FunctionsList]
         Functions spanning the reduced basis space associated to each solution component.
     """
-    assert len(L) == len(B)
-
-    blocks = np.hstack((0, np.cumsum([len(B_i) for B_i in B])))
-    for (i, (L_i, B_i)) in enumerate(zip(L, B)):
-        is_i = petsc4py.PETSc.IS().createGeneral(
-            np.arange(*blocks[i:i + 2], dtype=np.int32), comm=b.comm)
-        b_i = b.getSubVector(is_i)
-        project_vector(b_i, L_i, B_i)
-        b.restoreSubVector(is_i, b_i)
-        is_i.destroy()
+    project_vector_block_super(b, [linear_form_action(L_) for L_ in L], B)
 
 
 @functools.singledispatch
@@ -137,10 +122,12 @@ def project_matrix(
     """
     if isinstance(B, tuple):
         assert len(B) == 2
+        (M, N) = (len(B[0]), len(B[1]))
     else:
-        B = (B, B)
+        M = len(B)
+        N = M
 
-    A = rbnicsx.online.create_matrix(len(B[0]), len(B[1]))
+    A = rbnicsx.online.create_matrix(M, N)
     project_matrix(A, a, B)
     return A
 
@@ -163,22 +150,7 @@ def _(
         Functions spanning the reduced basis space. Two different basis of the same space
         can be provided, e.g. as in Petrov-Galerkin methods.
     """
-    if isinstance(B, tuple):
-        assert len(B) == 2
-    else:
-        B = (B, B)
-
-    test, trial = a.arguments()
-    comm = B[0].function_space.mesh.comm
-    for (m, fun_m) in enumerate(B[0]):
-        for (n, fun_n) in enumerate(B[1]):
-            A.setValueLocal(  # cannot use setValue due to incompatibility with getLocalSubMatrix
-                m, n,
-                comm.allreduce(
-                    dolfinx.fem.assemble_scalar(dolfinx.fem.form(ufl.replace(a, {test: fun_m, trial: fun_n}))),
-                    op=mpi4py.MPI.SUM),
-                addv=petsc4py.PETSc.InsertMode.ADD)
-    A.assemble()
+    project_matrix_super(A, bilinear_form_action(a), B)
 
 
 @functools.singledispatch
@@ -204,11 +176,12 @@ def project_matrix_block(
         Online matrix containing the result of the projection.
     """
     if isinstance(B, tuple):
-        assert len(B) == 2
+        (M, N) = ([len(B_i) for B_i in B[0]], [len(B_j) for B_j in B[1]])
     else:
-        B = (B, B)
+        M = [len(B_i) for B_i in B]
+        N = M
 
-    A = rbnicsx.online.create_matrix_block([len(B_i) for B_i in B[0]], [len(B_j) for B_j in B[1]])
+    A = rbnicsx.online.create_matrix_block(M, N)
     project_matrix_block(A, a, B)
     return A
 
@@ -236,25 +209,83 @@ def _(
         Functions spanning the reduced basis space associated to each solution component.
         Two different basis of the same space can be provided, e.g. as in Petrov-Galerkin methods.
     """
-    if isinstance(B, tuple):
-        assert len(B) == 2
-    else:
-        B = (B, B)
-    assert len(B[0]) == len(a)
-    assert all(len(row) == len(a[0]) for row in a[1:]), "Matrix of forms has incorrect rows"
-    assert len(B[1]) == len(a[0])
+    project_matrix_block_super(A, [[bilinear_form_action(a_ij) for a_ij in a_i] for a_i in a], B)
 
-    row_blocks = np.hstack((0, np.cumsum([len(B_i) for B_i in B[0]])))
-    col_blocks = np.hstack((0, np.cumsum([len(B_j) for B_j in B[1]])))
-    for (i, (a_i, B_i)) in enumerate(zip(a, B[0])):
-        is_i = petsc4py.PETSc.IS().createGeneral(
-            np.arange(*row_blocks[i:i + 2], dtype=np.int32), comm=A.comm)
-        for (j, (a_ij, B_j)) in enumerate(zip(a_i, B[1])):
-            is_j = petsc4py.PETSc.IS().createGeneral(
-                np.arange(*col_blocks[j:j + 2], dtype=np.int32), comm=A.comm)
-            A_ij = A.getLocalSubMatrix(is_i, is_j)
-            project_matrix(A_ij, a_ij, (B_i, B_j))
-            A.restoreLocalSubMatrix(is_i, is_j, A_ij)
-            is_j.destroy()
-        is_i.destroy()
-    A.assemble()
+
+def linear_form_action(L: ufl.Form) -> typing.Callable:
+    """
+    Return a callable that represents the action of a linear form on a function.
+
+    Parameters
+    ----------
+    L : ufl.Form
+        Linear form to be represented.
+
+    Returns
+    -------
+    typing.Callable
+        A callable that represents the action of L on a function.
+    """
+    test, = L.arguments()
+    comm = test.ufl_function_space().mesh.comm
+
+    def _(fun: dolfinx.fem.Function) -> petsc4py.PETSc.ScalarType:
+        """
+        Compute the action of a linear form on a function.
+
+        Parameters
+        ----------
+        fun : dolfinx.fem.Function
+            Function to be replaced to the test function.
+
+        Returns
+        -------
+        petsc4py.PETSc.ScalarType
+            Evaluation of the action of L on the provided function.
+        """
+        return comm.allreduce(
+            dolfinx.fem.assemble_scalar(dolfinx.fem.form(ufl.replace(L, {test: fun}))),
+            op=mpi4py.MPI.SUM)
+
+    return _
+
+
+def bilinear_form_action(a: ufl.Form) -> typing.Callable:
+    """
+    Return a callable that represents the action of a bilinear form on a pair of functions.
+
+    Parameters
+    ----------
+    a : ufl.Form
+        Bilinear form to be represented.
+
+    Returns
+    -------
+    typing.Callable
+        A callable that represents the action of a on a pair of functions.
+    """
+    test, trial = a.arguments()
+    comm = test.ufl_function_space().mesh.comm
+    assert trial.ufl_function_space().mesh.comm == comm
+
+    def _(fun_0: dolfinx.fem.Function, fun_1: dolfinx.fem.Function) -> petsc4py.PETSc.ScalarType:
+        """
+        Compute the action of a bilinear form on a pair of functions.
+
+        Parameters
+        ----------
+        fun_0 : dolfinx.fem.Function
+            Function to be replaced to the test function.
+        fun_1 : dolfinx.fem.Function
+            Function to be replaced to the trial function.
+
+        Returns
+        -------
+        petsc4py.PETSc.ScalarType
+            Evaluation of the action of a on the provided pair of functions.
+        """
+        return comm.allreduce(
+            dolfinx.fem.assemble_scalar(dolfinx.fem.form(ufl.replace(a, {test: fun_0, trial: fun_1}))),
+            op=mpi4py.MPI.SUM)
+
+    return _
