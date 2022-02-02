@@ -5,14 +5,15 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Tests for rbnicsx.backends.functions_list module."""
 
+import dolfinx.fem
 import dolfinx.mesh
 import dolfinx_utils.test.fixtures
 import mpi4py
 import numpy as np
-import petsc4py
 import pytest
 
 import rbnicsx.backends
+import rbnicsx.online
 
 tempdir = dolfinx_utils.test.fixtures.tempdir
 
@@ -114,7 +115,7 @@ def test_functions_list_save_load(functions_list: rbnicsx.backends.FunctionsList
 
 def test_functions_list_mul(functions_list: rbnicsx.backends.FunctionsList) -> None:
     """Check rbnicsx.backends.FunctionsList.__mul__."""
-    online_vec = petsc4py.PETSc.Vec().createSeq(2, comm=mpi4py.MPI.COMM_SELF)
+    online_vec = rbnicsx.online.create_vector(2)
     online_vec[0] = 3
     online_vec[1] = 5
 
@@ -127,7 +128,7 @@ def test_functions_list_mul_empty(mesh: dolfinx.mesh.Mesh) -> None:
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
     empty_functions_list = rbnicsx.backends.FunctionsList(V)
 
-    online_vec = petsc4py.PETSc.Vec().createSeq(0, comm=mpi4py.MPI.COMM_SELF)
+    online_vec = rbnicsx.online.create_vector(0)
 
     should_be_none = empty_functions_list * online_vec
     assert should_be_none is None

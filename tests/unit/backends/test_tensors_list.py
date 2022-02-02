@@ -8,6 +8,7 @@
 import typing
 
 import _pytest.fixtures
+import dolfinx.fem
 import dolfinx.mesh
 import dolfinx_utils.test.fixtures
 import mpi4py
@@ -243,7 +244,7 @@ def test_tensors_list_save_load_mat(
 
 def test_tensors_list_mul_vec(tensors_list_vec: rbnicsx.backends.TensorsList) -> None:
     """Check rbnicsx.backends.TensorsList.__mul__ in the case of petsc4py.PETSc.Vec content."""
-    online_vec = petsc4py.PETSc.Vec().createSeq(2, comm=mpi4py.MPI.COMM_SELF)
+    online_vec = rbnicsx.online.create_vector(2)
     online_vec[0] = 3
     online_vec[1] = 5
 
@@ -257,7 +258,7 @@ def test_tensors_list_mul_mat(
     tensors_list_mat: rbnicsx.backends.TensorsList, to_dense_matrix: typing.Callable
 ) -> None:
     """Check rbnicsx.backends.TensorsList.__mul__ in the case of petsc4py.PETSc.Mat content."""
-    online_vec = petsc4py.PETSc.Vec().createSeq(2, comm=mpi4py.MPI.COMM_SELF)
+    online_vec = rbnicsx.online.create_vector(2)
     online_vec[0] = 3
     online_vec[1] = 5
 
@@ -272,7 +273,7 @@ def test_tensors_list_mul_empty(mesh: dolfinx.mesh.Mesh) -> None:
     fake_form = None
     empty_tensors_list = rbnicsx.backends.TensorsList(fake_form, mesh.comm)
 
-    online_vec = petsc4py.PETSc.Vec().createSeq(0, comm=mpi4py.MPI.COMM_SELF)
+    online_vec = rbnicsx.online.create_vector(0)
     should_be_none = empty_tensors_list * online_vec
     assert should_be_none is None
 
