@@ -3,7 +3,7 @@
 # This file is part of RBniCSx.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""Backend to export functions, matrices and vectors."""
+"""Backend to export dolfinx functions, matrices and vectors."""
 
 import os
 import typing
@@ -13,7 +13,9 @@ import dolfinx.io
 import numpy as np
 import petsc4py
 
-from rbnicsx.io import on_rank_zero
+from rbnicsx._backends.export import (
+    export_matrices as export_matrices_super, export_matrix as export_matrix_super,
+    export_vector as export_vector_super, export_vectors as export_vectors_super)
 
 
 def export_function(function: dolfinx.fem.Function, directory: str, filename: str) -> None:
@@ -69,7 +71,7 @@ def export_functions(
 
 def export_matrix(mat: petsc4py.PETSc.Mat, directory: str, filename: str) -> None:
     """
-    Export a petsc4py.PETSc.Mat to file.
+    Export a petsc4py.PETSc.Mat assembled by dolfinx to file.
 
     Parameters
     ----------
@@ -80,45 +82,28 @@ def export_matrix(mat: petsc4py.PETSc.Mat, directory: str, filename: str) -> Non
     filename : str
         Name of the file where to export the matrix.
     """
-    os.makedirs(directory, exist_ok=True)
-    viewer = petsc4py.PETSc.Viewer().createBinary(os.path.join(directory, filename + ".dat"), "w", mat.comm)
-    viewer.view(mat)
-    viewer.destroy()
+    export_matrix_super(mat, directory, filename)
 
 
 def export_matrices(mats: typing.List[petsc4py.PETSc.Mat], directory: str, filename: str) -> None:
     """
-    Export a list of petsc4py.PETSc.Mat to file.
+    Export a list of petsc4py.PETSc.Mat assembled by dolfinx to file.
 
     Parameters
     ----------
-    mat : typing.List[petsc4py.PETSc.Mat]
+    mats : typing.List[petsc4py.PETSc.Mat]
         Matrices to be exported.
     directory : str
         Directory where to export the matrix.
     filename : str
         Name of the file where to export the matrix.
     """
-    os.makedirs(os.path.join(directory, filename), exist_ok=True)
-    comm = mats[0].comm
-
-    # Write out length of the list
-    def write_length() -> None:
-        with open(os.path.join(directory, filename, "length.dat"), "w") as length_file:
-            length_file.write(str(len(mats)))
-    on_rank_zero(comm, write_length)
-
-    # Write out the list
-    for (index, mat) in enumerate(mats):
-        viewer = petsc4py.PETSc.Viewer().createBinary(
-            os.path.join(directory, filename, str(index) + ".dat"), "w", comm)
-        viewer.view(mat)
-        viewer.destroy()
+    export_matrices_super(mats, directory, filename)
 
 
 def export_vector(vec: petsc4py.PETSc.Vec, directory: str, filename: str) -> None:
     """
-    Export a petsc4py.PETSc.Vec to file.
+    Export a petsc4py.PETSc.Vec assembled by dolfinx to file.
 
     Parameters
     ----------
@@ -129,15 +114,12 @@ def export_vector(vec: petsc4py.PETSc.Vec, directory: str, filename: str) -> Non
     filename : str
         Name of the file where to export the vector.
     """
-    os.makedirs(directory, exist_ok=True)
-    viewer = petsc4py.PETSc.Viewer().createBinary(os.path.join(directory, filename + ".dat"), "w", vec.comm)
-    viewer.view(vec)
-    viewer.destroy()
+    export_vector_super(vec, directory, filename)
 
 
 def export_vectors(vecs: typing.List[petsc4py.PETSc.Vec], directory: str, filename: str) -> None:
     """
-    Export a list of petsc4py.PETSc.Vec to file.
+    Export a list of petsc4py.PETSc.Vec assembled by dolfinx to file.
 
     Parameters
     ----------
@@ -148,18 +130,4 @@ def export_vectors(vecs: typing.List[petsc4py.PETSc.Vec], directory: str, filena
     filename : str
         Name of the file where to export the vector.
     """
-    os.makedirs(os.path.join(directory, filename), exist_ok=True)
-    comm = vecs[0].comm
-
-    # Write out length of the list
-    def write_length() -> None:
-        with open(os.path.join(directory, filename, "length.dat"), "w") as length_file:
-            length_file.write(str(len(vecs)))
-    on_rank_zero(comm, write_length)
-
-    # Write out the list
-    for (index, vec) in enumerate(vecs):
-        viewer = petsc4py.PETSc.Viewer().createBinary(
-            os.path.join(directory, filename, str(index) + ".dat"), "w", comm)
-        viewer.view(vec)
-        viewer.destroy()
+    export_vectors_super(vecs, directory, filename)
