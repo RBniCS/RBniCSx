@@ -15,8 +15,8 @@ import petsc4py
 import slepc4py
 import ufl
 
+import rbnicsx.online
 from rbnicsx.backends.functions_list import FunctionsList
-from rbnicsx.backends.projection import create_online_matrix, create_online_vector
 from rbnicsx.backends.tensors_list import TensorsList
 from rbnicsx.cpp import cpp_library
 
@@ -244,7 +244,7 @@ def _solve_eigenvalue_problem(
         Eigenvectors of the correlation matrix. Only the first few eigenvectors are returned, till
         either the maximum number N is reached or the tolerance on the retained energy is fulfilled.
     """
-    correlation_matrix = create_online_matrix(len(snapshots), len(snapshots))
+    correlation_matrix = rbnicsx.online.create_matrix(len(snapshots), len(snapshots))
     for (i, snapshot_i) in enumerate(snapshots):
         for (j, snapshot_j) in enumerate(snapshots):
             correlation_matrix[i, j] = compute_inner_product(snapshot_i, snapshot_j)
@@ -274,7 +274,7 @@ def _solve_eigenvalue_problem(
     N = min(N, eps.getConverged())
     eigenvectors = list()
     for n in range(N):
-        eigenvector_n = create_online_vector(correlation_matrix.size[0])
+        eigenvector_n = rbnicsx.online.create_vector(correlation_matrix.size[0])
         eps.getEigenvector(n, eigenvector_n)
         eigenvectors.append(eigenvector_n)
         if tol > 0.0 and retained_energy[n] > 1.0 - tol:

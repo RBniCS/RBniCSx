@@ -14,10 +14,8 @@ import numpy as np
 import petsc4py
 import ufl
 
+import rbnicsx.online
 from rbnicsx.backends.functions_list import FunctionsList
-from rbnicsx.online import (
-    create_matrix as create_online_matrix, create_matrix_block as create_online_matrix_block,
-    create_vector as create_online_vector, create_vector_block as create_online_vector_block)
 
 
 @functools.singledispatch
@@ -37,7 +35,7 @@ def project_vector(L: ufl.Form, B: FunctionsList) -> petsc4py.PETSc.Vec:
     petsc4py.PETSc.Vec
         Online vector containing the result of the projection.
     """
-    b = create_online_vector(len(B))
+    b = rbnicsx.online.create_vector(len(B))
     project_vector(b, L, B)
     return b
 
@@ -85,7 +83,7 @@ def project_vector_block(L: typing.List[ufl.Form], B: typing.List[FunctionsList]
     petsc4py.PETSc.Vec
         Online vector containing the result of the projection.
     """
-    b = create_online_vector_block([len(B_i) for B_i in B])
+    b = rbnicsx.online.create_vector_block([len(B_i) for B_i in B])
     project_vector_block(b, L, B)
     return b
 
@@ -142,7 +140,7 @@ def project_matrix(
     else:
         B = (B, B)
 
-    A = create_online_matrix(len(B[0]), len(B[1]))
+    A = rbnicsx.online.create_matrix(len(B[0]), len(B[1]))
     project_matrix(A, a, B)
     return A
 
@@ -210,7 +208,7 @@ def project_matrix_block(
     else:
         B = (B, B)
 
-    A = create_online_matrix_block([len(B_i) for B_i in B[0]], [len(B_j) for B_j in B[1]])
+    A = rbnicsx.online.create_matrix_block([len(B_i) for B_i in B[0]], [len(B_j) for B_j in B[1]])
     project_matrix_block(A, a, B)
     return A
 
