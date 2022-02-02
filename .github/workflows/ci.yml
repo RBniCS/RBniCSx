@@ -17,6 +17,7 @@ jobs:
     with:
       repository: "RBniCS/RBniCSx"
       library: "rbnicsx"
+      extras: "backends,docs,lint,tests,tutorials"
     secrets:
       REPO_ACCESS_TOKEN: ""
 
@@ -38,7 +39,7 @@ jobs:
         gmsh
       pip_packages: |
         itkwidgets pyvista$pyvista%multiphenicsx.io
-        rbnicsx@https://github.com/RBniCS/RBniCSx.git
+        rbnicsx[backends]@https://github.com/RBniCS/RBniCSx.git$rbnicsx
       test_script: |
         python3 -m pip install kaleido plotly
         python3 -m pytest --nbval open_in_colab/tutorials
