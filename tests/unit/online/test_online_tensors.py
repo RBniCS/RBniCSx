@@ -99,12 +99,12 @@ def test_online_matrix_set() -> None:
     online_mat = rbnicsx.online.create_matrix(2, 3)
     for i in range(2):
         for j in range(3):
-            online_mat.setValue(i, j, i * 2 + j + 1)
+            online_mat.setValue(i, j, i * 3 + j + 1)
     online_mat.assemble()
     online_mat.view()
     for i in range(2):
         for j in range(3):
-            assert online_mat[i, j] == i * 2 + j + 1
+            assert online_mat[i, j] == i * 3 + j + 1
 
 
 def test_online_matrix_set_local() -> None:
@@ -112,12 +112,12 @@ def test_online_matrix_set_local() -> None:
     online_mat = rbnicsx.online.create_matrix(2, 3)
     for i in range(2):
         for j in range(3):
-            online_mat.setValueLocal(i, j, i * 2 + j + 1)
+            online_mat.setValueLocal(i, j, i * 3 + j + 1)
     online_mat.assemble()
     online_mat.view()
     for i in range(2):
         for j in range(3):
-            assert online_mat[i, j] == i * 2 + j + 1
+            assert online_mat[i, j] == i * 3 + j + 1
 
 
 def test_online_matrix_block_set() -> None:
