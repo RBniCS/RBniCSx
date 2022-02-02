@@ -3,30 +3,26 @@
 # This file is part of RBniCSx.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""Backend to wrap a list of PETSc Mat or Vec."""
+"""Backend to wrap a list of PETSc Mat or Vec assembled by dolfinx."""
 
 from __future__ import annotations
 
-import os
-import typing
-
 import dolfinx.fem
 import mpi4py
-import petsc4py
 
+from rbnicsx._backends.tensors_list import TensorsList as TensorsListBase
 from rbnicsx.backends.export import export_matrices, export_vectors
 from rbnicsx.backends.import_ import import_matrices, import_vectors
-from rbnicsx.io import on_rank_zero
 
 
-class TensorsList(object):
+class TensorsList(TensorsListBase):
     """
-    A class wrapping a list of PETSc Mat or Vec.
+    A class wrapping a list of PETSc Mat or Vec assembled by dolfinx.
 
     Parameters
     ----------
     form : dolfinx.fem.Form
-        The form which is used to assmemble the tensors.
+        The form which is used to assemble the tensors.
     comm : mpi4py.MPI.Intracomm
         Common MPI communicator that the PETSc objects will use.
 
@@ -44,72 +40,28 @@ class TensorsList(object):
 
     def __init__(self, form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm) -> None:
         self._form = form
-        self._comm = comm
-        self._list = list()
-        self._type = None
+        super().__init__(comm)
 
     @property
     def form(self) -> dolfinx.fem.Form:
-        """Return the form which is used to assmemble the tensors."""
+        """Return the form which is used to assemble the tensors."""
         return self._form
 
-    @property
-    def comm(self) -> str:
-        """Return the common MPI communicator that the PETSc objects will use."""
-        return self._comm
-
-    @property
-    def type(self) -> str:
-        """Return the type of tensors (Mat or Vec) currently stored."""
-        return self._type
-
-    def append(self, tensor: typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]) -> None:
+    def duplicate(self) -> TensorsList:
         """
-        Append a PETSc Mat or Vec to the list.
+        Duplicate this object to a new empty TensorsList.
 
-        Parameters
-        ----------
-        tensor : typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]
-            Tensor to be appended.
+        Returns
+        -------
+        rbnicsx.backends.TensorsList
+            A new TensorsList constructed from the same input arguments as this object.
+            Elements of this object are not copied to the new object.
         """
-        # Check that tensors of the same type are added
-        if isinstance(tensor, petsc4py.PETSc.Mat):
-            if self._type is None:
-                self._type = "Mat"
-            else:
-                assert self._type == "Mat"
-        elif isinstance(tensor, petsc4py.PETSc.Vec):
-            if self._type is None:
-                self._type = "Vec"
-            else:
-                assert self._type == "Vec"
-        else:
-            raise RuntimeError()
+        return TensorsList(self._form, self._comm)
 
-        # Append to storage
-        self._list.append(tensor)
-
-    def extend(
-        self, tensors: typing.Union[typing.Iterable[petsc4py.PETSc.Mat], typing.Iterable[petsc4py.PETSc.Vec]]
-    ) -> None:
+    def _save(self, directory: str, filename: str) -> None:
         """
-        Extend the current list with an iterable of PETSc Mat or an iterable of Vec.
-
-        Parameters
-        ----------
-        tensors : typing.Union[typing.Iterable[petsc4py.PETSc.Mat], typing.Iterable[petsc4py.PETSc.Vec]]
-            Tensors to be appended.
-        """
-        for tensor in tensors:
-            self.append(tensor)
-
-    def clear(self) -> None:
-        """Clear the storage."""
-        self._list = list()
-
-    def save(self, directory: str, filename: str) -> None:
-        """
-        Save this list to file.
+        Save this list to file querying the I/O functions in the backend.
 
         Parameters
         ----------
@@ -118,21 +70,16 @@ class TensorsList(object):
         filename : str
             Name of the file where to export the list.
         """
-        # Save type
-        def save_type() -> None:
-            with open(os.path.join(directory, filename + ".type"), "w") as type_file:
-                type_file.write(self._type)
-        on_rank_zero(self._comm, save_type)
-
-        # Save tensors
         if self._type == "Mat":
             export_matrices(self._list, directory, filename)
         elif self._type == "Vec":
             export_vectors(self._list, directory, filename)
+        else:
+            raise RuntimeError()
 
-    def load(self, directory: str, filename: str) -> None:
+    def _load(self, directory: str, filename: str) -> None:
         """
-        Load a list from file into this object.
+        Load a list from file into this object querying the I/O functions in the backend.
 
         Parameters
         ----------
@@ -141,93 +88,9 @@ class TensorsList(object):
         filename : str
             Name of the file where to import the list from.
         """
-        assert len(self._list) == 0
-
-        # Load type
-        def load_type() -> str:
-            with open(os.path.join(directory, filename + ".type"), "r") as type_file:
-                return type_file.readline()
-        self._type = on_rank_zero(self._comm, load_type)
-
-        # Load tensors
         if self._type == "Mat":
             self._list = import_matrices(self._form, self._comm, directory, filename)
         elif self._type == "Vec":
             self._list = import_vectors(self._form, self._comm, directory, filename)
-
-    def __mul__(self, other: petsc4py.PETSc.Vec) -> typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]:
-        """
-        Linearly combine tensors in the list.
-
-        Parameters
-        ----------
-        other : petsc4py.PETSc.Vec
-            Vector containing the coefficients of the linear combination.
-
-        Returns
-        -------
-        typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]
-            Tensor object storing the result of the linear combination.
-        """
-        if isinstance(other, petsc4py.PETSc.Vec):
-            assert other.getType() == petsc4py.PETSc.Vec.Type.SEQ
-            assert other.size == len(self._list)
-            if other.size == 0:
-                return None
-            else:
-                output = self._list[0].copy()
-                output.zeroEntries()
-                for i in range(other.size):
-                    output.axpy(other[i], self._list[i])
-                if self._type == "Vec":
-                    output.ghostUpdate(
-                        addv=petsc4py.PETSc.InsertMode.INSERT, mode=petsc4py.PETSc.ScatterMode.FORWARD)
-                return output
         else:
-            return NotImplemented
-
-    def __len__(self) -> int:
-        """Return the number of tensors currently stored in the list."""
-        return len(self._list)
-
-    def __getitem__(self, key: typing.Union[int, slice]) -> typing.Union[
-            petsc4py.PETSc.Mat, petsc4py.PETSc.Vec, TensorsList]:
-        """
-        Extract a single tensor from the list, or slice the list.
-
-        Parameters
-        ----------
-        key : typing.Union[int, slice]
-            Index (if int) or indices (if slice) to be extracted.
-
-        Returns
-        -------
-        typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec, rbnicsx.backends.TensorsList]
-            Tensor at position `key` if `key` is an integer, otherwise TensorsList obtained by
-            storing every element at the indices in the slice `key`.
-        """
-        if isinstance(key, int):
-            return self._list[key]
-        elif isinstance(key, slice):
-            output = TensorsList(self._form, self._comm)
-            output._list = self._list[key]
-            return output
-        else:
-            raise NotImplementedError()
-
-    def __setitem__(self, key: int, item: typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]) -> None:
-        """
-        Update the content of the list with the provided tensor.
-
-        Parameters
-        ----------
-        key : int
-            Index to be updated.
-        item : typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]
-            Tensor to be stored.
-        """
-        self._list[key] = item
-
-    def __iter__(self) -> typing.Iterator[typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]]:
-        """Return an iterator over the list."""
-        return self._list.__iter__()
+            raise RuntimeError()

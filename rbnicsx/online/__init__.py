@@ -12,3 +12,4 @@ from rbnicsx.online.import_ import (
     import_matrices, import_matrices_block, import_matrix, import_matrix_block, import_vector, import_vector_block,
     import_vectors, import_vectors_block)
 from rbnicsx.online.tensors import create_matrix, create_matrix_block, create_vector, create_vector_block
+from rbnicsx.online.tensors_list import TensorsList

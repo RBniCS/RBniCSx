@@ -74,10 +74,11 @@ def test_backends_tensors_list_type_mat(tensors_list_mat: rbnicsx.backends.Tenso
     tensors_list_mat.type == "Mat"
 
 
-def test_backends_tensors_list_type_none(tensors_list_mat: rbnicsx.backends.TensorsList) -> None:
+def test_backends_tensors_list_type_none() -> None:
     """Check rbnicsx.backends.TensorsList.type at initialization."""
-    tensors_list = rbnicsx.backends.TensorsList("fake_form", mpi4py.MPI.COMM_WORLD)
-    assert tensors_list.type is None
+    fake_form = None
+    empty_tensors_list = rbnicsx.backends.TensorsList(fake_form, mpi4py.MPI.COMM_WORLD)
+    assert empty_tensors_list.type is None
 
 
 def test_backends_tensors_list_append_mixed_types(
@@ -99,9 +100,15 @@ def test_backends_tensors_list_append_wrong_type(tensors_list_vec: rbnicsx.backe
         tensors_list_vec.append(None)
 
 
+def test_backends_tensors_list_duplicate(tensors_list: rbnicsx.backends.TensorsList) -> None:
+    """Check rbnicsx.backends.TensorsList.duplicate."""
+    tensors_list2 = tensors_list.duplicate()
+    assert len(tensors_list2) == 0
+
+
 def test_backends_tensors_list_extend(tensors_list: rbnicsx.backends.TensorsList) -> None:
     """Check rbnicsx.backends.TensorsList.extend."""
-    tensors_list2 = rbnicsx.backends.TensorsList(tensors_list.form, tensors_list.comm)
+    tensors_list2 = tensors_list.duplicate()
     tensors_list2.extend(tensors_list)
     assert len(tensors_list2) == 2
     for i in range(2):
@@ -215,8 +222,7 @@ def test_backends_tensors_list_save_load_vec(tensors_list_vec: rbnicsx.backends.
     """Check I/O for a rbnicsx.backends.TensorsList in the case of petsc4py.PETSc.Vec content."""
     tensors_list_vec.save(tempdir, "tensors_list_vec")
 
-    form, comm = tensors_list_vec.form, tensors_list_vec.comm
-    tensors_list_vec2 = rbnicsx.backends.TensorsList(form, comm)
+    tensors_list_vec2 = tensors_list_vec.duplicate()
     tensors_list_vec2.load(tempdir, "tensors_list_vec")
 
     assert len(tensors_list_vec2) == 2
@@ -230,13 +236,24 @@ def test_backends_tensors_list_save_load_mat(
     """Check I/O for a rbnicsx.backends.TensorsList in the case of petsc4py.PETSc.Mat content."""
     tensors_list_mat.save(tempdir, "tensors_list_mat")
 
-    form, comm = tensors_list_mat.form, tensors_list_mat.comm
-    tensors_list_mat2 = rbnicsx.backends.TensorsList(form, comm)
+    tensors_list_mat2 = tensors_list_mat.duplicate()
     tensors_list_mat2.load(tempdir, "tensors_list_mat")
 
     assert len(tensors_list_mat2) == 2
     for (matrix, matrix2) in zip(tensors_list_mat, tensors_list_mat2):
         assert np.allclose(to_dense_matrix(matrix2), to_dense_matrix(matrix))
+
+
+def test_backends_tensors_list_save_load_empty(tempdir: str) -> None:
+    """Check I/O for rbnicsx.backends.TensorsList when providing neither a Mat nor a Vec object."""
+    fake_form = None
+    empty_tensors_list = rbnicsx.backends.TensorsList(fake_form, mpi4py.MPI.COMM_WORLD)
+
+    with pytest.raises(RuntimeError):
+        empty_tensors_list.save(tempdir, "empty_tensors_list")
+
+    with pytest.raises(RuntimeError):
+        empty_tensors_list.load(tempdir, "empty_tensors_list")
 
 
 def test_backends_tensors_list_mul_vec(tensors_list_vec: rbnicsx.backends.TensorsList) -> None:
@@ -265,10 +282,10 @@ def test_backends_tensors_list_mul_mat(
     assert np.allclose(to_dense_matrix(matrix), 13 * to_dense_matrix(first_matrix))
 
 
-def test_backends_tensors_list_mul_empty(mesh: dolfinx.mesh.Mesh) -> None:
+def test_backends_tensors_list_mul_empty() -> None:
     """Check rbnicsx.backends.TensorsList.__mul__ with empty list."""
     fake_form = None
-    empty_tensors_list = rbnicsx.backends.TensorsList(fake_form, mesh.comm)
+    empty_tensors_list = rbnicsx.backends.TensorsList(fake_form, mpi4py.MPI.COMM_WORLD)
 
     online_vec = rbnicsx.online.create_vector(0)
     should_be_none = empty_tensors_list * online_vec
