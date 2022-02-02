@@ -7,15 +7,12 @@
 
 import dolfinx.fem
 import dolfinx.mesh
-import dolfinx_utils.test.fixtures
 import mpi4py
 import numpy as np
 import pytest
 
 import rbnicsx.backends
 import rbnicsx.online
-
-tempdir = dolfinx_utils.test.fixtures.tempdir
 
 
 @pytest.fixture

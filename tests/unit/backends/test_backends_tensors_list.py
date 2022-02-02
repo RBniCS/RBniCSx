@@ -10,7 +10,6 @@ import typing
 import _pytest.fixtures
 import dolfinx.fem
 import dolfinx.mesh
-import dolfinx_utils.test.fixtures
 import mpi4py
 import numpy as np
 import petsc4py
@@ -18,8 +17,6 @@ import pytest
 import ufl
 
 import rbnicsx.backends
-
-tempdir = dolfinx_utils.test.fixtures.tempdir
 
 
 @pytest.fixture
