@@ -7,8 +7,10 @@
 
 # Expose tensor creation functions which are implemented in the internal module to avoid cyclic imports
 from rbnicsx._backends.online_tensors import (
+    BlockMatSubMatrixCopier, BlockMatSubMatrixWrapper, BlockVecSubVectorCopier, BlockVecSubVectorWrapper,
     create_online_matrix as create_matrix, create_online_matrix_block as create_matrix_block,
-    create_online_vector as create_vector, create_online_vector_block as create_vector_block)
+    create_online_vector as create_vector, create_online_vector_block as create_vector_block, MatSubMatrixCopier,
+    MatSubMatrixWrapper, VecSubVectorCopier, VecSubVectorWrapper)
 #
 # Import functions and classes defined in this module
 from rbnicsx.online.export import (
