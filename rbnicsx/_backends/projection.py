@@ -7,10 +7,10 @@
 
 import typing
 
-import numpy as np
 import petsc4py
 
 from rbnicsx._backends.functions_list import FunctionsList
+from rbnicsx._backends.online_tensors import BlockMatSubMatrixWrapper, BlockVecSubVectorWrapper
 
 
 def project_vector(b: petsc4py.PETSc.Vec, L: typing.Callable, B: FunctionsList) -> None:
@@ -50,14 +50,11 @@ def project_vector_block(
     """
     assert len(L) == len(B)
 
-    blocks = np.hstack((0, np.cumsum([len(B_i) for B_i in B])))
-    for (i, (L_i, B_i)) in enumerate(zip(L, B)):
-        is_i = petsc4py.PETSc.IS().createGeneral(
-            np.arange(*blocks[i:i + 2], dtype=np.int32), comm=b.comm)
-        b_i = b.getSubVector(is_i)
-        project_vector(b_i, L_i, B_i)
-        b.restoreSubVector(is_i, b_i)
-        is_i.destroy()
+    N = [len(B_i) for B_i in B]
+    assert b.size == sum(N)
+    with BlockVecSubVectorWrapper(b, N) as b_wrapper:
+        for (i, (b_i, L_i, B_i)) in enumerate(zip(b_wrapper, L, B)):
+            project_vector(b_i, L_i, B_i)
 
 
 def project_matrix(
@@ -117,17 +114,10 @@ def project_matrix_block(
     assert all(len(row) == len(a[0]) for row in a[1:]), "Matrix of forms has incorrect rows"
     assert len(B[1]) == len(a[0])
 
-    row_blocks = np.hstack((0, np.cumsum([len(B_i) for B_i in B[0]])))
-    col_blocks = np.hstack((0, np.cumsum([len(B_j) for B_j in B[1]])))
-    for (i, (a_i, B_i)) in enumerate(zip(a, B[0])):
-        is_i = petsc4py.PETSc.IS().createGeneral(
-            np.arange(*row_blocks[i:i + 2], dtype=np.int32), comm=A.comm)
-        for (j, (a_ij, B_j)) in enumerate(zip(a_i, B[1])):
-            is_j = petsc4py.PETSc.IS().createGeneral(
-                np.arange(*col_blocks[j:j + 2], dtype=np.int32), comm=A.comm)
-            A_ij = A.getLocalSubMatrix(is_i, is_j)
-            project_matrix(A_ij, a_ij, (B_i, B_j))
-            A.restoreLocalSubMatrix(is_i, is_j, A_ij)
-            is_j.destroy()
-        is_i.destroy()
+    M = [len(B_i) for B_i in B[0]]
+    N = [len(B_j) for B_j in B[1]]
+    assert A.size == (sum(M), sum(N))
+    with BlockMatSubMatrixWrapper(A, M, N) as A_wrapper:
+        for (i, j, A_ij) in A_wrapper:
+            project_matrix(A_ij, a[i][j], (B[0][i], B[1][j]))
     A.assemble()
