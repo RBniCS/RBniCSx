@@ -14,44 +14,46 @@ import mpi4py
 import petsc4py
 
 Function = typing.TypeVar("Function")
-FunctionSpace = typing.TypeVar("FunctionSpace")
 
 
-class FunctionsList(abc.ABC, typing.Generic[Function, FunctionSpace]):
+class FunctionsList(abc.ABC, typing.Generic[Function]):
     """
     A class wrapping a list of Functions.
 
     Parameters
     ----------
-    function_space : FunctionSpace
-        Common finite element space of any Function that will be added to this list.
     comm : mpi4py.MPI.Intracomm
         Common MPI communicator that the Function objects will use.
 
     Attributes
     ----------
-    _function_space : FunctionSpace
-        Finite element space provided as input.
     _comm : mpi4py.MPI.Intracomm
         MPI communicator, derived from the finite element space provided as input.
     _list : tpying.List[Function]
         Internal storage.
     """
 
-    def __init__(self, function_space: FunctionSpace, comm: mpi4py.MPI.Intracomm) -> None:
-        self._function_space = function_space
+    def __init__(self, comm: mpi4py.MPI.Intracomm) -> None:
         self._comm = comm
         self._list = list()
-
-    @property
-    def function_space(self) -> FunctionSpace:
-        """Return the common finite element space of any Function that will be added to this list."""
-        return self._function_space
 
     @property
     def comm(self) -> str:
         """Return the common MPI communicator that the Function objects will use."""
         return self._comm
+
+    @abc.abstractmethod
+    def duplicate(self) -> FunctionsList:
+        """
+        Duplicate this object to a new empty FunctionsList.
+
+        Returns
+        -------
+        rbnicsx._backends.FunctionsList
+            A new FunctionsList constructed from the same input arguments as this object.
+            Elements of this object are not copied to the new object.
+        """
+        pass  # pragma: no cover
 
     def append(self, function: Function) -> None:
         """
@@ -197,7 +199,7 @@ class FunctionsList(abc.ABC, typing.Generic[Function, FunctionSpace]):
         if isinstance(key, int):
             return self._list[key]
         elif isinstance(key, slice):
-            output = type(self)(self._function_space)
+            output = self.duplicate()
             output._list = self._list[key]
             return output
         else:

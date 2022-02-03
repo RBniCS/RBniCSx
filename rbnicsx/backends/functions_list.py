@@ -5,6 +5,8 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Backend to wrap a list of dolfinx Functions."""
 
+from __future__ import annotations
+
 import dolfinx.fem
 import numpy as np
 import petsc4py
@@ -34,7 +36,25 @@ class FunctionsList(FunctionsListBase):
     """
 
     def __init__(self, function_space: dolfinx.fem.FunctionSpace) -> None:
-        super().__init__(function_space, function_space.mesh.comm)
+        self._function_space = function_space
+        super().__init__(function_space.mesh.comm)
+
+    @property
+    def function_space(self) -> dolfinx.fem.FunctionSpace:
+        """Return the common finite element space of any Function that will be added to this list."""
+        return self._function_space
+
+    def duplicate(self) -> FunctionsList:
+        """
+        Duplicate this object to a new empty FunctionsList.
+
+        Returns
+        -------
+        rbnicsx.backends.FunctionsList
+            A new FunctionsList constructed from the same input arguments as this object.
+            Elements of this object are not copied to the new object.
+        """
+        return FunctionsList(self._function_space)
 
     def _save(self, directory: str, filename: str) -> None:
         """

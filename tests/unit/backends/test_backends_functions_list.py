@@ -46,9 +46,15 @@ def test_backends_functions_list_comm(functions_list: rbnicsx.backends.Functions
     assert functions_list.comm == functions_list[0].function_space.mesh.comm
 
 
+def test_backends_functions_list_duplicate(functions_list: rbnicsx.backends.FunctionsList) -> None:
+    """Check rbnicsx.backends.FunctionsList.duplicate."""
+    functions_list2 = functions_list.duplicate()
+    assert len(functions_list2) == 0
+
+
 def test_backends_functions_list_extend(functions_list: rbnicsx.backends.FunctionsList) -> None:
     """Check rbnicsx.backends.FunctionsList.extend."""
-    functions_list2 = rbnicsx.backends.FunctionsList(functions_list.function_space)
+    functions_list2 = functions_list.duplicate()
     functions_list2.extend(functions_list)
     assert len(functions_list2) == 2
     for i in range(2):
@@ -108,8 +114,7 @@ def test_backends_functions_list_save_load(functions_list: rbnicsx.backends.Func
     with nbvalx.tempfile.TemporaryDirectory(functions_list.comm) as tempdir:
         functions_list.save(tempdir, "functions_list")
 
-        V = functions_list.function_space
-        functions_list2 = rbnicsx.backends.FunctionsList(V)
+        functions_list2 = functions_list.duplicate()
         functions_list2.load(tempdir, "functions_list")
 
         assert len(functions_list2) == 2
