@@ -12,7 +12,7 @@ import numpy as np
 import petsc4py
 
 
-def create_vector(N: int) -> petsc4py.PETSc.Vec:
+def create_online_vector(N: int) -> petsc4py.PETSc.Vec:
     """
     Create an online vector of the given dimension.
 
@@ -36,7 +36,7 @@ def create_vector(N: int) -> petsc4py.PETSc.Vec:
     return vec
 
 
-def create_vector_block(N: typing.List[int]) -> petsc4py.PETSc.Vec:
+def create_online_vector_block(N: typing.List[int]) -> petsc4py.PETSc.Vec:
     """
     Create an online vector of the given block dimensions.
 
@@ -50,10 +50,10 @@ def create_vector_block(N: typing.List[int]) -> petsc4py.PETSc.Vec:
     petsc4py.PETSc.Vec
         Allocated online vector.
     """
-    return create_vector(sum(N))
+    return create_online_vector(sum(N))
 
 
-def create_matrix(M: int, N: int) -> petsc4py.PETSc.Mat:
+def create_online_matrix(M: int, N: int) -> petsc4py.PETSc.Mat:
     """
     Create an online matrix of the given dimension.
 
@@ -79,7 +79,7 @@ def create_matrix(M: int, N: int) -> petsc4py.PETSc.Mat:
     return mat
 
 
-def create_matrix_block(M: typing.List[int], N: typing.List[int]) -> petsc4py.PETSc.Mat:
+def create_online_matrix_block(M: typing.List[int], N: typing.List[int]) -> petsc4py.PETSc.Mat:
     """
     Create an online matrix of the given block dimensions.
 
@@ -93,4 +93,4 @@ def create_matrix_block(M: typing.List[int], N: typing.List[int]) -> petsc4py.PE
     petsc4py.PETSc.Mat
         Allocated online matrix.
     """
-    return create_matrix(sum(M), sum(N))
+    return create_online_matrix(sum(M), sum(N))

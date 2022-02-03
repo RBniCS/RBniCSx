@@ -13,7 +13,9 @@ import petsc4py
 from rbnicsx._backends.import_ import (
     import_matrices as import_matrices_super, import_matrix as import_matrix_super,
     import_vector as import_vector_super, import_vectors as import_vectors_super)
-from rbnicsx.online.tensors import create_matrix, create_matrix_block, create_vector, create_vector_block
+from rbnicsx._backends.online_tensors import (
+    create_online_matrix as create_matrix, create_online_matrix_block as create_matrix_block,
+    create_online_vector as create_vector, create_online_vector_block as create_vector_block)
 
 
 def import_matrix(M: int, N: int, directory: str, filename: str) -> petsc4py.PETSc.Mat:

@@ -13,7 +13,8 @@ import mpi4py
 import petsc4py
 import ufl
 
-import rbnicsx.online
+from rbnicsx._backends.online_tensors import (
+    create_online_matrix, create_online_matrix_block, create_online_vector, create_online_vector_block)
 from rbnicsx._backends.projection import (
     project_matrix as project_matrix_super, project_matrix_block as project_matrix_block_super,
     project_vector as project_vector_super, project_vector_block as project_vector_block_super)
@@ -37,7 +38,7 @@ def project_vector(L: ufl.Form, B: FunctionsList) -> petsc4py.PETSc.Vec:
     petsc4py.PETSc.Vec
         Online vector containing the result of the projection.
     """
-    b = rbnicsx.online.create_vector(len(B))
+    b = create_online_vector(len(B))
     project_vector(b, L, B)
     return b
 
@@ -77,7 +78,7 @@ def project_vector_block(L: typing.List[ufl.Form], B: typing.List[FunctionsList]
     petsc4py.PETSc.Vec
         Online vector containing the result of the projection.
     """
-    b = rbnicsx.online.create_vector_block([len(B_i) for B_i in B])
+    b = create_online_vector_block([len(B_i) for B_i in B])
     project_vector_block(b, L, B)
     return b
 
@@ -127,7 +128,7 @@ def project_matrix(
         M = len(B)
         N = M
 
-    A = rbnicsx.online.create_matrix(M, N)
+    A = create_online_matrix(M, N)
     project_matrix(A, a, B)
     return A
 
@@ -181,7 +182,7 @@ def project_matrix_block(
         M = [len(B_i) for B_i in B]
         N = M
 
-    A = rbnicsx.online.create_matrix_block(M, N)
+    A = create_online_matrix_block(M, N)
     project_matrix_block(A, a, B)
     return A
 
