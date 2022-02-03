@@ -20,4 +20,6 @@ from rbnicsx.online.functions_list import FunctionsList
 from rbnicsx.online.import_ import (
     import_matrices, import_matrices_block, import_matrix, import_matrix_block, import_vector, import_vector_block,
     import_vectors, import_vectors_block)
+from rbnicsx.online.projection import (
+    matrix_action, project_matrix, project_matrix_block, project_vector, project_vector_block, vector_action)
 from rbnicsx.online.tensors_list import TensorsList
