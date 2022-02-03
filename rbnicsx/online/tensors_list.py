@@ -3,7 +3,7 @@
 # This file is part of RBniCSx.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""Backend to wrap a list of PETSc Mat or Vec assembled by dolfinx."""
+"""Online backend to wrap a list of PETSc Mat or Vec used to assemble online systems."""
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ from rbnicsx.online.import_ import import_matrices, import_matrices_block, impor
 
 class TensorsList(TensorsListBase):
     """
-    A class wrapping a list of online PETSc Mat or Vec.
+    A class wrapping a list of online PETSc Mat or Vec used to assemble online systems.
 
     Parameters
     ----------
@@ -27,7 +27,7 @@ class TensorsList(TensorsListBase):
 
     Attributes
     ----------
-    _shape : dolfinx.fem.Form
+    _shape : typing.Union[int, typing.Tuple[int], typing.List[int], typing.Tuple[typing.List[int]]]
         Shape provided as input.
     _is_block : bool
         Whether the tensor has a block structure or not.
