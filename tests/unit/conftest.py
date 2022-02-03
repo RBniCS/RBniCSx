@@ -11,7 +11,6 @@ This file assigns pytest hooks and declares common fixtures used across several 
 
 import typing
 
-import dolfinx_utils.test.fixtures
 import nbvalx.pytest_hooks_unit_tests
 import numpy as np
 import petsc4py
@@ -28,8 +27,6 @@ def to_dense_matrix() -> typing.Callable:
         return scipy.sparse.csr_matrix((av, aj, ai), shape=(mat.getLocalSize()[0], mat.getSize()[1])).toarray()
     return _
 
-
-tempdir = dolfinx_utils.test.fixtures.tempdir
 
 pytest_runtest_setup = nbvalx.pytest_hooks_unit_tests.runtest_setup
 pytest_runtest_teardown = nbvalx.pytest_hooks_unit_tests.runtest_teardown

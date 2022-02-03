@@ -8,6 +8,7 @@
 import typing
 
 import _pytest.fixtures
+import nbvalx.tempfile
 import numpy as np
 import pytest
 
@@ -280,41 +281,44 @@ def test_online_tensors_list_setitem_mat(
     assert np.allclose(to_dense_matrix(tensors_list_mat[1]), 2 * to_dense_matrix(tensors_list_mat.first_matrix))
 
 
-def test_online_tensors_list_save_load_vec(tensors_list_vec: rbnicsx.online.TensorsList, tempdir: str) -> None:
+def test_online_tensors_list_save_load_vec(tensors_list_vec: rbnicsx.online.TensorsList) -> None:
     """Check I/O for a rbnicsx.online.TensorsList in the case of petsc4py.PETSc.Vec content."""
-    tensors_list_vec.save(tempdir, "tensors_list_vec")
+    with nbvalx.tempfile.TemporaryDirectory(tensors_list_vec.comm) as tempdir:
+        tensors_list_vec.save(tempdir, "tensors_list_vec")
 
-    tensors_list_vec2 = tensors_list_vec.duplicate()
-    tensors_list_vec2.load(tempdir, "tensors_list_vec")
+        tensors_list_vec2 = tensors_list_vec.duplicate()
+        tensors_list_vec2.load(tempdir, "tensors_list_vec")
 
-    assert len(tensors_list_vec2) == 2
-    for (vector, vector2) in zip(tensors_list_vec, tensors_list_vec2):
-        assert np.allclose(vector2.array, vector.array)
+        assert len(tensors_list_vec2) == 2
+        for (vector, vector2) in zip(tensors_list_vec, tensors_list_vec2):
+            assert np.allclose(vector2.array, vector.array)
 
 
 def test_online_tensors_list_save_load_mat(
-    tensors_list_mat: rbnicsx.online.TensorsList, tempdir: str, to_dense_matrix: typing.Callable
+    tensors_list_mat: rbnicsx.online.TensorsList, to_dense_matrix: typing.Callable
 ) -> None:
     """Check I/O for a rbnicsx.online.TensorsList in the case of petsc4py.PETSc.Mat content."""
-    tensors_list_mat.save(tempdir, "tensors_list_mat")
+    with nbvalx.tempfile.TemporaryDirectory(tensors_list_mat.comm) as tempdir:
+        tensors_list_mat.save(tempdir, "tensors_list_mat")
 
-    tensors_list_mat2 = tensors_list_mat.duplicate()
-    tensors_list_mat2.load(tempdir, "tensors_list_mat")
+        tensors_list_mat2 = tensors_list_mat.duplicate()
+        tensors_list_mat2.load(tempdir, "tensors_list_mat")
 
-    assert len(tensors_list_mat2) == 2
-    for (matrix, matrix2) in zip(tensors_list_mat, tensors_list_mat2):
-        assert np.allclose(to_dense_matrix(matrix2), to_dense_matrix(matrix))
+        assert len(tensors_list_mat2) == 2
+        for (matrix, matrix2) in zip(tensors_list_mat, tensors_list_mat2):
+            assert np.allclose(to_dense_matrix(matrix2), to_dense_matrix(matrix))
 
 
-def test_online_tensors_list_save_load_empty(tempdir: str) -> None:
+def test_online_tensors_list_save_load_empty() -> None:
     """Check I/O for rbnicsx.online.TensorsList when providing neither a Mat nor a Vec object."""
     empty_tensors_list = rbnicsx.online.TensorsList(0)
 
-    with pytest.raises(RuntimeError):
-        empty_tensors_list.save(tempdir, "empty_tensors_list")
+    with nbvalx.tempfile.TemporaryDirectory(empty_tensors_list.comm) as tempdir:
+        with pytest.raises(RuntimeError):
+            empty_tensors_list.save(tempdir, "empty_tensors_list")
 
-    with pytest.raises(RuntimeError):
-        empty_tensors_list.load(tempdir, "empty_tensors_list")
+        with pytest.raises(RuntimeError):
+            empty_tensors_list.load(tempdir, "empty_tensors_list")
 
 
 def test_online_tensors_list_mul_vec(tensors_list_vec: rbnicsx.online.TensorsList) -> None:

@@ -8,6 +8,7 @@
 import dolfinx.fem
 import dolfinx.mesh
 import mpi4py
+import nbvalx.tempfile
 import numpy as np
 import pytest
 
@@ -102,17 +103,18 @@ def test_backends_functions_list_setitem(functions_list: rbnicsx.backends.Functi
     assert np.allclose(functions_list[1].vector.array, 2)
 
 
-def test_backends_functions_list_save_load(functions_list: rbnicsx.backends.FunctionsList, tempdir: str) -> None:
+def test_backends_functions_list_save_load(functions_list: rbnicsx.backends.FunctionsList) -> None:
     """Check I/O for a rbnicsx.backends.FunctionsList."""
-    functions_list.save(tempdir, "functions_list")
+    with nbvalx.tempfile.TemporaryDirectory(functions_list.comm) as tempdir:
+        functions_list.save(tempdir, "functions_list")
 
-    V = functions_list.function_space
-    functions_list2 = rbnicsx.backends.FunctionsList(V)
-    functions_list2.load(tempdir, "functions_list")
+        V = functions_list.function_space
+        functions_list2 = rbnicsx.backends.FunctionsList(V)
+        functions_list2.load(tempdir, "functions_list")
 
-    assert len(functions_list2) == 2
-    for (function, function2) in zip(functions_list, functions_list2):
-        assert np.allclose(function2.vector.array, function.vector.array)
+        assert len(functions_list2) == 2
+        for (function, function2) in zip(functions_list, functions_list2):
+            assert np.allclose(function2.vector.array, function.vector.array)
 
 
 def test_backends_functions_list_mul(functions_list: rbnicsx.backends.FunctionsList) -> None:
