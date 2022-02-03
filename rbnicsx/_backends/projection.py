@@ -10,7 +10,7 @@ import typing
 import numpy as np
 import petsc4py
 
-FunctionsList = typing.TypeVar("FunctionsList")  # this may actually be a TensorsList as well!
+from rbnicsx._backends.functions_list import FunctionsList
 
 
 def project_vector(b: petsc4py.PETSc.Vec, L: typing.Callable, B: FunctionsList) -> None:
