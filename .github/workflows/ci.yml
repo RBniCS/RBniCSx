@@ -30,20 +30,33 @@ jobs:
     strategy:
       matrix:
         include:
-          - backend: none
-            container: ubuntu
+          - backend: none-real
+            container: ubuntu:rolling
             setup_container: |
               export DEBIAN_FRONTEND="noninteractive"
               apt -y -qq update
-              apt install -y -qq git petsc-dev python3-mpi4py python3-petsc4py python3-pip python3-scipy python3-slepc4py slepc-dev
+              apt install -y -qq git libpetsc-real-dev libslepc-real-dev python3-mpi4py python3-petsc4py-real python3-pip python3-scipy python3-slepc4py-real
+              python3 -m pip install --upgrade pip
               echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
               echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
               echo "PETSC_DIR=/usr/lib/petscdir/petsc-real" >> $GITHUB_ENV
               echo "SLEPC_DIR=/usr/lib/slepcdir/slepc-real" >> $GITHUB_ENV
+          - backend: none-complex
+            container: ubuntu:rolling
+            setup_container: |
+              export DEBIAN_FRONTEND="noninteractive"
+              apt -y -qq update
+              apt install -y -qq git libpetsc-complex-dev libslepc-complex-dev python3-mpi4py python3-petsc4py-complex python3-pip python3-scipy python3-slepc4py-complex
+              python3 -m pip install --upgrade pip
+              echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
+              echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
+              echo "PETSC_DIR=/usr/lib/petscdir/petsc-complex" >> $GITHUB_ENV
+              echo "SLEPC_DIR=/usr/lib/slepcdir/slepc-complex" >> $GITHUB_ENV
           - backend: dolfinx-real
             container: dolfinx/dolfinx
             setup_container: |
               . /usr/local/bin/dolfinx-real-mode
+              python3 -m pip install --upgrade pip
               echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
               echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> $GITHUB_ENV
               echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
@@ -52,6 +65,7 @@ jobs:
             container: dolfinx/dolfinx
             setup_container: |
               . /usr/local/bin/dolfinx-complex-mode
+              python3 -m pip install --upgrade pip
               echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
               echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> $GITHUB_ENV
               echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
@@ -63,16 +77,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Setup container
-        run:
-          ${{ matrix.setup_container }}
-          python3 -m pip install --upgrade pip
+        run: ${{ matrix.setup_container }}
       - name: Install RBniCSx
         run: |
-          if [[ "${{ matrix.backend }}" != "none" ]]; then
+          if [[ "${{ matrix.backend }}" == none* ]]; then
+            python3 -m pip install .[docs,lint,tests]
+          else
             python3 -m pip install .[docs,lint,tests,tutorials]
             wget https://github.com/ipython/ipython/commit/9800157ab0282ce61c37ae6f718d5b2314ddbdbe.diff -O /tmp/ipython-patch && patch -d /usr/local/lib/python3.9/dist-packages/ -p 1 -N < /tmp/ipython-patch
-          else
-            python3 -m pip install .[docs,lint,tests]
           fi
           python3 -c "import rbnicsx._cpp"
         shell: bash
@@ -80,18 +92,18 @@ jobs:
         run: |
           python3 -m flake8 .
       - name: Run documentation generation
-        if: matrix.backend != 'none'
+        if: startsWith(matrix.backend, 'none') != true
         run: |
           cd docs && make html
       - name: Determine coverage and pytest options for unit tests
         id: unit_options
         run: |
-          if [[ "${{ matrix.backend }}" != "none" ]]; then
-            COVERAGE_UNIT_OMIT=""
-            PYTEST_UNIT_OPTIONS=""
-          else
+          if [[ "${{ matrix.backend }}" == none* ]]; then
             COVERAGE_UNIT_OMIT="*/rbnicsx/backends/*.py,*/rbnicsx/_cpp/backends/*.py"
             PYTEST_UNIT_OPTIONS="--skip-backends"
+          else
+            COVERAGE_UNIT_OMIT=""
+            PYTEST_UNIT_OPTIONS=""
           fi
           echo "::set-output name=coverage_omit::${COVERAGE_UNIT_OMIT}"
           echo "::set-output name=pytest_options::${PYTEST_UNIT_OPTIONS}"
@@ -111,7 +123,7 @@ jobs:
           python3 -m coverage combine .coverage*
           python3 -m coverage report --fail-under=100 --show-missing --skip-covered
       - name: Run flake8 checks on tutorial files
-        if: matrix.backend != 'none'
+        if: startsWith(matrix.backend, 'none') != true
         run: |
           NO_TESTS_COLLECTED=5
           python3 -m pytest --ipynb-action=create-notebooks tutorials || (($?==$NO_TESTS_COLLECTED))
@@ -121,20 +133,20 @@ jobs:
           python3 -m nbqa flake8 .
         shell: bash
       - name: Check for stray outputs, counts and metadata in tutorial files
-        if: matrix.backend != 'none'
+        if: startsWith(matrix.backend, 'none') != true
         uses: RBniCS/check-jupyter-metadata-action@main
         with:
           pattern: "tutorials/**/*.ipynb"
       - name: Run tutorials (serial)
-        if: matrix.backend != 'none'
+        if: startsWith(matrix.backend, 'none') != true
         run: |
           python3 -m pytest tutorials
       - name: Run tutorials (parallel)
-        if: matrix.backend != 'none'
+        if: startsWith(matrix.backend, 'none') != true
         run: |
           python3 -m pytest --np 2 tutorials
       - name: Upload tutorials logs as an artifact in case of failure
-        if: matrix.backend != 'none' && (failure() || cancelled())
+        if: startsWith(matrix.backend, 'none') != true && (failure() || cancelled())
         uses: actions/upload-artifact@v2
         with:
           name: "tutorials-logs-${{ matrix.backend }}"
