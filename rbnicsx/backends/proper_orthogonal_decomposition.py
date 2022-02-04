@@ -15,10 +15,10 @@ import slepc4py
 import ufl
 
 from rbnicsx._backends.online_tensors import create_online_matrix, create_online_vector
+from rbnicsx._cpp import cpp_library
 from rbnicsx.backends.functions_list import FunctionsList
 from rbnicsx.backends.projection import bilinear_form_action
 from rbnicsx.backends.tensors_list import TensorsList
-from rbnicsx.cpp import cpp_library
 
 
 @functools.singledispatch
@@ -177,7 +177,7 @@ def _(
     assert tensors_list.type in ("Mat", "Vec")
     if tensors_list.type == "Mat":
         def compute_inner_product(tensor_i: petsc4py.PETSc.Mat, tensor_j: petsc4py.PETSc.Mat) -> float:
-            return cpp_library.backends.frobenius_inner_product(tensor_i, tensor_j)
+            return cpp_library._backends.frobenius_inner_product(tensor_i, tensor_j)
 
         def scale(tensor: petsc4py.PETSc.Mat, factor: float) -> None:
             tensor *= factor

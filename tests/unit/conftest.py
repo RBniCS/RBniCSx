@@ -40,7 +40,7 @@ def pytest_ignore_collect(path: py.path.local, config: _pytest.config.Config) ->
     """Honor the --skip-backends option to skip tests which require backends to be installed."""
     skip_backends = config.option.skip_backends
     if skip_backends:
-        if any([blacklist in str(path) for blacklist in ["tests/unit/backends/", "tests/unit/cpp/"]]):
+        if any([blacklist in str(path) for blacklist in ["tests/unit/backends/", "tests/unit/cpp/backends/"]]):
             return True
         else:
             return False

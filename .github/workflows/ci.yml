@@ -35,9 +35,11 @@ jobs:
             setup_container: |
               export DEBIAN_FRONTEND="noninteractive"
               apt -y -qq update
-              apt install -y -qq git python3-mpi4py python3-petsc4py python3-pip python3-scipy python3-slepc4py
+              apt install -y -qq git petsc-dev python3-mpi4py python3-petsc4py python3-pip python3-scipy python3-slepc4py slepc-dev
               echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
               echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
+              echo "PETSC_DIR=/usr/lib/petscdir/petsc-real" >> $GITHUB_ENV
+              echo "SLEPC_DIR=/usr/lib/slepcdir/slepc-real" >> $GITHUB_ENV
           - backend: dolfinx-real
             container: dolfinx/dolfinx
             setup_container: |
@@ -68,11 +70,11 @@ jobs:
         run: |
           if [[ "${{ matrix.backend }}" != "none" ]]; then
             python3 -m pip install .[docs,lint,tests,tutorials]
-            python3 -c "import rbnicsx.cpp"
             wget https://github.com/ipython/ipython/commit/9800157ab0282ce61c37ae6f718d5b2314ddbdbe.diff -O /tmp/ipython-patch && patch -d /usr/local/lib/python3.9/dist-packages/ -p 1 -N < /tmp/ipython-patch
           else
             python3 -m pip install .[docs,lint,tests]
           fi
+          python3 -c "import rbnicsx._cpp"
         shell: bash
       - name: Run flake8 checks on python files
         run: |
@@ -88,7 +90,7 @@ jobs:
             COVERAGE_UNIT_OMIT=""
             PYTEST_UNIT_OPTIONS=""
           else
-            COVERAGE_UNIT_OMIT="*/rbnicsx/backends/*.py,*/rbnicsx/cpp/*.py"
+            COVERAGE_UNIT_OMIT="*/rbnicsx/backends/*.py,*/rbnicsx/_cpp/backends/*.py"
             PYTEST_UNIT_OPTIONS="--skip-backends"
           fi
           echo "::set-output name=coverage_omit::${COVERAGE_UNIT_OMIT}"

@@ -4,11 +4,10 @@
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
-#include <dolfinx/la/petsc.h>  // for dolfinx::la::petsc::error
+#include <rbnicsx/_backends/frobenius_inner_product.h>
+#include <rbnicsx/_backends/petsc_error.h>
 
-#include <rbnicsx/backends/frobenius_inner_product.h>
-
-PetscScalar rbnicsx::backends::frobenius_inner_product(Mat a, Mat b)
+PetscScalar rbnicsx::_backends::frobenius_inner_product(Mat a, Mat b)
 {
     PetscInt start_a, end_a, ncols_a, start_b, end_b, ncols_b;
     PetscErrorCode ierr;
@@ -17,29 +16,29 @@ PetscScalar rbnicsx::backends::frobenius_inner_product(Mat a, Mat b)
     PetscScalar sum(0.);
 
     ierr = MatGetOwnershipRange(a, &start_a, &end_a);
-    if (ierr != 0) dolfinx::la::petsc::error(ierr, __FILE__, "MatGetOwnershipRange");
+    if (ierr != 0) petsc_error(ierr, __FILE__, "MatGetOwnershipRange");
     if (a != b)
     {
         ierr = MatGetOwnershipRange(b, &start_b, &end_b);
-        if (ierr != 0) dolfinx::la::petsc::error(ierr, __FILE__, "MatGetOwnershipRange");
+        if (ierr != 0) petsc_error(ierr, __FILE__, "MatGetOwnershipRange");
     }
     else
     {
         start_b = start_a;
         end_b = end_a;
     }
-    if (start_a != start_b) dolfinx::la::petsc::error(ierr, __FILE__, "start_a != start_b");
-    if (end_a != end_b) dolfinx::la::petsc::error(ierr, __FILE__, "end_a != end_b");
+    if (start_a != start_b) petsc_error(ierr, __FILE__, "start_a != start_b");
+    if (end_a != end_b) petsc_error(ierr, __FILE__, "end_a != end_b");
 
     for (PetscInt i(start_a); i < end_a; i++)
     {
         ierr = MatGetRow(a, i, &ncols_a, &cols_a, &vals_a);
-        if (ierr != 0) dolfinx::la::petsc::error(ierr, __FILE__, "MatGetRow");
+        if (ierr != 0) petsc_error(ierr, __FILE__, "MatGetRow");
         if (a != b)
         {
             ierr = MatGetRow(b, i, &ncols_b, &cols_b, &vals_b);
-            if (ierr != 0) dolfinx::la::petsc::error(ierr, __FILE__, "MatGetRow");
-            if (ncols_a != ncols_b) dolfinx::la::petsc::error(ierr, __FILE__, "ncols_a != ncols_b");
+            if (ierr != 0) petsc_error(ierr, __FILE__, "MatGetRow");
+            if (ncols_a != ncols_b) petsc_error(ierr, __FILE__, "ncols_a != ncols_b");
         }
         else
         {
@@ -49,13 +48,13 @@ PetscScalar rbnicsx::backends::frobenius_inner_product(Mat a, Mat b)
         }
         for (PetscInt j(0); j < ncols_a; j++)
         {
-            if (cols_a[j] != cols_b[j]) dolfinx::la::petsc::error(ierr, __FILE__, "cols_a[j] != cols_b[j]");
+            if (cols_a[j] != cols_b[j]) petsc_error(ierr, __FILE__, "cols_a[j] != cols_b[j]");
             sum += vals_a[j]*vals_b[j];
         }
         if (a != b)
         {
             ierr = MatRestoreRow(b, i, &ncols_b, &cols_b, &vals_b);
-            if (ierr != 0) dolfinx::la::petsc::error(ierr, __FILE__, "MatRestoreRow");
+            if (ierr != 0) petsc_error(ierr, __FILE__, "MatRestoreRow");
         }
         else
         {
@@ -64,11 +63,11 @@ PetscScalar rbnicsx::backends::frobenius_inner_product(Mat a, Mat b)
             vals_b = NULL;
         }
         ierr = MatRestoreRow(a, i, &ncols_a, &cols_a, &vals_a);
-        if (ierr != 0) dolfinx::la::petsc::error(ierr, __FILE__, "MatRestoreRow");
+        if (ierr != 0) petsc_error(ierr, __FILE__, "MatRestoreRow");
     }
 
     PetscReal output(0.);
     ierr = MPIU_Allreduce(&sum, &output, 1, MPIU_REAL, MPIU_SUM, PetscObjectComm((PetscObject) a));
-    if (ierr != 0) dolfinx::la::petsc::error(ierr, __FILE__, "MPIU_Allreduce");
+    if (ierr != 0) petsc_error(ierr, __FILE__, "MPIU_Allreduce");
     return output;
 }
