@@ -177,7 +177,7 @@ jobs:
         gmsh
       pip_packages: |
         itkwidgets pyvista$pyvista%multiphenicsx.io
-        rbnicsx[backends]@https://github.com/RBniCS/RBniCSx.git
+        rbnicsx[colab]@https://github.com/RBniCS/RBniCSx.git
       test_script: |
         python3 -m pip install kaleido plotly
         python3 -m pytest --nbval open_in_colab/tutorials
