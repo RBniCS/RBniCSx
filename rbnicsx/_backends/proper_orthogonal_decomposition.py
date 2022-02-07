@@ -1,0 +1,265 @@
+# Copyright (C) 2021-2022 by the RBniCSx authors
+#
+# This file is part of RBniCSx.
+#
+# SPDX-License-Identifier: LGPL-3.0-or-later
+"""Internal backend to compute the proper orthogonal decomposition."""
+
+import typing
+
+import numpy as np
+import petsc4py
+import slepc4py
+
+from rbnicsx._backends.functions_list import Function, FunctionsList
+from rbnicsx._backends.online_tensors import create_online_matrix, create_online_vector
+from rbnicsx._backends.tensors_list import TensorsList
+from rbnicsx._cpp import cpp_library
+
+
+def proper_orthogonal_decomposition_functions(
+    functions_list: FunctionsList, compute_inner_product: typing.Callable, scale: typing.Callable,
+    N: int, tol: float, normalize: bool = True
+) -> typing.Tuple[
+    np.typing.NDArray[float], FunctionsList, typing.List[petsc4py.PETSc.Vec]
+]:
+    """
+    Compute the proper orthogonal decomposition of a set of snapshots.
+
+    Parameters
+    ----------
+    functions_list : rbnicsx._backends.FunctionsList
+        Collected snapshots.
+    compute_inner_product : typing.Callable
+        A callable x(v, u) to compute the action of the inner product on the trial function u and test function v.
+        The resulting modes will be orthonormal w.r.t. this inner product.
+    scale : typing.Callable
+        A callable with signature scale(function, factor) to scale any function by a given factor.
+    N : int
+        Maximum number of modes to be computed.
+    tol : float
+        Tolerance on the retained energy.
+    normalize : bool, optional
+        If true (default), the modes are scaled to unit norm.
+
+    Returns
+    -------
+    np.typing.NDArray[float]
+        Eigenvalues of the correlation matrix, largest first. All computed eigenvalues are returned.
+    rbnicsx._backends.FunctionsList
+        Retained modes from the snapshots. Only the first few modes are returned, till either the
+        maximum number N is reached or the tolerance on the retained energy is fulfilled.
+    typing.List[petsc4py.PETSc.Vec]
+        Eigenvectors of the correlation matrix. Only the first few eigenvectors are returned, till
+        either the maximum number N is reached or the tolerance on the retained energy is fulfilled.
+    """
+    eigenvalues, modes, eigenvectors = _solve_eigenvalue_problem(
+        functions_list, compute_inner_product, scale, N, tol, normalize)
+    modes_wrapped = functions_list.duplicate()
+    modes_wrapped.extend(modes)
+    return eigenvalues, modes_wrapped, eigenvectors
+
+
+def proper_orthogonal_decomposition_functions_block(
+    functions_lists: FunctionsList, compute_inner_products: typing.List[typing.Callable], scale: typing.Callable,
+    N: typing.Union[int, typing.List[int]], tol: typing.Union[float, typing.List[float]], normalize: bool = True
+) -> typing.Tuple[
+    typing.List[np.typing.NDArray[float]], typing.List[FunctionsList], typing.List[typing.List[petsc4py.PETSc.Vec]]
+]:
+    """
+    Compute the proper orthogonal decomposition of a set of snapshots, where each snapshot is made of several blocks.
+
+    Parameters
+    ----------
+    functions_lists : typing.List[rbnicsx._backends.FunctionsList]
+        Collected snapshots. Each snapshot is made of several blocks, defined on possibly different function spaces.
+        The inner FunctionsList contains all snapshots of a single block, while the outer list collects the different
+        blocks.
+    compute_inner_products : typing.List[typing.Callable]
+        A list of callables x_i(v_i, u_i) to compute the action of the inner product on the trial function u_i
+        and test function v_i associated to the i-th block.
+        The resulting modes will be orthonormal w.r.t. this inner product.
+    scale : typing.Callable
+        A callable with signature scale(function, factor) to scale any function by a given factor.
+    N : typing.Union[int, typing.List[int]]
+        Maximum number of modes to be computed. If an integer value is passed then the same maximum number is
+        used for each block. To set a different maximum number of modes for each block pass a list of integers.
+    tol : float
+        Tolerance on the retained energy. If a floating point value is passed then the same tolerance is
+        used for each block. To set a different tolerance for each block pass a list of floating point numbers.
+    normalize : bool, optional
+        If true (default), the modes are scaled to unit norm.
+
+    Returns
+    -------
+    typing.List[np.typing.NDArray[float]]
+        Eigenvalues of the correlation matrix, largest first. All computed eigenvalues are returned.
+        The outer list collects the eigenvalues of different blocks.
+    typing.List[rbnicsx._backends.FunctionsList]
+        Retained modes from the snapshots. Only the first few modes are returned, till either the
+        maximum number N is reached or the tolerance on the retained energy is fulfilled.
+        The outer list collects the retained modes of different blocks.
+    typing.List[typing.List[petsc4py.PETSc.Vec]]
+        Eigenvectors of the correlation matrix. Only the first few eigenvectors are returned, till
+        either the maximum number N is reached or the tolerance on the retained energy is fulfilled.
+        The outer list collects the eigenvectors of different blocks.
+    """
+    assert len(compute_inner_products) == len(functions_lists)
+    if isinstance(N, list):
+        assert len(N) == len(functions_lists)
+    else:
+        N = [N for _ in functions_lists]
+    if isinstance(tol, list):
+        assert len(tol) == len(functions_lists)
+    else:
+        tol = [tol for _ in functions_lists]
+
+    eigenvalues, modes, eigenvectors = list(), list(), list()
+    for (functions_list, compute_inner_product, N_, tol_) in zip(functions_lists, compute_inner_products, N, tol):
+        eigenvalues_, modes_, eigenvectors_ = proper_orthogonal_decomposition_functions(
+            functions_list, compute_inner_product, scale, N_, tol_, normalize)
+        eigenvalues.append(eigenvalues_)
+        modes.append(modes_)
+        eigenvectors.append(eigenvectors_)
+    return eigenvalues, modes, eigenvectors
+
+
+def proper_orthogonal_decomposition_tensors(
+    tensors_list: TensorsList, N: int, tol: float, normalize: bool = True
+) -> typing.Tuple[
+    np.typing.NDArray[float], TensorsList, typing.List[petsc4py.PETSc.Vec]
+]:
+    """
+    Compute the proper orthogonal decomposition of a set of tensors.
+
+    Parameters
+    ----------
+    tensors_list : rbnicsx._backends.TensorsList
+        Collected tensors.
+    N : int
+        Maximum number of modes to be computed.
+    tol : float
+        Tolerance on the retained energy.
+    normalize : bool, optional
+        If true (default), the modes are scaled to unit norm.
+
+    Returns
+    -------
+    np.typing.NDArray[float]
+        Eigenvalues of the correlation matrix, largest first. All computed eigenvalues are returned.
+    rbnicsx._backends.TensorsList
+        Retained modes from the tensors. Only the first few modes are returned, till either the
+        maximum number N is reached or the tolerance on the retained energy is fulfilled.
+    typing.List[petsc4py.PETSc.Vec]
+        Eigenvectors of the correlation matrix. Only the first few eigenvectors are returned, till
+        either the maximum number N is reached or the tolerance on the retained energy is fulfilled.
+    """
+    assert tensors_list.type in ("Mat", "Vec")
+    if tensors_list.type == "Mat":
+        def compute_inner_product(tensor_i: petsc4py.PETSc.Mat, tensor_j: petsc4py.PETSc.Mat) -> float:
+            return cpp_library._backends.frobenius_inner_product(tensor_i, tensor_j)
+
+        def scale(tensor: petsc4py.PETSc.Mat, factor: float) -> None:
+            tensor *= factor
+    elif tensors_list.type == "Vec":
+        def compute_inner_product(tensor_i: petsc4py.PETSc.Vec, tensor_j: petsc4py.PETSc.Vec) -> float:
+            return tensor_i.dot(tensor_j)
+
+        def scale(tensor: petsc4py.PETSc.Vec, factor: float) -> None:
+            with tensor.localForm() as tensor_local:
+                tensor_local *= factor
+
+    eigenvalues, modes, eigenvectors = _solve_eigenvalue_problem(
+        tensors_list, compute_inner_product, scale, N, tol, normalize)
+    modes_wrapped = tensors_list.duplicate()
+    modes_wrapped.extend(modes)
+    return eigenvalues, modes_wrapped, eigenvectors
+
+
+def _solve_eigenvalue_problem(
+    snapshots: typing.Union[FunctionsList, TensorsList], compute_inner_product: typing.Callable,
+    scale: typing.Callable, N: int, tol: float, normalize: bool
+) -> typing.Tuple[
+    np.typing.NDArray[float],
+    typing.Union[
+        typing.List[Function], typing.List[petsc4py.PETSc.Mat], typing.List[petsc4py.PETSc.Vec]
+    ],
+    typing.List[petsc4py.PETSc.Vec]
+]:
+    """
+    Solve the eigenvalue problem for the correlation matrix.
+
+    Parameters
+    ----------
+    snapshots : typing.Union[rbnicsx._backends.FunctionsList, rbnicsx._backends.TensorsList]
+        Collected snapshots.
+    compute_inner_product : typing.Callable
+        A function that computes the inner product between two snapshots.
+    scale : typing.Callable
+        A function that rescales a snapshot in place.
+    N : int
+        Maximum number of eigenvectors to be returned.
+    tol : float
+        Tolerance on the retained energy.
+    normalize : bool, optional
+        If true (default), the modes are scaled to unit norm.
+
+    Returns
+    -------
+    np.typing.NDArray[float]
+        Eigenvalues of the correlation matrix, largest first. All computed eigenvalues are returned.
+    typing.Union[
+        typing.List[Function], typing.List[petsc4py.PETSc.Mat], typing.List[petsc4py.PETSc.Vec]
+    ]
+        Retained modes from the snapshots. Only the first few modes are returned, till either the
+        maximum number N is reached or the tolerance on the retained energy is fulfilled.
+    typing.List[petsc4py.PETSc.Vec]
+        Eigenvectors of the correlation matrix. Only the first few eigenvectors are returned, till
+        either the maximum number N is reached or the tolerance on the retained energy is fulfilled.
+    """
+    correlation_matrix = create_online_matrix(len(snapshots), len(snapshots))
+    for (i, snapshot_i) in enumerate(snapshots):
+        for (j, snapshot_j) in enumerate(snapshots):
+            correlation_matrix[i, j] = compute_inner_product(snapshot_i, snapshot_j)
+    correlation_matrix.assemble()
+
+    eps = slepc4py.SLEPc.EPS().create(correlation_matrix.comm)
+    eps.setType(slepc4py.SLEPc.EPS.Type.LAPACK)
+    eps.setProblemType(slepc4py.SLEPc.EPS.ProblemType.HEP)
+    eps.setWhichEigenpairs(slepc4py.SLEPc.EPS.Which.LARGEST_REAL)
+    eps.setFromOptions()
+    eps.setOperators(correlation_matrix)
+    eps.solve()
+
+    eigenvalues = list()
+    for n in range(eps.getConverged()):
+        eigenvalue_n = eps.getEigenvalue(n)
+        assert np.isclose(eigenvalue_n.imag, 0.0)
+        eigenvalues.append(eigenvalue_n.real)
+
+    total_energy = sum([abs(e) for e in eigenvalues])
+    retained_energy = np.cumsum([abs(e) for e in eigenvalues])
+    if total_energy > 0.0:
+        retained_energy = [retained_energy_n / total_energy for retained_energy_n in retained_energy]
+    else:
+        retained_energy = [1.0 for _ in range(eps.getConverged())]  # trivial case, all snapshots are zero
+
+    N = min(N, eps.getConverged())
+    eigenvectors = list()
+    for n in range(N):
+        eigenvector_n = create_online_vector(correlation_matrix.size[0])
+        eps.getEigenvector(n, eigenvector_n)
+        eigenvectors.append(eigenvector_n)
+        if tol > 0.0 and retained_energy[n] > 1.0 - tol:
+            break
+
+    modes = list()
+    for eigenvector_n in eigenvectors:
+        mode_n = snapshots * eigenvector_n
+        if normalize:
+            norm_n = np.sqrt(compute_inner_product(mode_n, mode_n))
+            if norm_n != 0.0:
+                scale(mode_n, 1.0 / norm_n)
+        modes.append(mode_n)
+
+    return np.array(eigenvalues), modes, eigenvectors
