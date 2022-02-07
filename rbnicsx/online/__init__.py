@@ -17,6 +17,7 @@ from rbnicsx.online.export import (
     export_matrices, export_matrices_block, export_matrix, export_matrix_block, export_vector, export_vector_block,
     export_vectors, export_vectors_block)
 from rbnicsx.online.functions_list import FunctionsList
+from rbnicsx.online.gram_schmidt import gram_schmidt, gram_schmidt_block
 from rbnicsx.online.import_ import (
     import_matrices, import_matrices_block, import_matrix, import_matrix_block, import_vector, import_vector_block,
     import_vectors, import_vectors_block)

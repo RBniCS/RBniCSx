@@ -3,7 +3,7 @@
 # This file is part of RBniCSx.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""Backend to perform a step of the Gram-Schmidt process."""
+"""Backend to perform a step of the Gram-Schmidt process on dolfinx functions."""
 
 import typing
 
@@ -29,8 +29,7 @@ def gram_schmidt(functions_list: FunctionsList, new_function: dolfinx.fem.Functi
     new_function : dolfinx.fem.Function
         New function to be orthonormalized and added to the set.
     inner_product : ufl.Form
-        Bilinear form which defines the inner product. The resulting modes will be orthonormal
-        w.r.t. this inner product.
+        Bilinear form which defines the inner product.
     """
     compute_inner_product = bilinear_form_action(inner_product)
 
@@ -64,8 +63,7 @@ def gram_schmidt_block(
     new_functions : typing.List[dolfinx.fem.Function]
         New functions to be orthonormalized and added to the set.
     inner_products : typing.List[ufl.Form]
-        Bilinear forms which define the inner products of each block. The resulting modes
-        will be orthonormal w.r.t. these inner products.
+        Bilinear forms which define the inner products of each block.
     """
     assert len(new_functions) == len(functions_lists)
     assert len(inner_products) == len(functions_lists)

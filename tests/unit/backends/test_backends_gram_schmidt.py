@@ -27,7 +27,7 @@ def mesh() -> dolfinx.mesh.Mesh:
 
 @pytest.fixture
 def functions(mesh: dolfinx.mesh.Mesh) -> typing.List[dolfinx.fem.Function]:
-    """Generate a list of two linearly independent functions."""
+    """Generate a list of pairwise linearly independent functions."""
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
     function0 = dolfinx.fem.Function(V)
     with function0.vector.localForm() as function0_local:
@@ -117,7 +117,6 @@ def test_backends_gram_schmidt_block(functions: typing.List[dolfinx.fem.Function
         assert np.allclose(functions_list[0].vector.array, 1 / np.sqrt(factor))
         assert np.isclose(compute_inner_product(factor * inner_product, functions_list[1], functions_list[1]), 1)
         assert np.isclose(compute_inner_product(factor * inner_product, functions_list[0], functions_list[1]), 0)
-        assert np.allclose(functions_list[0].vector.array, 1 / np.sqrt(factor))
         expected1 = dolfinx.fem.Function(V)
         expected1.interpolate(expected1_expr)
         expected1.vector.scale(1 / np.sqrt(compute_inner_product(factor * inner_product, expected1, expected1)))
