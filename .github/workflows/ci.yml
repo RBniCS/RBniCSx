@@ -140,11 +140,11 @@ jobs:
       - name: Run tutorials (serial)
         if: startsWith(matrix.backend, 'none') != true
         run: |
-          python3 -m pytest tutorials
+          python3 -m pytest --tag-collapse tutorials
       - name: Run tutorials (parallel)
         if: startsWith(matrix.backend, 'none') != true
         run: |
-          python3 -m pytest --np 2 tutorials
+          python3 -m pytest --tag-collapse --np 2 tutorials
       - name: Upload tutorials logs as an artifact in case of failure
         if: startsWith(matrix.backend, 'none') != true && (failure() || cancelled())
         uses: actions/upload-artifact@v2
