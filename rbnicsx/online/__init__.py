@@ -25,4 +25,5 @@ from rbnicsx.online.projection import (
     matrix_action, project_matrix, project_matrix_block, project_vector, project_vector_block, vector_action)
 from rbnicsx.online.proper_orthogonal_decomposition import (
     proper_orthogonal_decomposition, proper_orthogonal_decomposition_block)
+from rbnicsx.online.tensors_array import TensorsArray
 from rbnicsx.online.tensors_list import TensorsList

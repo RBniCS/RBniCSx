@@ -18,4 +18,5 @@ from rbnicsx.backends.projection import (
 from rbnicsx.backends.proper_orthogonal_decomposition import (
     proper_orthogonal_decomposition, proper_orthogonal_decomposition_block)
 from rbnicsx.backends.symbolic_parameters import SymbolicParameters
+from rbnicsx.backends.tensors_array import TensorsArray
 from rbnicsx.backends.tensors_list import TensorsList
