@@ -8,12 +8,13 @@
 import os
 import typing
 
+import mpi4py
 import petsc4py
 
 from rbnicsx.io import on_rank_zero
 
 
-def export_matrix(mat: petsc4py.PETSc.Mat, directory: str, filename: str) -> None:
+def export_matrix(mat: petsc4py.PETSc.Mat, comm: mpi4py.MPI.Intracomm, directory: str, filename: str) -> None:
     """
     Export a petsc4py.PETSc.Mat to file.
 
@@ -21,18 +22,22 @@ def export_matrix(mat: petsc4py.PETSc.Mat, directory: str, filename: str) -> Non
     ----------
     mat : petsc4py.PETSc.Mat
         Matrix to be exported.
+    comm : mpi4py.MPI.Intracomm
+        Communicator to be used while creating the matrix viewer.
     directory : str
         Directory where to export the matrix.
     filename : str
         Name of the file where to export the matrix.
     """
     os.makedirs(directory, exist_ok=True)
-    viewer = petsc4py.PETSc.Viewer().createBinary(os.path.join(directory, filename + ".dat"), "w", mat.comm)
+    viewer = petsc4py.PETSc.Viewer().createBinary(os.path.join(directory, filename + ".dat"), "w", comm)
     viewer.view(mat)
     viewer.destroy()
 
 
-def export_matrices(mats: typing.List[petsc4py.PETSc.Mat], directory: str, filename: str) -> None:
+def export_matrices(
+    mats: typing.List[petsc4py.PETSc.Mat], comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+) -> None:
     """
     Export a list of petsc4py.PETSc.Mat to file.
 
@@ -40,13 +45,14 @@ def export_matrices(mats: typing.List[petsc4py.PETSc.Mat], directory: str, filen
     ----------
     mats : typing.List[petsc4py.PETSc.Mat]
         Matrices to be exported.
+    comm : mpi4py.MPI.Intracomm
+        Communicator to be used while creating the matrix viewer.
     directory : str
         Directory where to export the matrix.
     filename : str
         Name of the file where to export the matrix.
     """
     os.makedirs(os.path.join(directory, filename), exist_ok=True)
-    comm = mats[0].comm
 
     # Write out length of the list
     def write_length() -> None:
@@ -62,7 +68,7 @@ def export_matrices(mats: typing.List[petsc4py.PETSc.Mat], directory: str, filen
         viewer.destroy()
 
 
-def export_vector(vec: petsc4py.PETSc.Vec, directory: str, filename: str) -> None:
+def export_vector(vec: petsc4py.PETSc.Vec, comm: mpi4py.MPI.Intracomm, directory: str, filename: str) -> None:
     """
     Export a petsc4py.PETSc.Vec to file.
 
@@ -70,18 +76,22 @@ def export_vector(vec: petsc4py.PETSc.Vec, directory: str, filename: str) -> Non
     ----------
     vec : petsc4py.PETSc.Vec
         Vector to be exported.
+    comm : mpi4py.MPI.Intracomm
+        Communicator to be used while creating the vector viewer.
     directory : str
         Directory where to export the vector.
     filename : str
         Name of the file where to export the vector.
     """
     os.makedirs(directory, exist_ok=True)
-    viewer = petsc4py.PETSc.Viewer().createBinary(os.path.join(directory, filename + ".dat"), "w", vec.comm)
+    viewer = petsc4py.PETSc.Viewer().createBinary(os.path.join(directory, filename + ".dat"), "w", comm)
     viewer.view(vec)
     viewer.destroy()
 
 
-def export_vectors(vecs: typing.List[petsc4py.PETSc.Vec], directory: str, filename: str) -> None:
+def export_vectors(
+    vecs: typing.List[petsc4py.PETSc.Vec], comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+) -> None:
     """
     Export a list of petsc4py.PETSc.Vec to file.
 
@@ -89,13 +99,14 @@ def export_vectors(vecs: typing.List[petsc4py.PETSc.Vec], directory: str, filena
     ----------
     vecs : typing.List[petsc4py.PETSc.Vec]
         Vectors to be exported.
+    comm : mpi4py.MPI.Intracomm
+        Communicator to be used while creating the vector viewer.
     directory : str
         Directory where to export the vector.
     filename : str
         Name of the file where to export the vector.
     """
     os.makedirs(os.path.join(directory, filename), exist_ok=True)
-    comm = vecs[0].comm
 
     # Write out length of the list
     def write_length() -> None:

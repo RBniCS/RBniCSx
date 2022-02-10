@@ -82,7 +82,7 @@ def export_matrix(mat: petsc4py.PETSc.Mat, directory: str, filename: str) -> Non
     filename : str
         Name of the file where to export the matrix.
     """
-    export_matrix_super(mat, directory, filename)
+    export_matrix_super(mat, mat.comm, directory, filename)
 
 
 def export_matrices(mats: typing.List[petsc4py.PETSc.Mat], directory: str, filename: str) -> None:
@@ -98,7 +98,7 @@ def export_matrices(mats: typing.List[petsc4py.PETSc.Mat], directory: str, filen
     filename : str
         Name of the file where to export the matrix.
     """
-    export_matrices_super(mats, directory, filename)
+    export_matrices_super(mats, mats[0].comm, directory, filename)
 
 
 def export_vector(vec: petsc4py.PETSc.Vec, directory: str, filename: str) -> None:
@@ -114,7 +114,7 @@ def export_vector(vec: petsc4py.PETSc.Vec, directory: str, filename: str) -> Non
     filename : str
         Name of the file where to export the vector.
     """
-    export_vector_super(vec, directory, filename)
+    export_vector_super(vec, vec.comm, directory, filename)
 
 
 def export_vectors(vecs: typing.List[petsc4py.PETSc.Vec], directory: str, filename: str) -> None:
@@ -130,4 +130,4 @@ def export_vectors(vecs: typing.List[petsc4py.PETSc.Vec], directory: str, filena
     filename : str
         Name of the file where to export the vector.
     """
-    export_vectors_super(vecs, directory, filename)
+    export_vectors_super(vecs, vecs[0].comm, directory, filename)

@@ -25,7 +25,7 @@ def import_matrix(
     allocate : typing.Callable
         A callable to allocate the storage.
     comm : mpi4py.MPI.Intracomm
-        Communicator to be used while creating the matrix.
+        Communicator to be used while creating the matrix viewer.
     directory : str
         Directory where to import the matrix from.
     filename : str
@@ -54,7 +54,7 @@ def import_matrices(
     allocate : typing.Callable
         A callable to allocate the storage.
     comm : mpi4py.MPI.Intracomm
-        Communicator to be used while creating the matrix.
+        Communicator to be used while creating the matrix viewer.
     directory : str
         Directory where to import the matrix from.
     filename : str
@@ -94,7 +94,7 @@ def import_vector(
     allocate : typing.Callable
         A callable to allocate the storage.
     comm : mpi4py.MPI.Intracomm
-        Communicator to be used while creating the vector.
+        Communicator to be used while creating the vector viewer.
     directory : str
         Directory where to import the vector from.
     filename : str
@@ -123,7 +123,7 @@ def import_vectors(
     allocate : typing.Callable
         A callable to allocate the storage.
     comm : mpi4py.MPI.Intracomm
-        Communicator to be used while creating the vector.
+        Communicator to be used while creating the vector viewer.
     directory : str
         Directory where to import the vector from.
     filename : str

@@ -7,6 +7,7 @@
 
 import typing
 
+import mpi4py
 import petsc4py
 
 from rbnicsx._backends.export import (
@@ -28,7 +29,7 @@ def export_matrix(mat: petsc4py.PETSc.Mat, directory: str, filename: str) -> Non
         Name of the file where to export the matrix.
     """
     assert mat.getType() == petsc4py.PETSc.Mat.Type.SEQDENSE
-    export_matrix_super(mat, directory, filename)
+    export_matrix_super(mat, mpi4py.MPI.COMM_WORLD, directory, filename)
 
 
 export_matrix_block = export_matrix
@@ -48,7 +49,7 @@ def export_matrices(mats: typing.List[petsc4py.PETSc.Mat], directory: str, filen
         Name of the file where to export the matrix.
     """
     assert all([mat.getType() == petsc4py.PETSc.Mat.Type.SEQDENSE for mat in mats])
-    export_matrices_super(mats, directory, filename)
+    export_matrices_super(mats, mpi4py.MPI.COMM_WORLD, directory, filename)
 
 
 export_matrices_block = export_matrices
@@ -68,7 +69,7 @@ def export_vector(vec: petsc4py.PETSc.Vec, directory: str, filename: str) -> Non
         Name of the file where to export the vector.
     """
     assert vec.getType() == petsc4py.PETSc.Vec.Type.SEQ
-    export_vector_super(vec, directory, filename)
+    export_vector_super(vec, mpi4py.MPI.COMM_WORLD, directory, filename)
 
 
 export_vector_block = export_vector
@@ -88,7 +89,7 @@ def export_vectors(vecs: typing.List[petsc4py.PETSc.Vec], directory: str, filena
         Name of the file where to export the vector.
     """
     assert all([vec.getType() == petsc4py.PETSc.Vec.Type.SEQ for vec in vecs])
-    export_vectors_super(vecs, directory, filename)
+    export_vectors_super(vecs, mpi4py.MPI.COMM_WORLD, directory, filename)
 
 
 export_vectors_block = export_vectors

@@ -36,7 +36,7 @@ def import_matrix(M: int, N: int, directory: str, filename: str) -> petsc4py.PET
     petsc4py.PETSc.Mat
         Matrix imported from file.
     """
-    return import_matrix_super(lambda: create_matrix(M, N), mpi4py.MPI.COMM_SELF, directory, filename)
+    return import_matrix_super(lambda: create_matrix(M, N), mpi4py.MPI.COMM_WORLD, directory, filename)
 
 
 def import_matrix_block(M: typing.List[int], N: typing.List[int], directory: str, filename: str) -> petsc4py.PETSc.Mat:
@@ -57,7 +57,7 @@ def import_matrix_block(M: typing.List[int], N: typing.List[int], directory: str
     petsc4py.PETSc.Mat
         Matrix imported from file.
     """
-    return import_matrix_super(lambda: create_matrix_block(M, N), mpi4py.MPI.COMM_SELF, directory, filename)
+    return import_matrix_super(lambda: create_matrix_block(M, N), mpi4py.MPI.COMM_WORLD, directory, filename)
 
 
 def import_matrices(M: int, N: int, directory: str, filename: str) -> typing.List[petsc4py.PETSc.Mat]:
@@ -78,7 +78,7 @@ def import_matrices(M: int, N: int, directory: str, filename: str) -> typing.Lis
     typing.List[petsc4py.PETSc.Mat]
         Matrices imported from file.
     """
-    return import_matrices_super(lambda: create_matrix(M, N), mpi4py.MPI.COMM_SELF, directory, filename)
+    return import_matrices_super(lambda: create_matrix(M, N), mpi4py.MPI.COMM_WORLD, directory, filename)
 
 
 def import_matrices_block(
@@ -101,7 +101,7 @@ def import_matrices_block(
     typing.List[petsc4py.PETSc.Mat]
         Matrices imported from file.
     """
-    return import_matrices_super(lambda: create_matrix_block(M, N), mpi4py.MPI.COMM_SELF, directory, filename)
+    return import_matrices_super(lambda: create_matrix_block(M, N), mpi4py.MPI.COMM_WORLD, directory, filename)
 
 
 def import_vector(N: int, directory: str, filename: str) -> petsc4py.PETSc.Vec:
@@ -122,7 +122,7 @@ def import_vector(N: int, directory: str, filename: str) -> petsc4py.PETSc.Vec:
     petsc4py.PETSc.Vec
         Vector imported from file.
     """
-    return import_vector_super(lambda: create_vector(N), mpi4py.MPI.COMM_SELF, directory, filename)
+    return import_vector_super(lambda: create_vector(N), mpi4py.MPI.COMM_WORLD, directory, filename)
 
 
 def import_vector_block(N: typing.List[int], directory: str, filename: str) -> petsc4py.PETSc.Vec:
@@ -143,7 +143,7 @@ def import_vector_block(N: typing.List[int], directory: str, filename: str) -> p
     petsc4py.PETSc.Vec
         Vector imported from file.
     """
-    return import_vector_super(lambda: create_vector_block(N), mpi4py.MPI.COMM_SELF, directory, filename)
+    return import_vector_super(lambda: create_vector_block(N), mpi4py.MPI.COMM_WORLD, directory, filename)
 
 
 def import_vectors(N: int, directory: str, filename: str) -> typing.List[petsc4py.PETSc.Vec]:
@@ -164,7 +164,7 @@ def import_vectors(N: int, directory: str, filename: str) -> typing.List[petsc4p
     typing.List[petsc4py.PETSc.Vec]
         Vectors imported from file.
     """
-    return import_vectors_super(lambda: create_vector(N), mpi4py.MPI.COMM_SELF, directory, filename)
+    return import_vectors_super(lambda: create_vector(N), mpi4py.MPI.COMM_WORLD, directory, filename)
 
 
 def import_vectors_block(N: typing.List[int], directory: str, filename: str) -> typing.List[petsc4py.PETSc.Vec]:
@@ -185,4 +185,4 @@ def import_vectors_block(N: typing.List[int], directory: str, filename: str) -> 
     typing.List[petsc4py.PETSc.Vec]
         Vectors imported from file.
     """
-    return import_vectors_super(lambda: create_vector_block(N), mpi4py.MPI.COMM_SELF, directory, filename)
+    return import_vectors_super(lambda: create_vector_block(N), mpi4py.MPI.COMM_WORLD, directory, filename)
