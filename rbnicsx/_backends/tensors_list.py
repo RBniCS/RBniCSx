@@ -241,7 +241,7 @@ class TensorsList(abc.ABC):
         else:
             raise NotImplementedError()
 
-    def __setitem__(self, key: int, item: typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]) -> None:
+    def __setitem__(self, key: int, tensor: typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]) -> None:
         """
         Update the content of the list with the provided tensor.
 
@@ -252,7 +252,17 @@ class TensorsList(abc.ABC):
         item : typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]
             Tensor to be stored.
         """
-        self._list[key] = item
+        # Check that tensors of the same type are set
+        assert self._type is not None  # since the user must have used .append() to originally add this item
+        if isinstance(tensor, petsc4py.PETSc.Mat):
+            assert self._type == "Mat"
+        elif isinstance(tensor, petsc4py.PETSc.Vec):
+            assert self._type == "Vec"
+        else:
+            raise RuntimeError()
+
+        # Replace storage
+        self._list[key] = tensor
 
     def __iter__(self) -> typing.Iterator[typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]]:
         """Return an iterator over the list."""

@@ -18,6 +18,7 @@ import pytest
 import ufl
 
 import rbnicsx.backends
+import rbnicsx.online
 
 
 @pytest.fixture
@@ -163,9 +164,7 @@ def test_backends_tensors_list_getitem_int_mat(
     assert np.allclose(to_dense_matrix(tensors_list_mat[1]), 2 * to_dense_matrix(first_matrix))
 
 
-def test_backends_tensors_list_getitem_slice_vec(
-    tensors_list_vec: rbnicsx.backends.TensorsList, to_dense_matrix: typing.Callable
-) -> None:
+def test_backends_tensors_list_getitem_slice_vec(tensors_list_vec: rbnicsx.backends.TensorsList) -> None:
     """Check rbnicsx.backends.TensorsList.__getitem__ with slice input in the case of petsc4py.PETSc.Vec content."""
     first_vector = dolfinx.fem.assemble_vector(tensors_list_vec.form)
     first_vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
@@ -217,6 +216,25 @@ def test_backends_tensors_list_setitem_mat(
     first_matrix.assemble()
     assert np.allclose(to_dense_matrix(tensors_list_mat[0]), 3 * to_dense_matrix(first_matrix))
     assert np.allclose(to_dense_matrix(tensors_list_mat[1]), 2 * to_dense_matrix(first_matrix))
+
+
+def test_backends_tensors_list_setitem_mixed_types(
+        tensors_list_vec: rbnicsx.backends.TensorsList, tensors_list_mat: rbnicsx.backends.TensorsList) -> None:
+    """Check rbnicsx.backends.TensorsList.__setitem__ mixing up Mat and Vec objects."""
+    first_vector = dolfinx.fem.assemble_vector(tensors_list_vec.form)
+    first_matrix = dolfinx.fem.assemble_matrix(tensors_list_mat.form)
+
+    with pytest.raises(AssertionError):
+        tensors_list_vec[0] = first_matrix
+
+    with pytest.raises(AssertionError):
+        tensors_list_mat[0] = first_vector
+
+
+def test_backends_tensors_list_setitem_wrong_type(tensors_list_vec: rbnicsx.backends.TensorsList) -> None:
+    """Check rbnicsx.backends.TensorsList.__setitem__ when providing neither a Mat nor a Vec object."""
+    with pytest.raises(RuntimeError):
+        tensors_list_vec[0] = None
 
 
 def test_backends_tensors_list_save_load_vec(tensors_list_vec: rbnicsx.backends.TensorsList) -> None:

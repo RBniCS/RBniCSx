@@ -77,6 +77,12 @@ def tensors_list_mat_block() -> rbnicsx.online.TensorsList:
     return tensors_list
 
 
+@pytest.fixture(params=["tensors_list_mat_plain", "tensors_list_mat_block"])
+def tensors_list_mat(request: _pytest.fixtures.SubRequest) -> rbnicsx.online.TensorsList:
+    """Parameterize rbnicsx.online.TensorsList on petsc4py.PETSc.Mat (block version or not)."""
+    return request.getfixturevalue(request.param)
+
+
 @pytest.fixture(params=["tensors_list_vec_plain", "tensors_list_mat_plain"])
 def tensors_list_plain(request: _pytest.fixtures.SubRequest) -> rbnicsx.online.TensorsList:
     """Parameterize rbnicsx.online.TensorsList on petsc4py.PETSc.Mat and petsc4py.PETSc.Vec (not block version)."""
@@ -86,12 +92,6 @@ def tensors_list_plain(request: _pytest.fixtures.SubRequest) -> rbnicsx.online.T
 @pytest.fixture(params=["tensors_list_vec_block", "tensors_list_mat_block"])
 def tensors_list_block(request: _pytest.fixtures.SubRequest) -> rbnicsx.online.TensorsList:
     """Parameterize rbnicsx.online.TensorsList on petsc4py.PETSc.Mat and petsc4py.PETSc.Vec (block version)."""
-    return request.getfixturevalue(request.param)
-
-
-@pytest.fixture(params=["tensors_list_mat_plain", "tensors_list_mat_block"])
-def tensors_list_mat(request: _pytest.fixtures.SubRequest) -> rbnicsx.online.TensorsList:
-    """Parameterize rbnicsx.online.TensorsList on petsc4py.PETSc.Mat (block version or not)."""
     return request.getfixturevalue(request.param)
 
 
@@ -239,9 +239,7 @@ def test_online_tensors_list_getitem_int_mat(
     assert np.allclose(to_dense_matrix(tensors_list_mat[1]), 2 * to_dense_matrix(tensors_list_mat.first_matrix))
 
 
-def test_online_tensors_list_getitem_slice_vec(
-    tensors_list_vec: rbnicsx.online.TensorsList, to_dense_matrix: typing.Callable
-) -> None:
+def test_online_tensors_list_getitem_slice_vec(tensors_list_vec: rbnicsx.online.TensorsList) -> None:
     """Check rbnicsx.online.TensorsList.__getitem__ with slice input in the case of petsc4py.PETSc.Vec content."""
     tensors_list_vec2 = tensors_list_vec[0:2]
     assert len(tensors_list_vec2) == 2
@@ -279,6 +277,25 @@ def test_online_tensors_list_setitem_mat(
     tensors_list_mat[0] = 3 * tensors_list_mat.first_matrix
     assert np.allclose(to_dense_matrix(tensors_list_mat[0]), 3 * to_dense_matrix(tensors_list_mat.first_matrix))
     assert np.allclose(to_dense_matrix(tensors_list_mat[1]), 2 * to_dense_matrix(tensors_list_mat.first_matrix))
+
+
+def test_online_tensors_list_setitem_mixed_types(
+        tensors_list_vec: rbnicsx.online.TensorsList, tensors_list_mat: rbnicsx.online.TensorsList) -> None:
+    """Check rbnicsx.online.TensorsList.__setitem__ mixing up Mat and Vec objects."""
+    first_vector = rbnicsx.online.create_vector(1)
+    first_matrix = rbnicsx.online.create_matrix(1, 1)
+
+    with pytest.raises(AssertionError):
+        tensors_list_vec[0] = first_matrix
+
+    with pytest.raises(AssertionError):
+        tensors_list_mat[0] = first_vector
+
+
+def test_online_tensors_list_setitem_wrong_type(tensors_list_vec: rbnicsx.online.TensorsList) -> None:
+    """Check rbnicsx.online.TensorsList.__setitem__ when providing neither a Mat nor a Vec object."""
+    with pytest.raises(RuntimeError):
+        tensors_list_vec[0] = None
 
 
 def test_online_tensors_list_save_load_vec(tensors_list_vec: rbnicsx.online.TensorsList) -> None:
