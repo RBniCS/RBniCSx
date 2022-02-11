@@ -23,14 +23,15 @@ from rbnicsx.backends.functions_list import FunctionsList
 
 
 @functools.singledispatch
-def project_vector(L: ufl.Form, B: FunctionsList) -> petsc4py.PETSc.Vec:
+def project_vector(L: typing.Callable, B: FunctionsList) -> petsc4py.PETSc.Vec:
     """
     Project a linear form onto the reduced basis.
 
     Parameters
     ----------
-    L : ufl.Form
-        Linear form to be projected.
+    L : typing.Callable
+        A callable L(v) to compute the action of the linear form L on the function v.
+        Use rbnicsx.backends.linear_form_action to generate the callable L from a UFL form.
     B : rbnicsx.backends.FunctionsList
         Functions spanning the reduced basis space.
 
@@ -45,7 +46,7 @@ def project_vector(L: ufl.Form, B: FunctionsList) -> petsc4py.PETSc.Vec:
 
 
 @project_vector.register
-def _(b: petsc4py.PETSc.Vec, L: ufl.Form, B: FunctionsList) -> None:
+def _(b: petsc4py.PETSc.Vec, L: typing.Callable, B: FunctionsList) -> None:
     """
     Project a linear form onto the reduced basis.
 
@@ -54,23 +55,25 @@ def _(b: petsc4py.PETSc.Vec, L: ufl.Form, B: FunctionsList) -> None:
     b : petsc4py.PETSc.Vec
         Online vector containing the result of the projection.
         The vector is not zeroed before assembly.
-    L : ufl.Form
-        Linear form to be projected.
+    L : typing.Callable
+        A callable L(v) to compute the action of the linear form L on the function v.
+        Use rbnicsx.backends.linear_form_action to generate the callable L from a UFL form.
     B : rbnicsx.backends.FunctionsList
         Functions spanning the reduced basis space.
     """
-    project_vector_super(b, linear_form_action(L), B)
+    project_vector_super(b, L, B)
 
 
 @functools.singledispatch
-def project_vector_block(L: typing.List[ufl.Form], B: typing.List[FunctionsList]) -> petsc4py.PETSc.Vec:
+def project_vector_block(L: typing.List[typing.Callable], B: typing.List[FunctionsList]) -> petsc4py.PETSc.Vec:
     """
     Project a list of linear forms onto the reduced basis.
 
     Parameters
     ----------
-    L : typing.List[ufl.Form]
-        Linear forms to be projected.
+    L : typing.List[typing.Callable]
+        A list of callables L_i(v) to compute the action of the i-th linear form L_i on the function v.
+        Use rbnicsx.backends.linear_form_action to generate each callable L_i from a UFL form.
     B : typing.List[rbnicsx.backends.FunctionsList]
         Functions spanning the reduced basis space associated to each solution component.
 
@@ -85,7 +88,7 @@ def project_vector_block(L: typing.List[ufl.Form], B: typing.List[FunctionsList]
 
 
 @project_vector_block.register
-def _(b: petsc4py.PETSc.Vec, L: typing.List[ufl.Form], B: typing.List[FunctionsList]) -> None:
+def _(b: petsc4py.PETSc.Vec, L: typing.List[typing.Callable], B: typing.List[FunctionsList]) -> None:
     """
     Project a list of linear forms onto the reduced basis.
 
@@ -94,25 +97,27 @@ def _(b: petsc4py.PETSc.Vec, L: typing.List[ufl.Form], B: typing.List[FunctionsL
     b : petsc4py.PETSc.Vec
         Online vector containing the result of the projection.
         The vector is not zeroed before assembly.
-    L : typing.List[ufl.Form]
-        Linear forms to be projected.
+    L : typing.List[typing.Callable]
+        A list of callables L_i(v) to compute the action of the i-th linear form L_i on the function v.
+        Use rbnicsx.backends.linear_form_action to generate each callable L_i from a UFL form.
     B : typing.List[rbnicsx.backends.FunctionsList]
         Functions spanning the reduced basis space associated to each solution component.
     """
-    project_vector_block_super(b, [linear_form_action(L_) for L_ in L], B)
+    project_vector_block_super(b, L, B)
 
 
 @functools.singledispatch
 def project_matrix(
-    a: ufl.Form, B: typing.Union[FunctionsList, typing.Tuple[FunctionsList]]
+    a: typing.Callable, B: typing.Union[FunctionsList, typing.Tuple[FunctionsList]]
 ) -> petsc4py.PETSc.Mat:
     """
     Project a bilinear form onto the reduced basis.
 
     Parameters
     ----------
-    a : ufl.Form
-        Bilinear form to be projected.
+    a : typing.Callable
+        A callable a(v, u) to compute the action of the bilinear form a on the trial function u and test function v.
+        Use rbnicsx.backends.bilinear_form_action to generate the callable a from a UFL form.
     B : typing.Union[rbnicsx.backends.FunctionsList, typing.Tuple[rbnicsx.backends.FunctionsList]]
         Functions spanning the reduced basis space. Two different basis of the same space
         can be provided, e.g. as in Petrov-Galerkin methods.
@@ -136,7 +141,7 @@ def project_matrix(
 
 @project_matrix.register
 def _(
-    A: petsc4py.PETSc.Mat, a: ufl.Form, B: typing.Union[FunctionsList, typing.Tuple[FunctionsList]]
+    A: petsc4py.PETSc.Mat, a: typing.Callable, B: typing.Union[FunctionsList, typing.Tuple[FunctionsList]]
 ) -> None:
     """
     Project a bilinear form onto the reduced basis.
@@ -146,18 +151,19 @@ def _(
     A : petsc4py.PETSc.Mat
         Online matrix containing the result of the projection.
         The matrix is not zeroed before assembly.
-    a : ufl.Form
-        Bilinear form to be projected.
+    a : typing.Callable
+        A callable a(v, u) to compute the action of the bilinear form a on the trial function u and test function v.
+        Use rbnicsx.backends.bilinear_form_action to generate the callable a from a UFL form.
     B : typing.Union[rbnicsx.backends.FunctionsList, typing.Tuple[rbnicsx.backends.FunctionsList]]
         Functions spanning the reduced basis space. Two different basis of the same space
         can be provided, e.g. as in Petrov-Galerkin methods.
     """
-    project_matrix_super(A, bilinear_form_action(a), B)
+    project_matrix_super(A, a, B)
 
 
 @functools.singledispatch
 def project_matrix_block(
-    a: typing.List[typing.List[ufl.Form]],
+    a: typing.List[typing.List[typing.Callable]],
     B: typing.Union[typing.List[FunctionsList], typing.Tuple[typing.List[FunctionsList]]]
 ) -> petsc4py.PETSc.Mat:
     """
@@ -165,8 +171,10 @@ def project_matrix_block(
 
     Parameters
     ----------
-    a : typing.List[typing.List[ufl.Form]]
-        Bilinear forms to be projected.
+    a : typing.List[typing.List[typing.Callable]]
+        A matrix of callables a_ij(v, u) to compute the action of the bilinear form a_ij on
+        the trial function u and test function v.
+        Use rbnicsx.backends.bilinear_form_action to generate each callable a_ij from a UFL form.
     B : typing.Union[typing.List[rbnicsx.backends.FunctionsList], \
                      typing.Tuple[typing.List[rbnicsx.backends.FunctionsList]]]
         Functions spanning the reduced basis space associated to each solution component.
@@ -191,7 +199,7 @@ def project_matrix_block(
 @project_matrix_block.register
 def _(
     A: petsc4py.PETSc.Mat,
-    a: typing.List[typing.List[ufl.Form]],
+    a: typing.List[typing.List[typing.Callable]],
     B: typing.Union[typing.List[FunctionsList], typing.Tuple[typing.List[FunctionsList]]]
 ) -> None:
     """
@@ -202,8 +210,10 @@ def _(
     A : petsc4py.PETSc.Mat
         Online matrix containing the result of the projection.
         The matrix is not zeroed before assembly.
-    a : typing.List[typing.List[ufl.Form]]
-        Bilinear forms to be projected.
+    a : typing.List[typing.List[typing.Callable]]
+        A matrix of callables a_ij(v, u) to compute the action of the bilinear form a_ij on
+        the trial function u and test function v.
+        Use rbnicsx.backends.bilinear_form_action to generate each callable a_ij from a UFL form.
     B : typing.Union[
             typing.List[rbnicsx.backends.FunctionsList],
             typing.Tuple[typing.List[rbnicsx.backends.FunctionsList]]
@@ -211,9 +221,10 @@ def _(
         Functions spanning the reduced basis space associated to each solution component.
         Two different basis of the same space can be provided, e.g. as in Petrov-Galerkin methods.
     """
-    project_matrix_block_super(A, [[bilinear_form_action(a_ij) for a_ij in a_i] for a_i in a], B)
+    project_matrix_block_super(A, a, B)
 
 
+@functools.singledispatch
 def linear_form_action(L: ufl.Form, part: typing.Optional[str] = None) -> typing.Callable:
     """
     Return a callable that represents the action of a linear form on a function.
@@ -260,6 +271,28 @@ def linear_form_action(L: ufl.Form, part: typing.Optional[str] = None) -> typing
     return _
 
 
+@linear_form_action.register(list)
+def _(L: typing.List[ufl.Form], part: typing.Optional[str] = None) -> typing.List[typing.Callable]:
+    """
+    Return a callable that represents the action of a block linear form on a function.
+
+    Parameters
+    ----------
+    L : typing.List[ufl.Form]
+        Block linear form to be represented.
+    part : typing.Optional[str]
+        Optional part (real or complex) to extract from the action result.
+        If not provided, no postprocessing of the result will be carried out.
+
+    Returns
+    -------
+    typing.List[typing.Callable]
+        A list of callables that represents the action of L on a function.
+    """
+    return [linear_form_action(L_i) for L_i in L]
+
+
+@functools.singledispatch
 def bilinear_form_action(a: ufl.Form, part: typing.Optional[str] = None) -> typing.Callable:
     """
     Return a callable that represents the action of a bilinear form on a pair of functions.
@@ -311,6 +344,33 @@ def bilinear_form_action(a: ufl.Form, part: typing.Optional[str] = None) -> typi
             comm.allreduce(dolfinx.fem.assemble_scalar(a_replacement_cpp), op=mpi4py.MPI.SUM), part)
 
     return _
+
+
+@bilinear_form_action.register(list)
+def _(
+    a: typing.Union[typing.List[ufl.Form], typing.List[typing.List[ufl.Form]]], part: typing.Optional[str] = None
+) -> typing.Union[typing.List[typing.Callable], typing.List[typing.List[typing.Callable]]]:
+    """
+    Return a callable that represents the action of a block bilinear form on a pair of functions.
+
+    Parameters
+    ----------
+    a : typing.Union[typing.List[ufl.Form], typing.List[typing.List[ufl.Form]]]
+        Block bilinear form to be represented.
+    part : typing.Optional[str]
+        Optional part (real or complex) to extract from the action result.
+        If not provided, no postprocessing of the result will be carried out.
+
+    Returns
+    -------
+    typing.Union[typing.List[typing.Callable], typing.List[typing.List[typing.Callable]]]
+        A list or a matrix of callables that represents the action of a on a pair of functions.
+    """
+    if isinstance(a[0], list):
+        return [[bilinear_form_action(a_ij) for a_ij in a_i] for a_i in a]
+    else:
+        assert isinstance(a[0], ufl.Form)
+        return [bilinear_form_action(a_ii) for a_ii in a]
 
 
 def _extract_part(value: petsc4py.PETSc.ScalarType, part: typing.Optional[str]) -> typing.Union[

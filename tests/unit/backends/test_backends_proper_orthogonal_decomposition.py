@@ -47,14 +47,6 @@ def inner_product(mesh: dolfinx.mesh.Mesh) -> ufl.Form:
     return ufl.inner(u, v) * ufl.dx
 
 
-def compute_inner_product(
-    inner_product: ufl.Form, function_i: dolfinx.fem.Function, function_j: dolfinx.fem.Function
-) -> petsc4py.PETSc.ScalarType:
-    """Evaluate the inner product between two functions."""
-    inner_product_action = rbnicsx.backends.bilinear_form_action(inner_product)
-    return inner_product_action(function_i, function_j)
-
-
 @pytest.fixture
 def tensors_list_vec(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsList:
     """Generate a rbnicsx.backends.TensorsList with two linearly dependent petsc4py.PETSc.Vec entries."""
@@ -90,13 +82,14 @@ def test_backends_proper_orthogonal_decomposition_functions(
     functions_list: rbnicsx.backends.FunctionsList, inner_product: ufl.Form, normalize: bool
 ) -> None:
     """Check rbnicsx.backends.proper_orthogonal_decomposition for the case of dolfinx.fem.Function snapshots."""
+    compute_inner_product = rbnicsx.backends.bilinear_form_action(inner_product)
     eigenvalues, modes, eigenvectors = rbnicsx.backends.proper_orthogonal_decomposition(
-        functions_list[:2], inner_product, N=2, tol=0.0, normalize=normalize)
+        functions_list[:2], compute_inner_product, N=2, tol=0.0, normalize=normalize)
     assert len(eigenvalues) == 2
     assert np.isclose(eigenvalues[0], 5)
     assert np.isclose(eigenvalues[1], 0)
     assert len(modes) == 2
-    assert np.isclose(compute_inner_product(inner_product, modes[0], modes[0]), 1 if normalize else 5)
+    assert np.isclose(compute_inner_product(modes[0], modes[0]), 1 if normalize else 5)
     if normalize:
         assert np.allclose(modes[0].vector.array, 1)
     # np.allclose(modes[2], 0) may not be true in arithmetic precision when scaling with a very small eigenvalue
@@ -112,13 +105,14 @@ def test_backends_proper_orthogonal_decomposition_functions_tol(
 
     The case of non zero tolerance is tested here.
     """
+    compute_inner_product = rbnicsx.backends.bilinear_form_action(inner_product)
     eigenvalues, modes, eigenvectors = rbnicsx.backends.proper_orthogonal_decomposition(
-        functions_list[:2], inner_product, N=2, tol=1e-8, normalize=normalize)
+        functions_list[:2], compute_inner_product, N=2, tol=1e-8, normalize=normalize)
     assert len(eigenvalues) == 2
     assert np.isclose(eigenvalues[0], 5)
     assert np.isclose(eigenvalues[1], 0)
     assert len(modes) == 1
-    assert np.isclose(compute_inner_product(inner_product, modes[0], modes[0]), 1 if normalize else 5)
+    assert np.isclose(compute_inner_product(modes[0], modes[0]), 1 if normalize else 5)
     if normalize:
         assert np.allclose(modes[0].vector.array, 1)
     assert len(eigenvectors) == 1
@@ -133,20 +127,21 @@ def test_backends_proper_orthogonal_decomposition_block(
     stopping_criterion_generator: typing.Callable
 ) -> None:
     """Check rbnicsx.backends.proper_orthogonal_decomposition_block."""
+    compute_inner_product = rbnicsx.backends.bilinear_form_action([inner_product, 2 * inner_product])
     eigenvalues, modes, eigenvectors = rbnicsx.backends.proper_orthogonal_decomposition_block(
-        [functions_list[:2], functions_list[2:4]], [inner_product, 2 * inner_product],
-        N=stopping_criterion_generator(2), tol=stopping_criterion_generator(0.0), normalize=normalize)
+        [functions_list[:2], functions_list[2:4]], compute_inner_product, N=stopping_criterion_generator(2),
+        tol=stopping_criterion_generator(0.0), normalize=normalize)
     assert len(eigenvalues) == 2
     for (component, eigenvalue_factor) in enumerate([1, 10]):
         assert len(eigenvalues[component]) == 2
         assert np.isclose(eigenvalues[component][0], 5 * eigenvalue_factor)
         assert np.isclose(eigenvalues[component][1], 0)
     assert len(modes) == 2
-    for (component, (inner_product_factor, eigenvalue_factor, mode_factor)) in enumerate(zip(
-            [1, 2], [1, 10], [1, 1 / np.sqrt(2)])):
+    for (component, (compute_inner_product_, eigenvalue_factor, mode_factor)) in enumerate(zip(
+            compute_inner_product, [1, 10], [1, 1 / np.sqrt(2)])):
         assert len(modes[component]) == 2
         assert np.isclose(
-            compute_inner_product(inner_product_factor * inner_product, modes[component][0], modes[component][0]),
+            compute_inner_product_(modes[component][0], modes[component][0]),
             1 if normalize else 5 * eigenvalue_factor)
         if normalize:
             assert np.allclose(modes[component][0].vector.array, mode_factor)
@@ -195,8 +190,9 @@ def test_backends_proper_orthogonal_decomposition_zero(
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
     functions_list = rbnicsx.backends.FunctionsList(V)
     functions_list.extend([dolfinx.fem.Function(V) for _ in range(2)])
+    compute_inner_product = rbnicsx.backends.bilinear_form_action(inner_product)
     eigenvalues, modes, eigenvectors = rbnicsx.backends.proper_orthogonal_decomposition(
-        functions_list[:2], inner_product, N=2, tol=0.0, normalize=normalize)
+        functions_list[:2], compute_inner_product, N=2, tol=0.0, normalize=normalize)
     assert len(eigenvalues) == 2
     assert np.isclose(eigenvalues[0], 0)
     assert np.isclose(eigenvalues[1], 0)

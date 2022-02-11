@@ -11,14 +11,12 @@ import typing
 import dolfinx.fem
 import numpy as np
 import petsc4py
-import ufl
 
 from rbnicsx._backends.proper_orthogonal_decomposition import (
     proper_orthogonal_decomposition_functions as proper_orthogonal_decomposition_functions_super,
     proper_orthogonal_decomposition_functions_block as proper_orthogonal_decomposition_functions_block_super,
     proper_orthogonal_decomposition_tensors as proper_orthogonal_decomposition_tensors_super)
 from rbnicsx.backends.functions_list import FunctionsList
-from rbnicsx.backends.projection import bilinear_form_action
 from rbnicsx.backends.tensors_list import TensorsList
 
 
@@ -38,7 +36,7 @@ def proper_orthogonal_decomposition(
 
 @proper_orthogonal_decomposition.register
 def _(
-    functions_list: FunctionsList, inner_product: ufl.Form, N: int, tol: float, normalize: bool = True
+    functions_list: FunctionsList, compute_inner_product: typing.Callable, N: int, tol: float, normalize: bool = True
 ) -> typing.Tuple[
     np.typing.NDArray[float], FunctionsList, typing.List[petsc4py.PETSc.Vec]
 ]:
@@ -49,9 +47,10 @@ def _(
     ----------
     functions_list : rbnicsx.backends.FunctionsList
         Collected snapshots.
-    inner_product : ufl.Form
-        Bilinear form which defines the inner product. The resulting modes will be orthonormal
-        w.r.t. this inner product.
+    compute_inner_product : typing.Callable
+        A callable x(v, u) to compute the action of the inner product on the trial function u and test function v.
+        The resulting modes will be orthonormal w.r.t. this inner product.
+        Use rbnicsx.backends.bilinear_form_action to generate the callable x from a UFL form.
     N : int
         Maximum number of modes to be computed.
     tol : float
@@ -70,15 +69,13 @@ def _(
         Eigenvectors of the correlation matrix. Only the first few eigenvectors are returned, till
         either the maximum number N is reached or the tolerance on the retained energy is fulfilled.
     """
-    compute_inner_product = bilinear_form_action(inner_product)
-
     return proper_orthogonal_decomposition_functions_super(
         functions_list, compute_inner_product, _scale_function, N, tol, normalize)
 
 
 def proper_orthogonal_decomposition_block(
-    functions_lists: FunctionsList, inner_products: typing.List[ufl.Form], N: typing.Union[int, typing.List[int]],
-    tol: typing.Union[float, typing.List[float]], normalize: bool = True
+    functions_lists: FunctionsList, compute_inner_products: typing.List[typing.Callable],
+    N: typing.Union[int, typing.List[int]], tol: typing.Union[float, typing.List[float]], normalize: bool = True
 ) -> typing.Tuple[
     typing.List[np.typing.NDArray[float]], typing.List[FunctionsList], typing.List[typing.List[petsc4py.PETSc.Vec]]
 ]:
@@ -91,9 +88,11 @@ def proper_orthogonal_decomposition_block(
         Collected snapshots. Each snapshot is made of several blocks, defined on possibly different function spaces.
         The inner FunctionsList contains all snapshots of a single block, while the outer list collects the different
         blocks.
-    inner_products : typing.List[ufl.Form]
-        Bilinear forms which define the inner products of each block. The resulting modes
-        will be orthonormal w.r.t. these inner products.
+    compute_inner_products : typing.List[typing.Callable]
+        A list of callables x_i(v_i, u_i) to compute the action of the inner product on the trial function u_i
+        and test function v_i associated to the i-th block.
+        The resulting modes will be orthonormal w.r.t. this inner product.
+        Use rbnicsx.backends.bilinear_form_action to generate each callable x_i from a UFL form.
     N : typing.Union[int, typing.List[int]]
         Maximum number of modes to be computed. If an integer value is passed then the same maximum number is
         used for each block. To set a different maximum number of modes for each block pass a list of integers.
@@ -117,8 +116,6 @@ def proper_orthogonal_decomposition_block(
         either the maximum number N is reached or the tolerance on the retained energy is fulfilled.
         The outer list collects the eigenvectors of different blocks.
     """
-    compute_inner_products = [bilinear_form_action(inner_product) for inner_product in inner_products]
-
     return proper_orthogonal_decomposition_functions_block_super(
         functions_lists, compute_inner_products, _scale_function, N, tol, normalize)
 

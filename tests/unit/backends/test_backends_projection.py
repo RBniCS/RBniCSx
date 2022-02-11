@@ -45,12 +45,15 @@ def test_backends_projection_vector(mesh: dolfinx.mesh.Mesh, functions_list: rbn
     v = ufl.TestFunction(V)
     linear_form = ufl.inner(1, v) * ufl.dx
 
-    online_vec = rbnicsx.backends.project_vector(linear_form, basis_functions)
+    online_vec = rbnicsx.backends.project_vector(
+        rbnicsx.backends.linear_form_action(linear_form), basis_functions)
     assert online_vec.size == 2
     assert np.allclose(online_vec.array, [1, 2])
 
-    online_vec2 = rbnicsx.backends.project_vector(0.4 * linear_form, basis_functions)
-    rbnicsx.backends.project_vector(online_vec2, 0.6 * linear_form, basis_functions)
+    online_vec2 = rbnicsx.backends.project_vector(
+        rbnicsx.backends.linear_form_action(0.4 * linear_form), basis_functions)
+    rbnicsx.backends.project_vector(
+        online_vec2, rbnicsx.backends.linear_form_action(0.6 * linear_form), basis_functions)
     assert online_vec2.size == 2
     assert np.allclose(online_vec2.array, online_vec.array)
 
@@ -65,15 +68,17 @@ def test_backends_projection_vector_block(
     v = ufl.TestFunction(V)
     linear_forms = [ufl.inner(10**i, v) * ufl.dx for i in range(2)]
 
-    online_vec = rbnicsx.backends.project_vector_block(linear_forms, basis_functions)
+    online_vec = rbnicsx.backends.project_vector_block(
+        rbnicsx.backends.linear_form_action(linear_forms), basis_functions)
     assert online_vec.size == 5
     assert np.allclose(online_vec[0:2], [1, 2])
     assert np.allclose(online_vec[2:5], np.array([3, 4, 5]) * 10)
 
     online_vec2 = rbnicsx.backends.project_vector_block(
-        [0.4 * linear_form for linear_form in linear_forms], basis_functions)
+        rbnicsx.backends.linear_form_action([0.4 * linear_form for linear_form in linear_forms]), basis_functions)
     rbnicsx.backends.project_vector_block(
-        online_vec2, [0.6 * linear_form for linear_form in linear_forms], basis_functions)
+        online_vec2, rbnicsx.backends.linear_form_action([0.6 * linear_form for linear_form in linear_forms]),
+        basis_functions)
     assert online_vec2.size == 5
     assert np.allclose(online_vec2.array, online_vec.array)
 
@@ -89,13 +94,16 @@ def test_backends_projection_matrix_galerkin(
     v = ufl.TestFunction(V)
     bilinear_form = ufl.inner(u, v) * ufl.dx
 
-    online_mat = rbnicsx.backends.project_matrix(bilinear_form, basis_functions)
+    online_mat = rbnicsx.backends.project_matrix(
+        rbnicsx.backends.bilinear_form_action(bilinear_form), basis_functions)
     assert online_mat.size == (2, 2)
     assert np.allclose(online_mat[0, :], [1, 2])
     assert np.allclose(online_mat[1, :], np.array([1, 2]) * 2)
 
-    online_mat2 = rbnicsx.backends.project_matrix(0.4 * bilinear_form, basis_functions)
-    rbnicsx.backends.project_matrix(online_mat2, 0.6 * bilinear_form, basis_functions)
+    online_mat2 = rbnicsx.backends.project_matrix(
+        rbnicsx.backends.bilinear_form_action(0.4 * bilinear_form), basis_functions)
+    rbnicsx.backends.project_matrix(
+        online_mat2, rbnicsx.backends.bilinear_form_action(0.6 * bilinear_form), basis_functions)
     assert online_mat2.size == (2, 2)
     assert np.allclose(to_dense_matrix(online_mat2), to_dense_matrix(online_mat))
 
@@ -111,13 +119,16 @@ def test_backends_projection_matrix_petrov_galerkin(
     v = ufl.TestFunction(V)
     bilinear_form = ufl.inner(u, v) * ufl.dx
 
-    online_mat = rbnicsx.backends.project_matrix(bilinear_form, basis_functions)
+    online_mat = rbnicsx.backends.project_matrix(
+        rbnicsx.backends.bilinear_form_action(bilinear_form), basis_functions)
     assert online_mat.size == (2, 3)
     assert np.allclose(online_mat[0, :], [3, 4, 5])
     assert np.allclose(online_mat[1, :], np.array([3, 4, 5]) * 2)
 
-    online_mat2 = rbnicsx.backends.project_matrix(0.4 * bilinear_form, basis_functions)
-    rbnicsx.backends.project_matrix(online_mat2, 0.6 * bilinear_form, basis_functions)
+    online_mat2 = rbnicsx.backends.project_matrix(
+        rbnicsx.backends.bilinear_form_action(0.4 * bilinear_form), basis_functions)
+    rbnicsx.backends.project_matrix(
+        online_mat2, rbnicsx.backends.bilinear_form_action(0.6 * bilinear_form), basis_functions)
     assert online_mat2.size == (2, 3)
     assert np.allclose(to_dense_matrix(online_mat2), to_dense_matrix(online_mat))
 
@@ -133,7 +144,8 @@ def test_backends_projection_matrix_block_galerkin(
     v = ufl.TestFunction(V)
     bilinear_forms = [[10**i * (-1)**j * ufl.inner(u, v) * ufl.dx for j in range(2)] for i in range(2)]
 
-    online_mat = rbnicsx.backends.project_matrix_block(bilinear_forms, basis_functions)
+    online_mat = rbnicsx.backends.project_matrix_block(
+        rbnicsx.backends.bilinear_form_action(bilinear_forms), basis_functions)
     assert online_mat.size == (5, 5)
     assert np.allclose(online_mat[0, 0:2], [1, 2])
     assert np.allclose(online_mat[0, 2:5], np.array([3, 4, 5]) * -1)
@@ -147,11 +159,13 @@ def test_backends_projection_matrix_block_galerkin(
     assert np.allclose(online_mat[4, 2:5], np.array([3, 4, 5]) * -50)
 
     online_mat2 = rbnicsx.backends.project_matrix_block(
-        [[0.4 * bilinear_form for bilinear_form in bilinear_forms_] for bilinear_forms_ in bilinear_forms],
+        rbnicsx.backends.bilinear_form_action(
+            [[0.4 * bilinear_form for bilinear_form in bilinear_forms_] for bilinear_forms_ in bilinear_forms]),
         basis_functions)
     rbnicsx.backends.project_matrix_block(
         online_mat2,
-        [[0.6 * bilinear_form for bilinear_form in bilinear_forms_] for bilinear_forms_ in bilinear_forms],
+        rbnicsx.backends.bilinear_form_action(
+            [[0.6 * bilinear_form for bilinear_form in bilinear_forms_] for bilinear_forms_ in bilinear_forms]),
         basis_functions)
     assert online_mat2.size == (5, 5)
     assert np.allclose(to_dense_matrix(online_mat2), to_dense_matrix(online_mat))
@@ -168,7 +182,8 @@ def test_backends_projection_matrix_block_petrov_galerkin(
     v = ufl.TestFunction(V)
     bilinear_forms = [[10**i * (-1)**j * ufl.inner(u, v) * ufl.dx for j in range(2)] for i in range(2)]
 
-    online_mat = rbnicsx.backends.project_matrix_block(bilinear_forms, basis_functions)
+    online_mat = rbnicsx.backends.project_matrix_block(
+        rbnicsx.backends.bilinear_form_action(bilinear_forms), basis_functions)
     assert online_mat.size == (5, 9)
     assert np.allclose(online_mat[0, 0:4], [6, 7, 8, 9])
     assert np.allclose(online_mat[0, 4:9], np.array([10, 11, 12, 13, 14]) * -1)
@@ -182,11 +197,13 @@ def test_backends_projection_matrix_block_petrov_galerkin(
     assert np.allclose(online_mat[4, 4:9], np.array([10, 11, 12, 13, 14]) * -50)
 
     online_mat2 = rbnicsx.backends.project_matrix_block(
-        [[0.4 * bilinear_form for bilinear_form in bilinear_forms_] for bilinear_forms_ in bilinear_forms],
+        rbnicsx.backends.bilinear_form_action(
+            [[0.4 * bilinear_form for bilinear_form in bilinear_forms_] for bilinear_forms_ in bilinear_forms]),
         basis_functions)
     rbnicsx.backends.project_matrix_block(
         online_mat2,
-        [[0.6 * bilinear_form for bilinear_form in bilinear_forms_] for bilinear_forms_ in bilinear_forms],
+        rbnicsx.backends.bilinear_form_action(
+            [[0.6 * bilinear_form for bilinear_form in bilinear_forms_] for bilinear_forms_ in bilinear_forms]),
         basis_functions)
     assert online_mat2.size == (5, 9)
     assert np.allclose(to_dense_matrix(online_mat2), to_dense_matrix(online_mat))
