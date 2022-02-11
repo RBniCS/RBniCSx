@@ -137,6 +137,10 @@ jobs:
         uses: RBniCS/check-jupyter-metadata-action@main
         with:
           pattern: "tutorials/**/*.ipynb"
+      - name: Import modules at least once, so that tutorials duration is not affected by module setup
+        if: startsWith(matrix.backend, 'none') != true
+        run: |
+          python3 -m pytest --durations=0 --durations-min=1.0 tutorials/.imports.ipynb
       - name: Run tutorials (serial)
         if: startsWith(matrix.backend, 'none') != true
         run: |
@@ -181,6 +185,7 @@ jobs:
         rbnicsx[colab]@https://github.com/RBniCS/RBniCSx.git
       test_script: |
         python3 -m pip install kaleido plotly
+        python3 -m pytest --nbval --durations=0 --durations-min=1.0 open_in_colab/tutorials/.imports.ipynb
         python3 -m pytest --nbval --durations=0 --durations-min=1.0 open_in_colab/tutorials
       publish_on: github@RBniCS/rbnicsproject.org@open-in-colab-rbnicsx
       publish_if_repository: RBniCS/RBniCSx
