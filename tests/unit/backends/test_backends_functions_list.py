@@ -139,8 +139,8 @@ def test_backends_functions_list_mul_empty(mesh: dolfinx.mesh.Mesh) -> None:
 
     online_vec = rbnicsx.online.create_vector(0)
 
-    should_be_none = empty_functions_list * online_vec
-    assert should_be_none is None
+    should_be_zero_function = empty_functions_list * online_vec
+    assert np.allclose(should_be_zero_function.vector.array, 0)
 
 
 def test_backends_functions_list_mul_not_implemented(functions_list: rbnicsx.backends.FunctionsList) -> None:

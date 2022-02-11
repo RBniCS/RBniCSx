@@ -13,6 +13,7 @@ import mpi4py
 import petsc4py
 
 from rbnicsx._backends.functions_list import FunctionsList as FunctionsListBase
+from rbnicsx._backends.online_tensors import create_online_vector as create_vector
 from rbnicsx.online.export import export_vectors, export_vectors_block
 from rbnicsx.online.import_ import import_vectors, import_vectors_block
 
@@ -115,8 +116,11 @@ class FunctionsList(FunctionsListBase):
         petsc4py.PETSc.Vec
             Vector storing the result of the linear combination.
         """
-        output = self._list[0].copy()
-        output.zeroEntries()
-        for i in range(other.size):
-            output.axpy(other[i], self._list[i])
-        return output
+        if other.size > 0:
+            output = self._list[0].copy()
+            output.zeroEntries()
+            for i in range(other.size):
+                output.axpy(other[i], self._list[i])
+            return output
+        else:
+            return create_vector(self.shape)

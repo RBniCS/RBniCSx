@@ -153,10 +153,7 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
         if isinstance(other, petsc4py.PETSc.Vec):
             assert other.getType() == petsc4py.PETSc.Vec.Type.SEQ
             assert other.size == len(self._list)
-            if other.size == 0:
-                return None
-            else:
-                return self._linearly_combine(other)
+            return self._linearly_combine(other)
         else:
             return NotImplemented
 

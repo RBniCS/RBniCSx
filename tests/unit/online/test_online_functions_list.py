@@ -155,12 +155,13 @@ def test_online_functions_list_mul(functions_list: rbnicsx.online.FunctionsList)
 
 def test_online_functions_list_mul_empty() -> None:
     """Check rbnicsx.online.FunctionsList.__mul__ with empty list."""
-    empty_functions_list = rbnicsx.online.FunctionsList(0)
+    empty_functions_list = rbnicsx.online.FunctionsList(10)
 
     online_vec = rbnicsx.online.create_vector(0)
 
-    should_be_none = empty_functions_list * online_vec
-    assert should_be_none is None
+    should_be_zero_vector = empty_functions_list * online_vec
+    assert np.allclose(should_be_zero_vector.array, 0)
+    assert should_be_zero_vector.size == 10
 
 
 def test_online_functions_list_mul_not_implemented(functions_list: rbnicsx.online.FunctionsList) -> None:
