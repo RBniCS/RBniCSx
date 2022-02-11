@@ -10,6 +10,7 @@ import typing
 
 import dolfinx.fem
 import mpi4py
+import numpy as np
 import petsc4py
 import ufl
 
@@ -213,7 +214,7 @@ def _(
     project_matrix_block_super(A, [[bilinear_form_action(a_ij) for a_ij in a_i] for a_i in a], B)
 
 
-def linear_form_action(L: ufl.Form) -> typing.Callable:
+def linear_form_action(L: ufl.Form, part: typing.Optional[str] = None) -> typing.Callable:
     """
     Return a callable that represents the action of a linear form on a function.
 
@@ -221,6 +222,9 @@ def linear_form_action(L: ufl.Form) -> typing.Callable:
     ----------
     L : ufl.Form
         Linear form to be represented.
+    part : typing.Optional[str]
+        Optional part (real or complex) to extract from the action result.
+        If not provided, no postprocessing of the result will be carried out.
 
     Returns
     -------
@@ -230,7 +234,7 @@ def linear_form_action(L: ufl.Form) -> typing.Callable:
     test, = L.arguments()
     comm = test.ufl_function_space().mesh.comm
 
-    def _(fun: dolfinx.fem.Function) -> petsc4py.PETSc.ScalarType:
+    def _(fun: dolfinx.fem.Function) -> typing.Union[petsc4py.PETSc.ScalarType, petsc4py.PETSc.RealType]:
         """
         Compute the action of a linear form on a function.
 
@@ -244,14 +248,16 @@ def linear_form_action(L: ufl.Form) -> typing.Callable:
         petsc4py.PETSc.ScalarType
             Evaluation of the action of L on the provided function.
         """
-        return comm.allreduce(
-            dolfinx.fem.assemble_scalar(dolfinx.fem.form(ufl.replace(L, {test: fun}))),
-            op=mpi4py.MPI.SUM)
+        return _extract_part(
+            comm.allreduce(
+                dolfinx.fem.assemble_scalar(dolfinx.fem.form(ufl.replace(L, {test: fun}))),
+                op=mpi4py.MPI.SUM),
+            part)
 
     return _
 
 
-def bilinear_form_action(a: ufl.Form) -> typing.Callable:
+def bilinear_form_action(a: ufl.Form, part: typing.Optional[str] = None) -> typing.Callable:
     """
     Return a callable that represents the action of a bilinear form on a pair of functions.
 
@@ -259,6 +265,9 @@ def bilinear_form_action(a: ufl.Form) -> typing.Callable:
     ----------
     a : ufl.Form
         Bilinear form to be represented.
+    part : typing.Optional[str]
+        Optional part (real or complex) to extract from the action result.
+        If not provided, no postprocessing of the result will be carried out.
 
     Returns
     -------
@@ -269,7 +278,8 @@ def bilinear_form_action(a: ufl.Form) -> typing.Callable:
     comm = test.ufl_function_space().mesh.comm
     assert trial.ufl_function_space().mesh.comm == comm
 
-    def _(fun_0: dolfinx.fem.Function, fun_1: dolfinx.fem.Function) -> petsc4py.PETSc.ScalarType:
+    def _(fun_0: dolfinx.fem.Function, fun_1: dolfinx.fem.Function) -> typing.Union[
+            petsc4py.PETSc.ScalarType, petsc4py.PETSc.RealType]:
         """
         Compute the action of a bilinear form on a pair of functions.
 
@@ -285,8 +295,25 @@ def bilinear_form_action(a: ufl.Form) -> typing.Callable:
         petsc4py.PETSc.ScalarType
             Evaluation of the action of a on the provided pair of functions.
         """
-        return comm.allreduce(
-            dolfinx.fem.assemble_scalar(dolfinx.fem.form(ufl.replace(a, {test: fun_0, trial: fun_1}))),
-            op=mpi4py.MPI.SUM)
+        return _extract_part(
+            comm.allreduce(
+                dolfinx.fem.assemble_scalar(dolfinx.fem.form(ufl.replace(a, {test: fun_0, trial: fun_1}))),
+                op=mpi4py.MPI.SUM),
+            part)
 
     return _
+
+
+def _extract_part(value: petsc4py.PETSc.ScalarType, part: typing.Optional[str]) -> typing.Union[
+        petsc4py.PETSc.ScalarType, petsc4py.PETSc.RealType]:  # pragma: no cover
+    if np.issubdtype(petsc4py.PETSc.ScalarType, np.complexfloating):
+        if part == "real":
+            return value.real
+        elif part == "imag":
+            return value.imag
+        else:
+            assert part is None
+            return value
+    else:
+        assert part in ("real", None)
+        return value
