@@ -234,6 +234,10 @@ def linear_form_action(L: ufl.Form, part: typing.Optional[str] = None) -> typing
     test, = L.arguments()
     comm = test.ufl_function_space().mesh.comm
 
+    test_replacement = dolfinx.fem.Function(test.ufl_function_space())
+    L_replacement = ufl.replace(L, {test: test_replacement})
+    L_replacement_cpp = dolfinx.fem.form(L_replacement)
+
     def _(fun: dolfinx.fem.Function) -> typing.Union[petsc4py.PETSc.ScalarType, petsc4py.PETSc.RealType]:
         """
         Compute the action of a linear form on a function.
@@ -248,11 +252,10 @@ def linear_form_action(L: ufl.Form, part: typing.Optional[str] = None) -> typing
         petsc4py.PETSc.ScalarType
             Evaluation of the action of L on the provided function.
         """
+        with fun.vector.localForm() as fun_local, test_replacement.vector.localForm() as test_replacement_local:
+            fun_local.copy(test_replacement_local)
         return _extract_part(
-            comm.allreduce(
-                dolfinx.fem.assemble_scalar(dolfinx.fem.form(ufl.replace(L, {test: fun}))),
-                op=mpi4py.MPI.SUM),
-            part)
+            comm.allreduce(dolfinx.fem.assemble_scalar(L_replacement_cpp), op=mpi4py.MPI.SUM), part)
 
     return _
 
@@ -278,6 +281,11 @@ def bilinear_form_action(a: ufl.Form, part: typing.Optional[str] = None) -> typi
     comm = test.ufl_function_space().mesh.comm
     assert trial.ufl_function_space().mesh.comm == comm
 
+    test_replacement = dolfinx.fem.Function(test.ufl_function_space())
+    trial_replacement = dolfinx.fem.Function(trial.ufl_function_space())
+    a_replacement = ufl.replace(a, {test: test_replacement, trial: trial_replacement})
+    a_replacement_cpp = dolfinx.fem.form(a_replacement)
+
     def _(fun_0: dolfinx.fem.Function, fun_1: dolfinx.fem.Function) -> typing.Union[
             petsc4py.PETSc.ScalarType, petsc4py.PETSc.RealType]:
         """
@@ -295,11 +303,12 @@ def bilinear_form_action(a: ufl.Form, part: typing.Optional[str] = None) -> typi
         petsc4py.PETSc.ScalarType
             Evaluation of the action of a on the provided pair of functions.
         """
+        with fun_0.vector.localForm() as fun_0_local, test_replacement.vector.localForm() as test_replacement_local:
+            fun_0_local.copy(test_replacement_local)
+        with fun_1.vector.localForm() as fun_1_local, trial_replacement.vector.localForm() as trial_replacement_local:
+            fun_1_local.copy(trial_replacement_local)
         return _extract_part(
-            comm.allreduce(
-                dolfinx.fem.assemble_scalar(dolfinx.fem.form(ufl.replace(a, {test: fun_0, trial: fun_1}))),
-                op=mpi4py.MPI.SUM),
-            part)
+            comm.allreduce(dolfinx.fem.assemble_scalar(a_replacement_cpp), op=mpi4py.MPI.SUM), part)
 
     return _
 
