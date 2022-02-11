@@ -6,10 +6,11 @@
 """Compute the order of magnitude of a number."""
 
 import numbers
+import typing
 
 import numpy as np
 
 
-def order_of_magnitude(number: numbers.Real) -> int:
+def order_of_magnitude(number: typing.Union[numbers.Real, typing.Iterable[numbers.Real]]) -> int:
     """Compute the order of magnitude of a number."""
     return np.floor(np.log10(number)).astype(int)
