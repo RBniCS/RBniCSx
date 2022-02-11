@@ -662,3 +662,105 @@ def test_online_tensors_contraction_empty() -> None:
     empty_tensors_array = rbnicsx.online.TensorsArray(0, 0)
     with pytest.raises(RuntimeError):
         empty_tensors_array.contraction()
+
+
+def test_online_tensors_array_contraction_1d_vec_implicit_args() -> None:
+    """Check rbnicsx.online.TensorsArray.contraction in the case of 1d array and trivial petsc4py.PETSc.Vec content."""
+    vectors = [rbnicsx.online.create_vector(1) for _ in range(6)]
+    for (v, vector) in enumerate(vectors):
+        vector.setValue(0, v + 1)
+    tensors_1d_array = rbnicsx.online.TensorsArray(1, 6)
+    for (i, vector) in enumerate(vectors):
+        tensors_1d_array[i] = vector
+
+    online_vec = rbnicsx.online.create_vector(6)
+    online_vec[:] = np.arange(1, 7)
+
+    contraction = tensors_1d_array.contraction(online_vec, vectors[0])
+    assert np.isclose(contraction, 91)
+    contraction_implicit_trailing_args = tensors_1d_array.contraction(online_vec)
+    assert np.isclose(contraction_implicit_trailing_args, contraction)
+
+
+def test_online_tensors_array_contraction_2d_vec_implicit_args() -> None:
+    """Check rbnicsx.online.TensorsArray.contraction in the case of 2d array and trivial petsc4py.PETSc.Vec content."""
+    vectors = [rbnicsx.online.create_vector(1) for _ in range(6)]
+    for (v, vector) in enumerate(vectors):
+        vector.setValue(0, v + 1)
+    tensors_2d_array = rbnicsx.online.TensorsArray(1, (2, 3))
+    for i in range(2):
+        for j in range(3):
+            tensors_2d_array[i, j] = vectors[i * 3 + j]
+
+    online_vec0 = rbnicsx.online.create_vector(2)
+    online_vec0[:] = [1, 2]
+    online_vec1 = rbnicsx.online.create_vector(3)
+    online_vec1[:] = [3, 4, 5]
+
+    contraction = tensors_2d_array.contraction(online_vec0, online_vec1, vectors[0])
+    assert np.isclose(contraction, 150)
+    contraction_implicit_trailing_args = tensors_2d_array.contraction(online_vec0, online_vec1)
+    assert np.isclose(contraction_implicit_trailing_args, contraction)
+
+
+@pytest.mark.parametrize("num_rows", [1, 10])
+def test_online_tensors_array_contraction_1d_mat_implicit_args(
+    num_rows: int, to_dense_matrix: typing.Callable
+) -> None:
+    """Check rbnicsx.online.TensorsArray.contraction in the case of 1d array and trivial petsc4py.PETSc.Mat content."""
+    matrices = [rbnicsx.online.create_matrix(num_rows, 1) for _ in range(6)]
+    for (m, matrix) in enumerate(matrices):
+        for d in range(num_rows):
+            matrix.setValue(d, 0, (m + 1) * (d + 1))
+        matrix.assemble()
+    tensors_1d_array = rbnicsx.online.TensorsArray((num_rows, 1), 6)
+    for (i, matrix) in enumerate(matrices):
+        tensors_1d_array[i] = matrix
+
+    online_vec = rbnicsx.online.create_vector(6)
+    online_vec[:] = np.arange(1, 7)
+    online_solution0 = rbnicsx.online.create_vector(num_rows)
+    online_solution0[:] = np.arange(1, num_rows + 1)
+    online_solution1 = rbnicsx.online.create_vector(1)
+    online_solution1[0] = 1
+
+    contraction = tensors_1d_array.contraction(online_vec, online_solution0, online_solution1)
+    assert np.isclose(contraction, 91 * online_solution0.norm(petsc4py.PETSc.NormType.NORM_2)**2)
+    contraction_implicit_trailing_args1 = tensors_1d_array.contraction(online_vec, online_solution0)
+    assert np.isclose(contraction_implicit_trailing_args1, contraction)
+    if num_rows == 1:
+        contraction_implicit_trailing_args2 = tensors_1d_array.contraction(online_vec)
+        assert np.isclose(contraction_implicit_trailing_args2, contraction)
+
+
+@pytest.mark.parametrize("num_rows", [1, 10])
+def test_online_tensors_array_contraction_2d_mat_implicit_args(
+    num_rows: int, to_dense_matrix: typing.Callable
+) -> None:
+    """Check rbnicsx.online.TensorsArray.contraction in the case of 2d array and trivial petsc4py.PETSc.Mat content."""
+    matrices = [rbnicsx.online.create_matrix(num_rows, 1) for _ in range(6)]
+    for (m, matrix) in enumerate(matrices):
+        for d in range(num_rows):
+            matrix.setValue(d, 0, (m + 1) * (d + 1))
+        matrix.assemble()
+    tensors_2d_array = rbnicsx.online.TensorsArray((num_rows, 1), (2, 3))
+    for i in range(2):
+        for j in range(3):
+            tensors_2d_array[i, j] = matrices[i * 3 + j]
+
+    online_vec0 = rbnicsx.online.create_vector(2)
+    online_vec0[:] = [1, 2]
+    online_vec1 = rbnicsx.online.create_vector(3)
+    online_vec1[:] = [3, 4, 5]
+    online_solution0 = rbnicsx.online.create_vector(num_rows)
+    online_solution0[:] = np.arange(1, num_rows + 1)
+    online_solution1 = rbnicsx.online.create_vector(1)
+    online_solution1[0] = 1
+
+    contraction = tensors_2d_array.contraction(online_vec0, online_vec1, online_solution0, online_solution1)
+    assert np.isclose(contraction, 150 * online_solution0.norm(petsc4py.PETSc.NormType.NORM_2)**2)
+    contraction_implicit_trailing_args1 = tensors_2d_array.contraction(online_vec0, online_vec1, online_solution0)
+    assert np.isclose(contraction_implicit_trailing_args1, contraction)
+    if num_rows == 1:
+        contraction_implicit_trailing_args2 = tensors_2d_array.contraction(online_vec0, online_vec1)
+        assert np.isclose(contraction_implicit_trailing_args2, contraction)

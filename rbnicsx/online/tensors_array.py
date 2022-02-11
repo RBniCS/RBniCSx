@@ -11,7 +11,9 @@ import typing
 
 import mpi4py
 import numpy as np
+import petsc4py
 
+from rbnicsx._backends.online_tensors import create_online_vector as create_vector
 from rbnicsx._backends.tensors_array import TensorsArray as TensorsArrayBase
 from rbnicsx.online.export import export_matrices, export_matrices_block, export_vectors, export_vectors_block
 from rbnicsx.online.import_ import import_matrices, import_matrices_block, import_vectors, import_vectors_block
@@ -41,6 +43,9 @@ class TensorsArray(TensorsArrayBase):
     _type : str
         A string representing the type of tensors (Mat or Vec) currently stored.
     """
+
+    _vector_with_one_entry = create_vector(1)
+    _vector_with_one_entry.setValue(0, 1)
 
     def __init__(
         self, content_shape: typing.Union[int, typing.Tuple[int], typing.List[int], typing.Tuple[typing.List[int]]],
@@ -149,3 +154,28 @@ class TensorsArray(TensorsArrayBase):
 
         for (linear_index, tensor) in enumerate(array_flattened):
             self._array[np.unravel_index(linear_index, self.shape)] = tensor
+
+    def contraction(self, *args: petsc4py.PETSc.Vec) -> petsc4py.PETSc.ScalarType:
+        """
+        Contract entries in the array.
+
+        Parameters
+        ----------
+        *args : petsc4py.PETSc.Vec
+            Arguments of the contraction.
+
+        Returns
+        -------
+        petsc4py.PETSc.ScalarType
+            The result of the contraction.
+        """
+        implicit_args_indices = [
+            flattened_index
+            for (flattened_index, flattened_shape_) in enumerate(self.flattened_shape)
+            if flattened_shape_ == 1 and flattened_index >= len(self.shape)]
+        if len(implicit_args_indices) > 0 and len(args) < len(self.flattened_shape):
+            for i in range(1, len(implicit_args_indices) + 1):
+                assert implicit_args_indices[-i] == len(self.flattened_shape) - i
+            implicit_args = [self._vector_with_one_entry] * (len(self.flattened_shape) - len(args))
+            args = args + tuple(implicit_args)
+        return super().contraction(*args)
