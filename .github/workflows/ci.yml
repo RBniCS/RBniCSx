@@ -176,6 +176,7 @@ jobs:
         python3 -m pytest --ipynb-action=create-notebooks --tag-collapse --work-dir=.ipynb_colab tutorials || (($?==$NO_TESTS_COLLECTED))
         find tutorials -type d -name .ipynb_colab -exec rsync -avz --remove-source-files --include="*.ipynb" --exclude="*" {}/ {}/.. \;
         rsync -avz --include "*/" --include="*.ipynb" --exclude="*" tutorials open_in_colab/
+        mv open_in_colab/tutorials/.imports.ipynb open_in_colab/tutorials/imports.ipynb
       fem_on_colab_packages: |
         fenicsx$dolfinx
         gmsh
@@ -185,7 +186,7 @@ jobs:
         rbnicsx[colab]@https://github.com/RBniCS/RBniCSx.git
       test_script: |
         python3 -m pip install kaleido plotly
-        python3 -m pytest --nbval --durations=0 --durations-min=1.0 open_in_colab/tutorials/.imports.ipynb
+        python3 -m pytest --nbval --durations=0 --durations-min=1.0 open_in_colab/tutorials/imports.ipynb
         python3 -m pytest --nbval --durations=0 --durations-min=1.0 open_in_colab/tutorials
       publish_on: github@RBniCS/rbnicsproject.org@open-in-colab-rbnicsx
       publish_if_repository: RBniCS/RBniCSx
