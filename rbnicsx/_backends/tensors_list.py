@@ -42,7 +42,7 @@ class TensorsList(abc.ABC):
         self._type = None
 
     @property
-    def comm(self) -> str:
+    def comm(self) -> mpi4py.MPI.Intracomm:
         """Return the common MPI communicator that the PETSc objects will use."""
         return self._comm
 

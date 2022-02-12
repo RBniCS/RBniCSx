@@ -38,7 +38,7 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
         self._list = list()
 
     @property
-    def comm(self) -> str:
+    def comm(self) -> mpi4py.MPI.Intracomm:
         """Return the common MPI communicator that the Function objects will use."""
         return self._comm
 
