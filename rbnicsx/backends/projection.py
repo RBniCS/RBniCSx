@@ -224,6 +224,66 @@ def _(
     project_matrix_block_super(A, a, B)
 
 
+class FormArgumentsReplacer(object):
+    """A wrapper to successive calls to ufl.replace and dolfinx.fem.form."""
+
+    def __init__(
+        self, form: ufl.Form, test: typing.Optional[bool] = False, trial: typing.Optional[bool] = False
+    ) -> None:
+        form_arguments = form.arguments()
+
+        dict_replacement = dict()
+        if test:
+            test_replacement = dolfinx.fem.Function(form_arguments[0].ufl_function_space())
+            dict_replacement[form_arguments[0]] = test_replacement
+        else:  # pragma: no cover
+            test_replacement = None
+        self._test_replacement = test_replacement
+        if trial:
+            trial_replacement = dolfinx.fem.Function(form_arguments[1].ufl_function_space())
+            dict_replacement[form_arguments[1]] = trial_replacement
+        else:
+            trial_replacement = None
+        self._trial_replacement = trial_replacement
+        self._form = ufl.replace(form, dict_replacement)
+        self._form_cpp = dolfinx.fem.form(self._form)
+
+        self._comm = form_arguments[0].ufl_function_space().mesh.comm
+        if len(form_arguments) > 1:
+            assert all(
+                [form_argument.ufl_function_space().mesh.comm == self._comm for form_argument in form_arguments])
+
+    @property
+    def comm(self) -> mpi4py.MPI.Intracomm:
+        """Return the common MPI communicator of the mesh of this form."""
+        return self._comm
+
+    @property
+    def form(self) -> ufl.Form:
+        """Return the UFL form, with replacements carried out."""
+        return self._form  # pragma: no cover
+
+    @property
+    def form_cpp(self) -> dolfinx.fem.FormMetaClass:
+        """Return the compiled form, with replacements carried out."""
+        return self._form_cpp
+
+    def replace(
+        self, test: typing.Optional[dolfinx.fem.Function] = None, trial: typing.Optional[dolfinx.fem.Function] = None
+    ) -> None:
+        """Update the placeholder associated to one or more arguments with a dolfinx.fem.Function."""
+        if test is not None:
+            assert self._test_replacement is not None
+            with test.vector.localForm() as test_local, \
+                    self._test_replacement.vector.localForm() as test_replacement_local:
+                test_local.copy(test_replacement_local)
+        if trial is not None:
+            assert self._trial_replacement is not None
+            with trial.vector.localForm() as trial_local, \
+                    self._trial_replacement.vector.localForm() as trial_replacement_local:
+                trial_local.copy(trial_replacement_local)
+
+
 @functools.singledispatch
 def linear_form_action(L: ufl.Form, part: typing.Optional[str] = None) -> typing.Callable:
     """
@@ -242,12 +302,7 @@ def linear_form_action(L: ufl.Form, part: typing.Optional[str] = None) -> typing
     typing.Callable
         A callable that represents the action of L on a function.
     """
-    test, = L.arguments()
-    comm = test.ufl_function_space().mesh.comm
-
-    test_replacement = dolfinx.fem.Function(test.ufl_function_space())
-    L_replacement = ufl.replace(L, {test: test_replacement})
-    L_replacement_cpp = dolfinx.fem.form(L_replacement)
+    L_replacement_cpp = FormArgumentsReplacer(L, test=True)
 
     def _(fun: dolfinx.fem.Function) -> typing.Union[petsc4py.PETSc.ScalarType, petsc4py.PETSc.RealType]:
         """
@@ -263,10 +318,11 @@ def linear_form_action(L: ufl.Form, part: typing.Optional[str] = None) -> typing
         petsc4py.PETSc.ScalarType
             Evaluation of the action of L on the provided function.
         """
-        with fun.vector.localForm() as fun_local, test_replacement.vector.localForm() as test_replacement_local:
-            fun_local.copy(test_replacement_local)
+        L_replacement_cpp.replace(test=fun)
         return _extract_part(
-            comm.allreduce(dolfinx.fem.assemble_scalar(L_replacement_cpp), op=mpi4py.MPI.SUM), part)
+            L_replacement_cpp.comm.allreduce(
+                dolfinx.fem.assemble_scalar(L_replacement_cpp.form_cpp), op=mpi4py.MPI.SUM),
+            part)
 
     return _
 
@@ -310,14 +366,7 @@ def bilinear_form_action(a: ufl.Form, part: typing.Optional[str] = None) -> typi
     typing.Callable
         A callable that represents the action of a on a pair of functions.
     """
-    test, trial = a.arguments()
-    comm = test.ufl_function_space().mesh.comm
-    assert trial.ufl_function_space().mesh.comm == comm
-
-    test_replacement = dolfinx.fem.Function(test.ufl_function_space())
-    trial_replacement = dolfinx.fem.Function(trial.ufl_function_space())
-    a_replacement = ufl.replace(a, {test: test_replacement, trial: trial_replacement})
-    a_replacement_cpp = dolfinx.fem.form(a_replacement)
+    a_replacement_cpp = FormArgumentsReplacer(a, test=True, trial=True)
 
     def _trial_action(fun_1: dolfinx.fem.Function) -> typing.Callable:
         """
@@ -333,9 +382,7 @@ def bilinear_form_action(a: ufl.Form, part: typing.Optional[str] = None) -> typi
         typing.Callable
             A callable that represents action of a bilinear form on a function, to be replaced to the trial function.
         """
-        with fun_1.vector.localForm() as fun_1_local, \
-                trial_replacement.vector.localForm() as trial_replacement_local:
-            fun_1_local.copy(trial_replacement_local)
+        a_replacement_cpp.replace(trial=fun_1)
 
         def _test_action(fun_0: dolfinx.fem.Function) -> typing.Union[
                 petsc4py.PETSc.ScalarType, petsc4py.PETSc.RealType]:
@@ -352,11 +399,11 @@ def bilinear_form_action(a: ufl.Form, part: typing.Optional[str] = None) -> typi
             petsc4py.PETSc.ScalarType
                 Evaluation of the action of a on the provided pair of functions.
             """
-            with fun_0.vector.localForm() as fun_0_local, \
-                    test_replacement.vector.localForm() as test_replacement_local:
-                fun_0_local.copy(test_replacement_local)
+            a_replacement_cpp.replace(test=fun_0)
             return _extract_part(
-                comm.allreduce(dolfinx.fem.assemble_scalar(a_replacement_cpp), op=mpi4py.MPI.SUM), part)
+                a_replacement_cpp.comm.allreduce(
+                    dolfinx.fem.assemble_scalar(a_replacement_cpp.form_cpp), op=mpi4py.MPI.SUM),
+                part)
 
         return _test_action
 
