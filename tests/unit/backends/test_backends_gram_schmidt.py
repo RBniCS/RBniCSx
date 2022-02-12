@@ -11,7 +11,6 @@ import dolfinx.fem
 import dolfinx.mesh
 import mpi4py
 import numpy as np
-import petsc4py
 import pytest
 import ufl
 
@@ -61,18 +60,18 @@ def test_backends_gram_schmidt(functions: typing.List[dolfinx.fem.Function], inn
 
     rbnicsx.backends.gram_schmidt(functions_list, functions[0], compute_inner_product)
     assert len(functions_list) == 1
-    assert np.isclose(compute_inner_product(functions_list[0], functions_list[0]), 1)
+    assert np.isclose(compute_inner_product(functions_list[0])(functions_list[0]), 1)
     assert np.allclose(functions_list[0].vector.array, 1)
 
     rbnicsx.backends.gram_schmidt(functions_list, functions[1], compute_inner_product)
     assert len(functions_list) == 2
-    assert np.isclose(compute_inner_product(functions_list[0], functions_list[0]), 1)
-    assert np.isclose(compute_inner_product(functions_list[1], functions_list[1]), 1)
-    assert np.isclose(compute_inner_product(functions_list[0], functions_list[1]), 0)
+    assert np.isclose(compute_inner_product(functions_list[0])(functions_list[0]), 1)
+    assert np.isclose(compute_inner_product(functions_list[1])(functions_list[1]), 1)
+    assert np.isclose(compute_inner_product(functions_list[0])(functions_list[1]), 0)
     assert np.allclose(functions_list[0].vector.array, 1)
     expected1 = dolfinx.fem.Function(V)
     expected1.interpolate(lambda x: 2 * x[0] + x[1] - 1.5)
-    expected1.vector.scale(1 / np.sqrt(compute_inner_product(expected1, expected1)))
+    expected1.vector.scale(1 / np.sqrt(compute_inner_product(expected1)(expected1)))
     assert np.allclose(functions_list[1].vector.array, expected1.vector.array)
 
 
@@ -103,7 +102,7 @@ def test_backends_gram_schmidt_block(functions: typing.List[dolfinx.fem.Function
         functions_lists, [functions[0], functions[2]], compute_inner_product)
     for (functions_list, compute_inner_product_, factor) in zip(functions_lists, compute_inner_product, [1, 2]):
         assert len(functions_list) == 1
-        assert np.isclose(compute_inner_product_(functions_list[0], functions_list[0]), 1)
+        assert np.isclose(compute_inner_product_(functions_list[0])(functions_list[0]), 1)
         assert np.allclose(functions_list[0].vector.array, 1 / np.sqrt(factor))
 
     rbnicsx.backends.gram_schmidt_block(
@@ -112,11 +111,11 @@ def test_backends_gram_schmidt_block(functions: typing.List[dolfinx.fem.Function
             functions_lists, compute_inner_product, [1, 2],
             [lambda x: 2 * x[0] + x[1] - 1.5, lambda x: x[0] + 2 * x[1] - 1.5]):
         assert len(functions_list) == 2
-        assert np.isclose(compute_inner_product_(functions_list[0], functions_list[0]), 1)
+        assert np.isclose(compute_inner_product_(functions_list[0])(functions_list[0]), 1)
         assert np.allclose(functions_list[0].vector.array, 1 / np.sqrt(factor))
-        assert np.isclose(compute_inner_product_(functions_list[1], functions_list[1]), 1)
-        assert np.isclose(compute_inner_product_(functions_list[0], functions_list[1]), 0)
+        assert np.isclose(compute_inner_product_(functions_list[1])(functions_list[1]), 1)
+        assert np.isclose(compute_inner_product_(functions_list[0])(functions_list[1]), 0)
         expected1 = dolfinx.fem.Function(V)
         expected1.interpolate(expected1_expr)
-        expected1.vector.scale(1 / np.sqrt(compute_inner_product_(expected1, expected1)))
+        expected1.vector.scale(1 / np.sqrt(compute_inner_product_(expected1)(expected1)))
         assert np.allclose(functions_list[1].vector.array, expected1.vector.array)

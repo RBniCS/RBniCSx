@@ -66,7 +66,7 @@ def compute_inner_product(
 ) -> petsc4py.PETSc.ScalarType:
     """Evaluate the inner product between two functions."""
     inner_product_action = rbnicsx.online.matrix_action(inner_product)
-    return inner_product_action(function_i, function_j)
+    return inner_product_action(function_i)(function_j)
 
 
 @pytest.fixture

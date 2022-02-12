@@ -435,7 +435,7 @@ def test_backends_tensors_array_contraction_1d_mat(
     first_matrix.assemble()
     first_matrix_action = rbnicsx.online.matrix_action(first_matrix)
     contraction = tensors_1d_array_mat.contraction(online_vec, tensors_1d_array_vec[0], tensors_1d_array_vec[1])
-    assert np.isclose(contraction, 91 * first_matrix_action(tensors_1d_array_vec[0], tensors_1d_array_vec[1]))
+    assert np.isclose(contraction, 91 * first_matrix_action(tensors_1d_array_vec[1])(tensors_1d_array_vec[0]))
 
 
 def test_backends_tensors_array_contraction_2d_mat(
@@ -453,7 +453,7 @@ def test_backends_tensors_array_contraction_2d_mat(
     first_matrix_action = rbnicsx.online.matrix_action(first_matrix)
     contraction = tensors_2d_array_mat.contraction(
         online_vec0, online_vec1, tensors_1d_array_vec[0], tensors_1d_array_vec[1])
-    assert np.isclose(contraction, 150 * first_matrix_action(tensors_1d_array_vec[0], tensors_1d_array_vec[1]))
+    assert np.isclose(contraction, 150 * first_matrix_action(tensors_1d_array_vec[1])(tensors_1d_array_vec[0]))
 
 
 def test_backends_tensors_array_contraction_1d_vec_too_many_args(

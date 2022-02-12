@@ -89,7 +89,7 @@ def test_backends_proper_orthogonal_decomposition_functions(
     assert np.isclose(eigenvalues[0], 5)
     assert np.isclose(eigenvalues[1], 0)
     assert len(modes) == 2
-    assert np.isclose(compute_inner_product(modes[0], modes[0]), 1 if normalize else 5)
+    assert np.isclose(compute_inner_product(modes[0])(modes[0]), 1 if normalize else 5)
     if normalize:
         assert np.allclose(modes[0].vector.array, 1)
     # np.allclose(modes[2], 0) may not be true in arithmetic precision when scaling with a very small eigenvalue
@@ -112,7 +112,7 @@ def test_backends_proper_orthogonal_decomposition_functions_tol(
     assert np.isclose(eigenvalues[0], 5)
     assert np.isclose(eigenvalues[1], 0)
     assert len(modes) == 1
-    assert np.isclose(compute_inner_product(modes[0], modes[0]), 1 if normalize else 5)
+    assert np.isclose(compute_inner_product(modes[0])(modes[0]), 1 if normalize else 5)
     if normalize:
         assert np.allclose(modes[0].vector.array, 1)
     assert len(eigenvectors) == 1
@@ -141,7 +141,7 @@ def test_backends_proper_orthogonal_decomposition_block(
             compute_inner_product, [1, 10], [1, 1 / np.sqrt(2)])):
         assert len(modes[component]) == 2
         assert np.isclose(
-            compute_inner_product_(modes[component][0], modes[component][0]),
+            compute_inner_product_(modes[component][0])(modes[component][0]),
             1 if normalize else 5 * eigenvalue_factor)
         if normalize:
             assert np.allclose(modes[component][0].vector.array, mode_factor)

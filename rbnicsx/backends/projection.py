@@ -116,7 +116,7 @@ def project_matrix(
     Parameters
     ----------
     a : typing.Callable
-        A callable a(v, u) to compute the action of the bilinear form a on the trial function u and test function v.
+        A callable a(u)(v) to compute the action of the bilinear form a on the trial function u and test function v.
         Use rbnicsx.backends.bilinear_form_action to generate the callable a from a UFL form.
     B : typing.Union[rbnicsx.backends.FunctionsList, typing.Tuple[rbnicsx.backends.FunctionsList]]
         Functions spanning the reduced basis space. Two different basis of the same space
@@ -152,7 +152,7 @@ def _(
         Online matrix containing the result of the projection.
         The matrix is not zeroed before assembly.
     a : typing.Callable
-        A callable a(v, u) to compute the action of the bilinear form a on the trial function u and test function v.
+        A callable a(u)(v) to compute the action of the bilinear form a on the trial function u and test function v.
         Use rbnicsx.backends.bilinear_form_action to generate the callable a from a UFL form.
     B : typing.Union[rbnicsx.backends.FunctionsList, typing.Tuple[rbnicsx.backends.FunctionsList]]
         Functions spanning the reduced basis space. Two different basis of the same space
@@ -172,7 +172,7 @@ def project_matrix_block(
     Parameters
     ----------
     a : typing.List[typing.List[typing.Callable]]
-        A matrix of callables a_ij(v, u) to compute the action of the bilinear form a_ij on
+        A matrix of callables a_ij(u)(v) to compute the action of the bilinear form a_ij on
         the trial function u and test function v.
         Use rbnicsx.backends.bilinear_form_action to generate each callable a_ij from a UFL form.
     B : typing.Union[typing.List[rbnicsx.backends.FunctionsList], \
@@ -211,7 +211,7 @@ def _(
         Online matrix containing the result of the projection.
         The matrix is not zeroed before assembly.
     a : typing.List[typing.List[typing.Callable]]
-        A matrix of callables a_ij(v, u) to compute the action of the bilinear form a_ij on
+        A matrix of callables a_ij(u)(v) to compute the action of the bilinear form a_ij on
         the trial function u and test function v.
         Use rbnicsx.backends.bilinear_form_action to generate each callable a_ij from a UFL form.
     B : typing.Union[
@@ -319,31 +319,48 @@ def bilinear_form_action(a: ufl.Form, part: typing.Optional[str] = None) -> typi
     a_replacement = ufl.replace(a, {test: test_replacement, trial: trial_replacement})
     a_replacement_cpp = dolfinx.fem.form(a_replacement)
 
-    def _(fun_0: dolfinx.fem.Function, fun_1: dolfinx.fem.Function) -> typing.Union[
-            petsc4py.PETSc.ScalarType, petsc4py.PETSc.RealType]:
+    def _trial_action(fun_1: dolfinx.fem.Function) -> typing.Callable:
         """
-        Compute the action of a bilinear form on a pair of functions.
+        Compute the action of a bilinear form on a function, to be replaced to the trial function.
 
         Parameters
         ----------
-        fun_0 : dolfinx.fem.Function
-            Function to be replaced to the test function.
         fun_1 : dolfinx.fem.Function
             Function to be replaced to the trial function.
 
         Returns
         -------
-        petsc4py.PETSc.ScalarType
-            Evaluation of the action of a on the provided pair of functions.
+        typing.Callable
+            A callable that represents action of a bilinear form on a function, to be replaced to the trial function.
         """
-        with fun_0.vector.localForm() as fun_0_local, test_replacement.vector.localForm() as test_replacement_local:
-            fun_0_local.copy(test_replacement_local)
-        with fun_1.vector.localForm() as fun_1_local, trial_replacement.vector.localForm() as trial_replacement_local:
+        with fun_1.vector.localForm() as fun_1_local, \
+                trial_replacement.vector.localForm() as trial_replacement_local:
             fun_1_local.copy(trial_replacement_local)
-        return _extract_part(
-            comm.allreduce(dolfinx.fem.assemble_scalar(a_replacement_cpp), op=mpi4py.MPI.SUM), part)
 
-    return _
+        def _test_action(fun_0: dolfinx.fem.Function) -> typing.Union[
+                petsc4py.PETSc.ScalarType, petsc4py.PETSc.RealType]:
+            """
+            Compute the action of a bilinear form on a pair of functions.
+
+            Parameters
+            ----------
+            fun_0 : dolfinx.fem.Function
+                Function to be replaced to the test function.
+
+            Returns
+            -------
+            petsc4py.PETSc.ScalarType
+                Evaluation of the action of a on the provided pair of functions.
+            """
+            with fun_0.vector.localForm() as fun_0_local, \
+                    test_replacement.vector.localForm() as test_replacement_local:
+                fun_0_local.copy(test_replacement_local)
+            return _extract_part(
+                comm.allreduce(dolfinx.fem.assemble_scalar(a_replacement_cpp), op=mpi4py.MPI.SUM), part)
+
+        return _test_action
+
+    return _trial_action
 
 
 @bilinear_form_action.register(list)

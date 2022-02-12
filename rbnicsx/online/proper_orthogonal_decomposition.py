@@ -155,6 +155,6 @@ def _(
     return proper_orthogonal_decomposition_tensors_super(tensors_list, N, tol, normalize)
 
 
-def _scale_online_vector(vector: petsc4py.PETSc.Vec, factor: float) -> None:
+def _scale_online_vector(vector: petsc4py.PETSc.Vec, factor: petsc4py.PETSc.RealType) -> None:
     """Scale an online petsc4py.PETSc.Vec."""
     vector *= factor

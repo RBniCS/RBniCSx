@@ -31,7 +31,7 @@ def proper_orthogonal_decomposition_functions(
     functions_list : rbnicsx._backends.FunctionsList
         Collected snapshots.
     compute_inner_product : typing.Callable
-        A callable x(v, u) to compute the action of the inner product on the trial function u and test function v.
+        A callable x(u)(v) to compute the action of the inner product on the trial function u and test function v.
         The resulting modes will be orthonormal w.r.t. this inner product.
     scale : typing.Callable
         A callable with signature scale(function, factor) to scale any function by a given factor.
@@ -76,7 +76,7 @@ def proper_orthogonal_decomposition_functions_block(
         The inner FunctionsList contains all snapshots of a single block, while the outer list collects the different
         blocks.
     compute_inner_products : typing.List[typing.Callable]
-        A list of callables x_i(v_i, u_i) to compute the action of the inner product on the trial function u_i
+        A list of callables x_i(u_i)(v_i) to compute the action of the inner product on the trial function u_i
         and test function v_i associated to the i-th block.
         The resulting modes will be orthonormal w.r.t. this inner product.
     scale : typing.Callable
@@ -156,16 +156,22 @@ def proper_orthogonal_decomposition_tensors(
     """
     assert tensors_list.type in ("Mat", "Vec")
     if tensors_list.type == "Mat":
-        def compute_inner_product(tensor_i: petsc4py.PETSc.Mat, tensor_j: petsc4py.PETSc.Mat) -> float:
-            return cpp_library._backends.frobenius_inner_product(tensor_i, tensor_j)
+        def compute_inner_product(tensor_j: petsc4py.PETSc.Mat) -> typing.Callable:
+            def _(tensor_i: petsc4py.PETSc.Mat) -> petsc4py.PETSc.RealType:
+                return cpp_library._backends.frobenius_inner_product(tensor_i, tensor_j)
 
-        def scale(tensor: petsc4py.PETSc.Mat, factor: float) -> None:
+            return _
+
+        def scale(tensor: petsc4py.PETSc.Mat, factor: petsc4py.PETSc.RealType) -> None:
             tensor *= factor
     elif tensors_list.type == "Vec":
-        def compute_inner_product(tensor_i: petsc4py.PETSc.Vec, tensor_j: petsc4py.PETSc.Vec) -> float:
-            return tensor_i.dot(tensor_j)
+        def compute_inner_product(tensor_j: petsc4py.PETSc.Vec) -> typing.Callable:
+            def _(tensor_i: petsc4py.PETSc.Vec) -> petsc4py.PETSc.RealType:
+                return tensor_i.dot(tensor_j)
 
-        def scale(tensor: petsc4py.PETSc.Vec, factor: float) -> None:
+            return _
+
+        def scale(tensor: petsc4py.PETSc.Vec, factor: petsc4py.PETSc.RealType) -> None:
             with tensor.localForm() as tensor_local:
                 tensor_local *= factor
 
@@ -218,9 +224,10 @@ def _solve_eigenvalue_problem(
         either the maximum number N is reached or the tolerance on the retained energy is fulfilled.
     """
     correlation_matrix = create_online_matrix(len(snapshots), len(snapshots))
-    for (i, snapshot_i) in enumerate(snapshots):
-        for (j, snapshot_j) in enumerate(snapshots):
-            correlation_matrix[i, j] = compute_inner_product(snapshot_i, snapshot_j)
+    for (j, snapshot_j) in enumerate(snapshots):
+        compute_inner_product_partial_j = compute_inner_product(snapshot_j)
+        for (i, snapshot_i) in enumerate(snapshots):
+            correlation_matrix[i, j] = compute_inner_product_partial_j(snapshot_i)
     correlation_matrix.assemble()
 
     eps = slepc4py.SLEPc.EPS().create(correlation_matrix.comm)
@@ -257,7 +264,7 @@ def _solve_eigenvalue_problem(
     for eigenvector_n in eigenvectors:
         mode_n = snapshots * eigenvector_n
         if normalize:
-            norm_n = np.sqrt(compute_inner_product(mode_n, mode_n))
+            norm_n = np.sqrt(compute_inner_product(mode_n)(mode_n))
             if norm_n != 0.0:
                 scale(mode_n, 1.0 / norm_n)
         modes.append(mode_n)

@@ -48,7 +48,7 @@ def _(
     functions_list : rbnicsx.backends.FunctionsList
         Collected snapshots.
     compute_inner_product : typing.Callable
-        A callable x(v, u) to compute the action of the inner product on the trial function u and test function v.
+        A callable x(u)(v) to compute the action of the inner product on the trial function u and test function v.
         The resulting modes will be orthonormal w.r.t. this inner product.
         Use rbnicsx.backends.bilinear_form_action to generate the callable x from a UFL form.
     N : int
@@ -89,7 +89,7 @@ def proper_orthogonal_decomposition_block(
         The inner FunctionsList contains all snapshots of a single block, while the outer list collects the different
         blocks.
     compute_inner_products : typing.List[typing.Callable]
-        A list of callables x_i(v_i, u_i) to compute the action of the inner product on the trial function u_i
+        A list of callables x_i(u_i)(v_i) to compute the action of the inner product on the trial function u_i
         and test function v_i associated to the i-th block.
         The resulting modes will be orthonormal w.r.t. this inner product.
         Use rbnicsx.backends.bilinear_form_action to generate each callable x_i from a UFL form.
@@ -154,7 +154,7 @@ def _(
     return proper_orthogonal_decomposition_tensors_super(tensors_list, N, tol, normalize)
 
 
-def _scale_function(function: dolfinx.fem.Function, factor: float) -> None:
+def _scale_function(function: dolfinx.fem.Function, factor: petsc4py.PETSc.RealType) -> None:
     """Scale a dolfinx Function."""
     with function.vector.localForm() as function_local:
         function_local *= factor

@@ -36,8 +36,8 @@ def gram_schmidt(
     orthonormalized = new_function.copy()
     for function_n in functions_list:
         orthonormalized.axpy(
-            - compute_inner_product(function_n, orthonormalized), function_n)
-    norm = np.sqrt(compute_inner_product(orthonormalized, orthonormalized))
+            - compute_inner_product(function_n)(orthonormalized), function_n)
+    norm = np.sqrt(compute_inner_product(orthonormalized)(orthonormalized))
     if norm != 0.0:
         orthonormalized *= 1.0 / norm
         functions_list.append(orthonormalized)

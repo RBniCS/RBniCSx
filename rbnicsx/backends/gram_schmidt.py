@@ -29,7 +29,7 @@ def gram_schmidt(
     new_function : dolfinx.fem.Function
         New function to be orthonormalized and added to the set.
     compute_inner_product : typing.Callable
-        A callable x(v, u) to compute the action of the inner product on the trial function u and test function v.
+        A callable x(u)(v) to compute the action of the inner product on the trial function u and test function v.
         The resulting modes will be orthonormal w.r.t. this inner product.
         Use rbnicsx.backends.bilinear_form_action to generate the callable x from a UFL form.
     """
@@ -37,10 +37,10 @@ def gram_schmidt(
     orthonormalized.x.array[:] = new_function.x.array
     for function_n in functions_list:
         orthonormalized.vector.axpy(
-            - compute_inner_product(function_n, orthonormalized), function_n.vector)
+            - compute_inner_product(function_n)(orthonormalized), function_n.vector)
     orthonormalized.vector.ghostUpdate(
         addv=petsc4py.PETSc.InsertMode.INSERT, mode=petsc4py.PETSc.ScatterMode.FORWARD)
-    norm = np.sqrt(compute_inner_product(orthonormalized, orthonormalized))
+    norm = np.sqrt(compute_inner_product(orthonormalized)(orthonormalized))
     if norm != 0.0:
         with orthonormalized.vector.localForm() as orthonormalized_local:
             orthonormalized_local *= 1.0 / norm
@@ -63,7 +63,7 @@ def gram_schmidt_block(
     new_functions : typing.List[dolfinx.fem.Function]
         New functions to be orthonormalized and added to the set.
     compute_inner_products : typing.List[typing.Callable]
-        A list of callables x_i(v_i, u_i) to compute the action of the inner product on the trial function u_i
+        A list of callables x_i(u_i)(v_i) to compute the action of the inner product on the trial function u_i
         and test function v_i associated to the i-th block.
         The resulting modes will be orthonormal w.r.t. this inner product.
         Use rbnicsx.backends.bilinear_form_action to generate each callable x_i from a UFL form.

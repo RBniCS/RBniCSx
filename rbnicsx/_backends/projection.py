@@ -69,7 +69,7 @@ def project_matrix(
         Online matrix containing the result of the projection.
         The matrix is not zeroed before assembly.
     a : typing.Callable
-        A callable a(v, u) to compute the action of the bilinear form a on the trial function u and test function v.
+        A callable a(u)(v) to compute the action of the bilinear form a on the trial function u and test function v.
     B : typing.Union[FunctionsList, typing.Tuple[FunctionsList]]
         Functions spanning the reduced basis space. Two different basis of the same space
         can be provided, e.g. as in Petrov-Galerkin methods.
@@ -79,10 +79,11 @@ def project_matrix(
     else:
         B = (B, B)
 
-    for (m, fun_m) in enumerate(B[0]):
-        for (n, fun_n) in enumerate(B[1]):
+    for (n, fun_n) in enumerate(B[1]):
+        a_n = a(fun_n)
+        for (m, fun_m) in enumerate(B[0]):
             A.setValueLocal(  # cannot use setValue due to incompatibility with getLocalSubMatrix
-                m, n, a(fun_m, fun_n), addv=petsc4py.PETSc.InsertMode.ADD)
+                m, n, a_n(fun_m), addv=petsc4py.PETSc.InsertMode.ADD)
     A.assemble()
 
 
@@ -100,7 +101,7 @@ def project_matrix_block(
         Online matrix containing the result of the projection.
         The matrix is not zeroed before assembly.
     a : typing.List[typing.List[typing.Callable]]
-        A matrix of callables a_ij(v, u) to compute the action of the bilinear form a_ij on
+        A matrix of callables a_ij(u)(v) to compute the action of the bilinear form a_ij on
         the trial function u and test function v.
     B : typing.Union[typing.List[FunctionsList], typing.Tuple[typing.List[FunctionsList]]]
         Functions spanning the reduced basis space associated to each solution component.

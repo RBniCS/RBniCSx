@@ -289,23 +289,39 @@ def matrix_action(a: petsc4py.PETSc.Mat) -> typing.Callable:
     """
     a_dot_vec_1 = a.createVecLeft()
 
-    def _(vec_0: petsc4py.PETSc.Vec, vec_1: petsc4py.PETSc.Vec) -> petsc4py.PETSc.ScalarType:
+    def _trial_action(vec_1: petsc4py.PETSc.Vec) -> typing.Callable:
         """
-        Compute the action of a vector-matrix-vector product.
+        Compute the action of a matrix-vector product.
 
         Parameters
         ----------
-        vec_0: petsc4py.PETSc.Vec
-            Vector that should be applied to the left of the bilinear form.
         vec_1 : petsc4py.PETSc.Vec
-            Vector that should be applied to the right of the bilinear form.
+            Vector that should be applied to the right of the bilinear form, i.e. in the trial space.
 
         Returns
         -------
         petsc4py.PETSc.ScalarType
-            Evaluation of the action of the bilinear form on the provided pair of vectors.
+            A callable that represents the action of a matrix-vector product.
         """
         a.mult(vec_1, a_dot_vec_1)
-        return vec_0.dot(a_dot_vec_1)
 
-    return _
+        def _test_action(vec_0: petsc4py.PETSc.Vec) -> petsc4py.PETSc.ScalarType:
+            """
+            Compute the action of a vector-matrix-vector product.
+
+            Parameters
+            ----------
+            vec_0: petsc4py.PETSc.Vec
+                Vector that should be applied to the left of the bilinear form, i.e. in the test space.
+
+
+            Returns
+            -------
+            petsc4py.PETSc.ScalarType
+                Evaluation of the action of the bilinear form on the provided pair of vectors.
+            """
+            return vec_0.dot(a_dot_vec_1)
+
+        return _test_action
+
+    return _trial_action
