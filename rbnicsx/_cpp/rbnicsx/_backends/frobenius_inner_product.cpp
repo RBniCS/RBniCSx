@@ -7,7 +7,7 @@
 #include <rbnicsx/_backends/frobenius_inner_product.h>
 #include <rbnicsx/_backends/petsc_error.h>
 
-PetscScalar rbnicsx::_backends::frobenius_inner_product(Mat a, Mat b)
+PetscReal rbnicsx::_backends::frobenius_inner_product(Mat a, Mat b)
 {
     PetscInt start_a, end_a, ncols_a, start_b, end_b, ncols_b;
     PetscErrorCode ierr;

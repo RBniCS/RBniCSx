@@ -10,5 +10,5 @@ namespace rbnicsx::_backends
 {
     /// Frobenius inner product between two matrices, with code adapted from the
     /// implementation of MatAXPY in PETSc.
-    PetscScalar frobenius_inner_product(Mat a, Mat b);
+    PetscReal frobenius_inner_product(Mat a, Mat b);
 }
