@@ -12,6 +12,8 @@ import typing
 
 import dolfinx.fem
 import dolfinx.mesh
+import numpy as np
+import petsc4py
 
 
 class MeshMotion(object):
@@ -70,7 +72,10 @@ class MeshMotion(object):
 
     def __enter__(self) -> MeshMotion:
         """Enter the context and deform the mesh."""
-        self._mesh.geometry.x[:, :self._mesh.topology.dim] = self._shape_parametrization.x.array.reshape(
+        shape_parametrization = self._shape_parametrization.x.array
+        if np.issubdtype(petsc4py.PETSc.ScalarType, np.complexfloating):  # pragma: no cover
+            shape_parametrization = shape_parametrization.real
+        self._mesh.geometry.x[:, :self._mesh.topology.dim] = shape_parametrization.reshape(
             self._reference_coordinates.shape[0], self._shape_parametrization.function_space.dofmap.index_map_bs)
         return self
 
