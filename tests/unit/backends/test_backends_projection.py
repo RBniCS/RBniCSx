@@ -37,11 +37,62 @@ def functions_list(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.FunctionsList:
     return functions_list
 
 
-def test_backends_projection_vector(mesh: dolfinx.mesh.Mesh, functions_list: rbnicsx.backends.FunctionsList) -> None:
+def test_backends_forms_argument_replacer_linear_form(functions_list: rbnicsx.backends.FunctionsList) -> None:
+    """Test FormArgumentsReplacer with a linear form."""
+    V = functions_list.function_space
+    v = ufl.TestFunction(V)
+    linear_form = ufl.inner(1, v) * ufl.dx
+
+    forms_argument_replacer = rbnicsx.backends.FormArgumentsReplacer(linear_form, test=True)
+    forms_argument_replacer.replace(test=functions_list[0])
+    assert np.isclose(
+        forms_argument_replacer.comm.allreduce(
+            dolfinx.fem.assemble_scalar(forms_argument_replacer.form_cpp), op=mpi4py.MPI.SUM), 1)
+    assert np.isclose(
+        forms_argument_replacer.comm.allreduce(
+            dolfinx.fem.assemble_scalar(dolfinx.fem.form(forms_argument_replacer.form)), op=mpi4py.MPI.SUM), 1)
+
+
+def test_backends_forms_argument_replacer_bilinear_form(functions_list: rbnicsx.backends.FunctionsList) -> None:
+    """Test FormArgumentsReplacer with a bilinear form."""
+    V = functions_list.function_space
+    u = ufl.TrialFunction(V)
+    v = ufl.TestFunction(V)
+    bilinear_form = ufl.inner(u, v) * ufl.dx
+    linear_form = ufl.inner(1, v) * ufl.dx
+
+    forms_argument_replacer_01 = rbnicsx.backends.FormArgumentsReplacer(bilinear_form, test=True, trial=True)
+    forms_argument_replacer_01.replace(test=functions_list[0], trial=functions_list[1])
+    assert np.isclose(
+        forms_argument_replacer_01.comm.allreduce(
+            dolfinx.fem.assemble_scalar(forms_argument_replacer_01.form_cpp), op=mpi4py.MPI.SUM), 2)
+    assert np.isclose(
+        forms_argument_replacer_01.comm.allreduce(
+            dolfinx.fem.assemble_scalar(dolfinx.fem.form(forms_argument_replacer_01.form)), op=mpi4py.MPI.SUM), 2)
+    forms_argument_replacer_01.replace(test=2.0 * functions_list[0], trial=3.0 * functions_list[1])
+    assert np.isclose(
+        forms_argument_replacer_01.comm.allreduce(
+            dolfinx.fem.assemble_scalar(forms_argument_replacer_01.form_cpp), op=mpi4py.MPI.SUM), 12)
+
+    forms_argument_replacer_1 = rbnicsx.backends.FormArgumentsReplacer(bilinear_form, trial=True)
+    forms_argument_replacer_1.replace(trial=functions_list[1])
+    assert np.allclose(
+        dolfinx.fem.assemble_vector(forms_argument_replacer_1.form_cpp).array,
+        dolfinx.fem.assemble_vector(dolfinx.fem.form(2 * linear_form)).array)
+    assert np.allclose(
+        dolfinx.fem.assemble_vector(dolfinx.fem.form(forms_argument_replacer_1.form)).array,
+        dolfinx.fem.assemble_vector(dolfinx.fem.form(2 * linear_form)).array)
+    forms_argument_replacer_1.replace(trial=3 * functions_list[1])
+    assert np.allclose(
+        dolfinx.fem.assemble_vector(forms_argument_replacer_1.form_cpp).array,
+        dolfinx.fem.assemble_vector(dolfinx.fem.form(6 * linear_form)).array)
+
+
+def test_backends_projection_vector(functions_list: rbnicsx.backends.FunctionsList) -> None:
     """Test projection of a linear form onto the reduced basis."""
     basis_functions = functions_list[:2]
 
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = functions_list.function_space
     v = ufl.TestFunction(V)
     linear_form = ufl.inner(1, v) * ufl.dx
 
@@ -58,13 +109,11 @@ def test_backends_projection_vector(mesh: dolfinx.mesh.Mesh, functions_list: rbn
     assert np.allclose(online_vec2.array, online_vec.array)
 
 
-def test_backends_projection_vector_block(
-    mesh: dolfinx.mesh.Mesh, functions_list: rbnicsx.backends.FunctionsList
-) -> None:
+def test_backends_projection_vector_block(functions_list: rbnicsx.backends.FunctionsList) -> None:
     """Test projection of a list of linear forms onto the reduced basis."""
     basis_functions = [functions_list[:2], functions_list[2:5]]
 
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = functions_list.function_space
     v = ufl.TestFunction(V)
     linear_forms = [ufl.inner(10**i, v) * ufl.dx for i in range(2)]
 
@@ -84,12 +133,12 @@ def test_backends_projection_vector_block(
 
 
 def test_backends_projection_matrix_galerkin(
-    mesh: dolfinx.mesh.Mesh, functions_list: rbnicsx.backends.FunctionsList, to_dense_matrix: typing.Callable
+    functions_list: rbnicsx.backends.FunctionsList, to_dense_matrix: typing.Callable
 ) -> None:
     """Test projection of a bilinear form onto the reduced basis (for use in Galerkin methods)."""
     basis_functions = functions_list[:2]
 
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = functions_list.function_space
     u = ufl.TrialFunction(V)
     v = ufl.TestFunction(V)
     bilinear_form = ufl.inner(u, v) * ufl.dx
@@ -109,12 +158,12 @@ def test_backends_projection_matrix_galerkin(
 
 
 def test_backends_projection_matrix_petrov_galerkin(
-    mesh: dolfinx.mesh.Mesh, functions_list: rbnicsx.backends.FunctionsList, to_dense_matrix: typing.Callable
+    functions_list: rbnicsx.backends.FunctionsList, to_dense_matrix: typing.Callable
 ) -> None:
     """Test projection of a bilinear form onto the reduced basis (for use in Petrov-Galerkin methods)."""
     basis_functions = (functions_list[:2], functions_list[2:5])
 
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = functions_list.function_space
     u = ufl.TrialFunction(V)
     v = ufl.TestFunction(V)
     bilinear_form = ufl.inner(u, v) * ufl.dx
@@ -134,12 +183,12 @@ def test_backends_projection_matrix_petrov_galerkin(
 
 
 def test_backends_projection_matrix_block_galerkin(
-    mesh: dolfinx.mesh.Mesh, functions_list: rbnicsx.backends.FunctionsList, to_dense_matrix: typing.Callable
+    functions_list: rbnicsx.backends.FunctionsList, to_dense_matrix: typing.Callable
 ) -> None:
     """Test projection of a matrix of bilinear forms onto the reduced basis (for use in Galerkin methods)."""
     basis_functions = [functions_list[:2], functions_list[2:5]]
 
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = functions_list.function_space
     u = ufl.TrialFunction(V)
     v = ufl.TestFunction(V)
     bilinear_forms = [[10**i * (-1)**j * ufl.inner(u, v) * ufl.dx for j in range(2)] for i in range(2)]
@@ -172,12 +221,12 @@ def test_backends_projection_matrix_block_galerkin(
 
 
 def test_backends_projection_matrix_block_petrov_galerkin(
-    mesh: dolfinx.mesh.Mesh, functions_list: rbnicsx.backends.FunctionsList, to_dense_matrix: typing.Callable
+    functions_list: rbnicsx.backends.FunctionsList, to_dense_matrix: typing.Callable
 ) -> None:
     """Test projection of a matrix of bilinear forms onto the reduced basis (for use in Petrov-Galerkin methods)."""
     basis_functions = ([functions_list[:2], functions_list[2:5]], [functions_list[5:9], functions_list[9:14]])
 
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = functions_list.function_space
     u = ufl.TrialFunction(V)
     v = ufl.TestFunction(V)
     bilinear_forms = [[10**i * (-1)**j * ufl.inner(u, v) * ufl.dx for j in range(2)] for i in range(2)]

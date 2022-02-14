@@ -236,7 +236,7 @@ class FormArgumentsReplacer(object):
         if test:
             test_replacement = dolfinx.fem.Function(form_arguments[0].ufl_function_space())
             dict_replacement[form_arguments[0]] = test_replacement
-        else:  # pragma: no cover
+        else:
             test_replacement = None
         self._test_replacement = test_replacement
         if trial:
@@ -261,7 +261,7 @@ class FormArgumentsReplacer(object):
     @property
     def form(self) -> ufl.Form:
         """Return the UFL form, with replacements carried out."""
-        return self._form  # pragma: no cover
+        return self._form
 
     @property
     def form_cpp(self) -> dolfinx.fem.FormMetaClass:
@@ -269,19 +269,46 @@ class FormArgumentsReplacer(object):
         return self._form_cpp
 
     def replace(
-        self, test: typing.Optional[dolfinx.fem.Function] = None, trial: typing.Optional[dolfinx.fem.Function] = None
+        self, test: typing.Optional[typing.Union[dolfinx.fem.Function, ufl.core.expr.Expr]] = None,
+        trial: typing.Optional[typing.Union[dolfinx.fem.Function, ufl.core.expr.Expr]] = None
     ) -> None:
-        """Update the placeholder associated to one or more arguments with a dolfinx.fem.Function."""
+        """
+        Update the placeholder associated to one or more arguments.
+
+        Parameters
+        ----------
+        test, trial : typing.Optional[typing.Union[dolfinx.fem.Function, ufl.core.expr.Expr]]
+            Expressions to be replaced to the form arguments.
+            If the expression is provided as a dolfinx Function, such function will be used as a replacement.
+            If the expression is provided as an UFL expression, such expression will first be interpolated
+            on the function space and then used as a replacement.
+        """
         if test is not None:
             assert self._test_replacement is not None
-            with test.vector.localForm() as test_local, \
-                    self._test_replacement.vector.localForm() as test_replacement_local:
-                test_local.copy(test_replacement_local)
+            if isinstance(test, dolfinx.fem.Function):
+                self._copy_dolfinx_function(test, self._test_replacement)
+            else:
+                assert isinstance(test, ufl.core.expr.Expr)
+                self._interpolate_ufl_expression(test, self._test_replacement)
         if trial is not None:
             assert self._trial_replacement is not None
-            with trial.vector.localForm() as trial_local, \
-                    self._trial_replacement.vector.localForm() as trial_replacement_local:
-                trial_local.copy(trial_replacement_local)
+            if isinstance(trial, dolfinx.fem.Function):
+                self._copy_dolfinx_function(trial, self._trial_replacement)
+            else:
+                assert isinstance(trial, ufl.core.expr.Expr)
+                self._interpolate_ufl_expression(trial, self._trial_replacement)
+
+    @staticmethod
+    def _interpolate_ufl_expression(source: ufl.core.expr.Expr, destination: dolfinx.fem.Function) -> None:
+        """Interpolate a field which is provided as a UFL expression."""
+        destination.interpolate(
+            dolfinx.fem.Expression(source, destination.function_space.element.interpolation_points))
+
+    @staticmethod
+    def _copy_dolfinx_function(source: dolfinx.fem.Function, destination: dolfinx.fem.Function) -> None:
+        """Copy a dolfinx Function to the internal storage."""
+        with source.vector.localForm() as source_local, destination.vector.localForm() as destination_local:
+            source_local.copy(destination_local)
 
 
 @functools.singledispatch
