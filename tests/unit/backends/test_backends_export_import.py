@@ -65,7 +65,7 @@ def test_backends_export_import_vector(mesh: dolfinx.mesh.Mesh) -> None:
     v = ufl.TestFunction(V)
     linear_form = ufl.inner(1, v) * ufl.dx
     linear_form_cpp = dolfinx.fem.form(linear_form)
-    vector = dolfinx.fem.assemble_vector(linear_form_cpp)
+    vector = dolfinx.fem.petsc.assemble_vector(linear_form_cpp)
     vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
 
     with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:
@@ -81,7 +81,7 @@ def test_backends_export_import_vectors(mesh: dolfinx.mesh.Mesh) -> None:
     v = ufl.TestFunction(V)
     linear_forms = [ufl.inner(i + 1, v) * ufl.dx for i in range(2)]
     linear_forms_cpp = dolfinx.fem.form(linear_forms)
-    vectors = [dolfinx.fem.assemble_vector(linear_form_cpp) for linear_form_cpp in linear_forms_cpp]
+    vectors = [dolfinx.fem.petsc.assemble_vector(linear_form_cpp) for linear_form_cpp in linear_forms_cpp]
     [vector.ghostUpdate(
         addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE) for vector in vectors]
 
@@ -101,7 +101,7 @@ def test_backends_export_import_matrix(mesh: dolfinx.mesh.Mesh, to_dense_matrix:
     v = ufl.TestFunction(V)
     bilinear_form = ufl.inner(u, v) * ufl.dx
     bilinear_form_cpp = dolfinx.fem.form(bilinear_form)
-    matrix = dolfinx.fem.assemble_matrix(bilinear_form_cpp)
+    matrix = dolfinx.fem.petsc.assemble_matrix(bilinear_form_cpp)
     matrix.assemble()
 
     with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:
@@ -118,7 +118,7 @@ def test_backends_export_import_matrices(mesh: dolfinx.mesh.Mesh, to_dense_matri
     v = ufl.TestFunction(V)
     bilinear_forms = [(i + 1) * ufl.inner(u, v) * ufl.dx for i in range(2)]
     bilinear_forms_cpp = dolfinx.fem.form(bilinear_forms)
-    matrices = [dolfinx.fem.assemble_matrix(bilinear_form_cpp) for bilinear_form_cpp in bilinear_forms_cpp]
+    matrices = [dolfinx.fem.petsc.assemble_matrix(bilinear_form_cpp) for bilinear_form_cpp in bilinear_forms_cpp]
     [matrix.assemble() for matrix in matrices]
 
     with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:

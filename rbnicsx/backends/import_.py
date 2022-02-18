@@ -106,7 +106,7 @@ def import_matrix(
     petsc4py.PETSc.Mat
         Matrix imported from file.
     """
-    return import_matrix_super(lambda: dolfinx.fem.create_matrix(form), comm, directory, filename)
+    return import_matrix_super(lambda: dolfinx.fem.petsc.create_matrix(form), comm, directory, filename)
 
 
 def import_matrices(
@@ -131,7 +131,7 @@ def import_matrices(
     typing.List[petsc4py.PETSc.Mat]
         Matrices imported from file.
     """
-    return import_matrices_super(lambda: dolfinx.fem.create_matrix(form), comm, directory, filename)
+    return import_matrices_super(lambda: dolfinx.fem.petsc.create_matrix(form), comm, directory, filename)
 
 
 def import_vector(
@@ -156,7 +156,7 @@ def import_vector(
     petsc4py.PETSc.Vec
         Vector imported from file.
     """
-    return import_vector_super(lambda: dolfinx.fem.create_vector(form), comm, directory, filename)
+    return import_vector_super(lambda: dolfinx.fem.petsc.create_vector(form), comm, directory, filename)
 
 
 def import_vectors(
@@ -181,4 +181,4 @@ def import_vectors(
     typing.List[petsc4py.PETSc.Vec]
         Vectors imported from file.
     """
-    return import_vectors_super(lambda: dolfinx.fem.create_vector(form), comm, directory, filename)
+    return import_vectors_super(lambda: dolfinx.fem.petsc.create_vector(form), comm, directory, filename)

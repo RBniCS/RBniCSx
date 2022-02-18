@@ -77,15 +77,15 @@ def test_backends_forms_argument_replacer_bilinear_form(functions_list: rbnicsx.
     forms_argument_replacer_1 = rbnicsx.backends.FormArgumentsReplacer(bilinear_form, trial=True)
     forms_argument_replacer_1.replace(trial=functions_list[1])
     assert np.allclose(
-        dolfinx.fem.assemble_vector(forms_argument_replacer_1.form_cpp).array,
-        dolfinx.fem.assemble_vector(dolfinx.fem.form(2 * linear_form)).array)
+        dolfinx.fem.petsc.assemble_vector(forms_argument_replacer_1.form_cpp).array,
+        dolfinx.fem.petsc.assemble_vector(dolfinx.fem.form(2 * linear_form)).array)
     assert np.allclose(
-        dolfinx.fem.assemble_vector(dolfinx.fem.form(forms_argument_replacer_1.form)).array,
-        dolfinx.fem.assemble_vector(dolfinx.fem.form(2 * linear_form)).array)
+        dolfinx.fem.petsc.assemble_vector(dolfinx.fem.form(forms_argument_replacer_1.form)).array,
+        dolfinx.fem.petsc.assemble_vector(dolfinx.fem.form(2 * linear_form)).array)
     forms_argument_replacer_1.replace(trial=3 * functions_list[1])
     assert np.allclose(
-        dolfinx.fem.assemble_vector(forms_argument_replacer_1.form_cpp).array,
-        dolfinx.fem.assemble_vector(dolfinx.fem.form(6 * linear_form)).array)
+        dolfinx.fem.petsc.assemble_vector(forms_argument_replacer_1.form_cpp).array,
+        dolfinx.fem.petsc.assemble_vector(dolfinx.fem.form(6 * linear_form)).array)
 
 
 def test_backends_projection_vector(functions_list: rbnicsx.backends.FunctionsList) -> None:
