@@ -84,7 +84,6 @@ jobs:
             python3 -m pip install .[docs,lint,tests]
           else
             python3 -m pip install .[docs,lint,tests,tutorials]
-            wget https://github.com/ipython/ipython/commit/9800157ab0282ce61c37ae6f718d5b2314ddbdbe.diff -O /tmp/ipython-patch && patch -d /usr/local/lib/python3.9/dist-packages/ -p 1 -N < /tmp/ipython-patch
           fi
           python3 -c "import rbnicsx._cpp"
         shell: bash
