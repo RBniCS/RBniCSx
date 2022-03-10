@@ -12,6 +12,7 @@ import typing
 import dolfinx.fem
 import mpi4py.MPI
 import numpy as np
+import numpy.typing
 
 from rbnicsx._backends.tensors_array import TensorsArray as TensorsArrayBase
 from rbnicsx.backends.export import export_matrices, export_vectors

@@ -9,6 +9,7 @@ import functools
 import typing
 
 import numpy as np
+import numpy.typing
 import petsc4py.PETSc
 
 from rbnicsx._backends.proper_orthogonal_decomposition import (

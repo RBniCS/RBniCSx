@@ -14,6 +14,7 @@ import typing
 
 import mpi4py.MPI
 import numpy as np
+import numpy.typing
 import petsc4py.PETSc
 
 from rbnicsx.io import on_rank_zero

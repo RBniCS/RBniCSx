@@ -11,6 +11,7 @@ import typing
 import dolfinx.fem
 import dolfinx.io
 import numpy as np
+import numpy.typing
 import petsc4py.PETSc
 
 from rbnicsx._backends.export import (

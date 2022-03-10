@@ -8,6 +8,7 @@
 import typing
 
 import numpy as np
+import numpy.typing
 import petsc4py.PETSc
 import slepc4py.SLEPc
 

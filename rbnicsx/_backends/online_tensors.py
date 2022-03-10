@@ -13,6 +13,7 @@ import typing
 
 import mpi4py.MPI
 import numpy as np
+import numpy.typing
 import petsc4py.PETSc
 
 
