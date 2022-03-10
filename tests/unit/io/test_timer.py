@@ -7,8 +7,8 @@
 
 import time
 
-import mpi4py
-import petsc4py
+import mpi4py.MPI
+import petsc4py.PETSc
 import pytest
 
 import rbnicsx.io

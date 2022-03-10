@@ -10,7 +10,7 @@ import os
 import types
 import typing
 
-import mpi4py
+import mpi4py.MPI
 
 from rbnicsx._cpp.compile_code import compile_code
 

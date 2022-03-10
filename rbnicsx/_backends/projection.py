@@ -7,7 +7,7 @@
 
 import typing
 
-import petsc4py
+import petsc4py.PETSc
 
 from rbnicsx._backends.functions_list import FunctionsList
 from rbnicsx._backends.online_tensors import BlockMatSubMatrixWrapper, BlockVecSubVectorWrapper

@@ -11,7 +11,7 @@ import typing
 import dolfinx.fem
 import dolfinx.io
 import numpy as np
-import petsc4py
+import petsc4py.PETSc
 
 from rbnicsx._backends.export import (
     export_matrices as export_matrices_super, export_matrix as export_matrix_super,

@@ -7,7 +7,7 @@
 
 import os
 
-import mpi4py
+import mpi4py.MPI
 import nbvalx.tempfile
 import pytest
 

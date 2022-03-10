@@ -9,7 +9,7 @@ import typing
 
 import dolfinx.mesh
 import numpy as np
-import petsc4py
+import petsc4py.PETSc
 import ufl4rom.utils
 
 

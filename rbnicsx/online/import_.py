@@ -7,8 +7,8 @@
 
 import typing
 
-import mpi4py
-import petsc4py
+import mpi4py.MPI
+import petsc4py.PETSc
 
 from rbnicsx._backends.import_ import (
     import_matrices as import_matrices_super, import_matrix as import_matrix_super,

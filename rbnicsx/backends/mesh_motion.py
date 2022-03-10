@@ -13,7 +13,7 @@ import typing
 import dolfinx.fem
 import dolfinx.mesh
 import numpy as np
-import petsc4py
+import petsc4py.PETSc
 
 
 class MeshMotion(object):

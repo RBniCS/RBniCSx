@@ -8,7 +8,7 @@
 from __future__ import annotations
 
 import dolfinx.fem
-import mpi4py
+import mpi4py.MPI
 
 from rbnicsx._backends.tensors_list import TensorsList as TensorsListBase
 from rbnicsx.backends.export import export_matrices, export_vectors

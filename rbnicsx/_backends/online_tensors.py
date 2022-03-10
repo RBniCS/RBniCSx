@@ -11,9 +11,9 @@ import contextlib
 import types
 import typing
 
-import mpi4py
+import mpi4py.MPI
 import numpy as np
-import petsc4py
+import petsc4py.PETSc
 
 
 def create_online_vector(N: int) -> petsc4py.PETSc.Vec:

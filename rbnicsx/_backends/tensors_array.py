@@ -12,9 +12,9 @@ import itertools
 import os
 import typing
 
-import mpi4py
+import mpi4py.MPI
 import numpy as np
-import petsc4py
+import petsc4py.PETSc
 
 from rbnicsx.io import on_rank_zero
 

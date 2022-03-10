@@ -15,7 +15,7 @@ import typing
 import _pytest.compat
 import nbvalx.pytest_hooks_unit_tests
 import numpy as np
-import petsc4py
+import petsc4py.PETSc
 import pytest
 import scipy.sparse
 

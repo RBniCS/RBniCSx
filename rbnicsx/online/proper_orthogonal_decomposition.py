@@ -9,7 +9,7 @@ import functools
 import typing
 
 import numpy as np
-import petsc4py
+import petsc4py.PETSc
 
 from rbnicsx._backends.proper_orthogonal_decomposition import (
     proper_orthogonal_decomposition_functions as proper_orthogonal_decomposition_functions_super,

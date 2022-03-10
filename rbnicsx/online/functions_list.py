@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import typing
 
-import mpi4py
-import petsc4py
+import mpi4py.MPI
+import petsc4py.PETSc
 
 from rbnicsx._backends.functions_list import FunctionsList as FunctionsListBase
 from rbnicsx._backends.online_tensors import create_online_vector as create_vector

@@ -8,8 +8,8 @@
 import typing
 
 import numpy as np
-import petsc4py
-import slepc4py
+import petsc4py.PETSc
+import slepc4py.SLEPc
 
 from rbnicsx._backends.functions_list import Function, FunctionsList
 from rbnicsx._backends.online_tensors import create_online_matrix, create_online_vector

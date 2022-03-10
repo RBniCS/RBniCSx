@@ -10,7 +10,7 @@ import typing
 import _pytest.fixtures
 import dolfinx.fem
 import dolfinx.mesh
-import mpi4py
+import mpi4py.MPI
 import numpy as np
 import pytest
 

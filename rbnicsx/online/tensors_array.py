@@ -9,9 +9,9 @@ from __future__ import annotations
 
 import typing
 
-import mpi4py
+import mpi4py.MPI
 import numpy as np
-import petsc4py
+import petsc4py.PETSc
 
 from rbnicsx._backends.online_tensors import create_online_vector as create_vector
 from rbnicsx._backends.tensors_array import TensorsArray as TensorsArrayBase

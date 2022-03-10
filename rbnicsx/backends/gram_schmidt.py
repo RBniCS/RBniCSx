@@ -9,7 +9,7 @@ import typing
 
 import dolfinx.fem
 import numpy as np
-import petsc4py
+import petsc4py.PETSc
 
 from rbnicsx.backends.functions_list import FunctionsList
 

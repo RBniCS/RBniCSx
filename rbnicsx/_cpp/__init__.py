@@ -7,7 +7,7 @@
 
 import os
 
-import mpi4py
+import mpi4py.MPI
 
 from rbnicsx._cpp.compile_code import compile_code
 from rbnicsx._cpp.compile_package import compile_package
@@ -32,8 +32,3 @@ cpp_library = compile_package(
     os.path.dirname(os.path.abspath(__file__)),
     *sources
 )
-
-# Clean up imports
-del mpi4py
-
-del os

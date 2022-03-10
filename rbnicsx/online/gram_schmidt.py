@@ -8,7 +8,7 @@
 import typing
 
 import numpy as np
-import petsc4py
+import petsc4py.PETSc
 
 from rbnicsx.online.functions_list import FunctionsList
 from rbnicsx.online.projection import matrix_action

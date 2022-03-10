@@ -8,7 +8,7 @@
 import typing
 
 import numpy as np
-import petsc4py
+import petsc4py.PETSc
 import pytest
 
 import rbnicsx.online

@@ -8,8 +8,8 @@
 import sys
 import typing
 
-import mpi4py
-import petsc4py
+import mpi4py.MPI
+import petsc4py.PETSc
 
 
 def on_rank_zero(

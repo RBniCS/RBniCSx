@@ -9,9 +9,9 @@ import functools
 import typing
 
 import dolfinx.fem
-import mpi4py
+import mpi4py.MPI
 import numpy as np
-import petsc4py
+import petsc4py.PETSc
 import ufl
 
 from rbnicsx._backends.online_tensors import (

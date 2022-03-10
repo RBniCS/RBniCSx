@@ -5,10 +5,10 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Tests for rbnicsx.online.tensors module."""
 
-import mpi4py
+import mpi4py.MPI
 import numpy as np
-import petsc4py
-import slepc4py
+import petsc4py.PETSc
+import slepc4py.SLEPc
 
 import rbnicsx.online
 

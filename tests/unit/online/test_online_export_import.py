@@ -7,7 +7,7 @@
 
 import typing
 
-import mpi4py
+import mpi4py.MPI
 import nbvalx.tempfile
 import numpy as np
 

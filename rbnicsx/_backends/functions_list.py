@@ -10,8 +10,8 @@ from __future__ import annotations
 import abc
 import typing
 
-import mpi4py
-import petsc4py
+import mpi4py.MPI
+import petsc4py.PETSc
 
 Function = typing.TypeVar("Function")
 

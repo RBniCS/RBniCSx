@@ -8,7 +8,7 @@
 import typing
 
 import multipledispatch
-import petsc4py
+import petsc4py.PETSc
 
 from rbnicsx._backends.online_tensors import (
     BlockMatSubMatrixCopier, BlockVecSubVectorCopier, create_online_matrix as create_matrix,

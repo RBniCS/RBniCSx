@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import typing
 
-import mpi4py
+import mpi4py.MPI
 
 from rbnicsx._backends.tensors_list import TensorsList as TensorsListBase
 from rbnicsx.online.export import export_matrices, export_matrices_block, export_vectors, export_vectors_block

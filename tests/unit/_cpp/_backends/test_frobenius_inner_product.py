@@ -5,8 +5,8 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Tests for Frobenius inner product implementation in C++."""
 
-import mpi4py
-import petsc4py
+import mpi4py.MPI
+import petsc4py.PETSc
 
 import rbnicsx._cpp
 

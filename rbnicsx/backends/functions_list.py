@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import dolfinx.fem
 import numpy as np
-import petsc4py
+import petsc4py.PETSc
 
 from rbnicsx._backends.functions_list import FunctionsList as FunctionsListBase
 from rbnicsx.backends.export import export_functions

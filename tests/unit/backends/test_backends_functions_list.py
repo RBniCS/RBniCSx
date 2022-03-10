@@ -7,7 +7,7 @@
 
 import dolfinx.fem
 import dolfinx.mesh
-import mpi4py
+import mpi4py.MPI
 import nbvalx.tempfile
 import numpy as np
 import pytest

@@ -10,7 +10,7 @@ from __future__ import annotations
 import typing
 
 import dolfinx.fem
-import mpi4py
+import mpi4py.MPI
 import numpy as np
 
 from rbnicsx._backends.tensors_array import TensorsArray as TensorsArrayBase

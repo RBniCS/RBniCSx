@@ -11,8 +11,8 @@ import time
 import types
 import typing
 
-import mpi4py
-import petsc4py
+import mpi4py.MPI
+import petsc4py.PETSc
 
 
 class Timer(object):

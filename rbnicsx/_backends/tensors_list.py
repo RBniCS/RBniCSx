@@ -11,8 +11,8 @@ import abc
 import os
 import typing
 
-import mpi4py
-import petsc4py
+import mpi4py.MPI
+import petsc4py.PETSc
 
 from rbnicsx.io import on_rank_zero
 

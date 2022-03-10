@@ -13,6 +13,7 @@ import typing
 
 import cppimport
 import mpi4py
+import mpi4py.MPI
 import numpy
 import petsc4py
 import pybind11

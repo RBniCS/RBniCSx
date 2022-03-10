@@ -9,7 +9,7 @@ import typing
 
 import _pytest.fixtures
 import numpy as np
-import petsc4py
+import petsc4py.PETSc
 import pytest
 
 import rbnicsx.online
