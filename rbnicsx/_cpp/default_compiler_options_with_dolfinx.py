@@ -18,7 +18,7 @@ def determine_default_compiler_options() -> dict:  # pragma: no cover
     dolfinx_pc = dolfinx.pkgconfig.parse("dolfinx")
     default_compiler_options["include_dirs"] = [
         include_dir for include_dir in dolfinx_pc["include_dirs"] if "-NOTFOUND" not in include_dir]
-    default_compiler_options["compiler_args"] = ["-std=c++17"] + [
+    default_compiler_options["compiler_args"] = ["-std=c++20"] + [
         "-D" + define_macro for define_macro in dolfinx_pc["define_macros"] if "-NOTFOUND" not in define_macro]
     default_compiler_options["library_dirs"] = [
         library_dir for library_dir in dolfinx_pc["library_dirs"] if "-NOTFOUND" not in library_dir]
