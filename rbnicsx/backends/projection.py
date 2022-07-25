@@ -302,7 +302,7 @@ class FormArgumentsReplacer(object):
     def _interpolate_ufl_expression(source: ufl.core.expr.Expr, destination: dolfinx.fem.Function) -> None:
         """Interpolate a field which is provided as a UFL expression."""
         destination.interpolate(
-            dolfinx.fem.Expression(source, destination.function_space.element.interpolation_points))
+            dolfinx.fem.Expression(source, destination.function_space.element.interpolation_points()))
 
     @staticmethod
     def _copy_dolfinx_function(source: dolfinx.fem.Function, destination: dolfinx.fem.Function) -> None:
