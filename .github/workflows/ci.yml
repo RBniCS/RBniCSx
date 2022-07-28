@@ -53,7 +53,7 @@ jobs:
               echo "PETSC_DIR=/usr/lib/petscdir/petsc-complex" >> $GITHUB_ENV
               echo "SLEPC_DIR=/usr/lib/slepcdir/slepc-complex" >> $GITHUB_ENV
           - backend: dolfinx-real
-            container: dolfinx/dolfinx
+            container: dolfinx/dolfinx:nightly
             setup_container: |
               . /usr/local/bin/dolfinx-real-mode
               python3 -m pip install --upgrade pip
@@ -62,7 +62,7 @@ jobs:
               echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
               echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
           - backend: dolfinx-complex
-            container: dolfinx/dolfinx
+            container: dolfinx/dolfinx:nightly
             setup_container: |
               . /usr/local/bin/dolfinx-complex-mode
               python3 -m pip install --upgrade pip
