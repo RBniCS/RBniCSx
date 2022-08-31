@@ -31,32 +31,19 @@ jobs:
       matrix:
         include:
           - backend: none-real
-            container: ubuntu:rolling
+            container: numericalpdes/base_images:slepc4py-real
             setup_container: |
-              export DEBIAN_FRONTEND="noninteractive"
-              apt -y -qq update
-              apt install -y -qq git libpetsc-real-dev libslepc-real-dev python3-mpi4py python3-petsc4py-real python3-pip python3-scipy python3-slepc4py-real
-              python3 -m pip install --upgrade pip
               echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
               echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
-              echo "PETSC_DIR=/usr/lib/petscdir/petsc-real" >> $GITHUB_ENV
-              echo "SLEPC_DIR=/usr/lib/slepcdir/slepc-real" >> $GITHUB_ENV
           - backend: none-complex
-            container: ubuntu:rolling
+            container: numericalpdes/base_images:slepc4py-complex
             setup_container: |
-              export DEBIAN_FRONTEND="noninteractive"
-              apt -y -qq update
-              apt install -y -qq git libpetsc-complex-dev libslepc-complex-dev python3-mpi4py python3-petsc4py-complex python3-pip python3-scipy python3-slepc4py-complex
-              python3 -m pip install --upgrade pip
               echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
               echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
-              echo "PETSC_DIR=/usr/lib/petscdir/petsc-complex" >> $GITHUB_ENV
-              echo "SLEPC_DIR=/usr/lib/slepcdir/slepc-complex" >> $GITHUB_ENV
           - backend: dolfinx-real
             container: dolfinx/dolfinx:nightly
             setup_container: |
               . /usr/local/bin/dolfinx-real-mode
-              python3 -m pip install --upgrade pip
               echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
               echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> $GITHUB_ENV
               echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
@@ -65,7 +52,6 @@ jobs:
             container: dolfinx/dolfinx:nightly
             setup_container: |
               . /usr/local/bin/dolfinx-complex-mode
-              python3 -m pip install --upgrade pip
               echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
               echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> $GITHUB_ENV
               echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
