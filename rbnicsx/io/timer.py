@@ -21,22 +21,22 @@ class Timer(object):
 
     Parameters
     ----------
-    comm : typing.Union[mpi4py.MPI.Intracomm, petsc4py.PETSc.Comm]
+    comm
         MPI communicator to be used to carry out MPI_Allreduce.
-    op : mpi4py.MPI.Op
+    op
         MPI operation to be used while carrying out MPI_Allreduce.
-    store : typing.Callable
+    store
         Callable implementing an action to store the elapsed time.
 
     Attributes
     ----------
-    _comm : mpi4py.MPI.Intracomm
+    _comm
         MPI communicator provided as input.
-    _op : mpi4py.MPI.Op
+    _op
         MPI operation provided as input.
-    _store : typing.Callable
+    _store
         Callable provided as input.
-    _start : float
+    _start
         Time stamp, in fractional seconds, when the context was entered.
     """
 

@@ -21,11 +21,11 @@ def export_matrix(mat: petsc4py.PETSc.Mat, directory: str, filename: str) -> Non
 
     Parameters
     ----------
-    mat : petsc4py.PETSc.Mat
+    mat
         Online matrix to be exported.
-    directory : str
+    directory
         Directory where to export the matrix.
-    filename : str
+    filename
         Name of the file where to export the matrix.
     """
     assert mat.getType() == petsc4py.PETSc.Mat.Type.SEQDENSE
@@ -41,11 +41,11 @@ def export_matrices(mats: typing.List[petsc4py.PETSc.Mat], directory: str, filen
 
     Parameters
     ----------
-    mats : typing.List[petsc4py.PETSc.Mat]
+    mats
         Online matrices to be exported.
-    directory : str
+    directory
         Directory where to export the matrix.
-    filename : str
+    filename
         Name of the file where to export the matrix.
     """
     assert all([mat.getType() == petsc4py.PETSc.Mat.Type.SEQDENSE for mat in mats])
@@ -61,11 +61,11 @@ def export_vector(vec: petsc4py.PETSc.Vec, directory: str, filename: str) -> Non
 
     Parameters
     ----------
-    vec : petsc4py.PETSc.Vec
+    vec
         Online vector to be exported.
-    directory : str
+    directory
         Directory where to export the vector.
-    filename : str
+    filename
         Name of the file where to export the vector.
     """
     assert vec.getType() == petsc4py.PETSc.Vec.Type.SEQ
@@ -81,11 +81,11 @@ def export_vectors(vecs: typing.List[petsc4py.PETSc.Vec], directory: str, filena
 
     Parameters
     ----------
-    vecs : typing.List[petsc4py.PETSc.Vec]
+    vecs
         Online vectors to be exported.
-    directory : str
+    directory
         Directory where to export the vector.
-    filename : str
+    filename
         Name of the file where to export the vector.
     """
     assert all([vec.getType() == petsc4py.PETSc.Vec.Type.SEQ for vec in vecs])

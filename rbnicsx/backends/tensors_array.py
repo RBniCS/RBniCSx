@@ -25,23 +25,17 @@ class TensorsArray(TensorsArrayBase):
 
     Parameters
     ----------
-    form : dolfinx.fem.Form
+    form
         The form which is used to assemble the tensors.
-    comm : mpi4py.MPI.Intracomm
+    comm
         Common MPI communicator that the PETSc objects will use.
-    shape : typing.Union[int, typing.Tuple[int, int]]
+    shape
         The shape of the array.
 
     Attributes
     ----------
-    _form : dolfinx.fem.Form
+    _form
         Form provided as input.
-    _comm : mpi4py.MPI.Intracomm
-        MPI communicator provided as input.
-    _array : np.typing.NDArray[typing.Union[petsc4py.PETSc.Mat, PETSc.Vec]]
-        Internal storage.
-    _type : str
-        A string representing the type of tensors (Mat or Vec) currently stored.
     """
 
     def __init__(
@@ -61,12 +55,12 @@ class TensorsArray(TensorsArrayBase):
 
         Parameters
         ----------
-        shape : typing.Union[int, typing.Tuple[int, int]]
+        shape
             The shape of the array. If not passed, the current shape is used
 
         Returns
         -------
-        rbnicsx.backends.TensorsArray
+        :
             A new TensorsArray constructed from the same first input arguments as this object.
             Elements of this object are not copied to the new object.
         """
@@ -81,9 +75,9 @@ class TensorsArray(TensorsArrayBase):
 
         Parameters
         ----------
-        directory : str
+        directory
             Directory where to export the array.
-        filename : str
+        filename
             Name of the file where to export the array.
         """
         array_flattened = self._array.flatten("C")
@@ -101,9 +95,9 @@ class TensorsArray(TensorsArrayBase):
 
         Parameters
         ----------
-        directory : str
+        directory
             Directory where to import the array from.
-        filename : str
+        filename
             Name of the file where to import the array from.
         """
         if self._type == "Mat":

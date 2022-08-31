@@ -22,18 +22,18 @@ def import_matrix(
 
     Parameters
     ----------
-    allocate : typing.Callable
+    allocate
         A callable to allocate the storage.
-    comm : mpi4py.MPI.Intracomm
+    comm
         Communicator to be used while creating the matrix viewer.
-    directory : str
+    directory
         Directory where to import the matrix from.
-    filename : str
+    filename
         Name of the file where to import the matrix from.
 
     Returns
     -------
-    petsc4py.PETSc.Mat
+    :
         Matrix imported from file.
     """
     viewer = petsc4py.PETSc.Viewer().createBinary(os.path.join(directory, filename + ".dat"), "r", comm)
@@ -51,18 +51,18 @@ def import_matrices(
 
     Parameters
     ----------
-    allocate : typing.Callable
+    allocate
         A callable to allocate the storage.
-    comm : mpi4py.MPI.Intracomm
+    comm
         Communicator to be used while creating the matrix viewer.
-    directory : str
+    directory
         Directory where to import the matrix from.
-    filename : str
+    filename
         Name of the file where to import the matrix from.
 
     Returns
     -------
-    typing.List[petsc4py.PETSc.Mat]
+    :
         Matrices imported from file.
     """
     # Read in length of the list
@@ -91,18 +91,18 @@ def import_vector(
 
     Parameters
     ----------
-    allocate : typing.Callable
+    allocate
         A callable to allocate the storage.
-    comm : mpi4py.MPI.Intracomm
+    comm
         Communicator to be used while creating the vector viewer.
-    directory : str
+    directory
         Directory where to import the vector from.
-    filename : str
+    filename
         Name of the file where to import the vector from.
 
     Returns
     -------
-    petsc4py.PETSc.Vec
+    :
         Vector imported from file.
     """
     viewer = petsc4py.PETSc.Viewer().createBinary(os.path.join(directory, filename + ".dat"), "r", comm)
@@ -120,18 +120,18 @@ def import_vectors(
 
     Parameters
     ----------
-    allocate : typing.Callable
+    allocate
         A callable to allocate the storage.
-    comm : mpi4py.MPI.Intracomm
+    comm
         Communicator to be used while creating the vector viewer.
-    directory : str
+    directory
         Directory where to import the vector from.
-    filename : str
+    filename
         Name of the file where to import the vector from.
 
     Returns
     -------
-    typing.List[petsc4py.PETSc.Vec]
+    :
         Vectors imported from file.
     """
     # Read in length of the list

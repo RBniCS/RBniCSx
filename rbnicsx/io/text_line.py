@@ -14,16 +14,16 @@ class TextLine(object):
 
     Parameters
     ----------
-    text : str
+    text
         A line of text.
-    fill : str
+    fill
         A single character to be used a fill character.
 
     Attributes
     ----------
-    _text : str
+    _text
         Line of text provided as input.
-    _fill : str
+    _fill
         Fill character provided as input.
     """
 

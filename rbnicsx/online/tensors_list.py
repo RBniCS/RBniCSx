@@ -22,21 +22,15 @@ class TensorsList(TensorsListBase):
 
     Parameters
     ----------
-    shape : typing.Union[int, typing.Tuple[int], typing.List[int], typing.Tuple[typing.List[int]]]
+    shape
         Shape of the tensors which will be added to the list.
 
     Attributes
     ----------
-    _shape : typing.Union[int, typing.Tuple[int], typing.List[int], typing.Tuple[typing.List[int]]]
+    _shape
         Shape provided as input.
-    _is_block : bool
+    _is_block
         Whether the tensor has a block structure or not.
-    _comm : mpi4py.MPI.Intracomm
-        MPI world communicator.
-    _list : tpying.List[typing.Union[petsc4py.PETSc.Mat, PETSc.Vec]]
-        Internal storage.
-    _type : str
-        A string representing the type of tensors (Mat or Vec) currently stored.
     """
 
     def __init__(
@@ -68,7 +62,7 @@ class TensorsList(TensorsListBase):
 
         Returns
         -------
-        rbnicsx.backends.TensorsList
+        :
             A new TensorsList constructed from the same input arguments as this object.
             Elements of this object are not copied to the new object.
         """
@@ -80,9 +74,9 @@ class TensorsList(TensorsListBase):
 
         Parameters
         ----------
-        directory : str
+        directory
             Directory where to export the list.
-        filename : str
+        filename
             Name of the file where to export the list.
         """
         if self._type == "Mat":
@@ -104,9 +98,9 @@ class TensorsList(TensorsListBase):
 
         Parameters
         ----------
-        directory : str
+        directory
             Directory where to import the list from.
-        filename : str
+        filename
             Name of the file where to import the list from.
         """
         if self._type == "Mat":

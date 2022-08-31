@@ -22,17 +22,13 @@ class FunctionsList(FunctionsListBase):
 
     Parameters
     ----------
-    function_space : dolfinx.fem.FunctionSpace
+    function_space
         Common finite element space of any Function that will be added to this list.
 
     Attributes
     ----------
-    _function_space : dolfinx.fem.FunctionSpace
+    _function_space
         Finite element space provided as input.
-    _comm : mpi4py.MPI.Intracomm
-        MPI communicator, derived from the finite element space provided as input.
-    _list : tpying.List[dolfinx.fem.Function]
-        Internal storage.
     """
 
     def __init__(self, function_space: dolfinx.fem.FunctionSpace) -> None:
@@ -50,7 +46,7 @@ class FunctionsList(FunctionsListBase):
 
         Returns
         -------
-        rbnicsx.backends.FunctionsList
+        :
             A new FunctionsList constructed from the same input arguments as this object.
             Elements of this object are not copied to the new object.
         """
@@ -62,9 +58,9 @@ class FunctionsList(FunctionsListBase):
 
         Parameters
         ----------
-        directory : str
+        directory
             Directory where to export the list.
-        filename : str
+        filename
             Name of the file where to export the list.
         """
         export_functions(self._list, np.arange(len(self._list), dtype=float), directory, filename)
@@ -75,9 +71,9 @@ class FunctionsList(FunctionsListBase):
 
         Parameters
         ----------
-        directory : str
+        directory
             Directory where to import the list from.
-        filename : str
+        filename
             Name of the file where to import the list from.
         """
         self._list = import_functions(self._function_space, directory, filename)
@@ -88,12 +84,12 @@ class FunctionsList(FunctionsListBase):
 
         Parameters
         ----------
-        other : petsc4py.PETSc.Vec
+        other
             Vector containing the coefficients of the linear combination.
 
         Returns
         -------
-        dolfinx.fem.Function
+        :
             Function object storing the result of the linear combination.
         """
         output = dolfinx.fem.Function(self._function_space)

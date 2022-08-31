@@ -22,14 +22,14 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
 
     Parameters
     ----------
-    comm : mpi4py.MPI.Intracomm
+    comm
         Common MPI communicator that the Function objects will use.
 
     Attributes
     ----------
-    _comm : mpi4py.MPI.Intracomm
+    _comm
         MPI communicator, derived from the finite element space provided as input.
-    _list : tpying.List[Function]
+    _list
         Internal storage.
     """
 
@@ -49,7 +49,7 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
 
         Returns
         -------
-        rbnicsx._backends.FunctionsList
+        :
             A new FunctionsList constructed from the same input arguments as this object.
             Elements of this object are not copied to the new object.
         """
@@ -61,7 +61,7 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
 
         Parameters
         ----------
-        function : Function
+        function
             Function to be appended.
         """
         self._list.append(function)
@@ -72,7 +72,7 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
 
         Parameters
         ----------
-        functions : typing.Iterable[Function]
+        functions
             Functions to be appended.
         """
         self._list.extend(functions)
@@ -87,9 +87,9 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
 
         Parameters
         ----------
-        directory : str
+        directory
             Directory where to export the list.
-        filename : str
+        filename
             Name of the file where to export the list.
         """
         self._save(directory, filename)
@@ -101,9 +101,9 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
 
         Parameters
         ----------
-        directory : str
+        directory
             Directory where to export the list.
-        filename : str
+        filename
             Name of the file where to export the list.
         """
         pass  # pragma: no cover
@@ -114,9 +114,9 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
 
         Parameters
         ----------
-        directory : str
+        directory
             Directory where to import the list from.
-        filename : str
+        filename
             Name of the file where to import the list from.
         """
         assert len(self._list) == 0
@@ -129,9 +129,9 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
 
         Parameters
         ----------
-        directory : str
+        directory
             Directory where to import the list from.
-        filename : str
+        filename
             Name of the file where to import the list from.
         """
         pass  # pragma: no cover
@@ -142,12 +142,12 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
 
         Parameters
         ----------
-        other : petsc4py.PETSc.Vec
+        other
             Vector containing the coefficients of the linear combination.
 
         Returns
         -------
-        Function
+        :
             Function object storing the result of the linear combination.
         """
         if isinstance(other, petsc4py.PETSc.Vec):
@@ -164,12 +164,12 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
 
         Parameters
         ----------
-        coefficients : petsc4py.PETSc.Vec
+        coefficients
             Vector containing the coefficients of the linear combination.
 
         Returns
         -------
-        Function
+        :
             Function object storing the result of the linear combination.
         """
         pass  # pragma: no cover
@@ -184,12 +184,12 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
 
         Parameters
         ----------
-        key : typing.Union[int, slice]
+        key
             Index (if int) or indices (if slice) to be extracted.
 
         Returns
         -------
-        typing.Union[Function, rbnicsx._backends.FunctionsList]
+        :
             Function at position `key` if `key` is an integer, otherwise FunctionsList obtained by
             storing every element at the indices in the slice `key`.
         """
@@ -208,9 +208,9 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
 
         Parameters
         ----------
-        key : int
+        key
             Index to be updated.
-        item : Function
+        item
             Function to be stored.
         """
         self._list[key] = item

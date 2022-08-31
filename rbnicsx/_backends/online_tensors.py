@@ -23,12 +23,12 @@ def create_online_vector(N: int) -> petsc4py.PETSc.Vec:
 
     Parameters
     ----------
-    N : int
+    N
         Dimension of the vector.
 
     Returns
     -------
-    petsc4py.PETSc.Vec
+    :
         Allocated online vector.
     """
     vec = petsc4py.PETSc.Vec().createSeq(N, comm=mpi4py.MPI.COMM_SELF)
@@ -47,12 +47,12 @@ def create_online_vector_block(N: typing.List[int]) -> petsc4py.PETSc.Vec:
 
     Parameters
     ----------
-    N : typing.List[int]
+    N
         Dimension of the blocks of the vector.
 
     Returns
     -------
-    petsc4py.PETSc.Vec
+    :
         Allocated online vector.
     """
     return create_online_vector(sum(N))
@@ -64,12 +64,12 @@ def create_online_matrix(M: int, N: int) -> petsc4py.PETSc.Mat:
 
     Parameters
     ----------
-    M, N : int
+    M, N
         Dimension of the matrix.
 
     Returns
     -------
-    petsc4py.PETSc.Mat
+    :
         Allocated online matrix.
     """
     mat = petsc4py.PETSc.Mat().createDense((M, N), comm=mpi4py.MPI.COMM_SELF)
@@ -90,12 +90,12 @@ def create_online_matrix_block(M: typing.List[int], N: typing.List[int]) -> pets
 
     Parameters
     ----------
-    M, N : typing.List[int]
+    M, N
         Dimension of the blocks of the matrix.
 
     Returns
     -------
-    petsc4py.PETSc.Mat
+    :
         Allocated online matrix.
     """
     return create_online_matrix(sum(M), sum(N))
@@ -107,9 +107,9 @@ class VecSubVectorWrapper(object):
 
     Parameters
     ----------
-    b : petsc4py.PETSc.Vec
+    b
         An online vector.
-    indices : np.typing.NDArray[np.int32]
+    indices
         Indices to be extracted.
     """
 
@@ -140,9 +140,9 @@ class VecSubVectorCopier(object):
 
     Parameters
     ----------
-    b : petsc4py.PETSc.Vec
+    b
         An online vector.
-    indices : np.typing.NDArray[np.int32]
+    indices
         Indices to be extracted.
     """
 
@@ -173,9 +173,9 @@ def BlockVecSubVectorContextManager(VecSubVectorContextManager: typing.ContextMa
 
         Parameters
         ----------
-        b : petsc4py.PETSc.Vec
+        b
             An online vector.
-        N : typing.List[int]
+        N
             Dimension of the blocks of the vector.
         """
 
@@ -211,9 +211,9 @@ class BlockVecSubVectorWrapper(BlockVecSubVectorContextManager(VecSubVectorWrapp
 
     Parameters
     ----------
-    b : petsc4py.PETSc.Vec
+    b
         An online vector.
-    N : typing.List[int]
+    N
         Dimension of the blocks of the vector.
     """
 
@@ -226,9 +226,9 @@ class BlockVecSubVectorCopier(BlockVecSubVectorContextManager(VecSubVectorCopier
 
     Parameters
     ----------
-    b : petsc4py.PETSc.Vec
+    b
         An online vector.
-    N : typing.List[int]
+    N
         Dimension of the blocks of the vector.
     """
 
@@ -241,9 +241,9 @@ class MatSubMatrixWrapper(object):
 
     Parameters
     ----------
-    A : petsc4py.PETSc.Mat
+    A
         An online matrix.
-    row_indices, col_indices : np.typing.NDArray[np.int32]
+    row_indices, col_indices
         A 2-tuple containing the indices to be extracted for each dimension.
     """
 
@@ -279,9 +279,9 @@ class MatSubMatrixCopier(object):
 
     Parameters
     ----------
-    b : petsc4py.PETSc.Mat
+    b
         An online matrix.
-    row_indices, col_indices : np.typing.NDArray[np.int32]
+    row_indices, col_indices
         A 2-tuple containing the indices to be extracted for each dimension.
     """
 
@@ -316,9 +316,9 @@ def BlockMatSubMatrixContextManager(MatSubMatrixContextManager: typing.ContextMa
 
         Parameters
         ----------
-        A : petsc4py.PETSc.Mat
+        A
             An online matrix.
-        M, N : typing.List[int]
+        M, N
             Dimension of the blocks of the matrix.
         """
 
@@ -357,9 +357,9 @@ class BlockMatSubMatrixWrapper(BlockMatSubMatrixContextManager(MatSubMatrixWrapp
 
     Parameters
     ----------
-    A : petsc4py.PETSc.Mat
+    A
         An online matrix.
-    M, N : typing.List[int]
+    M, N
         Dimension of the blocks of the matrix.
     """
 
@@ -372,9 +372,9 @@ class BlockMatSubMatrixCopier(BlockMatSubMatrixContextManager(MatSubMatrixCopier
 
     Parameters
     ----------
-    A : petsc4py.PETSc.Mat
+    A
         An online matrix.
-    M, N : typing.List[int]
+    M, N
         Dimension of the blocks of the matrix.
     """
 

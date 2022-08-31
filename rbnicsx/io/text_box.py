@@ -14,16 +14,16 @@ class TextBox(object):
 
     Parameters
     ----------
-    text : str
+    text
         One or more lines of text.
-    fill : str
+    fill
         A single character to be used a fill character.
 
     Attributes
     ----------
-    _text : str
+    _text
         Text provided as input, split by newline character.
-    _fill : str
+    _fill
         Fill character provided as input.
     """
 

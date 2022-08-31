@@ -21,21 +21,15 @@ class TensorsList(TensorsListBase):
 
     Parameters
     ----------
-    form : dolfinx.fem.Form
+    form
         The form which is used to assemble the tensors.
-    comm : mpi4py.MPI.Intracomm
+    comm
         Common MPI communicator that the PETSc objects will use.
 
     Attributes
     ----------
-    _form : dolfinx.fem.Form
+    _form
         Form provided as input.
-    _comm : mpi4py.MPI.Intracomm
-        MPI communicator provided as input.
-    _list : tpying.List[typing.Union[petsc4py.PETSc.Mat, PETSc.Vec]]
-        Internal storage.
-    _type : str
-        A string representing the type of tensors (Mat or Vec) currently stored.
     """
 
     def __init__(self, form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm) -> None:
@@ -53,7 +47,7 @@ class TensorsList(TensorsListBase):
 
         Returns
         -------
-        rbnicsx.backends.TensorsList
+        :
             A new TensorsList constructed from the same input arguments as this object.
             Elements of this object are not copied to the new object.
         """
@@ -65,9 +59,9 @@ class TensorsList(TensorsListBase):
 
         Parameters
         ----------
-        directory : str
+        directory
             Directory where to export the list.
-        filename : str
+        filename
             Name of the file where to export the list.
         """
         if self._type == "Mat":
@@ -83,9 +77,9 @@ class TensorsList(TensorsListBase):
 
         Parameters
         ----------
-        directory : str
+        directory
             Directory where to import the list from.
-        filename : str
+        filename
             Name of the file where to import the list from.
         """
         if self._type == "Mat":

@@ -24,19 +24,15 @@ class FunctionsList(FunctionsListBase):
 
     Parameters
     ----------
-    shape : typing.Union[int, typing.List[int]]
+    shape
         Shape of the vectors which will be added to the list.
 
     Attributes
     ----------
-    _shape : typing.Union[int, typing.List[int]]
+    _shape
         Shape provided as input.
-    _is_block : bool
+    _is_block
         Whether the vector has a block structure or not.
-    _comm : mpi4py.MPI.Intracomm
-        MPI world communicator.
-    _list : tpying.List[typing.Union[petsc4py.PETSc.Vec]]
-        Internal storage.
     """
 
     def __init__(self, shape: typing.Union[int, typing.List[int]]) -> None:
@@ -64,7 +60,7 @@ class FunctionsList(FunctionsListBase):
 
         Returns
         -------
-        rbnicsx.backends.FunctionsList
+        :
             A new FunctionsList constructed from the same input arguments as this object.
             Elements of this object are not copied to the new object.
         """
@@ -76,9 +72,9 @@ class FunctionsList(FunctionsListBase):
 
         Parameters
         ----------
-        directory : str
+        directory
             Directory where to export the list.
-        filename : str
+        filename
             Name of the file where to export the list.
         """
         if self._is_block:
@@ -92,9 +88,9 @@ class FunctionsList(FunctionsListBase):
 
         Parameters
         ----------
-        directory : str
+        directory
             Directory where to import the list from.
-        filename : str
+        filename
             Name of the file where to import the list from.
         """
         if self._is_block:
@@ -108,12 +104,12 @@ class FunctionsList(FunctionsListBase):
 
         Parameters
         ----------
-        other : petsc4py.PETSc.Vec
+        other
             Vector containing the coefficients of the linear combination.
 
         Returns
         -------
-        petsc4py.PETSc.Vec
+        :
             Vector storing the result of the linear combination.
         """
         if other.size > 0:

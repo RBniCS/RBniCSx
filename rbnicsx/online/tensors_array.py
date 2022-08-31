@@ -25,23 +25,17 @@ class TensorsArray(TensorsArrayBase):
 
     Parameters
     ----------
-    content_shape : typing.Union[int, typing.Tuple[int], typing.List[int], typing.Tuple[typing.List[int]]]
+    content_shape
         Shape of the tensors which will be added to the list.
-    array_shape : typing.Union[int, typing.Tuple[int, int]]
+    array_shape
         The shape of the array.
 
     Attributes
     ----------
-    _shape : typing.Union[int, typing.Tuple[int], typing.List[int], typing.Tuple[typing.List[int]]]
+    _content_shape
         Shape provided as input.
-    _is_block : bool
+    _is_block
         Whether the tensor has a block structure or not.
-    _comm : mpi4py.MPI.Intracomm
-        MPI world communicator.
-    _list : tpying.List[typing.Union[petsc4py.PETSc.Mat, PETSc.Vec]]
-        Internal storage.
-    _type : str
-        A string representing the type of tensors (Mat or Vec) currently stored.
     """
 
     _vector_with_one_entry = create_vector(1)
@@ -88,12 +82,12 @@ class TensorsArray(TensorsArrayBase):
 
         Parameters
         ----------
-        array_shape : typing.Union[int, typing.Tuple[int, int]]
+        array_shape
             The shape of the array. If not passed, the current shape is used
 
         Returns
         -------
-        rbnicsx.online.TensorsArray
+        :
             A new TensorsArray constructed from the same first input arguments as this object.
             Elements of this object are not copied to the new object.
         """
@@ -108,9 +102,9 @@ class TensorsArray(TensorsArrayBase):
 
         Parameters
         ----------
-        directory : str
+        directory
             Directory where to export the array.
-        filename : str
+        filename
             Name of the file where to export the array.
         """
         array_flattened = self._array.flatten("C")
@@ -134,9 +128,9 @@ class TensorsArray(TensorsArrayBase):
 
         Parameters
         ----------
-        directory : str
+        directory
             Directory where to import the array from.
-        filename : str
+        filename
             Name of the file where to import the array from.
         """
         if self._type == "Mat":
@@ -161,12 +155,12 @@ class TensorsArray(TensorsArrayBase):
 
         Parameters
         ----------
-        *args : petsc4py.PETSc.Vec
+        *args
             Arguments of the contraction.
 
         Returns
         -------
-        petsc4py.PETSc.ScalarType
+        :
             The result of the contraction.
         """
         implicit_args_indices = [

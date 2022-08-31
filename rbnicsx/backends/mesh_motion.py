@@ -23,18 +23,18 @@ class MeshMotion(object):
 
     Parameters
     ----------
-    mesh : dolfinx.mesh.Mesh
+    mesh
         Mesh to be deformed.
-    shape_parametrization : dolfinx.fem.Function
+    shape_parametrization
         Shape parametrization interpolated over all points of the mesh.
 
     Attributes
     ----------
-    _mesh : dolfinx.mesh.Mesh
+    _mesh
         Mesh provided as input.
-    _shape_parametrization : dolfinx.fem.Function
+    _shape_parametrization
         Interpolated shape parametrization provided as input.
-    _reference_coordinates : np.typing.NDArray[float]
+    _reference_coordinates
         Coordinates of the mesh points in the reference configuration.
     """
 

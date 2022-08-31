@@ -19,12 +19,12 @@ def project_vector(b: petsc4py.PETSc.Vec, L: typing.Callable, B: FunctionsList) 
 
     Parameters
     ----------
-    b : petsc4py.PETSc.Vec
+    b
         Online vector containing the result of the projection.
         The vector is not zeroed before assembly.
-    L : typing.Callable
+    L
         A callable L(v) to compute the action of the linear form L on the function v.
-    B : BackendsList
+    B
         Functions spanning the reduced basis space.
     """
     for (n, fun) in enumerate(B):
@@ -40,12 +40,12 @@ def project_vector_block(
 
     Parameters
     ----------
-    b : petsc4py.PETSc.Vec
+    b
         Online vector containing the result of the projection.
         The vector is not zeroed before assembly.
-    L : typing.List[typing.Callable]
+    L
         A list of callables L_i(v) to compute the action of the i-th linear form L_i on the function v.
-    B : FunctionsList
+    B
         Functions spanning the reduced basis space associated to each solution component.
     """
     assert len(L) == len(B)
@@ -65,12 +65,12 @@ def project_matrix(
 
     Parameters
     ----------
-    A : petsc4py.PETSc.Mat
+    A
         Online matrix containing the result of the projection.
         The matrix is not zeroed before assembly.
-    a : typing.Callable
+    a
         A callable a(u)(v) to compute the action of the bilinear form a on the trial function u and test function v.
-    B : typing.Union[FunctionsList, typing.Tuple[FunctionsList]]
+    B
         Functions spanning the reduced basis space. Two different basis of the same space
         can be provided, e.g. as in Petrov-Galerkin methods.
     """
@@ -97,13 +97,13 @@ def project_matrix_block(
 
     Parameters
     ----------
-    A : petsc4py.PETSc.Mat
+    A
         Online matrix containing the result of the projection.
         The matrix is not zeroed before assembly.
-    a : typing.List[typing.List[typing.Callable]]
+    a
         A matrix of callables a_ij(u)(v) to compute the action of the bilinear form a_ij on
         the trial function u and test function v.
-    B : typing.Union[typing.List[FunctionsList], typing.Tuple[typing.List[FunctionsList]]]
+    B
         Functions spanning the reduced basis space associated to each solution component.
         Two different basis of the same space can be provided, e.g. as in Petrov-Galerkin methods.
     """

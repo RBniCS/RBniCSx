@@ -29,15 +29,15 @@ def project_vector(L: typing.Callable, B: FunctionsList) -> petsc4py.PETSc.Vec:
 
     Parameters
     ----------
-    L : typing.Callable
+    L
         A callable L(v) to compute the action of the linear form L on the function v.
         Use rbnicsx.backends.linear_form_action to generate the callable L from a UFL form.
-    B : rbnicsx.backends.FunctionsList
+    B
         Functions spanning the reduced basis space.
 
     Returns
     -------
-    petsc4py.PETSc.Vec
+    :
         Online vector containing the result of the projection.
     """
     b = create_online_vector(len(B))
@@ -52,13 +52,13 @@ def _(b: petsc4py.PETSc.Vec, L: typing.Callable, B: FunctionsList) -> None:
 
     Parameters
     ----------
-    b : petsc4py.PETSc.Vec
+    b
         Online vector containing the result of the projection.
         The vector is not zeroed before assembly.
-    L : typing.Callable
+    L
         A callable L(v) to compute the action of the linear form L on the function v.
         Use rbnicsx.backends.linear_form_action to generate the callable L from a UFL form.
-    B : rbnicsx.backends.FunctionsList
+    B
         Functions spanning the reduced basis space.
     """
     project_vector_super(b, L, B)
@@ -71,15 +71,15 @@ def project_vector_block(L: typing.List[typing.Callable], B: typing.List[Functio
 
     Parameters
     ----------
-    L : typing.List[typing.Callable]
+    L
         A list of callables L_i(v) to compute the action of the i-th linear form L_i on the function v.
         Use rbnicsx.backends.linear_form_action to generate each callable L_i from a UFL form.
-    B : typing.List[rbnicsx.backends.FunctionsList]
+    B
         Functions spanning the reduced basis space associated to each solution component.
 
     Returns
     -------
-    petsc4py.PETSc.Vec
+    :
         Online vector containing the result of the projection.
     """
     b = create_online_vector_block([len(B_i) for B_i in B])
@@ -94,13 +94,13 @@ def _(b: petsc4py.PETSc.Vec, L: typing.List[typing.Callable], B: typing.List[Fun
 
     Parameters
     ----------
-    b : petsc4py.PETSc.Vec
+    b
         Online vector containing the result of the projection.
         The vector is not zeroed before assembly.
-    L : typing.List[typing.Callable]
+    L
         A list of callables L_i(v) to compute the action of the i-th linear form L_i on the function v.
         Use rbnicsx.backends.linear_form_action to generate each callable L_i from a UFL form.
-    B : typing.List[rbnicsx.backends.FunctionsList]
+    B
         Functions spanning the reduced basis space associated to each solution component.
     """
     project_vector_block_super(b, L, B)
@@ -115,16 +115,16 @@ def project_matrix(
 
     Parameters
     ----------
-    a : typing.Callable
+    a
         A callable a(u)(v) to compute the action of the bilinear form a on the trial function u and test function v.
         Use rbnicsx.backends.bilinear_form_action to generate the callable a from a UFL form.
-    B : typing.Union[rbnicsx.backends.FunctionsList, typing.Tuple[rbnicsx.backends.FunctionsList]]
+    B
         Functions spanning the reduced basis space. Two different basis of the same space
         can be provided, e.g. as in Petrov-Galerkin methods.
 
     Returns
     -------
-    petsc4py.PETSc.Mat
+    :
         Online matrix containing the result of the projection.
     """
     if isinstance(B, tuple):
@@ -148,13 +148,13 @@ def _(
 
     Parameters
     ----------
-    A : petsc4py.PETSc.Mat
+    A
         Online matrix containing the result of the projection.
         The matrix is not zeroed before assembly.
-    a : typing.Callable
+    a
         A callable a(u)(v) to compute the action of the bilinear form a on the trial function u and test function v.
         Use rbnicsx.backends.bilinear_form_action to generate the callable a from a UFL form.
-    B : typing.Union[rbnicsx.backends.FunctionsList, typing.Tuple[rbnicsx.backends.FunctionsList]]
+    B
         Functions spanning the reduced basis space. Two different basis of the same space
         can be provided, e.g. as in Petrov-Galerkin methods.
     """
@@ -171,18 +171,17 @@ def project_matrix_block(
 
     Parameters
     ----------
-    a : typing.List[typing.List[typing.Callable]]
+    a
         A matrix of callables a_ij(u)(v) to compute the action of the bilinear form a_ij on
         the trial function u and test function v.
         Use rbnicsx.backends.bilinear_form_action to generate each callable a_ij from a UFL form.
-    B : typing.Union[typing.List[rbnicsx.backends.FunctionsList], \
-                     typing.Tuple[typing.List[rbnicsx.backends.FunctionsList]]]
+    B
         Functions spanning the reduced basis space associated to each solution component.
         Two different basis of the same space can be provided, e.g. as in Petrov-Galerkin methods.
 
     Returns
     -------
-    petsc4py.PETSc.Mat
+    :
         Online matrix containing the result of the projection.
     """
     if isinstance(B, tuple):
@@ -207,17 +206,14 @@ def _(
 
     Parameters
     ----------
-    A : petsc4py.PETSc.Mat
+    A
         Online matrix containing the result of the projection.
         The matrix is not zeroed before assembly.
-    a : typing.List[typing.List[typing.Callable]]
+    a
         A matrix of callables a_ij(u)(v) to compute the action of the bilinear form a_ij on
         the trial function u and test function v.
         Use rbnicsx.backends.bilinear_form_action to generate each callable a_ij from a UFL form.
-    B : typing.Union[
-            typing.List[rbnicsx.backends.FunctionsList],
-            typing.Tuple[typing.List[rbnicsx.backends.FunctionsList]]
-        ]
+    B
         Functions spanning the reduced basis space associated to each solution component.
         Two different basis of the same space can be provided, e.g. as in Petrov-Galerkin methods.
     """
@@ -277,7 +273,7 @@ class FormArgumentsReplacer(object):
 
         Parameters
         ----------
-        test, trial : typing.Optional[typing.Union[dolfinx.fem.Function, ufl.core.expr.Expr]]
+        test, trial
             Expressions to be replaced to the form arguments.
             If the expression is provided as a dolfinx Function, such function will be used as a replacement.
             If the expression is provided as an UFL expression, such expression will first be interpolated
@@ -318,15 +314,15 @@ def linear_form_action(L: ufl.Form, part: typing.Optional[str] = None) -> typing
 
     Parameters
     ----------
-    L : ufl.Form
+    L
         Linear form to be represented.
-    part : typing.Optional[str]
+    part
         Optional part (real or complex) to extract from the action result.
         If not provided, no postprocessing of the result will be carried out.
 
     Returns
     -------
-    typing.Callable
+    :
         A callable that represents the action of L on a function.
     """
     L_replacement_cpp = FormArgumentsReplacer(L, test=True)
@@ -337,12 +333,12 @@ def linear_form_action(L: ufl.Form, part: typing.Optional[str] = None) -> typing
 
         Parameters
         ----------
-        fun : dolfinx.fem.Function
+        fun
             Function to be replaced to the test function.
 
         Returns
         -------
-        petsc4py.PETSc.ScalarType
+        :
             Evaluation of the action of L on the provided function.
         """
         L_replacement_cpp.replace(test=fun)
@@ -361,15 +357,15 @@ def _(L: typing.List[ufl.Form], part: typing.Optional[str] = None) -> typing.Lis
 
     Parameters
     ----------
-    L : typing.List[ufl.Form]
+    L
         Block linear form to be represented.
-    part : typing.Optional[str]
+    part
         Optional part (real or complex) to extract from the action result.
         If not provided, no postprocessing of the result will be carried out.
 
     Returns
     -------
-    typing.List[typing.Callable]
+    :
         A list of callables that represents the action of L on a function.
     """
     return [linear_form_action(L_i) for L_i in L]
@@ -382,15 +378,15 @@ def bilinear_form_action(a: ufl.Form, part: typing.Optional[str] = None) -> typi
 
     Parameters
     ----------
-    a : ufl.Form
+    a
         Bilinear form to be represented.
-    part : typing.Optional[str]
+    part
         Optional part (real or complex) to extract from the action result.
         If not provided, no postprocessing of the result will be carried out.
 
     Returns
     -------
-    typing.Callable
+    :
         A callable that represents the action of a on a pair of functions.
     """
     a_replacement_cpp = FormArgumentsReplacer(a, test=True, trial=True)
@@ -401,12 +397,12 @@ def bilinear_form_action(a: ufl.Form, part: typing.Optional[str] = None) -> typi
 
         Parameters
         ----------
-        fun_1 : dolfinx.fem.Function
+        fun_1
             Function to be replaced to the trial function.
 
         Returns
         -------
-        typing.Callable
+        :
             A callable that represents action of a bilinear form on a function, to be replaced to the trial function.
         """
         a_replacement_cpp.replace(trial=fun_1)
@@ -418,12 +414,12 @@ def bilinear_form_action(a: ufl.Form, part: typing.Optional[str] = None) -> typi
 
             Parameters
             ----------
-            fun_0 : dolfinx.fem.Function
+            fun_0
                 Function to be replaced to the test function.
 
             Returns
             -------
-            petsc4py.PETSc.ScalarType
+            :
                 Evaluation of the action of a on the provided pair of functions.
             """
             a_replacement_cpp.replace(test=fun_0)

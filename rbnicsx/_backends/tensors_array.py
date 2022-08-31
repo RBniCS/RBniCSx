@@ -26,18 +26,18 @@ class TensorsArray(abc.ABC):
 
     Parameters
     ----------
-    comm : mpi4py.MPI.Intracomm
+    comm
         Common MPI communicator that the PETSc objects will use.
-    shape : typing.Union[int, typing.Tuple[int, int]]
+    shape
         The shape of the array.
 
     Attributes
     ----------
-    _comm : mpi4py.MPI.Intracomm
+    _comm
         MPI communicator provided as input.
-    _array : np.typing.NDArray[typing.Union[petsc4py.PETSc.Mat, PETSc.Vec]]
+    _array
         Internal storage.
-    _type : str
+    _type
         A string representing the type of tensors (Mat or Vec) currently stored.
     """
 
@@ -68,12 +68,12 @@ class TensorsArray(abc.ABC):
 
         Parameters
         ----------
-        shape : typing.Union[int, typing.Tuple[int, int]]
+        shape
             The shape of the array. If not passed, the current shape is used
 
         Returns
         -------
-        rbnicsx._backends.TensorsArray
+        :
             A new TensorsArray constructed from the same first input arguments as this object.
             Elements of this object are not copied to the new object.
         """
@@ -85,9 +85,9 @@ class TensorsArray(abc.ABC):
 
         Parameters
         ----------
-        directory : str
+        directory
             Directory where to export the array.
-        filename : str
+        filename
             Name of the file where to export the array.
         """
         # Save type
@@ -109,9 +109,9 @@ class TensorsArray(abc.ABC):
 
         Parameters
         ----------
-        directory : str
+        directory
             Directory where to export the array.
-        filename : str
+        filename
             Name of the file where to export the array.
         """
         pass  # pragma: no cover
@@ -122,9 +122,9 @@ class TensorsArray(abc.ABC):
 
         Parameters
         ----------
-        directory : str
+        directory
             Directory where to import the array from.
-        filename : str
+        filename
             Name of the file where to import the array from.
         """
         assert all([tensor is None for tensor in self._array.flat])
@@ -145,9 +145,9 @@ class TensorsArray(abc.ABC):
 
         Parameters
         ----------
-        directory : str
+        directory
             Directory where to import the array from.
-        filename : str
+        filename
             Name of the file where to import the array from.
         """
         pass  # pragma: no cover
@@ -158,12 +158,12 @@ class TensorsArray(abc.ABC):
 
         Parameters
         ----------
-        *args : petsc4py.PETSc.Vec
+        *args
             Arguments of the contraction.
 
         Returns
         -------
-        petsc4py.PETSc.ScalarType
+        :
             The result of the contraction.
         """
         # Check that the correct number of arguments has been provided
@@ -219,12 +219,12 @@ class TensorsArray(abc.ABC):
 
         Parameters
         ----------
-        key : typing.Union[int, slice]
+        key
             Index (if int or tuple of ints) or indices (if slice or tuple of slices) to be extracted.
 
         Returns
         -------
-        typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec, rbnicsx._backends.TensorsArray]
+        :
             Tensor at position `key` if `key` is an integer, otherwise TensorsArray obtained by
             storing every element at the indices in the slice `key`.
         """
@@ -247,9 +247,9 @@ class TensorsArray(abc.ABC):
 
         Parameters
         ----------
-        key : typing.Union[int, typing.Tuple[int, int]]
+        key
             Index to be updated.
-        item : typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]
+        item
             Tensor to be stored.
         """
         # Check that tensors of the same type are set

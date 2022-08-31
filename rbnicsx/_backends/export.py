@@ -20,13 +20,13 @@ def export_matrix(mat: petsc4py.PETSc.Mat, comm: mpi4py.MPI.Intracomm, directory
 
     Parameters
     ----------
-    mat : petsc4py.PETSc.Mat
+    mat
         Matrix to be exported.
-    comm : mpi4py.MPI.Intracomm
+    comm
         Communicator to be used while creating the matrix viewer.
-    directory : str
+    directory
         Directory where to export the matrix.
-    filename : str
+    filename
         Name of the file where to export the matrix.
     """
     os.makedirs(directory, exist_ok=True)
@@ -43,13 +43,13 @@ def export_matrices(
 
     Parameters
     ----------
-    mats : typing.List[petsc4py.PETSc.Mat]
+    mats
         Matrices to be exported.
-    comm : mpi4py.MPI.Intracomm
+    comm
         Communicator to be used while creating the matrix viewer.
-    directory : str
+    directory
         Directory where to export the matrix.
-    filename : str
+    filename
         Name of the file where to export the matrix.
     """
     os.makedirs(os.path.join(directory, filename), exist_ok=True)
@@ -74,13 +74,13 @@ def export_vector(vec: petsc4py.PETSc.Vec, comm: mpi4py.MPI.Intracomm, directory
 
     Parameters
     ----------
-    vec : petsc4py.PETSc.Vec
+    vec
         Vector to be exported.
-    comm : mpi4py.MPI.Intracomm
+    comm
         Communicator to be used while creating the vector viewer.
-    directory : str
+    directory
         Directory where to export the vector.
-    filename : str
+    filename
         Name of the file where to export the vector.
     """
     os.makedirs(directory, exist_ok=True)
@@ -97,13 +97,13 @@ def export_vectors(
 
     Parameters
     ----------
-    vecs : typing.List[petsc4py.PETSc.Vec]
+    vecs
         Vectors to be exported.
-    comm : mpi4py.MPI.Intracomm
+    comm
         Communicator to be used while creating the vector viewer.
-    directory : str
+    directory
         Directory where to export the vector.
-    filename : str
+    filename
         Name of the file where to export the vector.
     """
     os.makedirs(os.path.join(directory, filename), exist_ok=True)

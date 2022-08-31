@@ -24,16 +24,16 @@ def import_function(function_space: dolfinx.fem.FunctionSpace, directory: str, f
 
     Parameters
     ----------
-    function_space : dolfinx.fem.FunctionSpace
+    function_space
         Finite element space on which the function to be imported lives.
-    directory : str
+    directory
         Directory where to import the function from.
-    filename : str
+    filename
         Name of the file where to import the function from.
 
     Returns
     -------
-    dolfinx.fem.Function
+    :
         Function imported from file.
     """
     comm = function_space.mesh.comm
@@ -52,16 +52,16 @@ def import_functions(
 
     Parameters
     ----------
-    function_space : dolfinx.fem.FunctionSpace
+    function_space
         Finite element space on which the function to be imported lives.
-    directory : str
+    directory
         Directory where to import the function from.
-    filename : str
+    filename
         Name of the file where to import the function from.
 
     Returns
     -------
-    typing.List[dolfinx.fem.Function]
+    :
         Functions imported from file.
     """
     comm = function_space.mesh.comm
@@ -92,18 +92,18 @@ def import_matrix(
 
     Parameters
     ----------
-    form : dolfinx.fem.FormMetaClass
+    form
         The form which is used to assemble the tensors.
-    comm : mpi4py.MPI.Intracomm
+    comm
         Communicator to be used while creating the matrix.
-    directory : str
+    directory
         Directory where to import the matrix from.
-    filename : str
+    filename
         Name of the file where to import the matrix from.
 
     Returns
     -------
-    petsc4py.PETSc.Mat
+    :
         Matrix imported from file.
     """
     return import_matrix_super(lambda: dolfinx.fem.petsc.create_matrix(form), comm, directory, filename)
@@ -117,18 +117,18 @@ def import_matrices(
 
     Parameters
     ----------
-    form : dolfinx.fem.FormMetaClass
+    form
         The form which is used to assemble the tensors.
-    comm : mpi4py.MPI.Intracomm
+    comm
         Communicator to be used while creating the matrix.
-    directory : str
+    directory
         Directory where to import the matrix from.
-    filename : str
+    filename
         Name of the file where to import the matrix from.
 
     Returns
     -------
-    typing.List[petsc4py.PETSc.Mat]
+    :
         Matrices imported from file.
     """
     return import_matrices_super(lambda: dolfinx.fem.petsc.create_matrix(form), comm, directory, filename)
@@ -142,18 +142,18 @@ def import_vector(
 
     Parameters
     ----------
-    form : dolfinx.fem.FormMetaClass
+    form
         The form which is used to assemble the tensors.
-    comm : mpi4py.MPI.Intracomm
+    comm
         Communicator to be used while creating the vector.
-    directory : str
+    directory
         Directory where to import the vector from.
-    filename : str
+    filename
         Name of the file where to import the vector from.
 
     Returns
     -------
-    petsc4py.PETSc.Vec
+    :
         Vector imported from file.
     """
     return import_vector_super(lambda: dolfinx.fem.petsc.create_vector(form), comm, directory, filename)
@@ -167,18 +167,18 @@ def import_vectors(
 
     Parameters
     ----------
-    form : dolfinx.fem.FormMetaClass
+    form
         The form which is used to assemble the tensors.
-    comm : mpi4py.MPI.Intracomm
+    comm
         Communicator to be used while creating the vector.
-    directory : str
+    directory
         Directory where to import the vector from.
-    filename : str
+    filename
         Name of the file where to import the vector from.
 
     Returns
     -------
-    typing.List[petsc4py.PETSc.Vec]
+    :
         Vectors imported from file.
     """
     return import_vectors_super(lambda: dolfinx.fem.petsc.create_vector(form), comm, directory, filename)

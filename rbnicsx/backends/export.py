@@ -25,11 +25,11 @@ def export_function(function: dolfinx.fem.Function, directory: str, filename: st
 
     Parameters
     ----------
-    function : dolfinx.fem.Function
+    function
         Function to be exported.
-    directory : str
+    directory
         Directory where to export the function.
-    filename : str
+    filename
         Name of the file where to export the function.
     """
     os.makedirs(directory, exist_ok=True)
@@ -50,13 +50,13 @@ def export_functions(
 
     Parameters
     ----------
-    functions : typing.List[dolfinx.fem.Function]
+    functions
         Functions to be exported.
-    indices : numpy.typing.NDArray[float]
+    indices
         Indices associated to each entry in the list (e.g. time step number or time)
-    directory : str
+    directory
         Directory where to export the function.
-    filename : str
+    filename
         Name of the file where to export the function.
     """
     os.makedirs(directory, exist_ok=True)
@@ -76,11 +76,11 @@ def export_matrix(mat: petsc4py.PETSc.Mat, directory: str, filename: str) -> Non
 
     Parameters
     ----------
-    mat : petsc4py.PETSc.Mat
+    mat
         Matrix to be exported.
-    directory : str
+    directory
         Directory where to export the matrix.
-    filename : str
+    filename
         Name of the file where to export the matrix.
     """
     export_matrix_super(mat, mat.comm, directory, filename)
@@ -92,11 +92,11 @@ def export_matrices(mats: typing.List[petsc4py.PETSc.Mat], directory: str, filen
 
     Parameters
     ----------
-    mats : typing.List[petsc4py.PETSc.Mat]
+    mats
         Matrices to be exported.
-    directory : str
+    directory
         Directory where to export the matrix.
-    filename : str
+    filename
         Name of the file where to export the matrix.
     """
     export_matrices_super(mats, mats[0].comm, directory, filename)
@@ -108,11 +108,11 @@ def export_vector(vec: petsc4py.PETSc.Vec, directory: str, filename: str) -> Non
 
     Parameters
     ----------
-    vec : petsc4py.PETSc.Vec
+    vec
         Vector to be exported.
-    directory : str
+    directory
         Directory where to export the vector.
-    filename : str
+    filename
         Name of the file where to export the vector.
     """
     export_vector_super(vec, vec.comm, directory, filename)
@@ -124,11 +124,11 @@ def export_vectors(vecs: typing.List[petsc4py.PETSc.Vec], directory: str, filena
 
     Parameters
     ----------
-    vecs : typing.List[petsc4py.PETSc.Vec]
+    vecs
         Vectors to be exported.
-    directory : str
+    directory
         Directory where to export the vector.
-    filename : str
+    filename
         Name of the file where to export the vector.
     """
     export_vectors_super(vecs, vecs[0].comm, directory, filename)

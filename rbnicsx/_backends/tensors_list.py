@@ -23,16 +23,16 @@ class TensorsList(abc.ABC):
 
     Parameters
     ----------
-    comm : mpi4py.MPI.Intracomm
+    comm
         Common MPI communicator that the PETSc objects will use.
 
     Attributes
     ----------
-    _comm : mpi4py.MPI.Intracomm
+    _comm
         MPI communicator provided as input.
-    _list : tpying.List[typing.Union[petsc4py.PETSc.Mat, PETSc.Vec]]
+    _list
         Internal storage.
-    _type : str
+    _type
         A string representing the type of tensors (Mat or Vec) currently stored.
     """
 
@@ -58,7 +58,7 @@ class TensorsList(abc.ABC):
 
         Returns
         -------
-        rbnicsx._backends.TensorsList
+        :
             A new TensorsList constructed from the same input arguments as this object.
             Elements of this object are not copied to the new object.
         """
@@ -70,7 +70,7 @@ class TensorsList(abc.ABC):
 
         Parameters
         ----------
-        tensor : typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]
+        tensor
             Tensor to be appended.
         """
         # Check that tensors of the same type are added
@@ -98,7 +98,7 @@ class TensorsList(abc.ABC):
 
         Parameters
         ----------
-        tensors : typing.Union[typing.Iterable[petsc4py.PETSc.Mat], typing.Iterable[petsc4py.PETSc.Vec]]
+        tensors
             Tensors to be appended.
         """
         for tensor in tensors:
@@ -114,9 +114,9 @@ class TensorsList(abc.ABC):
 
         Parameters
         ----------
-        directory : str
+        directory
             Directory where to export the list.
-        filename : str
+        filename
             Name of the file where to export the list.
         """
         # Save type
@@ -138,9 +138,9 @@ class TensorsList(abc.ABC):
 
         Parameters
         ----------
-        directory : str
+        directory
             Directory where to export the list.
-        filename : str
+        filename
             Name of the file where to export the list.
         """
         pass  # pragma: no cover
@@ -151,9 +151,9 @@ class TensorsList(abc.ABC):
 
         Parameters
         ----------
-        directory : str
+        directory
             Directory where to import the list from.
-        filename : str
+        filename
             Name of the file where to import the list from.
         """
         assert len(self._list) == 0
@@ -174,9 +174,9 @@ class TensorsList(abc.ABC):
 
         Parameters
         ----------
-        directory : str
+        directory
             Directory where to import the list from.
-        filename : str
+        filename
             Name of the file where to import the list from.
         """
         pass  # pragma: no cover
@@ -187,12 +187,12 @@ class TensorsList(abc.ABC):
 
         Parameters
         ----------
-        other : petsc4py.PETSc.Vec
+        other
             Vector containing the coefficients of the linear combination.
 
         Returns
         -------
-        typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]
+        :
             Tensor object storing the result of the linear combination.
         """
         if isinstance(other, petsc4py.PETSc.Vec):
@@ -223,12 +223,12 @@ class TensorsList(abc.ABC):
 
         Parameters
         ----------
-        key : typing.Union[int, slice]
+        key
             Index (if int) or indices (if slice) to be extracted.
 
         Returns
         -------
-        typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec, rbnicsx._backends.TensorsList]
+        :
             Tensor at position `key` if `key` is an integer, otherwise TensorsList obtained by
             storing every element at the indices in the slice `key`.
         """
@@ -247,9 +247,9 @@ class TensorsList(abc.ABC):
 
         Parameters
         ----------
-        key : int
+        key
             Index to be updated.
-        item : typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]
+        item
             Tensor to be stored.
         """
         # Check that tensors of the same type are set

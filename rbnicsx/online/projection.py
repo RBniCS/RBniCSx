@@ -36,14 +36,14 @@ def _(L: petsc4py.PETSc.Vec, B: FunctionsList) -> petsc4py.PETSc.Vec:
 
     Parameters
     ----------
-    L : petsc4py.PETSc.Vec
+    L
         Vector to be projected.
-    B : rbnicsx.online.FunctionsList
+    B
         Functions spanning the (further reduced) reduced basis space.
 
     Returns
     -------
-    petsc4py.PETSc.Vec
+    :
         Online vector containing the result of the projection.
     """
     b = create_vector(len(B))
@@ -58,12 +58,12 @@ def _(b: petsc4py.PETSc.Vec, L: petsc4py.PETSc.Vec, B: FunctionsList) -> None:
 
     Parameters
     ----------
-    b : petsc4py.PETSc.Vec
+    b
         Online vector containing the result of the projection.
         The vector is not zeroed before assembly.
-    L : petsc4py.PETSc.Vec
+    L
         Vector to be projected.
-    B : rbnicsx.online.FunctionsList
+    B
         Functions spanning the (further reduced) reduced basis space.
     """
     project_vector_super(b, vector_action(L), B)
@@ -79,14 +79,14 @@ def _(L: petsc4py.PETSc.Vec, B: typing.List[FunctionsList]) -> petsc4py.PETSc.Ve
 
     Parameters
     ----------
-    L : petsc4py.PETSc.Vec
+    L
         Vector to be projected.
-    B : typing.List[rbnicsx.online.FunctionsList]
+    B
         Functions spanning the (further reduced) reduced basis space associated to each solution component.
 
     Returns
     -------
-    petsc4py.PETSc.Vec
+    :
         Online vector containing the result of the projection.
     """
     b = create_vector_block([len(B_i) for B_i in B])
@@ -101,12 +101,12 @@ def _(b: petsc4py.PETSc.Vec, L: petsc4py.PETSc.Vec, B: typing.List[FunctionsList
 
     Parameters
     ----------
-    b : petsc4py.PETSc.Vec
+    b
         Online vector containing the result of the projection.
         The vector is not zeroed before assembly.
-    L : petsc4py.PETSc.Vec
+    L
         Vector to be projected.
-    B : typing.List[rbnicsx.online.FunctionsList]
+    B
         Functions spanning the (further reduced) reduced basis space associated to each solution component.
     """
     N_L = [B_[0].size for B_ in B]
@@ -124,15 +124,15 @@ def _(a: petsc4py.PETSc.Mat, B: typing.Union[FunctionsList, typing.Tuple[Functio
 
     Parameters
     ----------
-    a : petsc4py.PETSc.Mat
+    a
         Matrix to be projected.
-    B : typing.Union[rbnicsx.online.FunctionsList, typing.Tuple[rbnicsx.online.FunctionsList]]
+    B
         Functions spanning the (further reduced) reduced basis space. Two different basis of the same space
         can be provided, e.g. as in Petrov-Galerkin methods.
 
     Returns
     -------
-    petsc4py.PETSc.Mat
+    :
         Online matrix containing the result of the projection.
     """
     if isinstance(B, tuple):
@@ -156,12 +156,12 @@ def _(
 
     Parameters
     ----------
-    A : petsc4py.PETSc.Mat
+    A
         Online matrix containing the result of the projection.
         The matrix is not zeroed before assembly.
-    a : petsc4py.PETSc.Mat
+    a
         Matrix to be projected.
-    B : typing.Union[rbnicsx.online.FunctionsList, typing.Tuple[rbnicsx.online.FunctionsList]]
+    B
         Functions spanning the (further reduced) reduced basis space. Two different basis of the same space
         can be provided, e.g. as in Petrov-Galerkin methods.
     """
@@ -181,16 +181,15 @@ def _(
 
     Parameters
     ----------
-    a : petsc4py.PETSc.Mat
+    a
         Matrix to be projected.
-    B : typing.Union[typing.List[rbnicsx.online.FunctionsList], \
-                     typing.Tuple[typing.List[rbnicsx.online.FunctionsList]]]
+    B
         Functions spanning the (further reduced) reduced basis space associated to each solution component.
         Two different basis of the same space can be provided, e.g. as in Petrov-Galerkin methods.
 
     Returns
     -------
-    petsc4py.PETSc.Mat
+    :
         Online matrix containing the result of the projection.
     """
     if isinstance(B, tuple):
@@ -215,15 +214,12 @@ def _(
 
     Parameters
     ----------
-    A : petsc4py.PETSc.Mat
+    A
         Online matrix containing the result of the projection.
         The matrix is not zeroed before assembly.
-    a : petsc4py.PETSc.Mat
+    a
         Matrix to be projected.
-    B : typing.Union[
-            typing.List[rbnicsx.online.FunctionsList],
-            typing.Tuple[typing.List[rbnicsx.online.FunctionsList]]
-        ]
+    B
         Functions spanning the (further reduced) reduced basis space associated to each solution component.
         Two different basis of the same space can be provided, e.g. as in Petrov-Galerkin methods.
     """
@@ -245,12 +241,12 @@ def vector_action(L: petsc4py.PETSc.Vec) -> typing.Callable:
 
     Parameters
     ----------
-    L : petsc4py.PETSc.Vec
+    L
         Vector representing a linear form.
 
     Returns
     -------
-    typing.Callable
+    :
         A callable that represents the action of L on a vector.
     """
 
@@ -260,12 +256,12 @@ def vector_action(L: petsc4py.PETSc.Vec) -> typing.Callable:
 
         Parameters
         ----------
-        vec : petsc4py.PETSc.Vec
+        vec
             Vector that should be applied to the linear form.
 
         Returns
         -------
-        petsc4py.PETSc.ScalarType
+        :
             Evaluation of the action of the linear form on the provided vector.
         """
         return L.dot(vec)
@@ -279,12 +275,12 @@ def matrix_action(a: petsc4py.PETSc.Mat) -> typing.Callable:
 
     Parameters
     ----------
-    a : petsc4py.PETSc.Mat
+    a
         Matrix representing a bilinear form.
 
     Returns
     -------
-    typing.Callable
+    :
         A callable that represents the action of a on a pair of vectors.
     """
     a_dot_vec_1 = a.createVecLeft()
@@ -295,12 +291,12 @@ def matrix_action(a: petsc4py.PETSc.Mat) -> typing.Callable:
 
         Parameters
         ----------
-        vec_1 : petsc4py.PETSc.Vec
+        vec_1
             Vector that should be applied to the right of the bilinear form, i.e. in the trial space.
 
         Returns
         -------
-        petsc4py.PETSc.ScalarType
+        :
             A callable that represents the action of a matrix-vector product.
         """
         a.mult(vec_1, a_dot_vec_1)
@@ -311,13 +307,13 @@ def matrix_action(a: petsc4py.PETSc.Mat) -> typing.Callable:
 
             Parameters
             ----------
-            vec_0: petsc4py.PETSc.Vec
+            vec_0
                 Vector that should be applied to the left of the bilinear form, i.e. in the test space.
 
 
             Returns
             -------
-            petsc4py.PETSc.ScalarType
+            :
                 Evaluation of the action of the bilinear form on the provided pair of vectors.
             """
             return vec_0.dot(a_dot_vec_1)

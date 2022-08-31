@@ -24,11 +24,11 @@ def gram_schmidt(
 
     Parameters
     ----------
-    functions_list : rbnicsx.online.FunctionsList
+    functions_list
         A set of orthonormal functions.
-    new_function : petsc4py.PETSc.Vec
+    new_function
         New function to be orthonormalized and added to the set.
-    inner_product : petsc4py.PETSc.Mat
+    inner_product
         Online matrix which defines the inner product.
     """
     compute_inner_product = matrix_action(inner_product)
@@ -52,13 +52,13 @@ def gram_schmidt_block(
 
     Parameters
     ----------
-    functions_lists : typing.List[rbnicsx.online.FunctionsList]
+    functions_lists
         A set of orthonormal functions. Each function is made of several blocks, defined on possibly different
         function spaces. The inner FunctionsList contains all orthonormal functions of a single block, while
         the outer list collects the different blocks.
-    new_functions : typing.List[petsc4py.PETSc.Vec]
+    new_functions
         New functions to be orthonormalized and added to the set.
-    inner_products : typing.List[petsc4py.PETSc.Mat]
+    inner_products
         Online matrices which define the inner products of each block.
     """
     assert len(new_functions) == len(functions_lists)

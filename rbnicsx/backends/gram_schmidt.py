@@ -24,11 +24,11 @@ def gram_schmidt(
 
     Parameters
     ----------
-    functions_list : rbnicsx.backends.FunctionsList
+    functions_list
         A set of orthonormal functions.
-    new_function : dolfinx.fem.Function
+    new_function
         New function to be orthonormalized and added to the set.
-    compute_inner_product : typing.Callable
+    compute_inner_product
         A callable x(u)(v) to compute the action of the inner product on the trial function u and test function v.
         The resulting modes will be orthonormal w.r.t. this inner product.
         Use rbnicsx.backends.bilinear_form_action to generate the callable x from a UFL form.
@@ -56,13 +56,13 @@ def gram_schmidt_block(
 
     Parameters
     ----------
-    functions_lists : typing.List[rbnicsx.backends.FunctionsList]
+    functions_lists
         A set of orthonormal functions. Each function is made of several blocks, defined on possibly different
         function spaces. The inner FunctionsList contains all orthonormal functions of a single block, while
         the outer list collects the different blocks.
-    new_functions : typing.List[dolfinx.fem.Function]
+    new_functions
         New functions to be orthonormalized and added to the set.
-    compute_inner_products : typing.List[typing.Callable]
+    compute_inner_products
         A list of callables x_i(u_i)(v_i) to compute the action of the inner product on the trial function u_i
         and test function v_i associated to the i-th block.
         The resulting modes will be orthonormal w.r.t. this inner product.

@@ -19,7 +19,7 @@ class SymbolicParameters(ufl4rom.utils.DolfinxNamedConstant):
 
     Parameters
     ----------
-    mesh : dolfinx.mesh.Mesh
+    mesh
         Domain of integration of forms which will use the symbolic parameters.
     """
 

@@ -24,16 +24,16 @@ def import_matrix(M: int, N: int, directory: str, filename: str) -> petsc4py.PET
 
     Parameters
     ----------
-    M, N : int
+    M, N
         Dimension of the online matrix.
-    directory : str
+    directory
         Directory where to import the matrix from.
-    filename : str
+    filename
         Name of the file where to import the matrix from.
 
     Returns
     -------
-    petsc4py.PETSc.Mat
+    :
         Matrix imported from file.
     """
     return import_matrix_super(lambda: create_matrix(M, N), mpi4py.MPI.COMM_WORLD, directory, filename)
@@ -45,16 +45,16 @@ def import_matrix_block(M: typing.List[int], N: typing.List[int], directory: str
 
     Parameters
     ----------
-    M, N : typing.List[int]
+    M, N
         Dimension of the blocks of the matrix.
-    directory : str
+    directory
         Directory where to import the matrix from.
-    filename : str
+    filename
         Name of the file where to import the matrix from.
 
     Returns
     -------
-    petsc4py.PETSc.Mat
+    :
         Matrix imported from file.
     """
     return import_matrix_super(lambda: create_matrix_block(M, N), mpi4py.MPI.COMM_WORLD, directory, filename)
@@ -66,16 +66,16 @@ def import_matrices(M: int, N: int, directory: str, filename: str) -> typing.Lis
 
     Parameters
     ----------
-    M, N : int
+    M, N
         Dimension of each online matrix.
-    directory : str
+    directory
         Directory where to import the matrix from.
-    filename : str
+    filename
         Name of the file where to import the matrix from.
 
     Returns
     -------
-    typing.List[petsc4py.PETSc.Mat]
+    :
         Matrices imported from file.
     """
     return import_matrices_super(lambda: create_matrix(M, N), mpi4py.MPI.COMM_WORLD, directory, filename)
@@ -89,16 +89,16 @@ def import_matrices_block(
 
     Parameters
     ----------
-    M, N : typing.List[int]
+    M, N
         Dimension of the blocks of the matrix.
-    directory : str
+    directory
         Directory where to import the matrix from.
-    filename : str
+    filename
         Name of the file where to import the matrix from.
 
     Returns
     -------
-    typing.List[petsc4py.PETSc.Mat]
+    :
         Matrices imported from file.
     """
     return import_matrices_super(lambda: create_matrix_block(M, N), mpi4py.MPI.COMM_WORLD, directory, filename)
@@ -110,16 +110,16 @@ def import_vector(N: int, directory: str, filename: str) -> petsc4py.PETSc.Vec:
 
     Parameters
     ----------
-    N : int
+    N
         Dimension of the online vector.
-    directory : str
+    directory
         Directory where to import the vector from.
-    filename : str
+    filename
         Name of the file where to import the vector from.
 
     Returns
     -------
-    petsc4py.PETSc.Vec
+    :
         Vector imported from file.
     """
     return import_vector_super(lambda: create_vector(N), mpi4py.MPI.COMM_WORLD, directory, filename)
@@ -131,16 +131,16 @@ def import_vector_block(N: typing.List[int], directory: str, filename: str) -> p
 
     Parameters
     ----------
-    N : typing.List[int]
+    N
         Dimension of the blocks of the vector.
-    directory : str
+    directory
         Directory where to import the vector from.
-    filename : str
+    filename
         Name of the file where to import the vector from.
 
     Returns
     -------
-    petsc4py.PETSc.Vec
+    :
         Vector imported from file.
     """
     return import_vector_super(lambda: create_vector_block(N), mpi4py.MPI.COMM_WORLD, directory, filename)
@@ -152,16 +152,16 @@ def import_vectors(N: int, directory: str, filename: str) -> typing.List[petsc4p
 
     Parameters
     ----------
-    N : int
+    N
         Dimension of the online vector.
-    directory : str
+    directory
         Directory where to import the vector from.
-    filename : str
+    filename
         Name of the file where to import the vector from.
 
     Returns
     -------
-    typing.List[petsc4py.PETSc.Vec]
+    :
         Vectors imported from file.
     """
     return import_vectors_super(lambda: create_vector(N), mpi4py.MPI.COMM_WORLD, directory, filename)
@@ -173,16 +173,16 @@ def import_vectors_block(N: typing.List[int], directory: str, filename: str) -> 
 
     Parameters
     ----------
-    N : typing.List[int]
+    N
         Dimension of the blocks of the vector.
-    directory : str
+    directory
         Directory where to import the vector from.
-    filename : str
+    filename
         Name of the file where to import the vector from.
 
     Returns
     -------
-    typing.List[petsc4py.PETSc.Vec]
+    :
         Vectors imported from file.
     """
     return import_vectors_super(lambda: create_vector_block(N), mpi4py.MPI.COMM_WORLD, directory, filename)
