@@ -14,8 +14,10 @@ import petsc4py.PETSc
 from rbnicsx.backends.functions_list import FunctionsList
 
 
-def gram_schmidt(
-    functions_list: FunctionsList, new_function: dolfinx.fem.Function, compute_inner_product: typing.Callable
+def gram_schmidt(  # type: ignore[no-any-unimported]
+    functions_list: FunctionsList, new_function: dolfinx.fem.Function,
+    compute_inner_product: typing.Callable[
+        [dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]
 ) -> None:
     """
     Perform a step of the Gram-Schmidt process on functions.
@@ -47,9 +49,10 @@ def gram_schmidt(
         functions_list.append(orthonormalized)
 
 
-def gram_schmidt_block(
-    functions_lists: FunctionsList, new_functions: typing.List[dolfinx.fem.Function],
-    compute_inner_products: typing.List[typing.Callable]
+def gram_schmidt_block(  # type: ignore[no-any-unimported]
+    functions_lists: typing.Sequence[FunctionsList], new_functions: typing.Sequence[dolfinx.fem.Function],
+    compute_inner_products: typing.Sequence[
+        typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]]
 ) -> None:
     """
     Perform a step of the Gram-Schmidt process on functions, where each function is made of several blocks.

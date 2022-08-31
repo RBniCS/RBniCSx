@@ -23,7 +23,9 @@ from rbnicsx.backends.functions_list import FunctionsList
 
 
 @functools.singledispatch
-def project_vector(L: typing.Callable, B: FunctionsList) -> petsc4py.PETSc.Vec:
+def _project_vector(  # type: ignore[no-any-unimported]
+    L: typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType], B: FunctionsList
+) -> petsc4py.PETSc.Vec:
     """
     Project a linear form onto the reduced basis.
 
@@ -41,12 +43,14 @@ def project_vector(L: typing.Callable, B: FunctionsList) -> petsc4py.PETSc.Vec:
         Online vector containing the result of the projection.
     """
     b = create_online_vector(len(B))
-    project_vector(b, L, B)
+    _project_vector(b, L, B)  # type: ignore[arg-type, call-arg]
     return b
 
 
-@project_vector.register
-def _(b: petsc4py.PETSc.Vec, L: typing.Callable, B: FunctionsList) -> None:
+@_project_vector.register
+def _(  # type: ignore[no-any-unimported]
+    b: petsc4py.PETSc.Vec, L: typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType], B: FunctionsList
+) -> None:
     """
     Project a linear form onto the reduced basis.
 
@@ -64,8 +68,32 @@ def _(b: petsc4py.PETSc.Vec, L: typing.Callable, B: FunctionsList) -> None:
     project_vector_super(b, L, B)
 
 
+@typing.overload
+def project_vector(  # type: ignore[no-any-unimported]
+    L: typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType], B: FunctionsList
+) -> petsc4py.PETSc.Vec:  # pragma: no cover
+    """Stub of project_vector for type checking. See the concrete implementation above."""
+    ...
+
+
+@typing.overload
+def project_vector(  # type: ignore[no-any-unimported]
+    b: petsc4py.PETSc.Vec, L: typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType], B: FunctionsList
+) -> None:  # pragma: no cover
+    """Stub of project_vector for type checking. See the concrete implementation above."""
+    ...
+
+
+def project_vector(*args, **kwargs):  # type: ignore[no-untyped-def]
+    """Dispatcher of project_vector for type checking. See the concrete implementation above."""
+    return _project_vector(*args, **kwargs)
+
+
 @functools.singledispatch
-def project_vector_block(L: typing.List[typing.Callable], B: typing.List[FunctionsList]) -> petsc4py.PETSc.Vec:
+def _project_vector_block(  # type: ignore[no-any-unimported]
+    L: typing.Sequence[typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]],
+    B: typing.Sequence[FunctionsList]
+) -> petsc4py.PETSc.Vec:
     """
     Project a list of linear forms onto the reduced basis.
 
@@ -83,12 +111,15 @@ def project_vector_block(L: typing.List[typing.Callable], B: typing.List[Functio
         Online vector containing the result of the projection.
     """
     b = create_online_vector_block([len(B_i) for B_i in B])
-    project_vector_block(b, L, B)
+    _project_vector_block(b, L, B)  # type: ignore[arg-type, call-arg]
     return b
 
 
-@project_vector_block.register
-def _(b: petsc4py.PETSc.Vec, L: typing.List[typing.Callable], B: typing.List[FunctionsList]) -> None:
+@_project_vector_block.register
+def _(  # type: ignore[no-any-unimported]
+    b: petsc4py.PETSc.Vec, L: typing.Sequence[typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]],
+    B: typing.Sequence[FunctionsList]
+) -> None:
     """
     Project a list of linear forms onto the reduced basis.
 
@@ -106,9 +137,33 @@ def _(b: petsc4py.PETSc.Vec, L: typing.List[typing.Callable], B: typing.List[Fun
     project_vector_block_super(b, L, B)
 
 
+@typing.overload
+def project_vector_block(  # type: ignore[no-any-unimported]
+    L: typing.Sequence[typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]],
+    B: typing.Sequence[FunctionsList]
+) -> petsc4py.PETSc.Vec:  # pragma: no cover
+    """Stub of project_vector_block for type checking. See the concrete implementation above."""
+    ...
+
+
+@typing.overload
+def project_vector_block(  # type: ignore[no-any-unimported]
+    b: petsc4py.PETSc.Vec, L: typing.Sequence[typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]],
+    B: typing.Sequence[FunctionsList]
+) -> None:  # pragma: no cover
+    """Stub of project_vector_block for type checking. See the concrete implementation above."""
+    ...
+
+
+def project_vector_block(*args, **kwargs):  # type: ignore[no-untyped-def]
+    """Dispatcher of project_vector_block for type checking. See the concrete implementation above."""
+    return _project_vector_block(*args, **kwargs)
+
+
 @functools.singledispatch
-def project_matrix(
-    a: typing.Callable, B: typing.Union[FunctionsList, typing.Tuple[FunctionsList]]
+def _project_matrix(  # type: ignore[no-any-unimported]
+    a: typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]],
+    B: typing.Union[FunctionsList, typing.Tuple[FunctionsList, FunctionsList]]
 ) -> petsc4py.PETSc.Mat:
     """
     Project a bilinear form onto the reduced basis.
@@ -135,13 +190,15 @@ def project_matrix(
         N = M
 
     A = create_online_matrix(M, N)
-    project_matrix(A, a, B)
+    _project_matrix(A, a, B)  # type: ignore[arg-type, call-arg]
     return A
 
 
-@project_matrix.register
-def _(
-    A: petsc4py.PETSc.Mat, a: typing.Callable, B: typing.Union[FunctionsList, typing.Tuple[FunctionsList]]
+@_project_matrix.register
+def _(  # type: ignore[no-any-unimported]
+    A: petsc4py.PETSc.Mat,
+    a: typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]],
+    B: typing.Union[FunctionsList, typing.Tuple[FunctionsList, FunctionsList]]
 ) -> None:
     """
     Project a bilinear form onto the reduced basis.
@@ -161,10 +218,36 @@ def _(
     project_matrix_super(A, a, B)
 
 
+@typing.overload
+def project_matrix(  # type: ignore[no-any-unimported]
+    a: typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]],
+    B: typing.Union[FunctionsList, typing.Tuple[FunctionsList, FunctionsList]]
+) -> petsc4py.PETSc.Mat:  # pragma: no cover
+    """Stub of project_matrix for type checking. See the concrete implementation above."""
+    ...
+
+
+@typing.overload
+def project_matrix(  # type: ignore[no-any-unimported]
+    A: petsc4py.PETSc.Mat,
+    a: typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]],
+    B: typing.Union[FunctionsList, typing.Tuple[FunctionsList, FunctionsList]]
+) -> None:  # pragma: no cover
+    """Stub of project_matrix for type checking. See the concrete implementation above."""
+    ...
+
+
+def project_matrix(*args, **kwargs):  # type: ignore[no-untyped-def]
+    """Dispatcher of project_matrix for type checking. See the concrete implementation above."""
+    return _project_matrix(*args, **kwargs)
+
+
 @functools.singledispatch
-def project_matrix_block(
-    a: typing.List[typing.List[typing.Callable]],
-    B: typing.Union[typing.List[FunctionsList], typing.Tuple[typing.List[FunctionsList]]]
+def _project_matrix_block(  # type: ignore[no-any-unimported]
+    a: typing.Sequence[typing.Sequence[
+        typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]]],
+    B: typing.Union[
+        typing.Sequence[FunctionsList], typing.Tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]]
 ) -> petsc4py.PETSc.Mat:
     """
     Project a matrix of bilinear forms onto the reduced basis.
@@ -191,15 +274,17 @@ def project_matrix_block(
         N = M
 
     A = create_online_matrix_block(M, N)
-    project_matrix_block(A, a, B)
+    _project_matrix_block(A, a, B)  # type: ignore[arg-type, call-arg]
     return A
 
 
-@project_matrix_block.register
-def _(
+@_project_matrix_block.register
+def _(  # type: ignore[no-any-unimported]
     A: petsc4py.PETSc.Mat,
-    a: typing.List[typing.List[typing.Callable]],
-    B: typing.Union[typing.List[FunctionsList], typing.Tuple[typing.List[FunctionsList]]]
+    a: typing.Sequence[typing.Sequence[
+        typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]]],
+    B: typing.Union[
+        typing.Sequence[FunctionsList], typing.Tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]]
 ) -> None:
     """
     Project a matrix of bilinear forms onto the reduced basis.
@@ -220,10 +305,38 @@ def _(
     project_matrix_block_super(A, a, B)
 
 
+@typing.overload
+def project_matrix_block(  # type: ignore[no-any-unimported]
+    a: typing.Sequence[typing.Sequence[
+        typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]]],
+    B: typing.Union[
+        typing.Sequence[FunctionsList], typing.Tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]]
+) -> petsc4py.PETSc.Mat:  # pragma: no cover
+    """Stub of project_matrix_block for type checking. See the concrete implementation above."""
+    ...
+
+
+@typing.overload
+def project_matrix_block(  # type: ignore[no-any-unimported]
+    A: petsc4py.PETSc.Mat,
+    a: typing.Sequence[typing.Sequence[
+        typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]]],
+    B: typing.Union[
+        typing.Sequence[FunctionsList], typing.Tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]]
+) -> None:  # pragma: no cover
+    """Stub of project_matrix_block for type checking. See the concrete implementation above."""
+    ...
+
+
+def project_matrix_block(*args, **kwargs):  # type: ignore[no-untyped-def]
+    """Dispatcher of project_matrix_block for type checking. See the concrete implementation above."""
+    return _project_matrix_block(*args, **kwargs)
+
+
 class FormArgumentsReplacer(object):
     """A wrapper to successive calls to ufl.replace and dolfinx.fem.form."""
 
-    def __init__(
+    def __init__(  # type: ignore[no-any-unimported]
         self, form: ufl.Form, test: typing.Optional[bool] = False, trial: typing.Optional[bool] = False
     ) -> None:
         form_arguments = form.arguments()
@@ -242,9 +355,9 @@ class FormArgumentsReplacer(object):
             trial_replacement = None
         self._trial_replacement = trial_replacement
         self._form = ufl.replace(form, dict_replacement)
-        self._form_cpp = dolfinx.fem.form(self._form)
+        self._form_cpp: dolfinx.fem.FormMetaClass = dolfinx.fem.form(self._form)
 
-        self._comm = form_arguments[0].ufl_function_space().mesh.comm
+        self._comm: mpi4py.MPI.Intracomm = form_arguments[0].ufl_function_space().mesh.comm
         if len(form_arguments) > 1:
             assert all(
                 [form_argument.ufl_function_space().mesh.comm == self._comm for form_argument in form_arguments])
@@ -255,7 +368,7 @@ class FormArgumentsReplacer(object):
         return self._comm
 
     @property
-    def form(self) -> ufl.Form:
+    def form(self) -> ufl.Form:  # type: ignore[no-any-unimported]
         """Return the UFL form, with replacements carried out."""
         return self._form
 
@@ -264,7 +377,7 @@ class FormArgumentsReplacer(object):
         """Return the compiled form, with replacements carried out."""
         return self._form_cpp
 
-    def replace(
+    def replace(  # type: ignore[no-any-unimported]
         self, test: typing.Optional[typing.Union[dolfinx.fem.Function, ufl.core.expr.Expr]] = None,
         trial: typing.Optional[typing.Union[dolfinx.fem.Function, ufl.core.expr.Expr]] = None
     ) -> None:
@@ -295,7 +408,9 @@ class FormArgumentsReplacer(object):
                 self._interpolate_ufl_expression(trial, self._trial_replacement)
 
     @staticmethod
-    def _interpolate_ufl_expression(source: ufl.core.expr.Expr, destination: dolfinx.fem.Function) -> None:
+    def _interpolate_ufl_expression(  # type: ignore[no-any-unimported]
+        source: ufl.core.expr.Expr, destination: dolfinx.fem.Function
+    ) -> None:
         """Interpolate a field which is provided as a UFL expression."""
         destination.interpolate(
             dolfinx.fem.Expression(source, destination.function_space.element.interpolation_points()))
@@ -308,7 +423,9 @@ class FormArgumentsReplacer(object):
 
 
 @functools.singledispatch
-def linear_form_action(L: ufl.Form, part: typing.Optional[str] = None) -> typing.Callable:
+def _linear_form_action(  # type: ignore[no-any-unimported]
+    L: ufl.Form, part: typing.Optional[str] = None
+) -> typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]:
     """
     Return a callable that represents the action of a linear form on a function.
 
@@ -327,7 +444,9 @@ def linear_form_action(L: ufl.Form, part: typing.Optional[str] = None) -> typing
     """
     L_replacement_cpp = FormArgumentsReplacer(L, test=True)
 
-    def _(fun: dolfinx.fem.Function) -> typing.Union[petsc4py.PETSc.ScalarType, petsc4py.PETSc.RealType]:
+    def _(  # type: ignore[no-any-unimported]
+        fun: dolfinx.fem.Function
+    ) -> typing.Union[petsc4py.PETSc.ScalarType, petsc4py.PETSc.RealType]:
         """
         Compute the action of a linear form on a function.
 
@@ -350,8 +469,10 @@ def linear_form_action(L: ufl.Form, part: typing.Optional[str] = None) -> typing
     return _
 
 
-@linear_form_action.register(list)
-def _(L: typing.List[ufl.Form], part: typing.Optional[str] = None) -> typing.List[typing.Callable]:
+@_linear_form_action.register(list)
+def _(  # type: ignore[no-any-unimported]
+    L: typing.Sequence[ufl.Form], part: typing.Optional[str] = None
+) -> typing.Sequence[typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]:
     """
     Return a callable that represents the action of a block linear form on a function.
 
@@ -371,8 +492,31 @@ def _(L: typing.List[ufl.Form], part: typing.Optional[str] = None) -> typing.Lis
     return [linear_form_action(L_i) for L_i in L]
 
 
+@typing.overload
+def linear_form_action(  # type: ignore[no-any-unimported]
+    L: ufl.Form, part: typing.Optional[str] = None
+) -> typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]:  # pragma: no cover
+    """Stub of linear_form_action for type checking. See the concrete implementation above."""
+    ...
+
+
+@typing.overload
+def linear_form_action(  # type: ignore[misc, no-any-unimported]
+    L: typing.Sequence[ufl.Form], part: typing.Optional[str] = None
+) -> typing.Sequence[typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]:  # pragma: no cover
+    """Stub of linear_form_action for type checking. See the concrete implementation above."""
+    ...
+
+
+def linear_form_action(*args, **kwargs):  # type: ignore[no-untyped-def]
+    """Dispatcher of linear_form_action for type checking. See the concrete implementation above."""
+    return _linear_form_action(*args, **kwargs)
+
+
 @functools.singledispatch
-def bilinear_form_action(a: ufl.Form, part: typing.Optional[str] = None) -> typing.Callable:
+def _bilinear_form_action(  # type: ignore[no-any-unimported]
+    a: ufl.Form, part: typing.Optional[str] = None
+) -> typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]:
     """
     Return a callable that represents the action of a bilinear form on a pair of functions.
 
@@ -391,7 +535,8 @@ def bilinear_form_action(a: ufl.Form, part: typing.Optional[str] = None) -> typi
     """
     a_replacement_cpp = FormArgumentsReplacer(a, test=True, trial=True)
 
-    def _trial_action(fun_1: dolfinx.fem.Function) -> typing.Callable:
+    def _trial_action(fun_1: dolfinx.fem.Function) -> typing.Callable[  # type: ignore[no-any-unimported]
+            [dolfinx.fem.Function], petsc4py.PETSc.ScalarType]:
         """
         Compute the action of a bilinear form on a function, to be replaced to the trial function.
 
@@ -407,7 +552,7 @@ def bilinear_form_action(a: ufl.Form, part: typing.Optional[str] = None) -> typi
         """
         a_replacement_cpp.replace(trial=fun_1)
 
-        def _test_action(fun_0: dolfinx.fem.Function) -> typing.Union[
+        def _test_action(fun_0: dolfinx.fem.Function) -> typing.Union[  # type: ignore[no-any-unimported]
                 petsc4py.PETSc.ScalarType, petsc4py.PETSc.RealType]:
             """
             Compute the action of a bilinear form on a pair of functions.
@@ -433,24 +578,29 @@ def bilinear_form_action(a: ufl.Form, part: typing.Optional[str] = None) -> typi
     return _trial_action
 
 
-@bilinear_form_action.register(list)
-def _(
-    a: typing.Union[typing.List[ufl.Form], typing.List[typing.List[ufl.Form]]], part: typing.Optional[str] = None
-) -> typing.Union[typing.List[typing.Callable], typing.List[typing.List[typing.Callable]]]:
+@_bilinear_form_action.register(list)
+def _(  # type: ignore[no-any-unimported]
+    a: typing.Union[typing.Sequence[ufl.Form], typing.Sequence[typing.Sequence[ufl.Form]]],
+    part: typing.Optional[str] = None
+) -> typing.Union[
+    typing.Sequence[
+        typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]],
+    typing.Sequence[typing.Sequence[
+        typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]]]]:
     """
     Return a callable that represents the action of a block bilinear form on a pair of functions.
 
     Parameters
     ----------
-    a : typing.Union[typing.List[ufl.Form], typing.List[typing.List[ufl.Form]]]
+    a
         Block bilinear form to be represented.
-    part : typing.Optional[str]
+    part
         Optional part (real or complex) to extract from the action result.
         If not provided, no postprocessing of the result will be carried out.
 
     Returns
     -------
-    typing.Union[typing.List[typing.Callable], typing.List[typing.List[typing.Callable]]]
+    :
         A list or a matrix of callables that represents the action of a on a pair of functions.
     """
     if isinstance(a[0], list):
@@ -460,8 +610,38 @@ def _(
         return [bilinear_form_action(a_ii) for a_ii in a]
 
 
-def _extract_part(value: petsc4py.PETSc.ScalarType, part: typing.Optional[str]) -> typing.Union[
-        petsc4py.PETSc.ScalarType, petsc4py.PETSc.RealType]:  # pragma: no cover
+@typing.overload
+def bilinear_form_action(  # type: ignore[no-any-unimported]
+    a: ufl.Form, part: typing.Optional[str] = None
+) -> typing.Callable[
+    [dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]
+]:  # pragma: no cover
+    """Stub of bilinear_form_action for type checking. See the concrete implementation above."""
+    ...
+
+
+@typing.overload
+def bilinear_form_action(  # type: ignore[misc, no-any-unimported]
+    a: typing.Union[typing.Sequence[ufl.Form], typing.Sequence[typing.Sequence[ufl.Form]]],
+    part: typing.Optional[str] = None
+) -> typing.Union[
+    typing.Sequence[
+        typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]],
+    typing.Sequence[typing.Sequence[
+        typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]]]
+]:  # pragma: no cover
+    """Stub of bilinear_form_action for type checking. See the concrete implementation above."""
+    ...
+
+
+def bilinear_form_action(*args, **kwargs):  # type: ignore[no-untyped-def]
+    """Dispatcher of bilinear_form_action for type checking. See the concrete implementation above."""
+    return _bilinear_form_action(*args, **kwargs)
+
+
+def _extract_part(  # type: ignore[no-any-unimported]
+    value: petsc4py.PETSc.ScalarType, part: typing.Optional[str]
+) -> typing.Union[petsc4py.PETSc.ScalarType, petsc4py.PETSc.RealType]:  # pragma: no cover
     if np.issubdtype(petsc4py.PETSc.ScalarType, np.complexfloating):
         if part == "real":
             return value.real

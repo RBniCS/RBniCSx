@@ -43,7 +43,7 @@ def export_function(function: dolfinx.fem.Function, directory: str, filename: st
 
 
 def export_functions(
-    functions: typing.List[dolfinx.fem.Function], indices: np.typing.NDArray[float], directory: str, filename: str
+    functions: typing.List[dolfinx.fem.Function], indices: np.typing.NDArray[np.float32], directory: str, filename: str
 ) -> None:
     """
     Export a list of dolfinx.fem.Function to file.
@@ -70,7 +70,9 @@ def export_functions(
     export_vectors([function.vector for function in functions], directory, filename)
 
 
-def export_matrix(mat: petsc4py.PETSc.Mat, directory: str, filename: str) -> None:
+def export_matrix(  # type: ignore[no-any-unimported]
+    mat: petsc4py.PETSc.Mat, directory: str, filename: str
+) -> None:
     """
     Export a petsc4py.PETSc.Mat assembled by dolfinx to file.
 
@@ -86,7 +88,9 @@ def export_matrix(mat: petsc4py.PETSc.Mat, directory: str, filename: str) -> Non
     export_matrix_super(mat, mat.comm, directory, filename)
 
 
-def export_matrices(mats: typing.List[petsc4py.PETSc.Mat], directory: str, filename: str) -> None:
+def export_matrices(  # type: ignore[no-any-unimported]
+    mats: typing.List[petsc4py.PETSc.Mat], directory: str, filename: str
+) -> None:
     """
     Export a list of petsc4py.PETSc.Mat assembled by dolfinx to file.
 
@@ -102,7 +106,9 @@ def export_matrices(mats: typing.List[petsc4py.PETSc.Mat], directory: str, filen
     export_matrices_super(mats, mats[0].comm, directory, filename)
 
 
-def export_vector(vec: petsc4py.PETSc.Vec, directory: str, filename: str) -> None:
+def export_vector(  # type: ignore[no-any-unimported]
+    vec: petsc4py.PETSc.Vec, directory: str, filename: str
+) -> None:
     """
     Export a petsc4py.PETSc.Vec assembled by dolfinx to file.
 
@@ -118,7 +124,9 @@ def export_vector(vec: petsc4py.PETSc.Vec, directory: str, filename: str) -> Non
     export_vector_super(vec, vec.comm, directory, filename)
 
 
-def export_vectors(vecs: typing.List[petsc4py.PETSc.Vec], directory: str, filename: str) -> None:
+def export_vectors(  # type: ignore[no-any-unimported]
+    vecs: typing.List[petsc4py.PETSc.Vec], directory: str, filename: str
+) -> None:
     """
     Export a list of petsc4py.PETSc.Vec assembled by dolfinx to file.
 

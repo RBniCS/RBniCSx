@@ -23,5 +23,5 @@ class SymbolicParameters(ufl4rom.utils.DolfinxNamedConstant):
         Domain of integration of forms which will use the symbolic parameters.
     """
 
-    def __init__(self, mesh: dolfinx.mesh.Mesh, shape: typing.Tuple[int]) -> None:
+    def __init__(self, mesh: dolfinx.mesh.Mesh, shape: typing.Tuple[int, ...]) -> None:
         super().__init__("mu", np.zeros(shape, dtype=petsc4py.PETSc.ScalarType), mesh)

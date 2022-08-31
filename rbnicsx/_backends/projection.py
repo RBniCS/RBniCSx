@@ -9,11 +9,13 @@ import typing
 
 import petsc4py.PETSc
 
-from rbnicsx._backends.functions_list import FunctionsList
+from rbnicsx._backends.functions_list import Function, FunctionsList
 from rbnicsx._backends.online_tensors import BlockMatSubMatrixWrapper, BlockVecSubVectorWrapper
 
 
-def project_vector(b: petsc4py.PETSc.Vec, L: typing.Callable, B: FunctionsList) -> None:
+def project_vector(  # type: ignore[no-any-unimported]
+    b: petsc4py.PETSc.Vec, L: typing.Callable[[Function], petsc4py.PETSc.ScalarType], B: FunctionsList[Function]
+) -> None:
     """
     Project a linear form onto the reduced basis.
 
@@ -32,8 +34,9 @@ def project_vector(b: petsc4py.PETSc.Vec, L: typing.Callable, B: FunctionsList) 
             n, L(fun), addv=petsc4py.PETSc.InsertMode.ADD)
 
 
-def project_vector_block(
-    b: petsc4py.PETSc.Vec, L: typing.List[typing.Callable], B: typing.List[FunctionsList]
+def project_vector_block(  # type: ignore[no-any-unimported]
+    b: petsc4py.PETSc.Vec, L: typing.Sequence[typing.Callable[[Function], petsc4py.PETSc.ScalarType]],
+    B: typing.Sequence[FunctionsList[Function]]
 ) -> None:
     """
     Project a list of linear forms onto the reduced basis.
@@ -57,8 +60,9 @@ def project_vector_block(
             project_vector(b_i, L_i, B_i)
 
 
-def project_matrix(
-    A: petsc4py.PETSc.Mat, a: typing.Callable, B: typing.Union[FunctionsList, typing.Tuple[FunctionsList]]
+def project_matrix(  # type: ignore[no-any-unimported]
+    A: petsc4py.PETSc.Mat, a: typing.Callable[[Function], typing.Callable[[Function], petsc4py.PETSc.ScalarType]],
+    B: typing.Union[FunctionsList[Function], typing.Tuple[FunctionsList[Function], FunctionsList[Function]]]
 ) -> None:
     """
     Project a bilinear form onto the reduced basis.
@@ -87,10 +91,13 @@ def project_matrix(
     A.assemble()
 
 
-def project_matrix_block(
+def project_matrix_block(  # type: ignore[no-any-unimported]
     A: petsc4py.PETSc.Mat,
-    a: typing.List[typing.List[typing.Callable]],
-    B: typing.Union[typing.List[FunctionsList], typing.Tuple[typing.List[FunctionsList]]]
+    a: typing.Sequence[typing.Sequence[
+        typing.Callable[[Function], typing.Callable[[Function], petsc4py.PETSc.ScalarType]]]],
+    B: typing.Union[
+        typing.Sequence[FunctionsList[Function]],
+        typing.Tuple[typing.Sequence[FunctionsList[Function]], typing.Sequence[FunctionsList[Function]]]]
 ) -> None:
     """
     Project a matrix of bilinear forms onto the reduced basis.

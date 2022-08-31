@@ -14,8 +14,8 @@ import petsc4py.PETSc
 from rbnicsx.io import on_rank_zero
 
 
-def import_matrix(
-    allocate: typing.Callable, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+def import_matrix(  # type: ignore[no-any-unimported]
+    allocate: typing.Callable[[], petsc4py.PETSc.Mat], comm: mpi4py.MPI.Intracomm, directory: str, filename: str
 ) -> petsc4py.PETSc.Mat:
     """
     Import a petsc4py.PETSc.Mat from file.
@@ -43,8 +43,8 @@ def import_matrix(
     return mat
 
 
-def import_matrices(
-    allocate: typing.Callable, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+def import_matrices(  # type: ignore[no-any-unimported]
+    allocate: typing.Callable[[], petsc4py.PETSc.Mat], comm: mpi4py.MPI.Intracomm, directory: str, filename: str
 ) -> typing.List[petsc4py.PETSc.Mat]:
     """
     Import a list of petsc4py.PETSc.Mat from file.
@@ -83,8 +83,8 @@ def import_matrices(
     return mats
 
 
-def import_vector(
-    allocate: typing.Callable, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+def import_vector(  # type: ignore[no-any-unimported]
+    allocate: typing.Callable[[], petsc4py.PETSc.Vec], comm: mpi4py.MPI.Intracomm, directory: str, filename: str
 ) -> petsc4py.PETSc.Vec:
     """
     Import a petsc4py.PETSc.Vec from file.
@@ -112,8 +112,8 @@ def import_vector(
     return vec
 
 
-def import_vectors(
-    allocate: typing.Callable, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+def import_vectors(  # type: ignore[no-any-unimported]
+    allocate: typing.Callable[[], petsc4py.PETSc.Vec], comm: mpi4py.MPI.Intracomm, directory: str, filename: str
 ) -> typing.List[petsc4py.PETSc.Vec]:
     """
     Import a list of petsc4py.PETSc.Vec from file.

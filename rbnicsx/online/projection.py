@@ -71,7 +71,9 @@ def _project_vector(b: petsc4py.PETSc.Vec, L: petsc4py.PETSc.Vec, B: FunctionsLi
 
 
 @typing.overload
-def project_vector(L: petsc4py.PETSc.Vec, B: FunctionsList) -> petsc4py.PETSc.Vec:  # type: ignore[no-any-unimported]
+def project_vector(  # type: ignore[no-any-unimported]
+    L: petsc4py.PETSc.Vec, B: FunctionsList
+) -> petsc4py.PETSc.Vec:  # pragma: no cover
     """Stub of project_vector for type checking. See the concrete implementation above."""
     ...
 
@@ -79,7 +81,7 @@ def project_vector(L: petsc4py.PETSc.Vec, B: FunctionsList) -> petsc4py.PETSc.Ve
 @typing.overload
 def project_vector(  # type: ignore[no-any-unimported]
     b: petsc4py.PETSc.Vec, L: petsc4py.PETSc.Vec, B: FunctionsList
-) -> None:
+) -> None:  # pragma: no cover
     """Stub of project_vector for type checking. See the concrete implementation above."""
     ...
 
@@ -139,7 +141,7 @@ def _project_vector_block(  # noqa: F811
 @typing.overload
 def project_vector_block(  # type: ignore[no-any-unimported]
     L: petsc4py.PETSc.Vec, B: typing.Sequence[FunctionsList]
-) -> petsc4py.PETSc.Vec:
+) -> petsc4py.PETSc.Vec:  # pragma: no cover
     """Stub of project_vector_block for type checking. See the concrete implementation above."""
     ...
 
@@ -147,7 +149,7 @@ def project_vector_block(  # type: ignore[no-any-unimported]
 @typing.overload
 def project_vector_block(  # type: ignore[no-any-unimported]
     b: petsc4py.PETSc.Vec, L: petsc4py.PETSc.Vec, B: typing.Sequence[FunctionsList]
-) -> None:
+) -> None:  # pragma: no cover
     """Stub of project_vector_block for type checking. See the concrete implementation above."""
     ...
 
@@ -217,7 +219,7 @@ def _project_matrix(  # noqa: F811
 @typing.overload
 def project_matrix(  # type: ignore[no-any-unimported]
     a: petsc4py.PETSc.Mat, B: typing.Union[FunctionsList, typing.Tuple[FunctionsList, FunctionsList]]
-) -> petsc4py.PETSc.Mat:
+) -> petsc4py.PETSc.Mat:  # pragma: no cover
     """Stub of project_matrix for type checking. See the concrete implementation above."""
     ...
 
@@ -226,7 +228,7 @@ def project_matrix(  # type: ignore[no-any-unimported]
 def project_matrix(  # type: ignore[no-any-unimported]
     A: petsc4py.PETSc.Mat, a: petsc4py.PETSc.Mat,
     B: typing.Union[FunctionsList, typing.Tuple[FunctionsList, FunctionsList]]
-) -> None:
+) -> None:  # pragma: no cover
     """Stub of project_matrix for type checking. See the concrete implementation above."""
     ...
 
@@ -310,7 +312,7 @@ def project_matrix_block(  # type: ignore[no-any-unimported]
     a: petsc4py.PETSc.Mat,
     B: typing.Union[
         typing.Sequence[FunctionsList], typing.Tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]]
-) -> petsc4py.PETSc.Mat:
+) -> petsc4py.PETSc.Mat:  # pragma: no cover
     """Stub of project_matrix_block for type checking. See the concrete implementation above."""
     ...
 
@@ -321,7 +323,7 @@ def project_matrix_block(  # type: ignore[no-any-unimported]
     a: petsc4py.PETSc.Mat,
     B: typing.Union[
         typing.Sequence[FunctionsList], typing.Tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]]
-) -> None:
+) -> None:  # pragma: no cover
     """Stub of project_matrix_block for type checking. See the concrete implementation above."""
     ...
 

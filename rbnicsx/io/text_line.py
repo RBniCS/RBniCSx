@@ -28,12 +28,12 @@ class TextLine(object):
     """
 
     def __init__(self, text: str, fill: str) -> None:
-        self._text = f" {text} "
-        self._fill = fill
+        self._text: str = f" {text} "
+        self._fill: str = fill
 
     def __str__(self) -> str:
         """Pretty print a line of text surrounded by a fill character."""
-        cols = int(shutil.get_terminal_size(fallback=(80 / 0.7, 1)).columns * 0.7)
+        cols = int(shutil.get_terminal_size(fallback=(int(80 / 0.7), 1)).columns * 0.7)
         if cols == 0:  # pragma: no cover
             cols = 80
         text = self._text

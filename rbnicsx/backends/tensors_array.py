@@ -39,17 +39,18 @@ class TensorsArray(TensorsArrayBase):
     """
 
     def __init__(
-        self, form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, shape: typing.Union[int, typing.Tuple[int, int]]
+        self, form: dolfinx.fem.FormMetaClass, comm: mpi4py.MPI.Intracomm,
+        shape: typing.Union[int, typing.Tuple[int, ...]]
     ) -> None:
-        self._form = form
+        self._form: dolfinx.fem.FormMetaClass = form
         super().__init__(comm, shape)
 
     @property
-    def form(self) -> dolfinx.fem.Form:
+    def form(self) -> dolfinx.fem.FormMetaClass:
         """Return the form which is used to assemble the tensors."""
         return self._form
 
-    def duplicate(self, shape: typing.Optional[typing.Union[int, typing.Tuple[int, int]]] = None) -> TensorsArray:
+    def duplicate(self, shape: typing.Optional[typing.Union[int, typing.Tuple[int, ...]]] = None) -> TensorsArray:
         """
         Duplicate this object to a new empty TensorsArray.
 
@@ -80,7 +81,7 @@ class TensorsArray(TensorsArrayBase):
         filename
             Name of the file where to export the array.
         """
-        array_flattened = self._array.flatten("C")
+        array_flattened = self._array.flatten("C").tolist()
 
         if self._type == "Mat":
             export_matrices(array_flattened, directory, filename)

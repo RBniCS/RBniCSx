@@ -84,7 +84,7 @@ def import_functions(
     return functions
 
 
-def import_matrix(
+def import_matrix(  # type: ignore[no-any-unimported]
     form: dolfinx.fem.FormMetaClass, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
 ) -> petsc4py.PETSc.Mat:
     """
@@ -109,7 +109,7 @@ def import_matrix(
     return import_matrix_super(lambda: dolfinx.fem.petsc.create_matrix(form), comm, directory, filename)
 
 
-def import_matrices(
+def import_matrices(  # type: ignore[no-any-unimported]
     form: dolfinx.fem.FormMetaClass, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
 ) -> typing.List[petsc4py.PETSc.Mat]:
     """
@@ -134,7 +134,7 @@ def import_matrices(
     return import_matrices_super(lambda: dolfinx.fem.petsc.create_matrix(form), comm, directory, filename)
 
 
-def import_vector(
+def import_vector(  # type: ignore[no-any-unimported]
     form: dolfinx.fem.FormMetaClass, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
 ) -> petsc4py.PETSc.Vec:
     """
@@ -159,7 +159,7 @@ def import_vector(
     return import_vector_super(lambda: dolfinx.fem.petsc.create_vector(form), comm, directory, filename)
 
 
-def import_vectors(
+def import_vectors(  # type: ignore[no-any-unimported]
     form: dolfinx.fem.FormMetaClass, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
 ) -> typing.List[petsc4py.PETSc.Vec]:
     """

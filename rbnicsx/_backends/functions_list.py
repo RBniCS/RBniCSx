@@ -34,8 +34,8 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
     """
 
     def __init__(self, comm: mpi4py.MPI.Intracomm) -> None:
-        self._comm = comm
-        self._list = list()
+        self._comm: mpi4py.MPI.Intracomm = comm
+        self._list: typing.List[Function] = list()
 
     @property
     def comm(self) -> mpi4py.MPI.Intracomm:
@@ -43,7 +43,7 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
         return self._comm
 
     @abc.abstractmethod
-    def duplicate(self) -> FunctionsList:
+    def duplicate(self) -> FunctionsList[Function]:
         """
         Duplicate this object to a new empty FunctionsList.
 
@@ -136,7 +136,7 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
         """
         pass  # pragma: no cover
 
-    def __mul__(self, other: petsc4py.PETSc.Vec) -> Function:
+    def __mul__(self, other: petsc4py.PETSc.Vec) -> Function:  # type: ignore[no-any-unimported]
         """
         Linearly combine functions in the list.
 
@@ -158,7 +158,7 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
             return NotImplemented
 
     @abc.abstractmethod
-    def _linearly_combine(coefficients: petsc4py.PETSc.Vec) -> Function:
+    def _linearly_combine(self, coefficients: petsc4py.PETSc.Vec) -> Function:  # type: ignore[no-any-unimported]
         """
         Linearly combine functions in the list using Function's API.
 
@@ -178,7 +178,17 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
         """Return the number of functions currently stored in the list."""
         return len(self._list)
 
-    def __getitem__(self, key: typing.Union[int, slice]) -> typing.Union[Function, FunctionsList]:
+    @typing.overload
+    def __getitem__(self, key: int) -> Function:  # pragma: no cover
+        """Stub of __getitem__ for type checking. See the concrete implementation below."""
+        ...
+
+    @typing.overload
+    def __getitem__(self, key: slice) -> FunctionsList[Function]:  # pragma: no cover
+        """Stub of __getitem__ for type checking. See the concrete implementation below."""
+        ...
+
+    def __getitem__(self, key: typing.Union[int, slice]) -> typing.Union[Function, FunctionsList[Function]]:
         """
         Extract a single function from the list, or slice the list.
 

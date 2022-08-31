@@ -6,6 +6,7 @@
 """Draw a box of text surrounded by a fill character."""
 
 import shutil
+import typing
 
 
 class TextBox(object):
@@ -28,12 +29,12 @@ class TextBox(object):
     """
 
     def __init__(self, text: str, fill: str) -> None:
-        self._text = text.split("\n")
-        self._fill = fill
+        self._text: typing.List[str] = text.split("\n")
+        self._fill: str = fill
 
     def __str__(self) -> str:
         """Pretty print a box of text surrounded by a fill character."""
-        cols = int(shutil.get_terminal_size(fallback=(80 / 0.7, 1)).columns * 0.7)
+        cols = int(shutil.get_terminal_size(fallback=(int(80 / 0.7), 1)).columns * 0.7)
         if cols == 0:  # pragma: no cover
             cols = 80
         empty = ""

@@ -40,17 +40,17 @@ class Timer(object):
         Time stamp, in fractional seconds, when the context was entered.
     """
 
-    def __init__(
+    def __init__(  # type: ignore[no-any-unimported]
         self, comm: typing.Union[mpi4py.MPI.Intracomm, petsc4py.PETSc.Comm], op: mpi4py.MPI.Op,
-        store: typing.Callable
+        store: typing.Callable[[float], None]
     ) -> None:
         if isinstance(comm, petsc4py.PETSc.Comm):
             comm = comm.tompi4py()
 
-        self._comm = comm
-        self._op = op
-        self._store = store
-        self._start = None
+        self._comm: mpi4py.MPI.Intracomm = comm
+        self._op: mpi4py.MPI.Op = op
+        self._store: typing.Callable[[float], None] = store
+        self._start: typing.Optional[float] = None
 
     def __enter__(self) -> Timer:
         """Enter the context and start the timer."""
@@ -62,12 +62,13 @@ class Timer(object):
         traceback: types.TracebackType
     ) -> None:
         """Stop the timer, store the elapsed time and exit the context."""
+        assert self._start is not None
         elapsed = time.perf_counter() - self._start
         self._start = None
         self._store(self._comm.allreduce(elapsed, op=self._op))
 
 
-def store_elapsed_time(storage: typing.Iterable[float], index: int) -> typing.Callable:
+def store_elapsed_time(storage: typing.MutableSequence[float], index: int) -> typing.Callable[[float], None]:
     """
     Auxiliary function to be passed as third argument to rbnicsx.io.Timer.
 

@@ -41,6 +41,7 @@ def compile_code(
 
     # Add include directories of python components
     assert "include_dirs" in compiler_options
+    assert isinstance(compiler_options["include_dirs"], list)
     compiler_options["include_dirs"] += [
         module.get_include() for module in [mpi4py, numpy, petsc4py, slepc4py, pybind11]]
 
@@ -78,6 +79,7 @@ cfg["linker_args"] += {str(compiler_options.get("linker_args", []))}
         package_name_with_hash = package_name + "_" + package_hash
 
         # Write to output directory
+        assert isinstance(output_dir, str)
         os.makedirs(output_dir, exist_ok=True)
         open(
             os.path.join(output_dir, package_name_with_hash + ".cpp"), "w"
@@ -91,6 +93,7 @@ cfg["linker_args"] += {str(compiler_options.get("linker_args", []))}
     package_name_with_hash = on_rank_zero(comm, _write_cppimport_file)
 
     # Append output directory to path
+    assert isinstance(output_dir, str)
     sys.path.append(output_dir)
 
     # Set compilers as environment variables
@@ -122,7 +125,7 @@ cfg["linker_args"] += {str(compiler_options.get("linker_args", []))}
     # Since the result of the compilation cannot be easily broadcasted from rank 0 to the other processes,
     # we call again cppimport on every rank. This should be inexpensive as it will just read the cache.
     try:
-        module = cppimport.imp(package_name_with_hash)
+        module: types.ModuleType = cppimport.imp(package_name_with_hash)
     except SystemExit as e:
         raise RuntimeError(f"Compilation failed: {str(e)}.")
 

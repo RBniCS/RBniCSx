@@ -22,10 +22,11 @@ from rbnicsx.backends.tensors_list import TensorsList
 
 
 @functools.singledispatch
-def proper_orthogonal_decomposition(
-    snapshots: typing.Iterable, N: int, tol: float, normalize: bool = True
+def _proper_orthogonal_decomposition(  # type: ignore[no-any-unimported]
+    snapshots: typing.Union[FunctionsList, TensorsList], N: int, tol: float, normalize: bool = True
 ) -> typing.Tuple[
-    np.typing.NDArray[float], typing.Iterable, typing.List[petsc4py.PETSc.Vec]
+    np.typing.NDArray[petsc4py.PETSc.RealType], typing.Union[FunctionsList, TensorsList],
+    typing.List[petsc4py.PETSc.Vec]
 ]:
     """
     Compute the proper orthogonal decomposition of a set of snapshots or tensors.
@@ -35,11 +36,14 @@ def proper_orthogonal_decomposition(
     raise RuntimeError("Please run the dispatched implementation.")
 
 
-@proper_orthogonal_decomposition.register
-def _(
-    functions_list: FunctionsList, compute_inner_product: typing.Callable, N: int, tol: float, normalize: bool = True
+@_proper_orthogonal_decomposition.register
+def _(  # type: ignore[no-any-unimported]
+    functions_list: FunctionsList,
+    compute_inner_product: typing.Callable[
+        [dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.RealType]],
+    N: int, tol: petsc4py.PETSc.RealType, normalize: bool = True
 ) -> typing.Tuple[
-    np.typing.NDArray[float], FunctionsList, typing.List[petsc4py.PETSc.Vec]
+    np.typing.NDArray[petsc4py.PETSc.RealType], FunctionsList, typing.List[petsc4py.PETSc.Vec]
 ]:
     """
     Compute the proper orthogonal decomposition of a set of snapshots.
@@ -69,15 +73,20 @@ def _(
             3. Eigenvectors of the correlation matrix. Only the first few eigenvectors are returned, till
                either the maximum number N is reached or the tolerance on the retained energy is fulfilled.
     """
-    return proper_orthogonal_decomposition_functions_super(
+    return proper_orthogonal_decomposition_functions_super(  # type: ignore[return-value]
         functions_list, compute_inner_product, _scale_function, N, tol, normalize)
 
 
-def proper_orthogonal_decomposition_block(
-    functions_lists: FunctionsList, compute_inner_products: typing.List[typing.Callable],
-    N: typing.Union[int, typing.List[int]], tol: typing.Union[float, typing.List[float]], normalize: bool = True
+def proper_orthogonal_decomposition_block(  # type: ignore[no-any-unimported]
+    functions_lists: typing.Sequence[FunctionsList],
+    compute_inner_products: typing.Sequence[
+        typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.RealType]]],
+    N: typing.Union[int, typing.List[int]],
+    tol: typing.Union[petsc4py.PETSc.RealType, typing.List[petsc4py.PETSc.RealType]],
+    normalize: bool = True
 ) -> typing.Tuple[
-    typing.List[np.typing.NDArray[float]], typing.List[FunctionsList], typing.List[typing.List[petsc4py.PETSc.Vec]]
+    typing.List[np.typing.NDArray[petsc4py.PETSc.RealType]], typing.List[FunctionsList],
+    typing.List[typing.List[petsc4py.PETSc.Vec]]
 ]:
     """
     Compute the proper orthogonal decomposition of a set of snapshots, where each snapshot is made of several blocks.
@@ -115,15 +124,15 @@ def proper_orthogonal_decomposition_block(
                either the maximum number N is reached or the tolerance on the retained energy is fulfilled.
                The outer list collects the eigenvectors of different blocks.
     """
-    return proper_orthogonal_decomposition_functions_block_super(
+    return proper_orthogonal_decomposition_functions_block_super(  # type: ignore[return-value]
         functions_lists, compute_inner_products, _scale_function, N, tol, normalize)
 
 
-@proper_orthogonal_decomposition.register
-def _(
-    tensors_list: TensorsList, N: int, tol: float, normalize: bool = True
+@_proper_orthogonal_decomposition.register
+def _(  # type: ignore[no-any-unimported]
+    tensors_list: TensorsList, N: int, tol: petsc4py.PETSc.RealType, normalize: bool = True
 ) -> typing.Tuple[
-    np.typing.NDArray[float], TensorsList, typing.List[petsc4py.PETSc.Vec]
+    np.typing.NDArray[petsc4py.PETSc.RealType], TensorsList, typing.List[petsc4py.PETSc.Vec]
 ]:
     """
     Compute the proper orthogonal decomposition of a set of tensors.
@@ -149,10 +158,40 @@ def _(
             3. Eigenvectors of the correlation matrix. Only the first few eigenvectors are returned, till
                either the maximum number N is reached or the tolerance on the retained energy is fulfilled.
     """
-    return proper_orthogonal_decomposition_tensors_super(tensors_list, N, tol, normalize)
+    return proper_orthogonal_decomposition_tensors_super(tensors_list, N, tol, normalize)  # type: ignore[return-value]
 
 
-def _scale_function(function: dolfinx.fem.Function, factor: petsc4py.PETSc.RealType) -> None:
+@typing.overload
+def proper_orthogonal_decomposition(  # type: ignore[no-any-unimported]
+    functions_list: FunctionsList,
+    compute_inner_product: typing.Callable[
+        [dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.RealType]],
+    N: int, tol: petsc4py.PETSc.RealType, normalize: bool = True
+) -> typing.Tuple[
+    np.typing.NDArray[petsc4py.PETSc.RealType], FunctionsList, typing.List[petsc4py.PETSc.Vec]
+]:  # pragma: no cover
+    """Stub of proper_orthogonal_decomposition for type checking. See the concrete implementation above."""
+    ...
+
+
+@typing.overload
+def proper_orthogonal_decomposition(  # type: ignore[no-any-unimported]
+    tensors_list: TensorsList, N: int, tol: petsc4py.PETSc.RealType, normalize: bool = True
+) -> typing.Tuple[
+    np.typing.NDArray[petsc4py.PETSc.RealType], TensorsList, typing.List[petsc4py.PETSc.Vec]
+]:  # pragma: no cover
+    """Stub of proper_orthogonal_decomposition for type checking. See the concrete implementation above."""
+    ...
+
+
+def proper_orthogonal_decomposition(*args, **kwargs):  # type: ignore[no-untyped-def]
+    """Dispatcher of proper_orthogonal_decomposition for type checking. See the concrete implementation above."""
+    return _proper_orthogonal_decomposition(*args, **kwargs)
+
+
+def _scale_function(  # type: ignore[no-any-unimported]
+    function: dolfinx.fem.Function, factor: petsc4py.PETSc.RealType
+) -> None:
     """Scale a dolfinx Function."""
     with function.vector.localForm() as function_local:
         function_local *= factor

@@ -34,20 +34,24 @@ class TensorsList(TensorsListBase):
     """
 
     def __init__(
-        self, shape: typing.Union[int, typing.Tuple[int], typing.List[int], typing.Tuple[typing.List[int]]]
+        self, shape: typing.Union[
+            int, typing.Tuple[int, int], typing.List[int], typing.Tuple[typing.List[int], typing.List[int]]]
     ) -> None:
-        self._shape = shape
+        self._shape: typing.Union[
+            int, typing.Tuple[int, int], typing.List[int], typing.Tuple[typing.List[int], typing.List[int]]] = shape
         if isinstance(shape, list):
-            self._is_block = True  # block vector
+            is_block = True  # block vector
         elif isinstance(shape, tuple) and all([isinstance(shape_, list) for shape_ in shape]):
-            self._is_block = True  # block matrix
+            is_block = True  # block matrix
         else:
-            self._is_block = False  # plain vector or plain matrix
+            is_block = False  # plain vector or plain matrix
+        self._is_block: bool = is_block
         # Initialize using COMM_WORLD even though online tensors are on COMM_SELF to identify rank 0 for I/O
         super().__init__(mpi4py.MPI.COMM_WORLD)
 
     @property
-    def shape(self) -> typing.Union[int, typing.Tuple[int], typing.List[int], typing.Tuple[typing.List[int]]]:
+    def shape(self) -> typing.Union[
+            int, typing.Tuple[int, int], typing.List[int], typing.Tuple[typing.List[int], typing.List[int]]]:
         """Return the shape of the tensors in the list."""
         return self._shape
 
@@ -104,14 +108,22 @@ class TensorsList(TensorsListBase):
             Name of the file where to import the list from.
         """
         if self._type == "Mat":
+            assert isinstance(self._shape, tuple)
+            assert len(self._shape) == 2
             if self._is_block:
-                self._list = import_matrices_block(*self._shape, directory, filename)
+                assert isinstance(self._shape[0], list)
+                assert isinstance(self._shape[1], list)
+                self._list = import_matrices_block(self._shape[0], self._shape[1], directory, filename)
             else:
-                self._list = import_matrices(*self._shape, directory, filename)
+                assert isinstance(self._shape[0], int)
+                assert isinstance(self._shape[1], int)
+                self._list = import_matrices(self._shape[0], self._shape[1], directory, filename)
         elif self._type == "Vec":
             if self._is_block:
+                assert isinstance(self._shape, list)
                 self._list = import_vectors_block(self._shape, directory, filename)
             else:
+                assert isinstance(self._shape, int)
                 self._list = import_vectors(self._shape, directory, filename)
         else:
             raise RuntimeError()

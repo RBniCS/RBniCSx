@@ -7,6 +7,8 @@
 
 from __future__ import annotations
 
+import typing
+
 import dolfinx.fem
 import numpy as np
 import petsc4py.PETSc
@@ -16,7 +18,7 @@ from rbnicsx.backends.export import export_functions
 from rbnicsx.backends.import_ import import_functions
 
 
-class FunctionsList(FunctionsListBase):
+class FunctionsList(FunctionsListBase[dolfinx.fem.Function]):
     """
     A class wrapping a list of dolfinx Functions.
 
@@ -32,7 +34,7 @@ class FunctionsList(FunctionsListBase):
     """
 
     def __init__(self, function_space: dolfinx.fem.FunctionSpace) -> None:
-        self._function_space = function_space
+        self._function_space: dolfinx.fem.FunctionSpace = function_space
         super().__init__(function_space.mesh.comm)
 
     @property
@@ -78,7 +80,7 @@ class FunctionsList(FunctionsListBase):
         """
         self._list = import_functions(self._function_space, directory, filename)
 
-    def _linearly_combine(self, other: petsc4py.PETSc.Vec) -> dolfinx.fem.Function:
+    def _linearly_combine(self, other: petsc4py.PETSc.Vec) -> dolfinx.fem.Function:  # type: ignore[no-any-unimported]
         """
         Linearly combine functions in the list using Function's API.
 
@@ -98,3 +100,17 @@ class FunctionsList(FunctionsListBase):
         output.vector.ghostUpdate(
             addv=petsc4py.PETSc.InsertMode.INSERT, mode=petsc4py.PETSc.ScatterMode.FORWARD)
         return output
+
+    @typing.overload
+    def __getitem__(self, key: int) -> dolfinx.fem.Function:  # pragma: no cover
+        """Stub of __getitem__ for type checking. See the concrete implementation in the parent class."""
+        ...
+
+    @typing.overload
+    def __getitem__(self, key: slice) -> FunctionsList:  # pragma: no cover
+        """Stub of __getitem__ for type checking. See the concrete implementation in the parent class."""
+        ...
+
+    def __getitem__(self, key: typing.Union[int, slice]) -> typing.Union[dolfinx.fem.Function, FunctionsList]:
+        """Implement __getitem__ for type checking. See the concrete implementation in the parent class."""
+        return super().__getitem__(key)  # type: ignore[return-value]

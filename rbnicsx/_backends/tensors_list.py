@@ -37,9 +37,10 @@ class TensorsList(abc.ABC):
     """
 
     def __init__(self, comm: mpi4py.MPI.Intracomm) -> None:
-        self._comm = comm
-        self._list = list()
-        self._type = None
+        self._comm: mpi4py.MPI.Intracomm = comm
+        self._list: typing.Union[  # type: ignore[no-any-unimported]
+            typing.List[petsc4py.PETSc.Mat], typing.List[petsc4py.PETSc.Vec]] = list()
+        self._type: typing.Optional[str] = None
 
     @property
     def comm(self) -> mpi4py.MPI.Intracomm:
@@ -47,7 +48,7 @@ class TensorsList(abc.ABC):
         return self._comm
 
     @property
-    def type(self) -> str:
+    def type(self) -> typing.Optional[str]:
         """Return the type of tensors (Mat or Vec) currently stored."""
         return self._type
 
@@ -64,7 +65,9 @@ class TensorsList(abc.ABC):
         """
         pass  # pragma: no cover
 
-    def append(self, tensor: typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]) -> None:
+    def append(  # type: ignore[no-any-unimported]
+        self, tensor: typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]
+    ) -> None:
         """
         Append a PETSc Mat or Vec to the list.
 
@@ -90,7 +93,7 @@ class TensorsList(abc.ABC):
         # Append to storage
         self._list.append(tensor)
 
-    def extend(
+    def extend(  # type: ignore[no-any-unimported]
         self, tensors: typing.Union[typing.Iterable[petsc4py.PETSc.Mat], typing.Iterable[petsc4py.PETSc.Vec]]
     ) -> None:
         """
@@ -181,7 +184,9 @@ class TensorsList(abc.ABC):
         """
         pass  # pragma: no cover
 
-    def __mul__(self, other: petsc4py.PETSc.Vec) -> typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]:
+    def __mul__(  # type: ignore[no-any-unimported]
+        self, other: petsc4py.PETSc.Vec
+    ) -> typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]:
         """
         Linearly combine tensors in the list.
 
@@ -216,7 +221,18 @@ class TensorsList(abc.ABC):
         """Return the number of tensors currently stored in the list."""
         return len(self._list)
 
-    def __getitem__(self, key: typing.Union[int, slice]) -> typing.Union[
+    @typing.overload
+    def __getitem__(self, key: int) -> typing.Union[  # type: ignore[no-any-unimported]
+            petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]:  # pragma: no cover
+        """Stub of __getitem__ for type checking. See the concrete implementation below."""
+        ...
+
+    @typing.overload
+    def __getitem__(self, key: slice) -> TensorsList:  # pragma: no cover
+        """Stub of __getitem__ for type checking. See the concrete implementation below."""
+        ...
+
+    def __getitem__(self, key: typing.Union[int, slice]) -> typing.Union[  # type: ignore[no-any-unimported]
             petsc4py.PETSc.Mat, petsc4py.PETSc.Vec, TensorsList]:
         """
         Extract a single tensor from the list, or slice the list.
@@ -241,7 +257,9 @@ class TensorsList(abc.ABC):
         else:
             raise NotImplementedError()
 
-    def __setitem__(self, key: int, tensor: typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]) -> None:
+    def __setitem__(  # type: ignore[no-any-unimported]
+        self, key: int, tensor: typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]
+    ) -> None:
         """
         Update the content of the list with the provided tensor.
 
@@ -264,6 +282,7 @@ class TensorsList(abc.ABC):
         # Replace storage
         self._list[key] = tensor
 
-    def __iter__(self) -> typing.Iterator[typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]]:
+    def __iter__(self) -> typing.Iterator[  # type: ignore[no-any-unimported]
+            typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]]:
         """Return an iterator over the list."""
         return self._list.__iter__()

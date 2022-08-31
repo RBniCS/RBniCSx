@@ -11,30 +11,37 @@ import typing
 import mpi4py.MPI
 import petsc4py.PETSc
 
+CallableOutput = typing.TypeVar("CallableOutput")
 
-def on_rank_zero(
-    comm: typing.Union[mpi4py.MPI.Intracomm, petsc4py.PETSc.Comm], lambda_function: typing.Callable
-) -> object:
+
+def on_rank_zero(  # type: ignore[no-any-unimported]
+    comm: typing.Union[mpi4py.MPI.Intracomm, petsc4py.PETSc.Comm], callable_: typing.Callable[[], CallableOutput]
+) -> CallableOutput:
     """Execute a function on rank zero and broadcast the result."""
     if isinstance(comm, petsc4py.PETSc.Comm):
         comm = comm.tompi4py()
 
-    return_value = None
+    return_value: typing.Optional[CallableOutput] = None
     error_raised = False
-    error_type = None
-    error_instance_args = None
+    error_type: typing.Optional[typing.Type[BaseException]] = None
+    error_instance_args: typing.Optional[typing.Tuple[typing.Any, ...]] = None
     if comm.rank == 0:
         try:
-            return_value = lambda_function()
+            return_value = callable_()
         except Exception:
             error_raised = True
             error_type, error_instance, _ = sys.exc_info()
+            assert isinstance(error_instance, BaseException)
             error_instance_args = error_instance.args
     error_raised = comm.bcast(error_raised, root=0)
     if not error_raised:
-        return_value = comm.bcast(return_value, root=0)
-        return return_value
+        return_value_bcast: CallableOutput = comm.bcast(return_value, root=0)
+        return return_value_bcast
     else:
         error_type = comm.bcast(error_type, root=0)
+        assert error_type is not None
+        assert issubclass(error_type, BaseException)
         error_instance_args = comm.bcast(error_instance_args, root=0)
+        assert error_instance_args is not None
+        assert isinstance(error_instance_args, tuple)
         raise error_type(*error_instance_args)

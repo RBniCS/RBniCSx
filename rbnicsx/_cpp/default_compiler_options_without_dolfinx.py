@@ -6,11 +6,12 @@
 """Determine default compiler options when dolfinx is not available."""  # pragma: no cover
 
 import os  # pragma: no cover
+import typing  # pragma: no cover
 
 
-def determine_default_compiler_options() -> dict:  # pragma: no cover
+def determine_default_compiler_options() -> typing.Dict[str, typing.Union[str, typing.List[str]]]:  # pragma: no cover
     """Determine default compiler options when dolfinx is available."""
-    default_compiler_options = dict()
+    default_compiler_options: typing.Dict[str, typing.Union[str, typing.List[str]]] = dict()
 
     # Get PETSc and SLEPc installation directory from environment variables, if any
     try:

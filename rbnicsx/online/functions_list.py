@@ -13,12 +13,13 @@ import mpi4py.MPI
 import petsc4py.PETSc
 
 from rbnicsx._backends.functions_list import FunctionsList as FunctionsListBase
-from rbnicsx._backends.online_tensors import create_online_vector as create_vector
+from rbnicsx._backends.online_tensors import (
+    create_online_vector as create_vector, create_online_vector_block as create_vector_block)
 from rbnicsx.online.export import export_vectors, export_vectors_block
 from rbnicsx.online.import_ import import_vectors, import_vectors_block
 
 
-class FunctionsList(FunctionsListBase):
+class FunctionsList(FunctionsListBase[petsc4py.PETSc.Vec]):  # type: ignore[no-any-unimported]
     """
     A class wrapping a list of online PETSc Vec which represent solutions to online systems.
 
@@ -36,11 +37,12 @@ class FunctionsList(FunctionsListBase):
     """
 
     def __init__(self, shape: typing.Union[int, typing.List[int]]) -> None:
-        self._shape = shape
+        self._shape: typing.Union[int, typing.List[int]] = shape
         if isinstance(shape, list):
-            self._is_block = True
+            is_block = True
         else:
-            self._is_block = False
+            is_block = False
+        self._is_block: bool = is_block
         # Initialize using COMM_WORLD even though online vectors are on COMM_SELF to identify rank 0 for I/O
         super().__init__(mpi4py.MPI.COMM_WORLD)
 
@@ -94,11 +96,13 @@ class FunctionsList(FunctionsListBase):
             Name of the file where to import the list from.
         """
         if self._is_block:
+            assert isinstance(self._shape, list)
             self._list = import_vectors_block(self._shape, directory, filename)
         else:
+            assert isinstance(self._shape, int)
             self._list = import_vectors(self._shape, directory, filename)
 
-    def _linearly_combine(self, other: petsc4py.PETSc.Vec) -> petsc4py.PETSc.Vec:
+    def _linearly_combine(self, other: petsc4py.PETSc.Vec) -> petsc4py.PETSc.Vec:  # type: ignore[no-any-unimported]
         """
         Linearly combine functions in the list using petsc4py API.
 
@@ -119,4 +123,25 @@ class FunctionsList(FunctionsListBase):
                 output.axpy(other[i], self._list[i])
             return output
         else:
-            return create_vector(self.shape)
+            if self._is_block:
+                assert isinstance(self._shape, list)
+                return create_vector_block(self._shape)
+            else:
+                assert isinstance(self._shape, int)
+                return create_vector(self._shape)
+
+    @typing.overload
+    def __getitem__(self, key: int) -> petsc4py.PETSc.Vec:  # type: ignore[no-any-unimported]  # pragma: no cover
+        """Stub of __getitem__ for type checking. See the concrete implementation in the parent class."""
+        ...
+
+    @typing.overload
+    def __getitem__(self, key: slice) -> FunctionsList:  # pragma: no cover
+        """Stub of __getitem__ for type checking. See the concrete implementation in the parent class."""
+        ...
+
+    def __getitem__(  # type: ignore[no-any-unimported]
+        self, key: typing.Union[int, slice]
+    ) -> typing.Union[petsc4py.PETSc.Vec, FunctionsList]:
+        """Implement __getitem__ for type checking. See the concrete implementation in the parent class."""
+        return super().__getitem__(key)

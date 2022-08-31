@@ -42,30 +42,35 @@ class TensorsArray(TensorsArrayBase):
     _vector_with_one_entry.setValue(0, 1)
 
     def __init__(
-        self, content_shape: typing.Union[int, typing.Tuple[int], typing.List[int], typing.Tuple[typing.List[int]]],
-        array_shape: typing.Union[int, typing.Tuple[int, int]]
+        self, content_shape: typing.Union[
+            int, typing.Tuple[int, int], typing.List[int], typing.Tuple[typing.List[int], typing.List[int]]],
+        array_shape: typing.Union[int, typing.Tuple[int, ...]]
     ) -> None:
-        self._content_shape = content_shape
+        self._content_shape: typing.Union[
+            int, typing.Tuple[int, int], typing.List[int], typing.Tuple[typing.List[int], typing.List[int]]
+        ] = content_shape
         if isinstance(content_shape, list):
-            self._is_block = True  # block vector
+            is_block = True  # block vector
         elif isinstance(content_shape, tuple) and all([
                 isinstance(content_shape_, list) for content_shape_ in content_shape]):
-            self._is_block = True  # block matrix
+            is_block = True  # block matrix
         else:
-            self._is_block = False  # plain vector or plain matrix
+            is_block = False  # plain vector or plain matrix
+        self._is_block: bool = is_block
         # Initialize using COMM_WORLD even though online tensors are on COMM_SELF to identify rank 0 for I/O
         super().__init__(mpi4py.MPI.COMM_WORLD, array_shape)
 
     @property
-    def flattened_shape(self) -> typing.Tuple[typing.Union[int, typing.List[int]]]:
+    def flattened_shape(self) -> typing.Tuple[typing.Union[int, typing.List[int]], ...]:
         """Return the union of the shape of the array and the content shape."""
         if isinstance(self._content_shape, tuple):
-            return self.shape + self.content_shape
+            return self.shape + self.content_shape  # type: ignore[operator]
         else:
-            return self.shape + (self.content_shape, )
+            return self.shape + (self.content_shape, )  # type: ignore[operator]
 
     @property
-    def content_shape(self) -> typing.Union[int, typing.Tuple[int], typing.List[int], typing.Tuple[typing.List[int]]]:
+    def content_shape(self) -> typing.Union[
+            int, typing.Tuple[int, int], typing.List[int], typing.Tuple[typing.List[int], typing.List[int]]]:
         """Return the shape of the tensors in the array."""
         return self._content_shape
 
@@ -75,7 +80,7 @@ class TensorsArray(TensorsArrayBase):
         return self._is_block
 
     def duplicate(
-        self, array_shape: typing.Optional[typing.Union[int, typing.Tuple[int, int]]] = None
+        self, array_shape: typing.Optional[typing.Union[int, typing.Tuple[int, ...]]] = None
     ) -> TensorsArray:
         """
         Duplicate this object to a new empty TensorsArray.
@@ -107,7 +112,7 @@ class TensorsArray(TensorsArrayBase):
         filename
             Name of the file where to export the array.
         """
-        array_flattened = self._array.flatten("C")
+        array_flattened = self._array.flatten("C").tolist()
 
         if self._type == "Mat":
             if self._is_block:
@@ -134,14 +139,23 @@ class TensorsArray(TensorsArrayBase):
             Name of the file where to import the array from.
         """
         if self._type == "Mat":
+            assert isinstance(self._content_shape, tuple)
+            assert len(self._content_shape) == 2
             if self._is_block:
-                array_flattened = import_matrices_block(*self._content_shape, directory, filename)
+                assert isinstance(self._content_shape[0], list)
+                assert isinstance(self._content_shape[1], list)
+                array_flattened = import_matrices_block(
+                    self._content_shape[0], self._content_shape[1], directory, filename)
             else:
-                array_flattened = import_matrices(*self._content_shape, directory, filename)
+                assert isinstance(self._content_shape[0], int)
+                assert isinstance(self._content_shape[1], int)
+                array_flattened = import_matrices(self._content_shape[0], self._content_shape[1], directory, filename)
         elif self._type == "Vec":
             if self._is_block:
+                assert isinstance(self._content_shape, list)
                 array_flattened = import_vectors_block(self._content_shape, directory, filename)
             else:
+                assert isinstance(self._content_shape, int)
                 array_flattened = import_vectors(self._content_shape, directory, filename)
         else:
             raise RuntimeError()
@@ -149,7 +163,7 @@ class TensorsArray(TensorsArrayBase):
         for (linear_index, tensor) in enumerate(array_flattened):
             self._array[np.unravel_index(linear_index, self.shape)] = tensor
 
-    def contraction(self, *args: petsc4py.PETSc.Vec) -> petsc4py.PETSc.ScalarType:
+    def contraction(self, *args: petsc4py.PETSc.Vec) -> petsc4py.PETSc.ScalarType:  # type: ignore[no-any-unimported]
         """
         Contract entries in the array.
 

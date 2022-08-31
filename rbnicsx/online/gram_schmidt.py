@@ -14,7 +14,7 @@ from rbnicsx.online.functions_list import FunctionsList
 from rbnicsx.online.projection import matrix_action
 
 
-def gram_schmidt(
+def gram_schmidt(  # type: ignore[no-any-unimported]
     functions_list: FunctionsList, new_function: petsc4py.PETSc.Vec, inner_product: petsc4py.PETSc.Mat
 ) -> None:
     """
@@ -43,8 +43,8 @@ def gram_schmidt(
         functions_list.append(orthonormalized)
 
 
-def gram_schmidt_block(
-    functions_lists: FunctionsList, new_functions: typing.List[petsc4py.PETSc.Vec],
+def gram_schmidt_block(  # type: ignore[no-any-unimported]
+    functions_lists: typing.Sequence[FunctionsList], new_functions: typing.Sequence[petsc4py.PETSc.Vec],
     inner_products: typing.List[petsc4py.PETSc.Mat]
 ) -> None:
     """

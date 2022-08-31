@@ -5,12 +5,13 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Compute the order of magnitude of a number."""
 
-import numbers
 import typing
 
 import numpy as np
+import numpy.typing
 
 
-def order_of_magnitude(number: typing.Union[numbers.Real, typing.Iterable[numbers.Real]]) -> int:
+def order_of_magnitude(number: typing.Union[float, typing.Sequence[float]]) -> typing.Union[
+        np.int32, np.typing.NDArray[np.int32]]:
     """Compute the order of magnitude of a number."""
-    return np.floor(np.log10(number)).astype(int)
+    return np.floor(np.log10(number)).astype(np.int32)

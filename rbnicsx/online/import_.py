@@ -18,7 +18,9 @@ from rbnicsx._backends.online_tensors import (
     create_online_vector as create_vector, create_online_vector_block as create_vector_block)
 
 
-def import_matrix(M: int, N: int, directory: str, filename: str) -> petsc4py.PETSc.Mat:
+def import_matrix(  # type: ignore[no-any-unimported]
+    M: int, N: int, directory: str, filename: str
+) -> petsc4py.PETSc.Mat:
     """
     Import a dense petsc4py.PETSc.Mat from file.
 
@@ -39,7 +41,9 @@ def import_matrix(M: int, N: int, directory: str, filename: str) -> petsc4py.PET
     return import_matrix_super(lambda: create_matrix(M, N), mpi4py.MPI.COMM_WORLD, directory, filename)
 
 
-def import_matrix_block(M: typing.List[int], N: typing.List[int], directory: str, filename: str) -> petsc4py.PETSc.Mat:
+def import_matrix_block(  # type: ignore[no-any-unimported]
+    M: typing.List[int], N: typing.List[int], directory: str, filename: str
+) -> petsc4py.PETSc.Mat:
     """
     Import a dense petsc4py.PETSc.Mat from file.
 
@@ -60,7 +64,9 @@ def import_matrix_block(M: typing.List[int], N: typing.List[int], directory: str
     return import_matrix_super(lambda: create_matrix_block(M, N), mpi4py.MPI.COMM_WORLD, directory, filename)
 
 
-def import_matrices(M: int, N: int, directory: str, filename: str) -> typing.List[petsc4py.PETSc.Mat]:
+def import_matrices(  # type: ignore[no-any-unimported]
+    M: int, N: int, directory: str, filename: str
+) -> typing.List[petsc4py.PETSc.Mat]:
     """
     Import a list of dense petsc4py.PETSc.Mat from file.
 
@@ -81,7 +87,7 @@ def import_matrices(M: int, N: int, directory: str, filename: str) -> typing.Lis
     return import_matrices_super(lambda: create_matrix(M, N), mpi4py.MPI.COMM_WORLD, directory, filename)
 
 
-def import_matrices_block(
+def import_matrices_block(  # type: ignore[no-any-unimported]
     M: typing.List[int], N: typing.List[int], directory: str, filename: str
 ) -> typing.List[petsc4py.PETSc.Mat]:
     """
@@ -104,7 +110,9 @@ def import_matrices_block(
     return import_matrices_super(lambda: create_matrix_block(M, N), mpi4py.MPI.COMM_WORLD, directory, filename)
 
 
-def import_vector(N: int, directory: str, filename: str) -> petsc4py.PETSc.Vec:
+def import_vector(  # type: ignore[no-any-unimported]
+    N: int, directory: str, filename: str
+) -> petsc4py.PETSc.Vec:
     """
     Import a sequential petsc4py.PETSc.Vec from file.
 
@@ -125,7 +133,9 @@ def import_vector(N: int, directory: str, filename: str) -> petsc4py.PETSc.Vec:
     return import_vector_super(lambda: create_vector(N), mpi4py.MPI.COMM_WORLD, directory, filename)
 
 
-def import_vector_block(N: typing.List[int], directory: str, filename: str) -> petsc4py.PETSc.Vec:
+def import_vector_block(  # type: ignore[no-any-unimported]
+    N: typing.List[int], directory: str, filename: str
+) -> petsc4py.PETSc.Vec:
     """
     Import a sequential petsc4py.PETSc.Vec from file.
 
@@ -146,7 +156,9 @@ def import_vector_block(N: typing.List[int], directory: str, filename: str) -> p
     return import_vector_super(lambda: create_vector_block(N), mpi4py.MPI.COMM_WORLD, directory, filename)
 
 
-def import_vectors(N: int, directory: str, filename: str) -> typing.List[petsc4py.PETSc.Vec]:
+def import_vectors(  # type: ignore[no-any-unimported]
+    N: int, directory: str, filename: str
+) -> typing.List[petsc4py.PETSc.Vec]:
     """
     Import a list of sequential petsc4py.PETSc.Vec from file.
 
@@ -167,7 +179,9 @@ def import_vectors(N: int, directory: str, filename: str) -> typing.List[petsc4p
     return import_vectors_super(lambda: create_vector(N), mpi4py.MPI.COMM_WORLD, directory, filename)
 
 
-def import_vectors_block(N: typing.List[int], directory: str, filename: str) -> typing.List[petsc4py.PETSc.Vec]:
+def import_vectors_block(  # type: ignore[no-any-unimported]
+    N: typing.List[int], directory: str, filename: str
+) -> typing.List[petsc4py.PETSc.Vec]:
     """
     Import a list of sequential petsc4py.PETSc.Vec from file.
 

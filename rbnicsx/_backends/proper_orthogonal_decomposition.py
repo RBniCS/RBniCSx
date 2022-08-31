@@ -18,11 +18,13 @@ from rbnicsx._backends.tensors_list import TensorsList
 from rbnicsx._cpp import cpp_library
 
 
-def proper_orthogonal_decomposition_functions(
-    functions_list: FunctionsList, compute_inner_product: typing.Callable, scale: typing.Callable,
-    N: int, tol: float, normalize: bool = True
+def proper_orthogonal_decomposition_functions(  # type: ignore[no-any-unimported]
+    functions_list: FunctionsList[Function],
+    compute_inner_product: typing.Callable[[Function], typing.Callable[[Function], petsc4py.PETSc.RealType]],
+    scale: typing.Callable[[Function, petsc4py.PETSc.RealType], None],
+    N: int, tol: petsc4py.PETSc.RealType, normalize: bool = True
 ) -> typing.Tuple[
-    np.typing.NDArray[float], FunctionsList, typing.List[petsc4py.PETSc.Vec]
+    np.typing.NDArray[petsc4py.PETSc.RealType], FunctionsList[Function], typing.List[petsc4py.PETSc.Vec]
 ]:
     """
     Compute the proper orthogonal decomposition of a set of snapshots.
@@ -60,11 +62,17 @@ def proper_orthogonal_decomposition_functions(
     return eigenvalues, modes_wrapped, eigenvectors
 
 
-def proper_orthogonal_decomposition_functions_block(
-    functions_lists: FunctionsList, compute_inner_products: typing.List[typing.Callable], scale: typing.Callable,
-    N: typing.Union[int, typing.List[int]], tol: typing.Union[float, typing.List[float]], normalize: bool = True
+def proper_orthogonal_decomposition_functions_block(  # type: ignore[no-any-unimported]
+    functions_lists: typing.Sequence[FunctionsList[Function]],
+    compute_inner_products: typing.Sequence[
+        typing.Callable[[Function], typing.Callable[[Function], petsc4py.PETSc.RealType]]],
+    scale: typing.Callable[[Function, petsc4py.PETSc.RealType], None],
+    N: typing.Union[int, typing.List[int]],
+    tol: typing.Union[petsc4py.PETSc.RealType, typing.List[petsc4py.PETSc.RealType]],
+    normalize: bool = True
 ) -> typing.Tuple[
-    typing.List[np.typing.NDArray[float]], typing.List[FunctionsList], typing.List[typing.List[petsc4py.PETSc.Vec]]
+    typing.List[np.typing.NDArray[petsc4py.PETSc.RealType]], typing.List[FunctionsList[Function]],
+    typing.List[typing.List[petsc4py.PETSc.Vec]]
 ]:
     """
     Compute the proper orthogonal decomposition of a set of snapshots, where each snapshot is made of several blocks.
@@ -123,10 +131,10 @@ def proper_orthogonal_decomposition_functions_block(
     return eigenvalues, modes, eigenvectors
 
 
-def proper_orthogonal_decomposition_tensors(
-    tensors_list: TensorsList, N: int, tol: float, normalize: bool = True
+def proper_orthogonal_decomposition_tensors(  # type: ignore[no-any-unimported]
+    tensors_list: TensorsList, N: int, tol: petsc4py.PETSc.RealType, normalize: bool = True
 ) -> typing.Tuple[
-    np.typing.NDArray[float], TensorsList, typing.List[petsc4py.PETSc.Vec]
+    np.typing.NDArray[petsc4py.PETSc.RealType], TensorsList, typing.List[petsc4py.PETSc.Vec]
 ]:
     """
     Compute the proper orthogonal decomposition of a set of tensors.
@@ -154,22 +162,30 @@ def proper_orthogonal_decomposition_tensors(
     """
     assert tensors_list.type in ("Mat", "Vec")
     if tensors_list.type == "Mat":
-        def compute_inner_product(tensor_j: petsc4py.PETSc.Mat) -> typing.Callable:
-            def _(tensor_i: petsc4py.PETSc.Mat) -> petsc4py.PETSc.RealType:
+        def compute_inner_product(  # type: ignore[no-any-unimported]
+            tensor_j: petsc4py.PETSc.Mat
+        ) -> typing.Callable[[petsc4py.PETSc.Mat], petsc4py.PETSc.RealType]:
+            def _(tensor_i: petsc4py.PETSc.Mat) -> petsc4py.PETSc.RealType:  # type: ignore[no-any-unimported]
                 return cpp_library._backends.frobenius_inner_product(tensor_i, tensor_j)
 
             return _
 
-        def scale(tensor: petsc4py.PETSc.Mat, factor: petsc4py.PETSc.RealType) -> None:
+        def scale(  # type: ignore[no-any-unimported]
+            tensor: petsc4py.PETSc.Mat, factor: petsc4py.PETSc.RealType
+        ) -> None:
             tensor *= factor
     elif tensors_list.type == "Vec":
-        def compute_inner_product(tensor_j: petsc4py.PETSc.Vec) -> typing.Callable:
-            def _(tensor_i: petsc4py.PETSc.Vec) -> petsc4py.PETSc.RealType:
+        def compute_inner_product(  # type: ignore[no-any-unimported]
+            tensor_j: petsc4py.PETSc.Vec
+        ) -> typing.Callable[[petsc4py.PETSc.Vec], petsc4py.PETSc.RealType]:
+            def _(tensor_i: petsc4py.PETSc.Vec) -> petsc4py.PETSc.RealType:  # type: ignore[no-any-unimported]
                 return tensor_i.dot(tensor_j)
 
             return _
 
-        def scale(tensor: petsc4py.PETSc.Vec, factor: petsc4py.PETSc.RealType) -> None:
+        def scale(  # type: ignore[no-any-unimported]
+            tensor: petsc4py.PETSc.Vec, factor: petsc4py.PETSc.RealType
+        ) -> None:
             with tensor.localForm() as tensor_local:
                 tensor_local *= factor
 
@@ -180,14 +196,23 @@ def proper_orthogonal_decomposition_tensors(
     return eigenvalues, modes_wrapped, eigenvectors
 
 
-def _solve_eigenvalue_problem(
-    snapshots: typing.Union[FunctionsList, TensorsList], compute_inner_product: typing.Callable,
-    scale: typing.Callable, N: int, tol: float, normalize: bool
-) -> typing.Tuple[
-    np.typing.NDArray[float],
-    typing.Union[
-        typing.List[Function], typing.List[petsc4py.PETSc.Mat], typing.List[petsc4py.PETSc.Vec]
+def _solve_eigenvalue_problem(  # type: ignore[no-any-unimported]
+    snapshots: typing.Union[FunctionsList[Function], TensorsList],
+    compute_inner_product: typing.Union[
+        typing.Callable[[Function], typing.Callable[[Function], petsc4py.PETSc.RealType]],
+        typing.Callable[[petsc4py.PETSc.Mat], typing.Callable[[petsc4py.PETSc.Mat], petsc4py.PETSc.RealType]],
+        typing.Callable[[petsc4py.PETSc.Vec], typing.Callable[[petsc4py.PETSc.Vec], petsc4py.PETSc.RealType]]
     ],
+    scale: typing.Union[
+        typing.Callable[[Function, petsc4py.PETSc.RealType], None],
+        typing.Callable[[petsc4py.PETSc.Mat, petsc4py.PETSc.RealType], None],
+        typing.Callable[[petsc4py.PETSc.Vec, petsc4py.PETSc.RealType], None],
+    ],
+    N: int, tol: petsc4py.PETSc.RealType, normalize: bool
+) -> typing.Tuple[
+    np.typing.NDArray[petsc4py.PETSc.RealType],
+    typing.Union[
+        typing.List[Function], typing.List[petsc4py.PETSc.Mat], typing.List[petsc4py.PETSc.Vec]],
     typing.List[petsc4py.PETSc.Vec]
 ]:
     """
@@ -242,9 +267,9 @@ def _solve_eigenvalue_problem(
     total_energy = sum([abs(e) for e in eigenvalues])
     retained_energy = np.cumsum([abs(e) for e in eigenvalues])
     if total_energy > 0.0:
-        retained_energy = [retained_energy_n / total_energy for retained_energy_n in retained_energy]
+        retained_energy = np.array([retained_energy_n / total_energy for retained_energy_n in retained_energy])
     else:
-        retained_energy = [1.0 for _ in range(eps.getConverged())]  # trivial case, all snapshots are zero
+        retained_energy = np.ones(eps.getConverged())  # trivial case, all snapshots are zero
 
     N = min(N, eps.getConverged())
     eigenvectors = list()

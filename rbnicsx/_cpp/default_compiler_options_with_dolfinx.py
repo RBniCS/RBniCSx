@@ -5,17 +5,19 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Determine default compiler options when dolfinx is available."""  # pragma: no cover
 
+import typing  # pragma: no cover
+
 import dolfinx.jit  # pragma: no cover
 import dolfinx.pkgconfig  # pragma: no cover
 import dolfinx.wrappers  # pragma: no cover
 
 
-def determine_default_compiler_options() -> dict:  # pragma: no cover
+def determine_default_compiler_options() -> typing.Dict[str, typing.Union[str, typing.List[str]]]:  # pragma: no cover
     """Determine default compiler options when dolfinx is available."""
-    default_compiler_options = dict()
+    default_compiler_options: typing.Dict[str, typing.Union[str, typing.List[str]]] = dict()
 
     # C++ components
-    dolfinx_pc = dolfinx.pkgconfig.parse("dolfinx")
+    dolfinx_pc = dolfinx.pkgconfig.parse("dolfinx")  # type: ignore[no-untyped-call]
     default_compiler_options["include_dirs"] = [
         include_dir for include_dir in dolfinx_pc["include_dirs"] if "-NOTFOUND" not in include_dir]
     default_compiler_options["compiler_args"] = ["-std=c++20"] + [

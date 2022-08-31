@@ -42,10 +42,10 @@ class MeshMotion(object):
         assert shape_parametrization.function_space.ufl_element().family() == "Lagrange"
         assert shape_parametrization.function_space.ufl_element().degree() == mesh.geometry.cmap.degree
 
-        self._mesh = mesh
-        self._shape_parametrization = shape_parametrization
-        self._reference_coordinates = mesh.geometry.x.copy()
-        self._identity = None
+        self._mesh: dolfinx.mesh.Mesh = mesh
+        self._shape_parametrization: dolfinx.fem.Function = shape_parametrization
+        self._reference_coordinates: np.typing.NDArray[np.float64] = mesh.geometry.x.copy()
+        self._identity: typing.Optional[dolfinx.fem.Function] = None
 
     @property
     def shape_parametrization(self) -> dolfinx.fem.Function:
@@ -59,6 +59,7 @@ class MeshMotion(object):
             identity = dolfinx.fem.Function(self._shape_parametrization.function_space)
             identity.interpolate(lambda x: x[:self._mesh.topology.dim])
             self._identity = identity
+        assert self._identity is not None
         return self._identity
 
     @property

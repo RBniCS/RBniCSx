@@ -14,7 +14,9 @@ import petsc4py.PETSc
 from rbnicsx.io import on_rank_zero
 
 
-def export_matrix(mat: petsc4py.PETSc.Mat, comm: mpi4py.MPI.Intracomm, directory: str, filename: str) -> None:
+def export_matrix(  # type: ignore[no-any-unimported]
+    mat: petsc4py.PETSc.Mat, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+) -> None:
     """
     Export a petsc4py.PETSc.Mat to file.
 
@@ -35,7 +37,7 @@ def export_matrix(mat: petsc4py.PETSc.Mat, comm: mpi4py.MPI.Intracomm, directory
     viewer.destroy()
 
 
-def export_matrices(
+def export_matrices(  # type: ignore[no-any-unimported]
     mats: typing.List[petsc4py.PETSc.Mat], comm: mpi4py.MPI.Intracomm, directory: str, filename: str
 ) -> None:
     """
@@ -68,7 +70,9 @@ def export_matrices(
         viewer.destroy()
 
 
-def export_vector(vec: petsc4py.PETSc.Vec, comm: mpi4py.MPI.Intracomm, directory: str, filename: str) -> None:
+def export_vector(  # type: ignore[no-any-unimported]
+    vec: petsc4py.PETSc.Vec, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+) -> None:
     """
     Export a petsc4py.PETSc.Vec to file.
 
@@ -89,7 +93,7 @@ def export_vector(vec: petsc4py.PETSc.Vec, comm: mpi4py.MPI.Intracomm, directory
     viewer.destroy()
 
 
-def export_vectors(
+def export_vectors(  # type: ignore[no-any-unimported]
     vecs: typing.List[petsc4py.PETSc.Vec], comm: mpi4py.MPI.Intracomm, directory: str, filename: str
 ) -> None:
     """
