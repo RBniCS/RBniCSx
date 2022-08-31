@@ -5,6 +5,8 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Tests for rbnicsx.online.functions_list module."""
 
+import typing
+
 import _pytest.fixtures
 import nbvalx.tempfile
 import numpy as np
@@ -160,9 +162,10 @@ def test_online_functions_list_mul(functions_list: rbnicsx.online.FunctionsList)
     assert np.allclose(function.array, 13 * first_vector.array)
 
 
-def test_online_functions_list_mul_empty() -> None:
+@pytest.mark.parametrize("shape", [10, [5, 5]])
+def test_online_functions_list_mul_empty(shape: typing.Union[int, typing.List[int]]) -> None:
     """Check rbnicsx.online.FunctionsList.__mul__ with empty list."""
-    empty_functions_list = rbnicsx.online.FunctionsList(10)
+    empty_functions_list = rbnicsx.online.FunctionsList(shape)
 
     online_vec = rbnicsx.online.create_vector(0)
 
