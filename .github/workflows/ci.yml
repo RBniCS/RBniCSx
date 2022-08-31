@@ -89,6 +89,17 @@ jobs:
           fi
           python3 -c "import rbnicsx._cpp"
         shell: bash
+      - name: Update mypy configuration
+        if: startsWith(matrix.backend, 'none') == true
+        run: |
+          echo "[mypy-dolfinx]" >> setup.cfg
+          echo "ignore_missing_imports = True" >> setup.cfg
+          echo "[mypy-dolfinx.*]" >> setup.cfg
+          echo "ignore_missing_imports = True" >> setup.cfg
+          echo "[mypy-rbnicsx._cpp.default_compiler_options_with_dolfinx]" >> setup.cfg
+          echo "follow_imports = silent" >> setup.cfg
+          sed -i 's@exclude = (^\\\.eggs|^build|^dist|conftest\\\.py\$)@exclude = (^\\\.eggs|^build|^dist|conftest\\\.py\$|^rbnicsx/backends|^rbnicsx/_cpp/backends|^rbnicsx/_cpp/default_compiler_options_with_dolfinx\\\.py\$|^tests/unit/backends|^tests/unit/_cpp/backends)@g' setup.cfg
+        shell: bash
       - name: Run flake8 and mypy checks on python files
         run: |
           python3 -m flake8 .
