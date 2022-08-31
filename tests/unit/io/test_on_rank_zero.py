@@ -46,6 +46,6 @@ def test_on_rank_zero_petsc4py_comm() -> None:
     comm = petsc4py.PETSc.COMM_WORLD
 
     def int_return_function() -> int:
-        return comm.rank
+        return comm.rank  # type: ignore[no-any-return]
 
     assert rbnicsx.io.on_rank_zero(comm, int_return_function) == 0

@@ -10,6 +10,8 @@ import typing
 import _pytest.fixtures
 import nbvalx.tempfile
 import numpy as np
+import numpy.typing
+import petsc4py.PETSc
 import pytest
 
 import rbnicsx.online
@@ -23,8 +25,9 @@ def tensors_list_vec_plain() -> rbnicsx.online.TensorsList:
         for i in range(3):
             vector.setValue(i, (v + 1) * (i + 1))
     tensors_list = rbnicsx.online.TensorsList(3)
-    [tensors_list.append(vector) for vector in vectors]
-    tensors_list.first_vector = vectors[0]
+    for vector in vectors:
+        tensors_list.append(vector)
+    setattr(tensors_list, "first_vector", vectors[0])
     return tensors_list
 
 
@@ -36,15 +39,16 @@ def tensors_list_vec_block() -> rbnicsx.online.TensorsList:
         for i in range(7):
             vector.setValue(i, (v + 1) * (i + 1))
     tensors_list = rbnicsx.online.TensorsList([3, 4])
-    [tensors_list.append(vector) for vector in vectors]
-    tensors_list.first_vector = vectors[0]
+    for vector in vectors:
+        tensors_list.append(vector)
+    setattr(tensors_list, "first_vector", vectors[0])
     return tensors_list
 
 
 @pytest.fixture(params=["tensors_list_vec_plain", "tensors_list_vec_block"])
 def tensors_list_vec(request: _pytest.fixtures.SubRequest) -> rbnicsx.online.TensorsList:
     """Parameterize rbnicsx.online.TensorsList on petsc4py.PETSc.Vec (block version or not)."""
-    return request.getfixturevalue(request.param)
+    return request.getfixturevalue(request.param)  # type: ignore[no-any-return]
 
 
 @pytest.fixture
@@ -57,8 +61,9 @@ def tensors_list_mat_plain() -> rbnicsx.online.TensorsList:
                 matrix.setValue(i, j, (m + 1) * (i * 3 + j + 1))
         matrix.assemble()
     tensors_list = rbnicsx.online.TensorsList((4, 3))
-    [tensors_list.append(matrix) for matrix in matrices]
-    tensors_list.first_matrix = matrices[0]
+    for matrix in matrices:
+        tensors_list.append(matrix)
+    setattr(tensors_list, "first_matrix", matrices[0])
     return tensors_list
 
 
@@ -72,27 +77,28 @@ def tensors_list_mat_block() -> rbnicsx.online.TensorsList:
                 matrix.setValue(i, j, (m + 1) * (i * 9 + j + 1))
         matrix.assemble()
     tensors_list = rbnicsx.online.TensorsList(([7, 3], [4, 5]))
-    [tensors_list.append(matrix) for matrix in matrices]
-    tensors_list.first_matrix = matrices[0]
+    for matrix in matrices:
+        tensors_list.append(matrix)
+    setattr(tensors_list, "first_matrix", matrices[0])
     return tensors_list
 
 
 @pytest.fixture(params=["tensors_list_mat_plain", "tensors_list_mat_block"])
 def tensors_list_mat(request: _pytest.fixtures.SubRequest) -> rbnicsx.online.TensorsList:
     """Parameterize rbnicsx.online.TensorsList on petsc4py.PETSc.Mat (block version or not)."""
-    return request.getfixturevalue(request.param)
+    return request.getfixturevalue(request.param)  # type: ignore[no-any-return]
 
 
 @pytest.fixture(params=["tensors_list_vec_plain", "tensors_list_mat_plain"])
 def tensors_list_plain(request: _pytest.fixtures.SubRequest) -> rbnicsx.online.TensorsList:
     """Parameterize rbnicsx.online.TensorsList on petsc4py.PETSc.Mat and petsc4py.PETSc.Vec (not block version)."""
-    return request.getfixturevalue(request.param)
+    return request.getfixturevalue(request.param)  # type: ignore[no-any-return]
 
 
 @pytest.fixture(params=["tensors_list_vec_block", "tensors_list_mat_block"])
 def tensors_list_block(request: _pytest.fixtures.SubRequest) -> rbnicsx.online.TensorsList:
     """Parameterize rbnicsx.online.TensorsList on petsc4py.PETSc.Mat and petsc4py.PETSc.Vec (block version)."""
-    return request.getfixturevalue(request.param)
+    return request.getfixturevalue(request.param)  # type: ignore[no-any-return]
 
 
 @pytest.fixture(params=[
@@ -100,7 +106,7 @@ def tensors_list_block(request: _pytest.fixtures.SubRequest) -> rbnicsx.online.T
 ])
 def tensors_list(request: _pytest.fixtures.SubRequest) -> rbnicsx.online.TensorsList:
     """Parameterize rbnicsx.online.TensorsList on petsc4py.PETSc.Mat and petsc4py.PETSc.Vec."""
-    return request.getfixturevalue(request.param)
+    return request.getfixturevalue(request.param)  # type: ignore[no-any-return]
 
 
 def test_online_tensors_list_shape_vec_plain(tensors_list_vec_plain: rbnicsx.online.TensorsList) -> None:
@@ -130,12 +136,15 @@ def test_online_tensors_list_shape_mat_plain(tensors_list_mat_plain: rbnicsx.onl
 def test_online_tensors_list_shape_mat_block(tensors_list_mat_block: rbnicsx.online.TensorsList) -> None:
     """Check rbnicsx.online.TensorsList.shape in the case of petsc4py.PETSc.Mat content (block version)."""
     assert isinstance(tensors_list_mat_block.shape, tuple)
-    assert all([isinstance(shape_, list) for shape_ in tensors_list_mat_block.shape])
-    assert all([isinstance(shape__, int) for shape_ in tensors_list_mat_block.shape for shape__ in shape_])
     assert len(tensors_list_mat_block.shape) == 2
-    assert all([len(shape_) == 2 for shape_ in tensors_list_mat_block.shape])
+    for shape_ in tensors_list_mat_block.shape:
+        assert isinstance(shape_, list)
+        assert len(shape_) == 2
+        assert all([isinstance(shape__, int) for shape__ in shape_])
+    assert isinstance(tensors_list_mat_block.shape[0], list)
     assert tensors_list_mat_block.shape[0][0] == 7
     assert tensors_list_mat_block.shape[0][1] == 3
+    assert isinstance(tensors_list_mat_block.shape[1], list)
     assert tensors_list_mat_block.shape[1][0] == 4
     assert tensors_list_mat_block.shape[1][1] == 5
 
@@ -213,70 +222,82 @@ def test_online_tensors_list_clear(tensors_list: rbnicsx.online.TensorsList) -> 
 
 def test_online_tensors_list_iter_vec(tensors_list_vec: rbnicsx.online.TensorsList) -> None:
     """Check rbnicsx.online.TensorsList.__iter__ in the case of petsc4py.PETSc.Vec content."""
+    first_vector = getattr(tensors_list_vec, "first_vector")
     for (index, vector) in enumerate(tensors_list_vec):
-        assert np.allclose(vector.array, (index + 1) * tensors_list_vec.first_vector.array)
+        assert np.allclose(vector.array, (index + 1) * first_vector.array)
 
 
-def test_online_tensors_list_iter_mat(
-    tensors_list_mat: rbnicsx.online.TensorsList, to_dense_matrix: typing.Callable
+def test_online_tensors_list_iter_mat(  # type: ignore[no-any-unimported]
+    tensors_list_mat: rbnicsx.online.TensorsList,
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.online.TensorsList.__iter__ in the case of petsc4py.PETSc.Mat content."""
+    first_matrix = getattr(tensors_list_mat, "first_matrix")
     for (index, matrix) in enumerate(tensors_list_mat):
-        assert np.allclose(to_dense_matrix(matrix), (index + 1) * to_dense_matrix(tensors_list_mat.first_matrix))
+        assert np.allclose(to_dense_matrix(matrix), (index + 1) * to_dense_matrix(first_matrix))
 
 
 def test_online_tensors_list_getitem_int_vec(tensors_list_vec: rbnicsx.online.TensorsList) -> None:
     """Check rbnicsx.online.TensorsList.__getitem__ with integer input in the case of petsc4py.PETSc.Vec content."""
-    assert np.allclose(tensors_list_vec[0].array, tensors_list_vec.first_vector.array)
-    assert np.allclose(tensors_list_vec[1].array, 2 * tensors_list_vec.first_vector.array)
+    first_vector = getattr(tensors_list_vec, "first_vector")
+    assert np.allclose(tensors_list_vec[0].array, first_vector.array)
+    assert np.allclose(tensors_list_vec[1].array, 2 * first_vector.array)
 
 
-def test_online_tensors_list_getitem_int_mat(
-    tensors_list_mat: rbnicsx.online.TensorsList, to_dense_matrix: typing.Callable
+def test_online_tensors_list_getitem_int_mat(  # type: ignore[no-any-unimported]
+    tensors_list_mat: rbnicsx.online.TensorsList,
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.online.TensorsList.__getitem__ with integer input in the case of petsc4py.PETSc.Mat content."""
-    assert np.allclose(to_dense_matrix(tensors_list_mat[0]), to_dense_matrix(tensors_list_mat.first_matrix))
-    assert np.allclose(to_dense_matrix(tensors_list_mat[1]), 2 * to_dense_matrix(tensors_list_mat.first_matrix))
+    first_matrix = getattr(tensors_list_mat, "first_matrix")
+    assert np.allclose(to_dense_matrix(tensors_list_mat[0]), to_dense_matrix(first_matrix))
+    assert np.allclose(to_dense_matrix(tensors_list_mat[1]), 2 * to_dense_matrix(first_matrix))
 
 
 def test_online_tensors_list_getitem_slice_vec(tensors_list_vec: rbnicsx.online.TensorsList) -> None:
     """Check rbnicsx.online.TensorsList.__getitem__ with slice input in the case of petsc4py.PETSc.Vec content."""
     tensors_list_vec2 = tensors_list_vec[0:2]
     assert len(tensors_list_vec2) == 2
-    assert np.allclose(tensors_list_vec2[0].array, tensors_list_vec.first_vector.array)
-    assert np.allclose(tensors_list_vec2[1].array, 2 * tensors_list_vec.first_vector.array)
+    first_vector = getattr(tensors_list_vec, "first_vector")
+    assert np.allclose(tensors_list_vec2[0].array, first_vector.array)
+    assert np.allclose(tensors_list_vec2[1].array, 2 * first_vector.array)
 
 
-def test_online_tensors_list_getitem_slice_mat(
-    tensors_list_mat: rbnicsx.online.TensorsList, to_dense_matrix: typing.Callable
+def test_online_tensors_list_getitem_slice_mat(  # type: ignore[no-any-unimported]
+    tensors_list_mat: rbnicsx.online.TensorsList,
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.online.TensorsList.__getitem__ with slice input in the case of petsc4py.PETSc.Mat content."""
     tensors_list_mat2 = tensors_list_mat[0:2]
     assert len(tensors_list_mat2) == 2
-    assert np.allclose(to_dense_matrix(tensors_list_mat2[0]), to_dense_matrix(tensors_list_mat.first_matrix))
-    assert np.allclose(to_dense_matrix(tensors_list_mat2[1]), 2 * to_dense_matrix(tensors_list_mat.first_matrix))
+    first_matrix = getattr(tensors_list_mat, "first_matrix")
+    assert np.allclose(to_dense_matrix(tensors_list_mat2[0]), to_dense_matrix(first_matrix))
+    assert np.allclose(to_dense_matrix(tensors_list_mat2[1]), 2 * to_dense_matrix(first_matrix))
 
 
 def test_online_tensors_list_getitem_wrong_type(tensors_list_vec: rbnicsx.online.TensorsList) -> None:
     """Check rbnicsx.online.TensorsList.__getitem__ with unsupported input."""
     with pytest.raises(RuntimeError):
-        tensors_list_vec[0, 0]
+        tensors_list_vec[0, 0]  # type: ignore[call-overload]
 
 
 def test_online_tensors_list_setitem_vec(tensors_list_vec: rbnicsx.online.TensorsList) -> None:
     """Check rbnicsx.online.TensorsList.__setitem__ in the case of petsc4py.PETSc.Vec content."""
-    tensors_list_vec[0] = 3 * tensors_list_vec.first_vector
-    assert np.allclose(tensors_list_vec[0].array, 3 * tensors_list_vec.first_vector.array)
-    assert np.allclose(tensors_list_vec[1].array, 2 * tensors_list_vec.first_vector.array)
+    first_vector = getattr(tensors_list_vec, "first_vector")
+    tensors_list_vec[0] = 3 * first_vector
+    assert np.allclose(tensors_list_vec[0].array, 3 * first_vector.array)
+    assert np.allclose(tensors_list_vec[1].array, 2 * first_vector.array)
 
 
-def test_online_tensors_list_setitem_mat(
-    tensors_list_mat: rbnicsx.online.TensorsList, to_dense_matrix: typing.Callable
+def test_online_tensors_list_setitem_mat(  # type: ignore[no-any-unimported]
+    tensors_list_mat: rbnicsx.online.TensorsList,
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.online.TensorsList.__setitem__ in the case of petsc4py.PETSc.Mat content."""
-    tensors_list_mat[0] = 3 * tensors_list_mat.first_matrix
-    assert np.allclose(to_dense_matrix(tensors_list_mat[0]), 3 * to_dense_matrix(tensors_list_mat.first_matrix))
-    assert np.allclose(to_dense_matrix(tensors_list_mat[1]), 2 * to_dense_matrix(tensors_list_mat.first_matrix))
+    first_matrix = getattr(tensors_list_mat, "first_matrix")
+    tensors_list_mat[0] = 3 * first_matrix
+    assert np.allclose(to_dense_matrix(tensors_list_mat[0]), 3 * to_dense_matrix(first_matrix))
+    assert np.allclose(to_dense_matrix(tensors_list_mat[1]), 2 * to_dense_matrix(first_matrix))
 
 
 def test_online_tensors_list_setitem_mixed_types(
@@ -311,8 +332,9 @@ def test_online_tensors_list_save_load_vec(tensors_list_vec: rbnicsx.online.Tens
             assert np.allclose(vector2.array, vector.array)
 
 
-def test_online_tensors_list_save_load_mat(
-    tensors_list_mat: rbnicsx.online.TensorsList, to_dense_matrix: typing.Callable
+def test_online_tensors_list_save_load_mat(  # type: ignore[no-any-unimported]
+    tensors_list_mat: rbnicsx.online.TensorsList,
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check I/O for a rbnicsx.online.TensorsList in the case of petsc4py.PETSc.Mat content."""
     with nbvalx.tempfile.TemporaryDirectory(tensors_list_mat.comm) as tempdir:
@@ -345,11 +367,13 @@ def test_online_tensors_list_mul_vec(tensors_list_vec: rbnicsx.online.TensorsLis
     online_vec[1] = 5
 
     vector = tensors_list_vec * online_vec
-    assert np.allclose(vector.array, 13 * tensors_list_vec.first_vector.array)
+    first_vector = getattr(tensors_list_vec, "first_vector")
+    assert np.allclose(vector.array, 13 * first_vector.array)
 
 
-def test_online_tensors_list_mul_mat(
-    tensors_list_mat: rbnicsx.online.TensorsList, to_dense_matrix: typing.Callable
+def test_online_tensors_list_mul_mat(  # type: ignore[no-any-unimported]
+    tensors_list_mat: rbnicsx.online.TensorsList,
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.online.TensorsList.__mul__ in the case of petsc4py.PETSc.Mat content."""
     online_vec = rbnicsx.online.create_vector(2)
@@ -357,7 +381,8 @@ def test_online_tensors_list_mul_mat(
     online_vec[1] = 5
 
     matrix = tensors_list_mat * online_vec
-    assert np.allclose(to_dense_matrix(matrix), 13 * to_dense_matrix(tensors_list_mat.first_matrix))
+    first_matrix = getattr(tensors_list_mat, "first_matrix")
+    assert np.allclose(to_dense_matrix(matrix), 13 * to_dense_matrix(first_matrix))
 
 
 def test_online_tensors_list_mul_empty() -> None:

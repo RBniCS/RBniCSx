@@ -94,7 +94,10 @@ def test_backends_export_import_vectors(mesh: dolfinx.mesh.Mesh) -> None:
             assert np.allclose(vector2.array, vector.array)
 
 
-def test_backends_export_import_matrix(mesh: dolfinx.mesh.Mesh, to_dense_matrix: typing.Callable) -> None:
+def test_backends_export_import_matrix(  # type: ignore[no-any-unimported]
+    mesh: dolfinx.mesh.Mesh,
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+) -> None:
     """Check I/O for a petsc4py.PETSc.Mat."""
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
     u = ufl.TrialFunction(V)
@@ -111,7 +114,10 @@ def test_backends_export_import_matrix(mesh: dolfinx.mesh.Mesh, to_dense_matrix:
         assert np.allclose(to_dense_matrix(matrix2), to_dense_matrix(matrix))
 
 
-def test_backends_export_import_matrices(mesh: dolfinx.mesh.Mesh, to_dense_matrix: typing.Callable) -> None:
+def test_backends_export_import_matrices(  # type: ignore[no-any-unimported]
+    mesh: dolfinx.mesh.Mesh,
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+) -> None:
     """Check I/O for a list of petsc4py.PETSc.Mat."""
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
     u = ufl.TrialFunction(V)

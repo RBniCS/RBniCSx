@@ -21,8 +21,9 @@ def functions_list_plain() -> rbnicsx.online.FunctionsList:
         for i in range(3):
             vector.setValue(i, (v + 1) * (i + 1))
     functions_list = rbnicsx.online.FunctionsList(3)
-    [functions_list.append(vector) for vector in vectors]
-    functions_list.first_vector = vectors[0]
+    for vector in vectors:
+        functions_list.append(vector)
+    setattr(functions_list, "first_vector", vectors[0])
     return functions_list
 
 
@@ -34,15 +35,16 @@ def functions_list_block() -> rbnicsx.online.FunctionsList:
         for i in range(7):
             vector.setValue(i, (v + 1) * (i + 1))
     functions_list = rbnicsx.online.FunctionsList([3, 4])
-    [functions_list.append(vector) for vector in vectors]
-    functions_list.first_vector = vectors[0]
+    for vector in vectors:
+        functions_list.append(vector)
+    setattr(functions_list, "first_vector", vectors[0])
     return functions_list
 
 
 @pytest.fixture(params=["functions_list_plain", "functions_list_block"])
 def functions_list(request: _pytest.fixtures.SubRequest) -> rbnicsx.online.FunctionsList:
     """Parameterize rbnicsx.online.FunctionsList considering either non-block or block content."""
-    return request.getfixturevalue(request.param)
+    return request.getfixturevalue(request.param)  # type: ignore[no-any-return]
 
 
 def test_online_functions_list_shape_plain(functions_list_plain: rbnicsx.online.FunctionsList) -> None:
@@ -98,36 +100,40 @@ def test_online_functions_list_clear(functions_list: rbnicsx.online.FunctionsLis
 
 def test_online_functions_list_iter(functions_list: rbnicsx.online.FunctionsList) -> None:
     """Check rbnicsx.online.FunctionsList.__iter__."""
+    first_vector = getattr(functions_list, "first_vector")
     for (index, function) in enumerate(functions_list):
-        assert np.allclose(function.array, (index + 1) * functions_list.first_vector.array)
+        assert np.allclose(function.array, (index + 1) * first_vector.array)
 
 
 def test_online_functions_list_getitem_int(functions_list: rbnicsx.online.FunctionsList) -> None:
     """Check rbnicsx.online.FunctionsList.__getitem__ with integer input."""
-    assert np.allclose(functions_list[0].array, functions_list.first_vector.array)
-    assert np.allclose(functions_list[1].array, 2 * functions_list.first_vector.array)
+    first_vector = getattr(functions_list, "first_vector")
+    assert np.allclose(functions_list[0].array, first_vector.array)
+    assert np.allclose(functions_list[1].array, 2 * first_vector.array)
 
 
 def test_online_functions_list_getitem_slice(functions_list: rbnicsx.online.FunctionsList) -> None:
     """Check rbnicsx.online.FunctionsList.__getitem__ with slice input."""
     functions_list2 = functions_list[0:2]
     assert len(functions_list2) == 2
-    assert np.allclose(functions_list2[0].array, functions_list.first_vector.array)
-    assert np.allclose(functions_list2[1].array, 2 * functions_list.first_vector.array)
+    first_vector = getattr(functions_list, "first_vector")
+    assert np.allclose(functions_list2[0].array, first_vector.array)
+    assert np.allclose(functions_list2[1].array, 2 * first_vector.array)
 
 
 def test_online_functions_list_getitem_wrong_type(functions_list: rbnicsx.online.FunctionsList) -> None:
     """Check rbnicsx.online.FunctionsList.__getitem__ with unsupported input."""
     with pytest.raises(RuntimeError):
-        functions_list[0, 0]
+        functions_list[0, 0]  # type: ignore[call-overload]
 
 
 def test_online_functions_list_setitem(functions_list: rbnicsx.online.FunctionsList) -> None:
     """Check rbnicsx.online.FunctionsList.__setitem__."""
-    functions_list[0] = 3 * functions_list.first_vector
+    first_vector = getattr(functions_list, "first_vector")
+    functions_list[0] = 3 * first_vector
 
-    assert np.allclose(functions_list[0].array, 3 * functions_list.first_vector.array)
-    assert np.allclose(functions_list[1].array, 2 * functions_list.first_vector.array)
+    assert np.allclose(functions_list[0].array, 3 * first_vector.array)
+    assert np.allclose(functions_list[1].array, 2 * first_vector.array)
 
 
 def test_online_functions_list_save_load(functions_list: rbnicsx.online.FunctionsList) -> None:
@@ -150,7 +156,8 @@ def test_online_functions_list_mul(functions_list: rbnicsx.online.FunctionsList)
     online_vec[1] = 5
 
     function = functions_list * online_vec
-    assert np.allclose(function.array, 13 * functions_list.first_vector.array)
+    first_vector = getattr(functions_list, "first_vector")
+    assert np.allclose(function.array, 13 * first_vector.array)
 
 
 def test_online_functions_list_mul_empty() -> None:

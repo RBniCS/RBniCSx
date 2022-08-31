@@ -10,6 +10,8 @@ import typing
 import mpi4py.MPI
 import nbvalx.tempfile
 import numpy as np
+import numpy.typing
+import petsc4py.PETSc
 
 import rbnicsx.online
 
@@ -75,7 +77,9 @@ def test_online_export_import_vectors_block() -> None:
             assert np.allclose(vector2.array, vector.array)
 
 
-def test_online_export_import_matrix(to_dense_matrix: typing.Callable) -> None:
+def test_online_export_import_matrix(  # type: ignore[no-any-unimported]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+) -> None:
     """Check I/O for an online petsc4py.PETSc.Mat."""
     matrix = rbnicsx.online.create_matrix(2, 3)
     for i in range(2):
@@ -91,7 +95,9 @@ def test_online_export_import_matrix(to_dense_matrix: typing.Callable) -> None:
         assert np.allclose(to_dense_matrix(matrix2), to_dense_matrix(matrix))
 
 
-def test_online_export_import_matrix_block(to_dense_matrix: typing.Callable) -> None:
+def test_online_export_import_matrix_block(  # type: ignore[no-any-unimported]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+) -> None:
     """Check I/O for an online petsc4py.PETSc.Mat (block version)."""
     matrix = rbnicsx.online.create_matrix_block([2, 3], [4, 5])
     for i in range(5):
@@ -107,7 +113,9 @@ def test_online_export_import_matrix_block(to_dense_matrix: typing.Callable) -> 
         assert np.allclose(to_dense_matrix(matrix2), to_dense_matrix(matrix))
 
 
-def test_online_export_import_matrices(to_dense_matrix: typing.Callable) -> None:
+def test_online_export_import_matrices(  # type: ignore[no-any-unimported]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+) -> None:
     """Check I/O for a list of online petsc4py.PETSc.Mat."""
     matrices = [rbnicsx.online.create_matrix(2, 3) for _ in range(4)]
     for (m, matrix) in enumerate(matrices):
@@ -125,7 +133,9 @@ def test_online_export_import_matrices(to_dense_matrix: typing.Callable) -> None
             assert np.allclose(to_dense_matrix(matrix2), to_dense_matrix(matrix))
 
 
-def test_online_export_import_matrices_block(to_dense_matrix: typing.Callable) -> None:
+def test_online_export_import_matrices_block(  # type: ignore[no-any-unimported]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+) -> None:
     """Check I/O for a list of online petsc4py.PETSc.Mat (block version)."""
     matrices = [rbnicsx.online.create_matrix_block([2, 3], [4, 5]) for _ in range(6)]
     for (m, matrix) in enumerate(matrices):

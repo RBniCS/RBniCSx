@@ -42,7 +42,7 @@ def functions(mesh: dolfinx.mesh.Mesh) -> typing.List[dolfinx.fem.Function]:
 
 
 @pytest.fixture
-def inner_product(mesh: dolfinx.mesh.Mesh) -> ufl.Form:
+def inner_product(mesh: dolfinx.mesh.Mesh) -> ufl.Form:  # type: ignore[no-any-unimported]
     """Generate a UFL form storing the L^2 inner product."""
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
     u = ufl.TrialFunction(V)
@@ -50,7 +50,9 @@ def inner_product(mesh: dolfinx.mesh.Mesh) -> ufl.Form:
     return ufl.inner(u, v) * ufl.dx
 
 
-def test_backends_gram_schmidt(functions: typing.List[dolfinx.fem.Function], inner_product: ufl.Form) -> None:
+def test_backends_gram_schmidt(  # type: ignore[no-any-unimported]
+    functions: typing.List[dolfinx.fem.Function], inner_product: ufl.Form
+) -> None:
     """Check rbnicsx.backends.gram_schmidt."""
     V = functions[0].function_space
     functions_list = rbnicsx.backends.FunctionsList(V)
@@ -75,7 +77,9 @@ def test_backends_gram_schmidt(functions: typing.List[dolfinx.fem.Function], inn
     assert np.allclose(functions_list[1].vector.array, expected1.vector.array)
 
 
-def test_backends_gram_schmidt_zero(mesh: dolfinx.mesh.Mesh, inner_product: ufl.Form) -> None:
+def test_backends_gram_schmidt_zero(  # type: ignore[no-any-unimported]
+    mesh: dolfinx.mesh.Mesh, inner_product: ufl.Form
+) -> None:
     """Check rbnicsx.backends.gram_schmidt when adding a linearly dependent function (e.g., zero)."""
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
 
@@ -89,7 +93,9 @@ def test_backends_gram_schmidt_zero(mesh: dolfinx.mesh.Mesh, inner_product: ufl.
     assert len(functions_list) == 0
 
 
-def test_backends_gram_schmidt_block(functions: typing.List[dolfinx.fem.Function], inner_product: ufl.Form) -> None:
+def test_backends_gram_schmidt_block(  # type: ignore[no-any-unimported]
+    functions: typing.List[dolfinx.fem.Function], inner_product: ufl.Form
+) -> None:
     """Check rbnicsx.backends.gram_schmidt_block."""
     V = functions[0].function_space
     functions_lists = [rbnicsx.backends.FunctionsList(V) for _ in range(2)]

@@ -22,7 +22,8 @@ import scipy.sparse
 
 
 @pytest.fixture(scope="module")
-def to_dense_matrix() -> typing.Callable:
+def to_dense_matrix() -> typing.Callable[  # type: ignore[no-any-unimported]
+        [petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]:
     """Fixture that returns a function to convert the local part of a sparse PETSc Mat into a dense numpy ndarray."""
     def _(mat: petsc4py.PETSc.Mat) -> np.typing.NDArray[petsc4py.PETSc.ScalarType]:
         """Convert the local part of a sparse PETSc Mat into a dense numpy ndarray."""

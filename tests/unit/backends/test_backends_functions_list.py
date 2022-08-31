@@ -95,7 +95,7 @@ def test_backends_functions_list_getitem_slice(functions_list: rbnicsx.backends.
 def test_backends_functions_list_getitem_wrong_type(functions_list: rbnicsx.backends.FunctionsList) -> None:
     """Check rbnicsx.backends.FunctionsList.__getitem__ with unsupported input."""
     with pytest.raises(RuntimeError):
-        functions_list[0, 0]
+        functions_list[0, 0]  # type: ignore[call-overload]
 
 
 def test_backends_functions_list_setitem(functions_list: rbnicsx.backends.FunctionsList) -> None:

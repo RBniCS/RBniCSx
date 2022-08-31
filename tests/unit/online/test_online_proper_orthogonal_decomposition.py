@@ -23,8 +23,8 @@ def functions_list_plain() -> rbnicsx.online.FunctionsList:
         for i in range(3):
             vector.setValue(i, (v + 1) * (i + 1))
     functions_list = rbnicsx.online.FunctionsList(3)
-    [functions_list.append(vector) for vector in vectors]
-    functions_list.first_vector = vectors[0]
+    for vector in vectors:
+        functions_list.append(vector)
     return functions_list
 
 
@@ -36,21 +36,21 @@ def functions_list_block() -> rbnicsx.online.FunctionsList:
         for i in range(7):
             vector.setValue(i, (v + 1) * (i + 1))
     functions_list = rbnicsx.online.FunctionsList([3, 4])
-    [functions_list.append(vector) for vector in vectors]
-    functions_list.first_vector = vectors[0]
+    for vector in vectors:
+        functions_list.append(vector)
     return functions_list
 
 
 @pytest.fixture(params=["functions_list_plain", "functions_list_block"])
 def functions_list(request: _pytest.fixtures.SubRequest) -> rbnicsx.online.FunctionsList:
     """Parameterize rbnicsx.online.FunctionsList considering either non-block or block content."""
-    return request.getfixturevalue(request.param)
+    return request.getfixturevalue(request.param)  # type: ignore[no-any-return]
 
 
 @pytest.fixture
-def inner_product() -> typing.Callable:
+def inner_product() -> typing.Callable[[int], petsc4py.PETSc.Mat]:  # type: ignore[no-any-unimported]
     """Return a callable that computes the identity matrix."""
-    def _(N: int) -> petsc4py.PETSc.Mat:
+    def _(N: int) -> petsc4py.PETSc.Mat:  # type: ignore[no-any-unimported]
         """Return the identity matrix."""
         identity = rbnicsx.online.create_matrix(N, N)
         for i in range(N):
@@ -61,8 +61,9 @@ def inner_product() -> typing.Callable:
     return _
 
 
-def compute_inner_product(
-    inner_product: typing.Callable, function_i: petsc4py.PETSc.Vec, function_j: petsc4py.PETSc.Vec
+def compute_inner_product(  # type: ignore[no-any-unimported]
+    inner_product: typing.Callable[[int], petsc4py.PETSc.Mat],
+    function_i: petsc4py.PETSc.Vec, function_j: petsc4py.PETSc.Vec
 ) -> petsc4py.PETSc.ScalarType:
     """Evaluate the inner product between two functions."""
     inner_product_action = rbnicsx.online.matrix_action(inner_product)
@@ -77,8 +78,8 @@ def tensors_list_vec_plain() -> rbnicsx.online.TensorsList:
         for i in range(3):
             vector.setValue(i, (v + 1) * (i + 1))
     tensors_list = rbnicsx.online.TensorsList(3)
-    [tensors_list.append(vector) for vector in vectors]
-    tensors_list.first_vector = vectors[0]
+    for vector in vectors:
+        tensors_list.append(vector)
     return tensors_list
 
 
@@ -90,15 +91,15 @@ def tensors_list_vec_block() -> rbnicsx.online.TensorsList:
         for i in range(7):
             vector.setValue(i, (v + 1) * (i + 1))
     tensors_list = rbnicsx.online.TensorsList([3, 4])
-    [tensors_list.append(vector) for vector in vectors]
-    tensors_list.first_vector = vectors[0]
+    for vector in vectors:
+        tensors_list.append(vector)
     return tensors_list
 
 
 @pytest.fixture(params=["tensors_list_vec_plain", "tensors_list_vec_block"])
 def tensors_list_vec(request: _pytest.fixtures.SubRequest) -> rbnicsx.online.TensorsList:
     """Parameterize rbnicsx.online.TensorsList on petsc4py.PETSc.Vec (block version or not)."""
-    return request.getfixturevalue(request.param)
+    return request.getfixturevalue(request.param)  # type: ignore[no-any-return]
 
 
 @pytest.fixture
@@ -111,8 +112,8 @@ def tensors_list_mat_plain() -> rbnicsx.online.TensorsList:
                 matrix.setValue(i, j, (m + 1) * (i * 3 + j + 1))
         matrix.assemble()
     tensors_list = rbnicsx.online.TensorsList((4, 3))
-    [tensors_list.append(matrix) for matrix in matrices]
-    tensors_list.first_matrix = matrices[0]
+    for matrix in matrices:
+        tensors_list.append(matrix)
     return tensors_list
 
 
@@ -126,20 +127,21 @@ def tensors_list_mat_block() -> rbnicsx.online.TensorsList:
                 matrix.setValue(i, j, (m + 1) * (i * 9 + j + 1))
         matrix.assemble()
     tensors_list = rbnicsx.online.TensorsList(([7, 3], [4, 5]))
-    [tensors_list.append(matrix) for matrix in matrices]
-    tensors_list.first_matrix = matrices[0]
+    for matrix in matrices:
+        tensors_list.append(matrix)
     return tensors_list
 
 
 @pytest.fixture(params=["tensors_list_mat_plain", "tensors_list_mat_block"])
 def tensors_list_mat(request: _pytest.fixtures.SubRequest) -> rbnicsx.online.TensorsList:
     """Parameterize rbnicsx.online.TensorsList on petsc4py.PETSc.Mat (block version or not)."""
-    return request.getfixturevalue(request.param)
+    return request.getfixturevalue(request.param)  # type: ignore[no-any-return]
 
 
 @pytest.mark.parametrize("normalize", [True, False])
-def test_online_proper_orthogonal_decomposition_functions(
-    functions_list: rbnicsx.online.FunctionsList, inner_product: typing.Callable, normalize: bool
+def test_online_proper_orthogonal_decomposition_functions(  # type: ignore[no-any-unimported]
+    functions_list: rbnicsx.online.FunctionsList, inner_product: typing.Callable[[int], petsc4py.PETSc.Mat],
+    normalize: bool
 ) -> None:
     """Check rbnicsx.online.proper_orthogonal_decomposition for the case of snapshots stored in a FunctionsList."""
     size = functions_list[0].size
@@ -161,8 +163,9 @@ def test_online_proper_orthogonal_decomposition_functions(
 
 
 @pytest.mark.parametrize("normalize", [True, False])
-def test_online_proper_orthogonal_decomposition_functions_tol(
-    functions_list: rbnicsx.online.FunctionsList, inner_product: typing.Callable, normalize: bool
+def test_online_proper_orthogonal_decomposition_functions_tol(  # type: ignore[no-any-unimported]
+    functions_list: rbnicsx.online.FunctionsList, inner_product: typing.Callable[[int], petsc4py.PETSc.Mat],
+    normalize: bool
 ) -> None:
     """
     Check rbnicsx.online.proper_orthogonal_decomposition for the case of snapshots stored in a FunctionsList.
@@ -190,16 +193,18 @@ def test_online_proper_orthogonal_decomposition_functions_tol(
 @pytest.mark.parametrize(
     "stopping_criterion_generator",
     [lambda arg: arg, lambda arg: [arg, arg]])
-def test_online_proper_orthogonal_decomposition_block(
-    functions_list: rbnicsx.online.FunctionsList, inner_product: typing.Callable, normalize: bool,
-    stopping_criterion_generator: typing.Callable
+def test_online_proper_orthogonal_decomposition_block(  # type: ignore[no-any-unimported]
+    functions_list: rbnicsx.online.FunctionsList, inner_product: typing.Callable[[int], petsc4py.PETSc.Mat],
+    normalize: bool, stopping_criterion_generator: typing.Callable[
+        [typing.Any], typing.Union[typing.Any, typing.Tuple[typing.Any, typing.Any]]]
 ) -> None:
     """Check rbnicsx.online.proper_orthogonal_decomposition_block."""
     size = functions_list[0].size
     inner_product_matrix = inner_product(size)
     eigenvalues, modes, eigenvectors = rbnicsx.online.proper_orthogonal_decomposition_block(
         [functions_list[:2], functions_list[2:4]], [inner_product_matrix, 2 * inner_product_matrix],
-        N=stopping_criterion_generator(2), tol=stopping_criterion_generator(0.0), normalize=normalize)
+        N=stopping_criterion_generator(2), tol=stopping_criterion_generator(0.0),  # type: ignore[arg-type]
+        normalize=normalize)
     assert len(eigenvalues) == 2
     sum_squares_first_size_numbers = size * (size + 1) * (2 * size + 1) / 6
     for (component, eigenvalue_factor) in enumerate([1, 10]):
@@ -256,8 +261,8 @@ def test_online_proper_orthogonal_decomposition_matrices(
 
 
 @pytest.mark.parametrize("normalize", [True, False])
-def test_online_proper_orthogonal_decomposition_zero(
-    inner_product: typing.Callable, normalize: bool
+def test_online_proper_orthogonal_decomposition_zero(  # type: ignore[no-any-unimported]
+    inner_product: typing.Callable[[int], petsc4py.PETSc.Mat], normalize: bool
 ) -> None:
     """Check rbnicsx.online.proper_orthogonal_decomposition for the case of all zero snapshots."""
     functions_list = rbnicsx.online.FunctionsList(3)
@@ -277,4 +282,4 @@ def test_online_proper_orthogonal_decomposition_zero(
 def test_online_proper_orthogonal_decomposition_wrong_iterable() -> None:
     """Check rbnicsx.online.proper_orthogonal_decomposition raises when providing a plain list."""
     with pytest.raises(RuntimeError):
-        rbnicsx.online.proper_orthogonal_decomposition(list(), N=0, tol=0.0)
+        rbnicsx.online.proper_orthogonal_decomposition(list(), N=0, tol=0.0)  # type: ignore[call-overload]

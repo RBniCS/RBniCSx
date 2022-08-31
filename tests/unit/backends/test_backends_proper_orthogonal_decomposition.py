@@ -39,7 +39,7 @@ def functions_list(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.FunctionsList:
 
 
 @pytest.fixture
-def inner_product(mesh: dolfinx.mesh.Mesh) -> ufl.Form:
+def inner_product(mesh: dolfinx.mesh.Mesh) -> ufl.Form:  # type: ignore[no-any-unimported]
     """Generate a UFL form storing the L^2 inner product."""
     V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
     u = ufl.TrialFunction(V)
@@ -55,10 +55,11 @@ def tensors_list_vec(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsList:
     linear_forms = [ufl.inner(i + 1, v) * ufl.dx for i in range(2)]
     linear_forms_cpp = dolfinx.fem.form(linear_forms)
     vectors = [dolfinx.fem.petsc.assemble_vector(linear_form_cpp) for linear_form_cpp in linear_forms_cpp]
-    [vector.ghostUpdate(
-        addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE) for vector in vectors]
+    for vector in vectors:
+        vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
     tensors_list = rbnicsx.backends.TensorsList(linear_forms_cpp[0], mesh.comm)
-    [tensors_list.append(vector) for vector in vectors]
+    for vector in vectors:
+        tensors_list.append(vector)
     return tensors_list
 
 
@@ -71,14 +72,16 @@ def tensors_list_mat(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsList:
     bilinear_forms = [(i + 1) * ufl.inner(u, v) * ufl.dx for i in range(2)]
     bilinear_forms_cpp = dolfinx.fem.form(bilinear_forms)
     matrices = [dolfinx.fem.petsc.assemble_matrix(bilinear_form_cpp) for bilinear_form_cpp in bilinear_forms_cpp]
-    [matrix.assemble() for matrix in matrices]
+    for matrix in matrices:
+        matrix.assemble()
     tensors_list = rbnicsx.backends.TensorsList(bilinear_forms_cpp[0], mesh.comm)
-    [tensors_list.append(matrix) for matrix in matrices]
+    for matrix in matrices:
+        tensors_list.append(matrix)
     return tensors_list
 
 
 @pytest.mark.parametrize("normalize", [True, False])
-def test_backends_proper_orthogonal_decomposition_functions(
+def test_backends_proper_orthogonal_decomposition_functions(  # type: ignore[no-any-unimported]
     functions_list: rbnicsx.backends.FunctionsList, inner_product: ufl.Form, normalize: bool
 ) -> None:
     """Check rbnicsx.backends.proper_orthogonal_decomposition for the case of dolfinx.fem.Function snapshots."""
@@ -97,7 +100,7 @@ def test_backends_proper_orthogonal_decomposition_functions(
 
 
 @pytest.mark.parametrize("normalize", [True, False])
-def test_backends_proper_orthogonal_decomposition_functions_tol(
+def test_backends_proper_orthogonal_decomposition_functions_tol(  # type: ignore[no-any-unimported]
     functions_list: rbnicsx.backends.FunctionsList, inner_product: ufl.Form, normalize: bool
 ) -> None:
     """
@@ -122,15 +125,17 @@ def test_backends_proper_orthogonal_decomposition_functions_tol(
 @pytest.mark.parametrize(
     "stopping_criterion_generator",
     [lambda arg: arg, lambda arg: [arg, arg]])
-def test_backends_proper_orthogonal_decomposition_block(
+def test_backends_proper_orthogonal_decomposition_block(  # type: ignore[no-any-unimported]
     functions_list: rbnicsx.backends.FunctionsList, inner_product: ufl.Form, normalize: bool,
-    stopping_criterion_generator: typing.Callable
+    stopping_criterion_generator: typing.Callable[
+        [typing.Any], typing.Union[typing.Any, typing.Tuple[typing.Any, typing.Any]]]
 ) -> None:
     """Check rbnicsx.backends.proper_orthogonal_decomposition_block."""
     compute_inner_product = rbnicsx.backends.bilinear_form_action([inner_product, 2 * inner_product])
     eigenvalues, modes, eigenvectors = rbnicsx.backends.proper_orthogonal_decomposition_block(
-        [functions_list[:2], functions_list[2:4]], compute_inner_product, N=stopping_criterion_generator(2),
-        tol=stopping_criterion_generator(0.0), normalize=normalize)
+        [functions_list[:2], functions_list[2:4]], compute_inner_product,
+        N=stopping_criterion_generator(2), tol=stopping_criterion_generator(0.0),  # type: ignore[arg-type]
+        normalize=normalize)
     assert len(eigenvalues) == 2
     for (component, eigenvalue_factor) in enumerate([1, 10]):
         assert len(eigenvalues[component]) == 2
@@ -183,7 +188,7 @@ def test_backends_proper_orthogonal_decomposition_matrices(
 
 
 @pytest.mark.parametrize("normalize", [True, False])
-def test_backends_proper_orthogonal_decomposition_zero(
+def test_backends_proper_orthogonal_decomposition_zero(  # type: ignore[no-any-unimported]
     mesh: dolfinx.mesh.Mesh, inner_product: ufl.Form, normalize: bool
 ) -> None:
     """Check rbnicsx.backends.proper_orthogonal_decomposition for the case of all zero snapshots."""
@@ -205,4 +210,4 @@ def test_backends_proper_orthogonal_decomposition_zero(
 def test_backends_proper_orthogonal_decomposition_wrong_iterable() -> None:
     """Check rbnicsx.backends.proper_orthogonal_decomposition raises when providing a plain list."""
     with pytest.raises(RuntimeError):
-        rbnicsx.backends.proper_orthogonal_decomposition(list(), N=0, tol=0.0)
+        rbnicsx.backends.proper_orthogonal_decomposition(list(), N=0, tol=0.0)  # type: ignore[call-overload]

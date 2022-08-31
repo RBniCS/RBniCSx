@@ -80,7 +80,7 @@ def test_online_vector_block_set() -> None:
     blocks = np.hstack((0, np.cumsum(N)))
     for I in range(2):  # noqa: E741
         is_I = petsc4py.PETSc.IS().createGeneral(
-            np.arange(*blocks[I:I + 2], dtype=np.int32), comm=online_vec.comm)
+            np.arange(blocks[I], blocks[I + 1], dtype=np.int32), comm=online_vec.comm)
         is_I.view()
         online_vec_I = online_vec.getSubVector(is_I)
         for i in range(N[I]):
@@ -129,11 +129,11 @@ def test_online_matrix_block_set() -> None:
     col_blocks = np.hstack((0, np.cumsum(N)))
     for I in range(2):  # noqa: E741
         is_I = petsc4py.PETSc.IS().createGeneral(
-            np.arange(*row_blocks[I:I + 2], dtype=np.int32), comm=online_mat.comm)
+            np.arange(row_blocks[I], row_blocks[I + 1], dtype=np.int32), comm=online_mat.comm)
         is_I.view()
         for J in range(2):
             is_J = petsc4py.PETSc.IS().createGeneral(
-                np.arange(*col_blocks[J:J + 2], dtype=np.int32), comm=online_mat.comm)
+                np.arange(col_blocks[J], col_blocks[J + 1], dtype=np.int32), comm=online_mat.comm)
             is_J.view()
             online_mat_IJ = online_mat.getLocalSubMatrix(is_I, is_J)
             for i in range(M[I]):
@@ -213,13 +213,17 @@ def test_online_nonlinear_solve() -> None:
     class NonlinearProblem(object):
         """Define a nonlinear problem."""
 
-        def F(self, snes: petsc4py.PETSc.SNES, x: petsc4py.PETSc.Vec, F_vec: petsc4py.PETSc.Vec) -> None:
+        def F(  # type: ignore[no-any-unimported]
+            self, snes: petsc4py.PETSc.SNES, x: petsc4py.PETSc.Vec, F_vec: petsc4py.PETSc.Vec
+        ) -> None:
             """Assemble the residual of the problem."""
             F_vec[0] = (x[0] - 1)**2
             F_vec[1] = (x[1] - 2)**2
 
-        def J(self, snes: petsc4py.PETSc.SNES, x: petsc4py.PETSc.Vec, J_mat: petsc4py.PETSc.Mat,
-              P_mat: petsc4py.PETSc.Mat) -> None:
+        def J(  # type: ignore[no-any-unimported]
+            self, snes: petsc4py.PETSc.SNES, x: petsc4py.PETSc.Vec, J_mat: petsc4py.PETSc.Mat,
+            P_mat: petsc4py.PETSc.Mat
+        ) -> None:
             """Assemble the jacobian of the problem."""
             J_mat[0, 0] = 2 * x[0] - 2
             J_mat[1, 1] = 2 * x[1] - 4

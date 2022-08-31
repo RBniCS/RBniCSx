@@ -35,10 +35,11 @@ def mesh_3d() -> dolfinx.mesh.Mesh:
 @pytest.fixture(params=["mesh_2d", "mesh_3d"])
 def mesh(request: _pytest.fixtures.SubRequest) -> dolfinx.mesh.Mesh:
     """Parameterize tests with 2d and 3d meshes."""
-    return request.getfixturevalue(request.param)
+    return request.getfixturevalue(request.param)  # type: ignore[no-any-return]
 
 
-def shape_parametrization_expression(dim: int) -> typing.Callable:
+def shape_parametrization_expression(dim: int) -> typing.Callable[
+        [np.typing.NDArray[np.float64]], np.typing.NDArray[np.float64]]:
     """Return a function that computes the analytical expression of the shape parametrization."""
 
     def _(x: np.typing.NDArray[np.float64]) -> np.typing.NDArray[np.float64]:
