@@ -7,8 +7,9 @@
 
 import typing
 
-import multipledispatch
+import numpy as np
 import petsc4py.PETSc
+import plum
 
 from rbnicsx._backends.online_tensors import (
     BlockMatSubMatrixCopier, BlockVecSubVectorCopier, create_online_matrix as create_matrix,
@@ -19,18 +20,18 @@ from rbnicsx._backends.projection import (
     project_vector as project_vector_super, project_vector_block as project_vector_block_super)
 from rbnicsx.online.functions_list import FunctionsList
 
-# We need to introduce a dependency on multipledispatch and cannot use functools.singledispatch
+# We need to introduce a dependency on a multiple dispatch library and cannot use functools.singledispatch
 # because the type of the first argument does not allow to differentiate between dispatched and
 # non-dispatched version, e.g.
 #   project_vector(L: petsc4py.PETSc.Vec, B: FunctionsList)
 #   project_vector(b: petsc4py.PETSc.Vec, L: petsc4py.PETSc.Vec, B: FunctionsList)
 # in which, in both cases, the first argument is petsc4py.PETSc.Vec.
 
-project_vector = multipledispatch.Dispatcher("project_vector")
+project_vector_dispatcher = plum.Dispatcher()
 
 
-@project_vector.register(petsc4py.PETSc.Vec, FunctionsList)
-def _(L: petsc4py.PETSc.Vec, B: FunctionsList) -> petsc4py.PETSc.Vec:
+@project_vector_dispatcher
+def _project_vector(L: petsc4py.PETSc.Vec, B: FunctionsList) -> petsc4py.PETSc.Vec:
     """
     Project a linear form onto the reduced basis.
 
@@ -47,12 +48,12 @@ def _(L: petsc4py.PETSc.Vec, B: FunctionsList) -> petsc4py.PETSc.Vec:
         Online vector containing the result of the projection.
     """
     b = create_vector(len(B))
-    project_vector(b, L, B)
+    _project_vector(b, L, B)
     return b
 
 
-@project_vector.register(petsc4py.PETSc.Vec, petsc4py.PETSc.Vec, FunctionsList)
-def _(b: petsc4py.PETSc.Vec, L: petsc4py.PETSc.Vec, B: FunctionsList) -> None:
+@project_vector_dispatcher  # type: ignore[no-redef]
+def _project_vector(b: petsc4py.PETSc.Vec, L: petsc4py.PETSc.Vec, B: FunctionsList) -> None:  # noqa: F811
     """
     Project a linear form onto the reduced basis.
 
@@ -69,11 +70,30 @@ def _(b: petsc4py.PETSc.Vec, L: petsc4py.PETSc.Vec, B: FunctionsList) -> None:
     project_vector_super(b, vector_action(L), B)
 
 
-project_vector_block = multipledispatch.Dispatcher("project_vector_block")
+@typing.overload
+def project_vector(L: petsc4py.PETSc.Vec, B: FunctionsList) -> petsc4py.PETSc.Vec:  # type: ignore[no-any-unimported]
+    """Stub of project_vector for type checking. See the concrete implementation above."""
+    ...
 
 
-@project_vector_block.register(petsc4py.PETSc.Vec, list)
-def _(L: petsc4py.PETSc.Vec, B: typing.List[FunctionsList]) -> petsc4py.PETSc.Vec:
+@typing.overload
+def project_vector(  # type: ignore[no-any-unimported]
+    b: petsc4py.PETSc.Vec, L: petsc4py.PETSc.Vec, B: FunctionsList
+) -> None:
+    """Stub of project_vector for type checking. See the concrete implementation above."""
+    ...
+
+
+def project_vector(*args, **kwargs):  # type: ignore[no-untyped-def]
+    """Dispatcher of project_vector for type checking. See the concrete implementation above."""
+    return _project_vector(*args, **kwargs)
+
+
+project_vector_block_dispatcher = plum.Dispatcher()
+
+
+@project_vector_block_dispatcher
+def _project_vector_block(L: petsc4py.PETSc.Vec, B: typing.Sequence[FunctionsList]) -> petsc4py.PETSc.Vec:
     """
     Project a list of linear forms onto the reduced basis.
 
@@ -90,12 +110,14 @@ def _(L: petsc4py.PETSc.Vec, B: typing.List[FunctionsList]) -> petsc4py.PETSc.Ve
         Online vector containing the result of the projection.
     """
     b = create_vector_block([len(B_i) for B_i in B])
-    project_vector_block(b, L, B)
+    _project_vector_block(b, L, B)
     return b
 
 
-@project_vector_block.register(petsc4py.PETSc.Vec, petsc4py.PETSc.Vec, list)
-def _(b: petsc4py.PETSc.Vec, L: petsc4py.PETSc.Vec, B: typing.List[FunctionsList]) -> None:
+@project_vector_block_dispatcher  # type: ignore[no-redef]
+def _project_vector_block(  # noqa: F811
+    b: petsc4py.PETSc.Vec, L: petsc4py.PETSc.Vec, B: typing.Sequence[FunctionsList]
+) -> None:
     """
     Project a list of linear forms onto the reduced basis.
 
@@ -114,11 +136,34 @@ def _(b: petsc4py.PETSc.Vec, L: petsc4py.PETSc.Vec, B: typing.List[FunctionsList
         project_vector_block_super(b, [vector_action(L_) for L_ in L_copier], B)
 
 
-project_matrix = multipledispatch.Dispatcher("project_matrix")
+@typing.overload
+def project_vector_block(  # type: ignore[no-any-unimported]
+    L: petsc4py.PETSc.Vec, B: typing.Sequence[FunctionsList]
+) -> petsc4py.PETSc.Vec:
+    """Stub of project_vector_block for type checking. See the concrete implementation above."""
+    ...
 
 
-@project_matrix.register(petsc4py.PETSc.Mat, (FunctionsList, tuple))
-def _(a: petsc4py.PETSc.Mat, B: typing.Union[FunctionsList, typing.Tuple[FunctionsList]]) -> petsc4py.PETSc.Mat:
+@typing.overload
+def project_vector_block(  # type: ignore[no-any-unimported]
+    b: petsc4py.PETSc.Vec, L: petsc4py.PETSc.Vec, B: typing.Sequence[FunctionsList]
+) -> None:
+    """Stub of project_vector_block for type checking. See the concrete implementation above."""
+    ...
+
+
+def project_vector_block(*args, **kwargs):  # type: ignore[no-untyped-def]
+    """Dispatcher of project_vector_block for type checking. See the concrete implementation above."""
+    return _project_vector_block(*args, **kwargs)
+
+
+project_matrix_dispatcher = plum.Dispatcher()
+
+
+@project_matrix_dispatcher
+def _project_matrix(
+    a: petsc4py.PETSc.Mat, B: typing.Union[FunctionsList, typing.Tuple[FunctionsList, FunctionsList]]
+) -> petsc4py.PETSc.Mat:
     """
     Project a bilinear form onto the reduced basis.
 
@@ -143,13 +188,14 @@ def _(a: petsc4py.PETSc.Mat, B: typing.Union[FunctionsList, typing.Tuple[Functio
         N = M
 
     A = create_matrix(M, N)
-    project_matrix(A, a, B)
+    _project_matrix(A, a, B)
     return A
 
 
-@project_matrix.register(petsc4py.PETSc.Mat, petsc4py.PETSc.Mat, (FunctionsList, tuple))
-def _(
-    A: petsc4py.PETSc.Mat, a: petsc4py.PETSc.Mat, B: typing.Union[FunctionsList, typing.Tuple[FunctionsList]]
+@project_matrix_dispatcher  # type: ignore[no-redef]
+def _project_matrix(  # noqa: F811
+    A: petsc4py.PETSc.Mat, a: petsc4py.PETSc.Mat,
+    B: typing.Union[FunctionsList, typing.Tuple[FunctionsList, FunctionsList]]
 ) -> None:
     """
     Project a bilinear form onto the reduced basis.
@@ -168,13 +214,36 @@ def _(
     project_matrix_super(A, matrix_action(a), B)
 
 
-project_matrix_block = multipledispatch.Dispatcher("project_matrix_block")
+@typing.overload
+def project_matrix(  # type: ignore[no-any-unimported]
+    a: petsc4py.PETSc.Mat, B: typing.Union[FunctionsList, typing.Tuple[FunctionsList, FunctionsList]]
+) -> petsc4py.PETSc.Mat:
+    """Stub of project_matrix for type checking. See the concrete implementation above."""
+    ...
 
 
-@project_matrix_block.register(petsc4py.PETSc.Mat, (list, tuple))
-def _(
+@typing.overload
+def project_matrix(  # type: ignore[no-any-unimported]
+    A: petsc4py.PETSc.Mat, a: petsc4py.PETSc.Mat,
+    B: typing.Union[FunctionsList, typing.Tuple[FunctionsList, FunctionsList]]
+) -> None:
+    """Stub of project_matrix for type checking. See the concrete implementation above."""
+    ...
+
+
+def project_matrix(*args, **kwargs):  # type: ignore[no-untyped-def]
+    """Dispatcher of project_matrix for type checking. See the concrete implementation above."""
+    return _project_matrix(*args, **kwargs)
+
+
+project_matrix_block_dispatcher = plum.Dispatcher()
+
+
+@project_matrix_block_dispatcher
+def _project_matrix_block(
     a: petsc4py.PETSc.Mat,
-    B: typing.Union[typing.List[FunctionsList], typing.Tuple[typing.List[FunctionsList]]]
+    B: typing.Union[
+        typing.Sequence[FunctionsList], typing.Tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]]
 ) -> petsc4py.PETSc.Mat:
     """
     Project a matrix of bilinear forms onto the reduced basis.
@@ -199,15 +268,16 @@ def _(
         N = M
 
     A = create_matrix_block(M, N)
-    project_matrix_block(A, a, B)
+    _project_matrix_block(A, a, B)
     return A
 
 
-@project_matrix_block.register(petsc4py.PETSc.Mat, petsc4py.PETSc.Mat, (list, tuple))
-def _(
+@project_matrix_block_dispatcher  # type: ignore[no-redef]
+def _project_matrix_block(  # noqa: F811
     A: petsc4py.PETSc.Mat,
     a: petsc4py.PETSc.Mat,
-    B: typing.Union[typing.List[FunctionsList], typing.Tuple[typing.List[FunctionsList]]]
+    B: typing.Union[
+        typing.Sequence[FunctionsList], typing.Tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]]
 ) -> None:
     """
     Project a matrix of bilinear forms onto the reduced basis.
@@ -229,13 +299,41 @@ def _(
         M_a = [B_i[0].size for B_i in B]
         N_a = M_a
     with BlockMatSubMatrixCopier(a, M_a, N_a) as a_copier:
-        matrix_action_a = [[None for _ in range(len(N_a))] for _ in range(len(M_a))]
+        matrix_action_a = np.zeros((len(N_a), len(M_a)), dtype=object)
         for (i, j, a_ij) in a_copier:
             matrix_action_a[i][j] = matrix_action(a_ij)
-        project_matrix_block_super(A, matrix_action_a, B)
+        project_matrix_block_super(A, matrix_action_a.tolist(), B)
 
 
-def vector_action(L: petsc4py.PETSc.Vec) -> typing.Callable:
+@typing.overload
+def project_matrix_block(  # type: ignore[no-any-unimported]
+    a: petsc4py.PETSc.Mat,
+    B: typing.Union[
+        typing.Sequence[FunctionsList], typing.Tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]]
+) -> petsc4py.PETSc.Mat:
+    """Stub of project_matrix_block for type checking. See the concrete implementation above."""
+    ...
+
+
+@typing.overload
+def project_matrix_block(  # type: ignore[no-any-unimported]
+    A: petsc4py.PETSc.Mat,
+    a: petsc4py.PETSc.Mat,
+    B: typing.Union[
+        typing.Sequence[FunctionsList], typing.Tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]]
+) -> None:
+    """Stub of project_matrix_block for type checking. See the concrete implementation above."""
+    ...
+
+
+def project_matrix_block(*args, **kwargs):  # type: ignore[no-untyped-def]
+    """Dispatcher of project_matrix_block for type checking. See the concrete implementation above."""
+    return _project_matrix_block(*args, **kwargs)
+
+
+def vector_action(  # type: ignore[no-any-unimported]
+    L: petsc4py.PETSc.Vec
+) -> typing.Callable[[petsc4py.PETSc.Vec], petsc4py.PETSc.ScalarType]:
     """
     Return a callable that represents the action of the dot product between two vectors.
 
@@ -250,7 +348,7 @@ def vector_action(L: petsc4py.PETSc.Vec) -> typing.Callable:
         A callable that represents the action of L on a vector.
     """
 
-    def _(vec: petsc4py.PETSc.Vec) -> petsc4py.PETSc.ScalarType:
+    def _(vec: petsc4py.PETSc.Vec) -> petsc4py.PETSc.ScalarType:  # type: ignore[no-any-unimported]
         """
         Compute the action of the dot product between two vectors.
 
@@ -269,7 +367,9 @@ def vector_action(L: petsc4py.PETSc.Vec) -> typing.Callable:
     return _
 
 
-def matrix_action(a: petsc4py.PETSc.Mat) -> typing.Callable:
+def matrix_action(  # type: ignore[no-any-unimported]
+    a: petsc4py.PETSc.Mat
+) -> typing.Callable[[petsc4py.PETSc.Vec], typing.Callable[[petsc4py.PETSc.Vec], petsc4py.PETSc.ScalarType]]:
     """
     Return a callable that represents the action of a vector-matrix-vector product.
 
@@ -285,7 +385,9 @@ def matrix_action(a: petsc4py.PETSc.Mat) -> typing.Callable:
     """
     a_dot_vec_1 = a.createVecLeft()
 
-    def _trial_action(vec_1: petsc4py.PETSc.Vec) -> typing.Callable:
+    def _trial_action(  # type: ignore[no-any-unimported]
+        vec_1: petsc4py.PETSc.Vec
+    ) -> typing.Callable[[petsc4py.PETSc.Vec], petsc4py.PETSc.ScalarType]:
         """
         Compute the action of a matrix-vector product.
 
@@ -301,7 +403,7 @@ def matrix_action(a: petsc4py.PETSc.Mat) -> typing.Callable:
         """
         a.mult(vec_1, a_dot_vec_1)
 
-        def _test_action(vec_0: petsc4py.PETSc.Vec) -> petsc4py.PETSc.ScalarType:
+        def _test_action(vec_0: petsc4py.PETSc.Vec) -> petsc4py.PETSc.ScalarType:  # type: ignore[no-any-unimported]
             """
             Compute the action of a vector-matrix-vector product.
 
