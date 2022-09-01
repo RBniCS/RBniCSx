@@ -7,8 +7,6 @@
 
 from __future__ import annotations
 
-import typing
-
 import dolfinx.fem
 import numpy as np
 import petsc4py.PETSc
@@ -100,17 +98,3 @@ class FunctionsList(FunctionsListBase[dolfinx.fem.Function]):
         output.vector.ghostUpdate(
             addv=petsc4py.PETSc.InsertMode.INSERT, mode=petsc4py.PETSc.ScatterMode.FORWARD)
         return output
-
-    @typing.overload
-    def __getitem__(self, key: int) -> dolfinx.fem.Function:  # pragma: no cover
-        """Stub of __getitem__ for type checking. See the concrete implementation in the parent class."""
-        ...
-
-    @typing.overload
-    def __getitem__(self, key: slice) -> FunctionsList:  # pragma: no cover
-        """Stub of __getitem__ for type checking. See the concrete implementation in the parent class."""
-        ...
-
-    def __getitem__(self, key: typing.Union[int, slice]) -> typing.Union[dolfinx.fem.Function, FunctionsList]:
-        """Implement __getitem__ for type checking. See the concrete implementation in the parent class."""
-        return super().__getitem__(key)  # type: ignore[return-value]

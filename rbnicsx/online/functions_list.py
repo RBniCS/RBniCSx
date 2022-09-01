@@ -129,19 +129,3 @@ class FunctionsList(FunctionsListBase[petsc4py.PETSc.Vec]):  # type: ignore[no-a
             else:
                 assert isinstance(self._shape, int)
                 return create_vector(self._shape)
-
-    @typing.overload
-    def __getitem__(self, key: int) -> petsc4py.PETSc.Vec:  # type: ignore[no-any-unimported]  # pragma: no cover
-        """Stub of __getitem__ for type checking. See the concrete implementation in the parent class."""
-        ...
-
-    @typing.overload
-    def __getitem__(self, key: slice) -> FunctionsList:  # pragma: no cover
-        """Stub of __getitem__ for type checking. See the concrete implementation in the parent class."""
-        ...
-
-    def __getitem__(  # type: ignore[no-any-unimported]
-        self, key: typing.Union[int, slice]
-    ) -> typing.Union[petsc4py.PETSc.Vec, FunctionsList]:
-        """Implement __getitem__ for type checking. See the concrete implementation in the parent class."""
-        return super().__getitem__(key)

@@ -5,8 +5,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Internal backend to wrap an array of PETSc Mat or Vec."""
 
-from __future__ import annotations
-
 import abc
 import itertools
 import os
@@ -18,6 +16,8 @@ import numpy.typing
 import petsc4py.PETSc
 
 from rbnicsx.io import on_rank_zero
+
+Self = typing.TypeVar("Self", bound="TensorsArray")
 
 
 class TensorsArray(abc.ABC):
@@ -41,29 +41,29 @@ class TensorsArray(abc.ABC):
         A string representing the type of tensors (Mat or Vec) currently stored.
     """
 
-    def __init__(self, comm: mpi4py.MPI.Intracomm, shape: typing.Union[int, typing.Tuple[int, ...]]) -> None:
+    def __init__(self: Self, comm: mpi4py.MPI.Intracomm, shape: typing.Union[int, typing.Tuple[int, ...]]) -> None:
         self._comm: mpi4py.MPI.Intracomm = comm
         self._array: np.typing.NDArray[  # type: ignore[no-any-unimported]
             typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]] = np.full(shape, fill_value=None, dtype=object)
         self._type: typing.Optional[str] = None
 
     @property
-    def comm(self) -> mpi4py.MPI.Intracomm:
+    def comm(self: Self) -> mpi4py.MPI.Intracomm:
         """Return the common MPI communicator that the PETSc objects will use."""
         return self._comm
 
     @property
-    def shape(self) -> typing.Tuple[int, ...]:
+    def shape(self: Self) -> typing.Tuple[int, ...]:
         """Return the shape of the array."""
         return self._array.shape
 
     @property
-    def type(self) -> typing.Optional[str]:
+    def type(self: Self) -> typing.Optional[str]:
         """Return the type of tensors (Mat or Vec) currently stored."""
         return self._type
 
     @abc.abstractmethod
-    def duplicate(self, shape: typing.Optional[typing.Union[int, typing.Tuple[int, ...]]] = None) -> TensorsArray:
+    def duplicate(self: Self, shape: typing.Optional[typing.Union[int, typing.Tuple[int, ...]]] = None) -> Self:
         """
         Duplicate this object to a new empty TensorsArray.
 
@@ -80,7 +80,7 @@ class TensorsArray(abc.ABC):
         """
         pass  # pragma: no cover
 
-    def save(self, directory: str, filename: str) -> None:
+    def save(self: Self, directory: str, filename: str) -> None:
         """
         Save this array to file.
 
@@ -104,7 +104,7 @@ class TensorsArray(abc.ABC):
         self._save(directory, filename)
 
     @abc.abstractmethod
-    def _save(self, directory: str, filename: str) -> None:
+    def _save(self: Self, directory: str, filename: str) -> None:
         """
         Save this array to file querying the I/O functions in the backend.
 
@@ -117,7 +117,7 @@ class TensorsArray(abc.ABC):
         """
         pass  # pragma: no cover
 
-    def load(self, directory: str, filename: str) -> None:
+    def load(self: Self, directory: str, filename: str) -> None:
         """
         Load an array from file into this object.
 
@@ -140,7 +140,7 @@ class TensorsArray(abc.ABC):
         self._load(directory, filename)
 
     @abc.abstractmethod
-    def _load(self, directory: str, filename: str) -> None:
+    def _load(self: Self, directory: str, filename: str) -> None:
         """
         Load an array from file into this object querying the I/O functions in the backend.
 
@@ -153,7 +153,9 @@ class TensorsArray(abc.ABC):
         """
         pass  # pragma: no cover
 
-    def contraction(self, *args: petsc4py.PETSc.Vec) -> petsc4py.PETSc.ScalarType:  # type: ignore[no-any-unimported]
+    def contraction(  # type: ignore[no-any-unimported]
+        self: Self, *args: petsc4py.PETSc.Vec
+    ) -> petsc4py.PETSc.ScalarType:
         """
         Contract entries in the array.
 
@@ -214,19 +216,19 @@ class TensorsArray(abc.ABC):
 
     @typing.overload
     def __getitem__(  # type: ignore[no-any-unimported]
-        self, key: typing.Union[int, typing.Tuple[int, ...]]
+        self: Self, key: typing.Union[int, typing.Tuple[int, ...]]
     ) -> typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]:  # pragma: no cover
         """Stub of __getitem__ for type checking. See the concrete implementation below."""
         ...
 
     @typing.overload
-    def __getitem__(self, key: typing.Union[slice, typing.Tuple[slice, slice]]) -> TensorsArray:  # pragma: no cover
+    def __getitem__(self: Self, key: typing.Union[slice, typing.Tuple[slice, slice]]) -> Self:  # pragma: no cover
         """Stub of __getitem__ for type checking. See the concrete implementation below."""
         ...
 
     def __getitem__(  # type: ignore[no-any-unimported]
-        self, key: typing.Union[int, typing.Tuple[int, ...], slice, typing.Tuple[slice, slice]]
-    ) -> typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec, TensorsArray]:
+        self: Self, key: typing.Union[int, typing.Tuple[int, ...], slice, typing.Tuple[slice, slice]]
+    ) -> typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec, Self]:
         """
         Extract a single tensor from the array, or slice the array.
 
@@ -252,7 +254,7 @@ class TensorsArray(abc.ABC):
             raise NotImplementedError()
 
     def __setitem__(  # type: ignore[no-any-unimported]
-        self, key: typing.Union[int, typing.Tuple[int, ...]],
+        self: Self, key: typing.Union[int, typing.Tuple[int, ...]],
         tensor: typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]
     ) -> None:
         """
