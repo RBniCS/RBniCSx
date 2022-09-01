@@ -27,7 +27,7 @@ def determine_default_compiler_options() -> typing.Dict[str, typing.Union[str, t
     default_compiler_options["libraries"] = dolfinx_pc["libraries"]
 
     # Output directory
-    jit_parameters = dolfinx.jit.get_parameters()
-    default_compiler_options["output_dir"] = str(jit_parameters["cache_dir"])
+    jit_options = dolfinx.jit.get_options()
+    default_compiler_options["output_dir"] = str(jit_options["cache_dir"])
 
     return default_compiler_options
