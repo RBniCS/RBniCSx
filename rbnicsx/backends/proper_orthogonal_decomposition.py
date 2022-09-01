@@ -101,7 +101,7 @@ def proper_orthogonal_decomposition_block(  # type: ignore[no-any-unimported]
         A list of callables x_i(u_i)(v_i) to compute the action of the inner product on the trial function u_i
         and test function v_i associated to the i-th block.
         The resulting modes will be orthonormal w.r.t. this inner product.
-        Use rbnicsx.backends.bilinear_form_action to generate each callable x_i from a UFL form.
+        Use rbnicsx.backends.block_diagonal_bilinear_form_action to generate each callable x_i from a UFL form.
     N
         Maximum number of modes to be computed. If an integer value is passed then the same maximum number is
         used for each block. To set a different maximum number of modes for each block pass a list of integers.

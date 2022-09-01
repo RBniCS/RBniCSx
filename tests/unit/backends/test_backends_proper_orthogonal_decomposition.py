@@ -131,7 +131,7 @@ def test_backends_proper_orthogonal_decomposition_block(  # type: ignore[no-any-
         [typing.Any], typing.Union[typing.Any, typing.Tuple[typing.Any, typing.Any]]]
 ) -> None:
     """Check rbnicsx.backends.proper_orthogonal_decomposition_block."""
-    compute_inner_product = rbnicsx.backends.bilinear_form_action([inner_product, 2 * inner_product])
+    compute_inner_product = rbnicsx.backends.block_diagonal_bilinear_form_action([inner_product, 2 * inner_product])
     eigenvalues, modes, eigenvectors = rbnicsx.backends.proper_orthogonal_decomposition_block(
         [functions_list[:2], functions_list[2:4]], compute_inner_product,
         N=stopping_criterion_generator(2), tol=stopping_criterion_generator(0.0),  # type: ignore[arg-type]

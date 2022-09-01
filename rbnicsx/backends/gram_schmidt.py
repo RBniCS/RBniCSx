@@ -69,7 +69,7 @@ def gram_schmidt_block(  # type: ignore[no-any-unimported]
         A list of callables x_i(u_i)(v_i) to compute the action of the inner product on the trial function u_i
         and test function v_i associated to the i-th block.
         The resulting modes will be orthonormal w.r.t. this inner product.
-        Use rbnicsx.backends.bilinear_form_action to generate each callable x_i from a UFL form.
+        Use rbnicsx.backends.block_diagonal_bilinear_form_action to generate each callable x_i from a UFL form.
     """
     assert len(new_functions) == len(functions_lists)
     assert len(compute_inner_products) == len(functions_lists)

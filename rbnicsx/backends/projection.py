@@ -101,7 +101,7 @@ def _project_vector_block(  # type: ignore[no-any-unimported]
     ----------
     L
         A list of callables L_i(v) to compute the action of the i-th linear form L_i on the function v.
-        Use rbnicsx.backends.linear_form_action to generate each callable L_i from a UFL form.
+        Use rbnicsx.backends.block_linear_form_action to generate each callable L_i from a UFL form.
     B
         Functions spanning the reduced basis space associated to each solution component.
 
@@ -130,7 +130,7 @@ def _(  # type: ignore[no-any-unimported]
         The vector is not zeroed before assembly.
     L
         A list of callables L_i(v) to compute the action of the i-th linear form L_i on the function v.
-        Use rbnicsx.backends.linear_form_action to generate each callable L_i from a UFL form.
+        Use rbnicsx.backends.block_linear_form_action to generate each callable L_i from a UFL form.
     B
         Functions spanning the reduced basis space associated to each solution component.
     """
@@ -257,7 +257,7 @@ def _project_matrix_block(  # type: ignore[no-any-unimported]
     a
         A matrix of callables a_ij(u)(v) to compute the action of the bilinear form a_ij on
         the trial function u and test function v.
-        Use rbnicsx.backends.bilinear_form_action to generate each callable a_ij from a UFL form.
+        Use rbnicsx.backends.block_bilinear_form_action to generate each callable a_ij from a UFL form.
     B
         Functions spanning the reduced basis space associated to each solution component.
         Two different basis of the same space can be provided, e.g. as in Petrov-Galerkin methods.
@@ -297,7 +297,7 @@ def _(  # type: ignore[no-any-unimported]
     a
         A matrix of callables a_ij(u)(v) to compute the action of the bilinear form a_ij on
         the trial function u and test function v.
-        Use rbnicsx.backends.bilinear_form_action to generate each callable a_ij from a UFL form.
+        Use rbnicsx.backends.block_bilinear_form_action to generate each callable a_ij from a UFL form.
     B
         Functions spanning the reduced basis space associated to each solution component.
         Two different basis of the same space can be provided, e.g. as in Petrov-Galerkin methods.
@@ -422,8 +422,7 @@ class FormArgumentsReplacer(object):
             source_local.copy(destination_local)
 
 
-@functools.singledispatch
-def _linear_form_action(  # type: ignore[no-any-unimported]
+def linear_form_action(  # type: ignore[no-any-unimported]
     L: ufl.Form, part: typing.Optional[str] = None
 ) -> typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]:
     """
@@ -469,8 +468,7 @@ def _linear_form_action(  # type: ignore[no-any-unimported]
     return _
 
 
-@_linear_form_action.register(list)
-def _(  # type: ignore[no-any-unimported]
+def block_linear_form_action(  # type: ignore[no-any-unimported]
     L: typing.Sequence[ufl.Form], part: typing.Optional[str] = None
 ) -> typing.Sequence[typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]:
     """
@@ -492,29 +490,7 @@ def _(  # type: ignore[no-any-unimported]
     return [linear_form_action(L_i) for L_i in L]
 
 
-@typing.overload
-def linear_form_action(  # type: ignore[no-any-unimported]
-    L: ufl.Form, part: typing.Optional[str] = None
-) -> typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]:  # pragma: no cover
-    """Stub of linear_form_action for type checking. See the concrete implementation above."""
-    ...
-
-
-@typing.overload
-def linear_form_action(  # type: ignore[misc, no-any-unimported]
-    L: typing.Sequence[ufl.Form], part: typing.Optional[str] = None
-) -> typing.Sequence[typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]:  # pragma: no cover
-    """Stub of linear_form_action for type checking. See the concrete implementation above."""
-    ...
-
-
-def linear_form_action(*args, **kwargs):  # type: ignore[no-untyped-def]
-    """Dispatcher of linear_form_action for type checking. See the concrete implementation above."""
-    return _linear_form_action(*args, **kwargs)
-
-
-@functools.singledispatch
-def _bilinear_form_action(  # type: ignore[no-any-unimported]
+def bilinear_form_action(  # type: ignore[no-any-unimported]
     a: ufl.Form, part: typing.Optional[str] = None
 ) -> typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]:
     """
@@ -578,15 +554,36 @@ def _bilinear_form_action(  # type: ignore[no-any-unimported]
     return _trial_action
 
 
-@_bilinear_form_action.register(list)
-def _(  # type: ignore[no-any-unimported]
-    a: typing.Union[typing.Sequence[ufl.Form], typing.Sequence[typing.Sequence[ufl.Form]]],
+def block_diagonal_bilinear_form_action(  # type: ignore[no-any-unimported]
+    a: typing.Sequence[ufl.Form], part: typing.Optional[str] = None
+) -> typing.Sequence[
+        typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]
+]:
+    """
+    Return a callable that represents the action of a block bilinear form on a pair of functions.
+
+    Parameters
+    ----------
+    a
+        Block diagonal bilinear form to be represented.
+    part
+        Optional part (real or complex) to extract from the action result.
+        If not provided, no postprocessing of the result will be carried out.
+
+    Returns
+    -------
+    :
+        A list of callables that represents the action of a on a pair of functions.
+    """
+    return [bilinear_form_action(a_ii) for a_ii in a]
+
+
+def block_bilinear_form_action(  # type: ignore[no-any-unimported]
+    a: typing.Sequence[typing.Sequence[ufl.Form]],
     part: typing.Optional[str] = None
-) -> typing.Union[
-    typing.Sequence[
-        typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]],
-    typing.Sequence[typing.Sequence[
-        typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]]]]:
+) -> typing.Sequence[typing.Sequence[
+        typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]]
+]:
     """
     Return a callable that represents the action of a block bilinear form on a pair of functions.
 
@@ -601,42 +598,9 @@ def _(  # type: ignore[no-any-unimported]
     Returns
     -------
     :
-        A list or a matrix of callables that represents the action of a on a pair of functions.
+        A matrix of callables that represents the action of a on a pair of functions.
     """
-    if isinstance(a[0], list):
-        return [[bilinear_form_action(a_ij) for a_ij in a_i] for a_i in a]
-    else:
-        assert isinstance(a[0], ufl.Form)
-        return [bilinear_form_action(a_ii) for a_ii in a]
-
-
-@typing.overload
-def bilinear_form_action(  # type: ignore[no-any-unimported]
-    a: ufl.Form, part: typing.Optional[str] = None
-) -> typing.Callable[
-    [dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]
-]:  # pragma: no cover
-    """Stub of bilinear_form_action for type checking. See the concrete implementation above."""
-    ...
-
-
-@typing.overload
-def bilinear_form_action(  # type: ignore[misc, no-any-unimported]
-    a: typing.Union[typing.Sequence[ufl.Form], typing.Sequence[typing.Sequence[ufl.Form]]],
-    part: typing.Optional[str] = None
-) -> typing.Union[
-    typing.Sequence[
-        typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]],
-    typing.Sequence[typing.Sequence[
-        typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]]]
-]:  # pragma: no cover
-    """Stub of bilinear_form_action for type checking. See the concrete implementation above."""
-    ...
-
-
-def bilinear_form_action(*args, **kwargs):  # type: ignore[no-untyped-def]
-    """Dispatcher of bilinear_form_action for type checking. See the concrete implementation above."""
-    return _bilinear_form_action(*args, **kwargs)
+    return [[bilinear_form_action(a_ij) for a_ij in a_i] for a_i in a]
 
 
 def _extract_part(  # type: ignore[no-any-unimported]

@@ -102,7 +102,7 @@ def test_backends_gram_schmidt_block(  # type: ignore[no-any-unimported]
     for functions_list in functions_lists:
         assert len(functions_list) == 0
 
-    compute_inner_product = rbnicsx.backends.bilinear_form_action([inner_product, 2 * inner_product])
+    compute_inner_product = rbnicsx.backends.block_diagonal_bilinear_form_action([inner_product, 2 * inner_product])
 
     rbnicsx.backends.gram_schmidt_block(
         functions_lists, [functions[0], functions[2]], compute_inner_product)
