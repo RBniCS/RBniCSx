@@ -14,4 +14,5 @@ import numpy.typing
 def order_of_magnitude(number: typing.Union[float, typing.Sequence[float]]) -> typing.Union[
         np.int32, np.typing.NDArray[np.int32]]:
     """Compute the order of magnitude of a number."""
-    return np.floor(np.log10(number)).astype(np.int32)
+    output: typing.Union[np.int32, np.typing.NDArray[np.int32]] = np.floor(np.log10(number)).astype(np.int32)
+    return output
