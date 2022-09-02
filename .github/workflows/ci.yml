@@ -181,7 +181,6 @@ jobs:
         fenicsx$dolfinx
         gmsh
       pip_packages: |
-        itkwidgets pyvista$pyvista%multiphenicsx.io
         pip>=22.0%rbnicsx
         rbnicsx[colab]@https://github.com/RBniCS/RBniCSx.git
       test_script: |
