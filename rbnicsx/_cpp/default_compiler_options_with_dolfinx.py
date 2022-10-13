@@ -27,12 +27,7 @@ def determine_default_compiler_options() -> typing.Dict[str, typing.Union[str, t
     default_compiler_options["libraries"] = dolfinx_pc["libraries"]
 
     # Output directory
-    try:
-        jit_options = dolfinx.jit.get_options()
-    except AttributeError:
-        # In older versions it was called get_parameters(). Unfortunately that
-        # is usually the installed version in many Linux distros, like Arch
-        jit_options = dolfinx.jit.get_parameters()
+    jit_options = dolfinx.jit.get_options()
     default_compiler_options["output_dir"] = str(jit_options["cache_dir"])
 
     return default_compiler_options
