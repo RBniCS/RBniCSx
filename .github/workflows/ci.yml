@@ -103,8 +103,8 @@ jobs:
             COVERAGE_UNIT_OMIT=""
             PYTEST_UNIT_OPTIONS=""
           fi
-          echo "::set-output name=coverage_omit::${COVERAGE_UNIT_OMIT}"
-          echo "::set-output name=pytest_options::${PYTEST_UNIT_OPTIONS}"
+          echo "coverage_omit=${COVERAGE_UNIT_OMIT}" >> ${GITHUB_OUTPUT}
+          echo "pytest_options=${PYTEST_UNIT_OPTIONS}" >> ${GITHUB_OUTPUT}
         shell: bash
       - name: Run unit tests (serial)
         run: |
