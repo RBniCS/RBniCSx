@@ -150,7 +150,7 @@ jobs:
           python3 -m pytest --tag-collapse --np=2 --durations=0 --durations-min=1.0 tutorials
       - name: Upload tutorials logs as an artifact in case of failure
         if: startsWith(matrix.backend, 'none') != true && (failure() || cancelled())
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: "tutorials-logs-${{ matrix.backend }}"
           path: |
