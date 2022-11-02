@@ -73,11 +73,12 @@ def import_functions(
     length = on_rank_zero(comm, read_length)
 
     # Read in the list
+    function_placeholder = dolfinx.fem.Function(function_space)
     functions = list()
     for index in range(length):
         viewer = petsc4py.PETSc.Viewer().createBinary(
             os.path.join(directory, filename, str(index) + ".dat"), "r", comm)
-        function = dolfinx.fem.Function(function_space)
+        function = function_placeholder.copy()
         function.vector.load(viewer)
         functions.append(function)
         viewer.destroy()

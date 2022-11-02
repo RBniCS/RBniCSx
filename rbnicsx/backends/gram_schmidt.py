@@ -35,7 +35,7 @@ def gram_schmidt(  # type: ignore[no-any-unimported]
         The resulting modes will be orthonormal w.r.t. this inner product.
         Use rbnicsx.backends.bilinear_form_action to generate the callable x from a UFL form.
     """
-    orthonormalized = dolfinx.fem.Function(new_function.function_space)
+    orthonormalized = new_function.copy()
     orthonormalized.x.array[:] = new_function.x.array
     for function_n in functions_list:
         orthonormalized.vector.axpy(
