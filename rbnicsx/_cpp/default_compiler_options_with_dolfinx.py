@@ -10,6 +10,8 @@ import typing  # pragma: no cover
 import dolfinx.jit  # pragma: no cover
 import dolfinx.pkgconfig  # pragma: no cover
 import dolfinx.wrappers  # pragma: no cover
+import numpy as np  # pragma: no cover
+import petsc4py.PETSc  # pragma: no cover
 
 
 def determine_default_compiler_options() -> typing.Dict[str, typing.Union[str, typing.List[str]]]:  # pragma: no cover
@@ -17,7 +19,16 @@ def determine_default_compiler_options() -> typing.Dict[str, typing.Union[str, t
     default_compiler_options: typing.Dict[str, typing.Union[str, typing.List[str]]] = dict()
 
     # C++ components
-    dolfinx_pc = dolfinx.pkgconfig.parse("dolfinx")  # type: ignore[no-untyped-call]
+    dolfinx_pc = dict()
+    has_petsc_complex = np.issubdtype(petsc4py.PETSc.ScalarType, np.complexfloating)
+    for (dolfinx_pc_package, scalar_type_check) in zip(
+        ("dolfinx", "dolfinx_real", "dolfinx_complex"),
+        (True, not has_petsc_complex, has_petsc_complex)
+    ):
+        if dolfinx.pkgconfig.exists(dolfinx_pc_package) and scalar_type_check:  # type: ignore[no-untyped-call]
+            dolfinx_pc.update(dolfinx.pkgconfig.parse(dolfinx_pc_package))  # type: ignore[no-untyped-call]
+            break
+    assert len(dolfinx_pc) > 0
     default_compiler_options["include_dirs"] = [
         include_dir for include_dir in dolfinx_pc["include_dirs"] if "-NOTFOUND" not in include_dir]
     default_compiler_options["compiler_args"] = ["-std=c++20"] + [
