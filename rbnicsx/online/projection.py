@@ -30,8 +30,14 @@ from rbnicsx.online.functions_list import FunctionsList
 project_vector_dispatcher = plum.Dispatcher()
 
 
-@project_vector_dispatcher
-def _project_vector(L: petsc4py.PETSc.Vec, B: FunctionsList) -> petsc4py.PETSc.Vec:
+@project_vector_dispatcher.abstract
+def _project_vector(*args, **kwargs):  # noqa: ANN002, ANN003, ANN202 # type: ignore[no-untyped-def]
+    """Project a linear form onto the reduced basis."""
+    raise NotImplementedError("The abstract case has not been implemented")  # pragma: no cover
+
+
+@project_vector_dispatcher  # type: ignore[no-redef]
+def _project_vector(L: petsc4py.PETSc.Vec, B: FunctionsList) -> petsc4py.PETSc.Vec:  # noqa: F811
     """
     Project a linear form onto the reduced basis.
 
@@ -91,11 +97,21 @@ def project_vector(*args, **kwargs):  # type: ignore[no-untyped-def]
     return _project_vector(*args, **kwargs)
 
 
+project_vector.__doc__ = _project_vector.__doc__
+
 project_vector_block_dispatcher = plum.Dispatcher()
 
 
-@project_vector_block_dispatcher
-def _project_vector_block(L: petsc4py.PETSc.Vec, B: typing.Sequence[FunctionsList]) -> petsc4py.PETSc.Vec:
+@project_vector_block_dispatcher.abstract
+def _project_vector_block(*args, **kwargs):  # noqa: ANN002, ANN003, ANN202 # type: ignore[no-untyped-def]
+    """Project a list of linear forms onto the reduced basis."""
+    raise NotImplementedError("The abstract case has not been implemented")  # pragma: no cover
+
+
+@project_vector_block_dispatcher  # type: ignore[no-redef]
+def _project_vector_block(  # noqa: F811
+    L: petsc4py.PETSc.Vec, B: typing.Sequence[FunctionsList]
+) -> petsc4py.PETSc.Vec:
     """
     Project a list of linear forms onto the reduced basis.
 
@@ -159,11 +175,19 @@ def project_vector_block(*args, **kwargs):  # type: ignore[no-untyped-def]
     return _project_vector_block(*args, **kwargs)
 
 
+project_vector_block.__doc__ = _project_vector_block.__doc__
+
 project_matrix_dispatcher = plum.Dispatcher()
 
 
-@project_matrix_dispatcher
-def _project_matrix(
+@project_matrix_dispatcher.abstract
+def _project_matrix(*args, **kwargs):  # noqa: ANN002, ANN003, ANN202 # type: ignore[no-untyped-def]
+    """Project a bilinear form onto the reduced basis."""
+    raise NotImplementedError("The abstract case has not been implemented")  # pragma: no cover
+
+
+@project_matrix_dispatcher  # type: ignore[no-redef]
+def _project_matrix(  # noqa: F811
     a: petsc4py.PETSc.Mat, B: typing.Union[FunctionsList, typing.Tuple[FunctionsList, FunctionsList]]
 ) -> petsc4py.PETSc.Mat:
     """
@@ -238,11 +262,19 @@ def project_matrix(*args, **kwargs):  # type: ignore[no-untyped-def]
     return _project_matrix(*args, **kwargs)
 
 
+project_matrix.__doc__ = _project_matrix.__doc__
+
 project_matrix_block_dispatcher = plum.Dispatcher()
 
 
-@project_matrix_block_dispatcher
-def _project_matrix_block(
+@project_matrix_block_dispatcher.abstract
+def _project_matrix_block(*args, **kwargs):  # noqa: ANN002, ANN003, ANN202 # type: ignore[no-untyped-def]
+    """Project a matrix of bilinear forms onto the reduced basis."""
+    raise NotImplementedError("The abstract case has not been implemented")  # pragma: no cover
+
+
+@project_matrix_block_dispatcher  # type: ignore[no-redef]
+def _project_matrix_block(  # noqa: F811
     a: petsc4py.PETSc.Mat,
     B: typing.Union[
         typing.Sequence[FunctionsList], typing.Tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]]
@@ -331,6 +363,9 @@ def project_matrix_block(  # type: ignore[no-any-unimported]
 def project_matrix_block(*args, **kwargs):  # type: ignore[no-untyped-def]
     """Dispatcher of project_matrix_block for type checking. See the concrete implementation above."""
     return _project_matrix_block(*args, **kwargs)
+
+
+project_matrix_block.__doc__ = _project_matrix_block.__doc__
 
 
 def vector_action(  # type: ignore[no-any-unimported]
