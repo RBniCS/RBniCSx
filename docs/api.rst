@@ -7,4 +7,5 @@ API reference
    rbnicsx._backends
    rbnicsx.backends
    rbnicsx.io
+   rbnicsx.online
    rbnicsx.test
