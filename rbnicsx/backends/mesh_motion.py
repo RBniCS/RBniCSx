@@ -40,7 +40,8 @@ class MeshMotion(object):
 
     def __init__(self, mesh: dolfinx.mesh.Mesh, shape_parametrization: dolfinx.fem.Function) -> None:
         assert shape_parametrization.function_space.ufl_element().family() == "P"
-        assert shape_parametrization.function_space.ufl_element().degree() == mesh.geometry.cmap.degree
+        assert len(mesh.geometry.cmaps) == 1
+        assert shape_parametrization.function_space.ufl_element().degree() == mesh.geometry.cmaps[0].degree
 
         self._mesh: dolfinx.mesh.Mesh = mesh
         self._shape_parametrization: dolfinx.fem.Function = shape_parametrization

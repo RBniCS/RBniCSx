@@ -61,7 +61,8 @@ def shape_parametrization_expression(dim: int) -> typing.Callable[
 @pytest.fixture
 def shape_parametrization(mesh: dolfinx.mesh.Mesh) -> dolfinx.fem.Function:
     """Generate a shape parametrization of the unit square for use in tests in this file."""
-    M = dolfinx.fem.VectorFunctionSpace(mesh, ("Lagrange", mesh.geometry.cmap.degree))
+    assert len(mesh.geometry.cmaps) == 1
+    M = dolfinx.fem.VectorFunctionSpace(mesh, ("Lagrange", mesh.geometry.cmaps[0].degree))
     shape_parametrization = dolfinx.fem.Function(M)
     shape_parametrization.interpolate(shape_parametrization_expression(mesh.topology.dim))
     return shape_parametrization
@@ -70,7 +71,8 @@ def shape_parametrization(mesh: dolfinx.mesh.Mesh) -> dolfinx.fem.Function:
 @pytest.fixture
 def identity(mesh: dolfinx.mesh.Mesh) -> dolfinx.fem.Function:
     """Generate the identity shape parametrization of the unit square for use in tests in this file."""
-    M = dolfinx.fem.VectorFunctionSpace(mesh, ("Lagrange", mesh.geometry.cmap.degree))
+    assert len(mesh.geometry.cmaps) == 1
+    M = dolfinx.fem.VectorFunctionSpace(mesh, ("Lagrange", mesh.geometry.cmaps[0].degree))
     identity = dolfinx.fem.Function(M)
     identity.interpolate(lambda x: x[:mesh.topology.dim])
     return identity
