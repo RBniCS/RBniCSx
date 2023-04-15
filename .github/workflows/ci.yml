@@ -41,15 +41,21 @@ jobs:
               echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
               echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
           - backend: dolfinx-real
-            container: numericalpdes/base_images:fenicsx-real
+            container: dolfinx/dolfinx:nightly
             setup_container: |
-              echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
-              echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
+              . /usr/local/bin/dolfinx-real-mode
+              echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
+              echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> $GITHUB_ENV
+              echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
+              echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
           - backend: dolfinx-complex
-            container: numericalpdes/base_images:fenicsx-complex
+            container: dolfinx/dolfinx:nightly
             setup_container: |
-              echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
-              echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
+              . /usr/local/bin/dolfinx-complex-mode
+              echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
+              echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> $GITHUB_ENV
+              echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
+              echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
       fail-fast: false
     container:
       image: ${{ matrix.container }}
