@@ -35,11 +35,13 @@ jobs:
             setup_container: |
               echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
               echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
+              rm /usr/local/lib/python3.11/site-packages/petsc4py/py.typed
           - backend: none-complex
             container: numericalpdes/base_images:slepc4py-complex
             setup_container: |
               echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
               echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
+              rm /usr/local/lib/python3.11/site-packages/petsc4py/py.typed
           - backend: dolfinx-real
             container: dolfinx/dolfinx:nightly
             setup_container: |
