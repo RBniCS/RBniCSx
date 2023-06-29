@@ -355,7 +355,7 @@ class FormArgumentsReplacer(object):
             trial_replacement = None
         self._trial_replacement = trial_replacement
         self._form = ufl.replace(form, dict_replacement)
-        self._form_cpp: dolfinx.fem.FormMetaClass = dolfinx.fem.form(self._form)
+        self._form_cpp: dolfinx.fem.Form = dolfinx.fem.form(self._form)
 
         self._comm: mpi4py.MPI.Intracomm = form_arguments[0].ufl_function_space().mesh.comm
         if len(form_arguments) > 1:
@@ -373,7 +373,7 @@ class FormArgumentsReplacer(object):
         return self._form
 
     @property
-    def form_cpp(self) -> dolfinx.fem.FormMetaClass:
+    def form_cpp(self) -> dolfinx.fem.Form:
         """Return the compiled form, with replacements carried out."""
         return self._form_cpp
 

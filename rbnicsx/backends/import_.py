@@ -86,7 +86,7 @@ def import_functions(
 
 
 def import_matrix(  # type: ignore[no-any-unimported]
-    form: dolfinx.fem.FormMetaClass, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+    form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
 ) -> petsc4py.PETSc.Mat:
     """
     Import a petsc4py.PETSc.Mat assembled by dolfinx from file.
@@ -111,7 +111,7 @@ def import_matrix(  # type: ignore[no-any-unimported]
 
 
 def import_matrices(  # type: ignore[no-any-unimported]
-    form: dolfinx.fem.FormMetaClass, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+    form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
 ) -> typing.List[petsc4py.PETSc.Mat]:
     """
     Import a list of petsc4py.PETSc.Mat assembled by dolfinx from file.
@@ -136,7 +136,7 @@ def import_matrices(  # type: ignore[no-any-unimported]
 
 
 def import_vector(  # type: ignore[no-any-unimported]
-    form: dolfinx.fem.FormMetaClass, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+    form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
 ) -> petsc4py.PETSc.Vec:
     """
     Import a petsc4py.PETSc.Vec assembled by dolfinx from file.
@@ -161,7 +161,7 @@ def import_vector(  # type: ignore[no-any-unimported]
 
 
 def import_vectors(  # type: ignore[no-any-unimported]
-    form: dolfinx.fem.FormMetaClass, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+    form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
 ) -> typing.List[petsc4py.PETSc.Vec]:
     """
     Import a list of petsc4py.PETSc.Vec assembled by dolfinx from file.

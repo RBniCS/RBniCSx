@@ -32,12 +32,12 @@ class TensorsList(TensorsListBase):
         Form provided as input.
     """
 
-    def __init__(self, form: dolfinx.fem.FormMetaClass, comm: mpi4py.MPI.Intracomm) -> None:
-        self._form: dolfinx.fem.FormMetaClass = form
+    def __init__(self, form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm) -> None:
+        self._form: dolfinx.fem.Form = form
         super().__init__(comm)
 
     @property
-    def form(self) -> dolfinx.fem.FormMetaClass:
+    def form(self) -> dolfinx.fem.Form:
         """Return the form which is used to assemble the tensors."""
         return self._form
 
