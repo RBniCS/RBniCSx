@@ -9,6 +9,7 @@ import os
 import typing
 
 import dolfinx.fem
+import dolfinx.fem.petsc
 import mpi4py.MPI
 import petsc4py.PETSc
 

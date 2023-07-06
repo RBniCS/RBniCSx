@@ -9,6 +9,7 @@ import typing
 
 import _pytest.fixtures
 import dolfinx.fem
+import dolfinx.fem.petsc
 import dolfinx.mesh
 import mpi4py.MPI
 import nbvalx.tempfile
