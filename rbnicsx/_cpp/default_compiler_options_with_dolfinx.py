@@ -25,7 +25,7 @@ def determine_default_compiler_options() -> typing.Dict[str, typing.Union[str, t
         ("dolfinx", "dolfinx_real", "dolfinx_complex"),
         (True, not has_petsc_complex, has_petsc_complex)
     ):
-        if dolfinx.pkgconfig.exists(dolfinx_pc_package) and scalar_type_check:  # type: ignore[no-untyped-call]
+        if dolfinx.pkgconfig.exists(dolfinx_pc_package) and scalar_type_check:
             dolfinx_pc.update(dolfinx.pkgconfig.parse(dolfinx_pc_package))  # type: ignore[no-untyped-call]
             break
     assert len(dolfinx_pc) > 0
