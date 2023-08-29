@@ -5,13 +5,13 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Backend to project UFL forms with arguments on a dolfinx function space on the reduced basis."""
 
-import functools
 import typing
 
 import dolfinx.fem
 import mpi4py.MPI
 import numpy as np
 import petsc4py.PETSc
+import plum
 import ufl
 
 from rbnicsx._backends.online_tensors import (
@@ -21,9 +21,13 @@ from rbnicsx._backends.projection import (
     project_vector as project_vector_super, project_vector_block as project_vector_block_super)
 from rbnicsx.backends.functions_list import FunctionsList
 
+# We could have used functools.singledispatch rather than plum, but since rbnicsx.online.projection
+# introduces a dependency on plum we also use it here for its better handling in combining docstrings
+# and its easier integration with sympy.
 
-@functools.singledispatch
-def _project_vector(  # type: ignore[no-any-unimported]
+
+@plum.overload
+def project_vector(  # type: ignore[no-any-unimported]
     L: typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType], B: FunctionsList
 ) -> petsc4py.PETSc.Vec:
     """
@@ -43,12 +47,12 @@ def _project_vector(  # type: ignore[no-any-unimported]
         Online vector containing the result of the projection.
     """
     b = create_online_vector(len(B))
-    _project_vector(b, L, B)  # type: ignore[arg-type, call-arg]
+    project_vector(b, L, B)
     return b
 
 
-@_project_vector.register
-def _(  # type: ignore[no-any-unimported]
+@plum.overload
+def project_vector(  # type: ignore[no-any-unimported] # noqa: F811
     b: petsc4py.PETSc.Vec, L: typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType], B: FunctionsList
 ) -> None:
     """
@@ -68,29 +72,14 @@ def _(  # type: ignore[no-any-unimported]
     project_vector_super(b, L, B)
 
 
-@typing.overload
-def project_vector(  # type: ignore[no-any-unimported]
-    L: typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType], B: FunctionsList
-) -> petsc4py.PETSc.Vec:  # pragma: no cover
-    """Stub of project_vector for type checking. See the concrete implementation above."""
-    ...
+@plum.dispatch
+def project_vector(*args, **kwargs):  # type: ignore[no-untyped-def] # noqa: F811
+    """Project a linear form onto the reduced basis."""
+    raise NotImplementedError("The abstract case has not been implemented")  # pragma: no cover
 
 
-@typing.overload
-def project_vector(  # type: ignore[no-any-unimported]
-    b: petsc4py.PETSc.Vec, L: typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType], B: FunctionsList
-) -> None:  # pragma: no cover
-    """Stub of project_vector for type checking. See the concrete implementation above."""
-    ...
-
-
-def project_vector(*args, **kwargs):  # type: ignore[no-untyped-def]
-    """Dispatcher of project_vector for type checking. See the concrete implementation above."""
-    return _project_vector(*args, **kwargs)
-
-
-@functools.singledispatch
-def _project_vector_block(  # type: ignore[no-any-unimported]
+@plum.overload
+def project_vector_block(  # type: ignore[no-any-unimported]
     L: typing.Sequence[typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]],
     B: typing.Sequence[FunctionsList]
 ) -> petsc4py.PETSc.Vec:
@@ -111,12 +100,12 @@ def _project_vector_block(  # type: ignore[no-any-unimported]
         Online vector containing the result of the projection.
     """
     b = create_online_vector_block([len(B_i) for B_i in B])
-    _project_vector_block(b, L, B)  # type: ignore[arg-type, call-arg]
+    project_vector_block(b, L, B)
     return b
 
 
-@_project_vector_block.register
-def _(  # type: ignore[no-any-unimported]
+@plum.overload
+def project_vector_block(  # type: ignore[no-any-unimported] # noqa: F811
     b: petsc4py.PETSc.Vec, L: typing.Sequence[typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]],
     B: typing.Sequence[FunctionsList]
 ) -> None:
@@ -137,31 +126,14 @@ def _(  # type: ignore[no-any-unimported]
     project_vector_block_super(b, L, B)
 
 
-@typing.overload
-def project_vector_block(  # type: ignore[no-any-unimported]
-    L: typing.Sequence[typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]],
-    B: typing.Sequence[FunctionsList]
-) -> petsc4py.PETSc.Vec:  # pragma: no cover
-    """Stub of project_vector_block for type checking. See the concrete implementation above."""
-    ...
+@plum.dispatch
+def project_vector_block(*args, **kwargs):  # type: ignore[no-untyped-def] # noqa: F811
+    """Project a list of linear forms onto the reduced basis."""
+    raise NotImplementedError("The abstract case has not been implemented")  # pragma: no cover
 
 
-@typing.overload
-def project_vector_block(  # type: ignore[no-any-unimported]
-    b: petsc4py.PETSc.Vec, L: typing.Sequence[typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]],
-    B: typing.Sequence[FunctionsList]
-) -> None:  # pragma: no cover
-    """Stub of project_vector_block for type checking. See the concrete implementation above."""
-    ...
-
-
-def project_vector_block(*args, **kwargs):  # type: ignore[no-untyped-def]
-    """Dispatcher of project_vector_block for type checking. See the concrete implementation above."""
-    return _project_vector_block(*args, **kwargs)
-
-
-@functools.singledispatch
-def _project_matrix(  # type: ignore[no-any-unimported]
+@plum.overload
+def project_matrix(  # type: ignore[no-any-unimported]
     a: typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]],
     B: typing.Union[FunctionsList, typing.Tuple[FunctionsList, FunctionsList]]
 ) -> petsc4py.PETSc.Mat:
@@ -190,12 +162,12 @@ def _project_matrix(  # type: ignore[no-any-unimported]
         N = M
 
     A = create_online_matrix(M, N)
-    _project_matrix(A, a, B)  # type: ignore[arg-type, call-arg]
+    project_matrix(A, a, B)
     return A
 
 
-@_project_matrix.register
-def _(  # type: ignore[no-any-unimported]
+@plum.overload
+def project_matrix(  # type: ignore[no-any-unimported] # noqa: F811
     A: petsc4py.PETSc.Mat,
     a: typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]],
     B: typing.Union[FunctionsList, typing.Tuple[FunctionsList, FunctionsList]]
@@ -218,32 +190,14 @@ def _(  # type: ignore[no-any-unimported]
     project_matrix_super(A, a, B)
 
 
-@typing.overload
-def project_matrix(  # type: ignore[no-any-unimported]
-    a: typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]],
-    B: typing.Union[FunctionsList, typing.Tuple[FunctionsList, FunctionsList]]
-) -> petsc4py.PETSc.Mat:  # pragma: no cover
-    """Stub of project_matrix for type checking. See the concrete implementation above."""
-    ...
+@plum.dispatch
+def project_matrix(*args, **kwargs):  # type: ignore[no-untyped-def] # noqa: F811
+    """Project a bilinear form onto the reduced basis."""
+    raise NotImplementedError("The abstract case has not been implemented")  # pragma: no cover
 
 
-@typing.overload
-def project_matrix(  # type: ignore[no-any-unimported]
-    A: petsc4py.PETSc.Mat,
-    a: typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]],
-    B: typing.Union[FunctionsList, typing.Tuple[FunctionsList, FunctionsList]]
-) -> None:  # pragma: no cover
-    """Stub of project_matrix for type checking. See the concrete implementation above."""
-    ...
-
-
-def project_matrix(*args, **kwargs):  # type: ignore[no-untyped-def]
-    """Dispatcher of project_matrix for type checking. See the concrete implementation above."""
-    return _project_matrix(*args, **kwargs)
-
-
-@functools.singledispatch
-def _project_matrix_block(  # type: ignore[no-any-unimported]
+@plum.overload
+def project_matrix_block(  # type: ignore[no-any-unimported]
     a: typing.Sequence[typing.Sequence[
         typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]]],
     B: typing.Union[
@@ -274,12 +228,12 @@ def _project_matrix_block(  # type: ignore[no-any-unimported]
         N = M
 
     A = create_online_matrix_block(M, N)
-    _project_matrix_block(A, a, B)  # type: ignore[arg-type, call-arg]
+    project_matrix_block(A, a, B)
     return A
 
 
-@_project_matrix_block.register
-def _(  # type: ignore[no-any-unimported]
+@plum.overload
+def project_matrix_block(  # type: ignore[no-any-unimported] # noqa: F811
     A: petsc4py.PETSc.Mat,
     a: typing.Sequence[typing.Sequence[
         typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]]],
@@ -305,32 +259,10 @@ def _(  # type: ignore[no-any-unimported]
     project_matrix_block_super(A, a, B)
 
 
-@typing.overload
-def project_matrix_block(  # type: ignore[no-any-unimported]
-    a: typing.Sequence[typing.Sequence[
-        typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]]],
-    B: typing.Union[
-        typing.Sequence[FunctionsList], typing.Tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]]
-) -> petsc4py.PETSc.Mat:  # pragma: no cover
-    """Stub of project_matrix_block for type checking. See the concrete implementation above."""
-    ...
-
-
-@typing.overload
-def project_matrix_block(  # type: ignore[no-any-unimported]
-    A: petsc4py.PETSc.Mat,
-    a: typing.Sequence[typing.Sequence[
-        typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]]],
-    B: typing.Union[
-        typing.Sequence[FunctionsList], typing.Tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]]
-) -> None:  # pragma: no cover
-    """Stub of project_matrix_block for type checking. See the concrete implementation above."""
-    ...
-
-
-def project_matrix_block(*args, **kwargs):  # type: ignore[no-untyped-def]
-    """Dispatcher of project_matrix_block for type checking. See the concrete implementation above."""
-    return _project_matrix_block(*args, **kwargs)
+@plum.dispatch
+def project_matrix_block(*args, **kwargs):  # type: ignore[no-untyped-def] # noqa: F811
+    """Project a matrix of bilinear forms onto the reduced basis."""
+    raise NotImplementedError("The abstract case has not been implemented")  # pragma: no cover
 
 
 class FormArgumentsReplacer(object):
