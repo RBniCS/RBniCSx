@@ -86,10 +86,14 @@ def tensors_list_mat(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsList:
 def test_backends_proper_orthogonal_decomposition_functions(  # type: ignore[no-any-unimported]
     functions_list: rbnicsx.backends.FunctionsList, inner_product: ufl.Form, normalize: bool
 ) -> None:
-    """Check rbnicsx.backends.proper_orthogonal_decomposition for the case of dolfinx.fem.Function snapshots."""
+    """
+    Check rbnicsx.backends.proper_orthogonal_decomposition for the case of dolfinx.fem.Function snapshots.
+
+    The case of default N and tolerance is tested here.
+    """
     compute_inner_product = rbnicsx.backends.bilinear_form_action(inner_product)
     eigenvalues, modes, eigenvectors = rbnicsx.backends.proper_orthogonal_decomposition(
-        functions_list[:2], compute_inner_product, N=2, tol=0.0, normalize=normalize)
+        functions_list[:2], compute_inner_product, normalize=normalize)
     assert len(eigenvalues) == 2
     assert np.isclose(eigenvalues[0], 5)
     assert np.isclose(eigenvalues[1], 0)
@@ -102,13 +106,36 @@ def test_backends_proper_orthogonal_decomposition_functions(  # type: ignore[no-
 
 
 @pytest.mark.parametrize("normalize", [True, False])
-def test_backends_proper_orthogonal_decomposition_functions_tol(  # type: ignore[no-any-unimported]
+def test_backends_proper_orthogonal_decomposition_functions_N(  # type: ignore[no-any-unimported]
     functions_list: rbnicsx.backends.FunctionsList, inner_product: ufl.Form, normalize: bool
 ) -> None:
     """
     Check rbnicsx.backends.proper_orthogonal_decomposition for the case of dolfinx.fem.Function snapshots.
 
-    The case of non zero tolerance is tested here.
+    The case of non default N, but default zero tolerance, is tested here.
+    """
+    compute_inner_product = rbnicsx.backends.bilinear_form_action(inner_product)
+    eigenvalues, modes, eigenvectors = rbnicsx.backends.proper_orthogonal_decomposition(
+        functions_list[:2], compute_inner_product, N=2, normalize=normalize)
+    assert len(eigenvalues) == 2
+    assert np.isclose(eigenvalues[0], 5)
+    assert np.isclose(eigenvalues[1], 0)
+    assert len(modes) == 2
+    assert np.isclose(compute_inner_product(modes[0])(modes[0]), 1 if normalize else 5)
+    if normalize:
+        assert np.allclose(modes[0].vector.array, 1)
+    # np.allclose(modes[2], 0) may not be true in arithmetic precision when scaling with a very small eigenvalue
+    assert len(eigenvectors) == 2
+
+
+@pytest.mark.parametrize("normalize", [True, False])
+def test_backends_proper_orthogonal_decomposition_functions_N_tol(  # type: ignore[no-any-unimported]
+    functions_list: rbnicsx.backends.FunctionsList, inner_product: ufl.Form, normalize: bool
+) -> None:
+    """
+    Check rbnicsx.backends.proper_orthogonal_decomposition for the case of dolfinx.fem.Function snapshots.
+
+    The case of non default N and non zero tolerance is tested here.
     """
     compute_inner_product = rbnicsx.backends.bilinear_form_action(inner_product)
     eigenvalues, modes, eigenvectors = rbnicsx.backends.proper_orthogonal_decomposition(
