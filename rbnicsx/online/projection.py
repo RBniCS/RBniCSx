@@ -27,7 +27,7 @@ from rbnicsx.online.functions_list import FunctionsList
 #   project_vector(b: petsc4py.PETSc.Vec, L: petsc4py.PETSc.Vec, B: FunctionsList)
 # in which, in both cases, the first argument is petsc4py.PETSc.Vec.
 
-project_vector_dispatcher = plum.Dispatcher()
+project_vector_dispatcher = plum.Dispatcher()  # type: ignore[no-untyped-call]
 
 
 @project_vector_dispatcher.abstract
@@ -99,7 +99,7 @@ def project_vector(*args, **kwargs):  # type: ignore[no-untyped-def]
 
 project_vector.__doc__ = _project_vector.__doc__
 
-project_vector_block_dispatcher = plum.Dispatcher()
+project_vector_block_dispatcher = plum.Dispatcher()  # type: ignore[no-untyped-call]
 
 
 @project_vector_block_dispatcher.abstract
@@ -177,7 +177,7 @@ def project_vector_block(*args, **kwargs):  # type: ignore[no-untyped-def]
 
 project_vector_block.__doc__ = _project_vector_block.__doc__
 
-project_matrix_dispatcher = plum.Dispatcher()
+project_matrix_dispatcher = plum.Dispatcher()  # type: ignore[no-untyped-call]
 
 
 @project_matrix_dispatcher.abstract
@@ -264,7 +264,7 @@ def project_matrix(*args, **kwargs):  # type: ignore[no-untyped-def]
 
 project_matrix.__doc__ = _project_matrix.__doc__
 
-project_matrix_block_dispatcher = plum.Dispatcher()
+project_matrix_block_dispatcher = plum.Dispatcher()  # type: ignore[no-untyped-call]
 
 
 @project_matrix_block_dispatcher.abstract
