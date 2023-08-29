@@ -16,7 +16,7 @@ import plum
 from rbnicsx._backends.proper_orthogonal_decomposition import (
     proper_orthogonal_decomposition_functions as proper_orthogonal_decomposition_functions_super,
     proper_orthogonal_decomposition_functions_block as proper_orthogonal_decomposition_functions_block_super,
-    proper_orthogonal_decomposition_tensors as proper_orthogonal_decomposition_tensors_super)
+    proper_orthogonal_decomposition_tensors as proper_orthogonal_decomposition_tensors_super, real_zero)
 from rbnicsx.backends.functions_list import FunctionsList
 from rbnicsx.backends.tensors_list import TensorsList
 
@@ -30,7 +30,7 @@ def proper_orthogonal_decomposition(  # type: ignore[no-any-unimported]
     functions_list: FunctionsList,
     compute_inner_product: typing.Callable[
         [dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.RealType]],
-    N: int, tol: petsc4py.PETSc.RealType, normalize: bool = True
+    N: int = -1, tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True
 ) -> typing.Tuple[
     np.typing.NDArray[petsc4py.PETSc.RealType], FunctionsList, typing.List[petsc4py.PETSc.Vec]
 ]:
@@ -46,9 +46,9 @@ def proper_orthogonal_decomposition(  # type: ignore[no-any-unimported]
         The resulting modes will be orthonormal w.r.t. this inner product.
         Use rbnicsx.backends.bilinear_form_action to generate the callable x from a UFL form.
     N
-        Maximum number of modes to be computed.
+        Maximum number of modes to be computed. If not provided, it will be set to the number of collected snapshots.
     tol
-        Tolerance on the retained energy.
+        Tolerance on the retained energy. If not provided, it will be set to zero.
     normalize
         If true (default), the modes are scaled to unit norm.
 
@@ -68,7 +68,7 @@ def proper_orthogonal_decomposition(  # type: ignore[no-any-unimported]
 
 @plum.overload
 def proper_orthogonal_decomposition(  # type: ignore[no-any-unimported] # noqa: F811
-    tensors_list: TensorsList, N: int, tol: petsc4py.PETSc.RealType, normalize: bool = True
+    tensors_list: TensorsList, N: int = -1, tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True
 ) -> typing.Tuple[
     np.typing.NDArray[petsc4py.PETSc.RealType], TensorsList, typing.List[petsc4py.PETSc.Vec]
 ]:
@@ -80,9 +80,9 @@ def proper_orthogonal_decomposition(  # type: ignore[no-any-unimported] # noqa: 
     tensors_list
         Collected tensors.
     N
-        Maximum number of modes to be computed.
+        Maximum number of modes to be computed. If not provided, it will be set to the number of collected tensors.
     tol
-        Tolerance on the retained energy.
+        Tolerance on the retained energy. If not provided, it will be set to zero.
     normalize
         If true (default), the modes are scaled to unit norm.
 
@@ -109,8 +109,8 @@ def proper_orthogonal_decomposition_block(  # type: ignore[no-any-unimported]
     functions_lists: typing.Sequence[FunctionsList],
     compute_inner_products: typing.Sequence[
         typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.RealType]]],
-    N: typing.Union[int, typing.List[int]],
-    tol: typing.Union[petsc4py.PETSc.RealType, typing.List[petsc4py.PETSc.RealType]],
+    N: typing.Union[int, typing.List[int]] = -1,
+    tol: typing.Union[petsc4py.PETSc.RealType, typing.List[petsc4py.PETSc.RealType]] = real_zero,
     normalize: bool = True
 ) -> typing.Tuple[
     typing.List[np.typing.NDArray[petsc4py.PETSc.RealType]], typing.List[FunctionsList],
@@ -133,9 +133,11 @@ def proper_orthogonal_decomposition_block(  # type: ignore[no-any-unimported]
     N
         Maximum number of modes to be computed. If an integer value is passed then the same maximum number is
         used for each block. To set a different maximum number of modes for each block pass a list of integers.
+        If not provided, it will be set to the number of collected snapshots.
     tol
         Tolerance on the retained energy. If a floating point value is passed then the same tolerance is
         used for each block. To set a different tolerance for each block pass a list of floating point numbers.
+        If not provided, it will be set to zero.
     normalize
         If true (default), the modes are scaled to unit norm.
 

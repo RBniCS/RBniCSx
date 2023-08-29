@@ -13,6 +13,7 @@ import dolfinx.mesh
 import mpi4py.MPI
 import numpy as np
 import petsc4py.PETSc
+import plum
 import pytest
 import ufl
 
@@ -210,5 +211,6 @@ def test_backends_proper_orthogonal_decomposition_zero(  # type: ignore[no-any-u
 
 def test_backends_proper_orthogonal_decomposition_wrong_iterable() -> None:
     """Check rbnicsx.backends.proper_orthogonal_decomposition raises when providing a plain list."""
-    with pytest.raises(RuntimeError):
+    with pytest.raises(plum.NotFoundLookupError) as excinfo:
         rbnicsx.backends.proper_orthogonal_decomposition(list(), N=0, tol=0.0)  # type: ignore[call-overload]
+    assert str(excinfo.value) == "For function `proper_orthogonal_decomposition`, `([],)` could not be resolved."

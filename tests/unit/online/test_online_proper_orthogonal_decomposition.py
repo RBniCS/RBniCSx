@@ -10,6 +10,7 @@ import typing
 import _pytest.fixtures
 import numpy as np
 import petsc4py.PETSc
+import plum
 import pytest
 
 import rbnicsx.online
@@ -281,5 +282,6 @@ def test_online_proper_orthogonal_decomposition_zero(  # type: ignore[no-any-uni
 
 def test_online_proper_orthogonal_decomposition_wrong_iterable() -> None:
     """Check rbnicsx.online.proper_orthogonal_decomposition raises when providing a plain list."""
-    with pytest.raises(RuntimeError):
+    with pytest.raises(plum.NotFoundLookupError) as excinfo:
         rbnicsx.online.proper_orthogonal_decomposition(list(), N=0, tol=0.0)  # type: ignore[call-overload]
+    assert str(excinfo.value) == "For function `proper_orthogonal_decomposition`, `([],)` could not be resolved."

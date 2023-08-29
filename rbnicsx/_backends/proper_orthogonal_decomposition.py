@@ -17,12 +17,14 @@ from rbnicsx._backends.online_tensors import create_online_matrix, create_online
 from rbnicsx._backends.tensors_list import TensorsList
 from rbnicsx._cpp import cpp_library
 
+real_zero = petsc4py.PETSc.RealType(0.0)
+
 
 def proper_orthogonal_decomposition_functions(  # type: ignore[no-any-unimported]
     functions_list: FunctionsList[Function],
     compute_inner_product: typing.Callable[[Function], typing.Callable[[Function], petsc4py.PETSc.RealType]],
     scale: typing.Callable[[Function, petsc4py.PETSc.RealType], None],
-    N: int, tol: petsc4py.PETSc.RealType, normalize: bool = True
+    N: int = -1, tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True
 ) -> typing.Tuple[
     np.typing.NDArray[petsc4py.PETSc.RealType], FunctionsList[Function], typing.List[petsc4py.PETSc.Vec]
 ]:
@@ -39,9 +41,9 @@ def proper_orthogonal_decomposition_functions(  # type: ignore[no-any-unimported
     scale
         A callable with signature scale(function, factor) to scale any function by a given factor.
     N
-        Maximum number of modes to be computed.
+        Maximum number of modes to be computed. If not provided, it will be set to the number of collected snapshots.
     tol
-        Tolerance on the retained energy.
+        Tolerance on the retained energy. If not provided, it will be set to zero.
     normalize
         If true (default), the modes are scaled to unit norm.
 
@@ -67,8 +69,8 @@ def proper_orthogonal_decomposition_functions_block(  # type: ignore[no-any-unim
     compute_inner_products: typing.Sequence[
         typing.Callable[[Function], typing.Callable[[Function], petsc4py.PETSc.RealType]]],
     scale: typing.Callable[[Function, petsc4py.PETSc.RealType], None],
-    N: typing.Union[int, typing.List[int]],
-    tol: typing.Union[petsc4py.PETSc.RealType, typing.List[petsc4py.PETSc.RealType]],
+    N: typing.Union[int, typing.List[int]] = -1,
+    tol: typing.Union[petsc4py.PETSc.RealType, typing.List[petsc4py.PETSc.RealType]] = real_zero,
     normalize: bool = True
 ) -> typing.Tuple[
     typing.List[np.typing.NDArray[petsc4py.PETSc.RealType]], typing.List[FunctionsList[Function]],
@@ -92,9 +94,11 @@ def proper_orthogonal_decomposition_functions_block(  # type: ignore[no-any-unim
     N
         Maximum number of modes to be computed. If an integer value is passed then the same maximum number is
         used for each block. To set a different maximum number of modes for each block pass a list of integers.
+        If not provided, it will be set to the number of collected snapshots.
     tol
         Tolerance on the retained energy. If a floating point value is passed then the same tolerance is
         used for each block. To set a different tolerance for each block pass a list of floating point numbers.
+        If not provided, it will be set to zero.
     normalize
         If true (default), the modes are scaled to unit norm.
 
@@ -132,7 +136,7 @@ def proper_orthogonal_decomposition_functions_block(  # type: ignore[no-any-unim
 
 
 def proper_orthogonal_decomposition_tensors(  # type: ignore[no-any-unimported]
-    tensors_list: TensorsList, N: int, tol: petsc4py.PETSc.RealType, normalize: bool = True
+    tensors_list: TensorsList, N: int = -1, tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True
 ) -> typing.Tuple[
     np.typing.NDArray[petsc4py.PETSc.RealType], TensorsList, typing.List[petsc4py.PETSc.Vec]
 ]:
@@ -144,9 +148,9 @@ def proper_orthogonal_decomposition_tensors(  # type: ignore[no-any-unimported]
     tensors_list
         Collected tensors.
     N
-        Maximum number of modes to be computed.
+        Maximum number of modes to be computed. If not provided, it will be set to the number of collected tensors.
     tol
-        Tolerance on the retained energy.
+        Tolerance on the retained energy. If not provided, it will be set to zero.
     normalize
         If true (default), the modes are scaled to unit norm.
 
@@ -243,6 +247,10 @@ def _solve_eigenvalue_problem(  # type: ignore[no-any-unimported]
             3. Eigenvectors of the correlation matrix. Only the first few eigenvectors are returned, till
                either the maximum number N is reached or the tolerance on the retained energy is fulfilled.
     """
+    assert N > 0 or N == -1
+    if N == -1:
+        N = len(snapshots)
+
     correlation_matrix = create_online_matrix(len(snapshots), len(snapshots))
     for (j, snapshot_j) in enumerate(snapshots):
         compute_inner_product_partial_j = compute_inner_product(snapshot_j)
