@@ -29,7 +29,7 @@ def mesh() -> dolfinx.mesh.Mesh:
 
 def test_backends_export_import_function(mesh: dolfinx.mesh.Mesh) -> None:
     """Check I/O for a dolfinx.fem.Function."""
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     function = dolfinx.fem.Function(V)
     function.vector.set(1.0)
 
@@ -42,7 +42,7 @@ def test_backends_export_import_function(mesh: dolfinx.mesh.Mesh) -> None:
 
 def test_backends_export_import_functions(mesh: dolfinx.mesh.Mesh) -> None:
     """Check I/O for a list of dolfinx.fem.Function."""
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     functions = list()
     indices = list()
     for i in range(2):
@@ -62,7 +62,7 @@ def test_backends_export_import_functions(mesh: dolfinx.mesh.Mesh) -> None:
 
 def test_backends_export_import_vector(mesh: dolfinx.mesh.Mesh) -> None:
     """Check I/O for a petsc4py.PETSc.Vec."""
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     v = ufl.TestFunction(V)
     linear_form = ufl.inner(1, v) * ufl.dx
     linear_form_cpp = dolfinx.fem.form(linear_form)
@@ -78,7 +78,7 @@ def test_backends_export_import_vector(mesh: dolfinx.mesh.Mesh) -> None:
 
 def test_backends_export_import_vectors(mesh: dolfinx.mesh.Mesh) -> None:
     """Check I/O for a list of petsc4py.PETSc.Vec."""
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     v = ufl.TestFunction(V)
     linear_forms = [ufl.inner(i + 1, v) * ufl.dx for i in range(2)]
     linear_forms_cpp = dolfinx.fem.form(linear_forms)
@@ -100,7 +100,7 @@ def test_backends_export_import_matrix(  # type: ignore[no-any-unimported]
     to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check I/O for a petsc4py.PETSc.Mat."""
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     u = ufl.TrialFunction(V)
     v = ufl.TestFunction(V)
     bilinear_form = ufl.inner(u, v) * ufl.dx
@@ -120,7 +120,7 @@ def test_backends_export_import_matrices(  # type: ignore[no-any-unimported]
     to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check I/O for a list of petsc4py.PETSc.Mat."""
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     u = ufl.TrialFunction(V)
     v = ufl.TestFunction(V)
     bilinear_forms = [(i + 1) * ufl.inner(u, v) * ufl.dx for i in range(2)]

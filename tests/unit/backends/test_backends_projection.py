@@ -30,7 +30,7 @@ def mesh() -> dolfinx.mesh.Mesh:
 @pytest.fixture
 def functions_list(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.FunctionsList:
     """Generate a rbnicsx.backends.FunctionsList with several entries."""
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     functions_list = rbnicsx.backends.FunctionsList(V)
     for i in range(14):
         function = dolfinx.fem.Function(V)

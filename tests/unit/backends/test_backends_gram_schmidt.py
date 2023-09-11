@@ -27,7 +27,7 @@ def mesh() -> dolfinx.mesh.Mesh:
 @pytest.fixture
 def functions(mesh: dolfinx.mesh.Mesh) -> typing.List[dolfinx.fem.Function]:
     """Generate a list of pairwise linearly independent functions."""
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     function0 = dolfinx.fem.Function(V)
     with function0.vector.localForm() as function0_local:
         function0_local.set(1)
@@ -44,7 +44,7 @@ def functions(mesh: dolfinx.mesh.Mesh) -> typing.List[dolfinx.fem.Function]:
 @pytest.fixture
 def inner_product(mesh: dolfinx.mesh.Mesh) -> ufl.Form:  # type: ignore[no-any-unimported]
     """Generate a UFL form storing the L^2 inner product."""
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     u = ufl.TrialFunction(V)
     v = ufl.TestFunction(V)
     return ufl.inner(u, v) * ufl.dx
@@ -81,7 +81,7 @@ def test_backends_gram_schmidt_zero(  # type: ignore[no-any-unimported]
     mesh: dolfinx.mesh.Mesh, inner_product: ufl.Form
 ) -> None:
     """Check rbnicsx.backends.gram_schmidt when adding a linearly dependent function (e.g., zero)."""
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
 
     functions_list = rbnicsx.backends.FunctionsList(V)
     assert len(functions_list) == 0

@@ -32,7 +32,7 @@ def mesh() -> dolfinx.mesh.Mesh:
 @pytest.fixture
 def tensors_1d_array_vec(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsArray:
     """Generate a rbnicsx.backends.TensorsArray with six petsc4py.PETSc.Vec entries."""
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     v = ufl.TestFunction(V)
     linear_forms = [ufl.inner(i + 1, v) * ufl.dx for i in range(6)]
     linear_forms_cpp = dolfinx.fem.form(linear_forms)
@@ -49,7 +49,7 @@ def tensors_1d_array_vec(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsArr
 @pytest.fixture
 def tensors_2d_array_vec(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsArray:
     """Generate a rbnicsx.backends.TensorsArray with two-by-three petsc4py.PETSc.Vec entries."""
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     v = ufl.TestFunction(V)
     linear_forms = [ufl.inner(i + 1, v) * ufl.dx for i in range(6)]
     linear_forms_cpp = dolfinx.fem.form(linear_forms)
@@ -67,7 +67,7 @@ def tensors_2d_array_vec(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsArr
 @pytest.fixture
 def tensors_1d_array_mat(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsArray:
     """Generate a rbnicsx.backends.TensorsArray with six petsc4py.PETSc.Mat entries."""
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     u = ufl.TrialFunction(V)
     v = ufl.TestFunction(V)
     bilinear_forms = [(i + 1) * ufl.inner(u, v) * ufl.dx for i in range(6)]
@@ -85,7 +85,7 @@ def tensors_1d_array_mat(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsArr
 @pytest.fixture
 def tensors_2d_array_mat(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsArray:
     """Generate a rbnicsx.backends.TensorsArray with two-by-three petsc4py.PETSc.Mat entries."""
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     u = ufl.TrialFunction(V)
     v = ufl.TestFunction(V)
     bilinear_forms = [(i + 1) * ufl.inner(u, v) * ufl.dx for i in range(6)]

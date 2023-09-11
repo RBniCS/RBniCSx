@@ -26,7 +26,7 @@ def mesh() -> dolfinx.mesh.Mesh:
 @pytest.fixture
 def functions_list(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.FunctionsList:
     """Generate a rbnicsx.backends.FunctionsList with two entries."""
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     functions_list = rbnicsx.backends.FunctionsList(V)
     for i in range(2):
         function = dolfinx.fem.Function(V)
@@ -134,7 +134,7 @@ def test_backends_functions_list_mul(functions_list: rbnicsx.backends.FunctionsL
 
 def test_backends_functions_list_mul_empty(mesh: dolfinx.mesh.Mesh) -> None:
     """Check rbnicsx.backends.FunctionsList.__mul__ with empty list."""
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     empty_functions_list = rbnicsx.backends.FunctionsList(V)
 
     online_vec = rbnicsx.online.create_vector(0)

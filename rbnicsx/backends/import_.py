@@ -19,7 +19,9 @@ from rbnicsx._backends.import_ import (
 from rbnicsx.io import on_rank_zero
 
 
-def import_function(function_space: dolfinx.fem.FunctionSpace, directory: str, filename: str) -> dolfinx.fem.Function:
+def import_function(
+    function_space: dolfinx.fem.FunctionSpaceBase, directory: str, filename: str
+) -> dolfinx.fem.Function:
     """
     Import a dolfinx.fem.Function from file.
 
@@ -46,7 +48,7 @@ def import_function(function_space: dolfinx.fem.FunctionSpace, directory: str, f
 
 
 def import_functions(
-    function_space: dolfinx.fem.FunctionSpace, directory: str, filename: str
+    function_space: dolfinx.fem.FunctionSpaceBase, directory: str, filename: str
 ) -> typing.List[dolfinx.fem.Function]:
     """
     Import a list of dolfinx.fem.Function from file.

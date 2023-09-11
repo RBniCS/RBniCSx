@@ -30,7 +30,7 @@ def mesh() -> dolfinx.mesh.Mesh:
 @pytest.fixture
 def functions_list(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.FunctionsList:
     """Generate a rbnicsx.backends.FunctionsList with four linearly dependent entries."""
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     functions_list = rbnicsx.backends.FunctionsList(V)
     for i in range(4):
         function = dolfinx.fem.Function(V)
@@ -43,7 +43,7 @@ def functions_list(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.FunctionsList:
 @pytest.fixture
 def inner_product(mesh: dolfinx.mesh.Mesh) -> ufl.Form:  # type: ignore[no-any-unimported]
     """Generate a UFL form storing the L^2 inner product."""
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     u = ufl.TrialFunction(V)
     v = ufl.TestFunction(V)
     return ufl.inner(u, v) * ufl.dx
@@ -52,7 +52,7 @@ def inner_product(mesh: dolfinx.mesh.Mesh) -> ufl.Form:  # type: ignore[no-any-u
 @pytest.fixture
 def tensors_list_vec(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsList:
     """Generate a rbnicsx.backends.TensorsList with two linearly dependent petsc4py.PETSc.Vec entries."""
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     v = ufl.TestFunction(V)
     linear_forms = [ufl.inner(i + 1, v) * ufl.dx for i in range(2)]
     linear_forms_cpp = dolfinx.fem.form(linear_forms)
@@ -68,7 +68,7 @@ def tensors_list_vec(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsList:
 @pytest.fixture
 def tensors_list_mat(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsList:
     """Generate a rbnicsx.backends.TensorsList with two linearly dependent petsc4py.PETSc.Mat entries."""
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     u = ufl.TrialFunction(V)
     v = ufl.TestFunction(V)
     bilinear_forms = [(i + 1) * ufl.inner(u, v) * ufl.dx for i in range(2)]
@@ -221,7 +221,7 @@ def test_backends_proper_orthogonal_decomposition_zero(  # type: ignore[no-any-u
     mesh: dolfinx.mesh.Mesh, inner_product: ufl.Form, normalize: bool
 ) -> None:
     """Check rbnicsx.backends.proper_orthogonal_decomposition for the case of all zero snapshots."""
-    V = dolfinx.fem.FunctionSpace(mesh, ("Lagrange", 1))
+    V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     functions_list = rbnicsx.backends.FunctionsList(V)
     functions_list.extend([dolfinx.fem.Function(V) for _ in range(2)])
     compute_inner_product = rbnicsx.backends.bilinear_form_action(inner_product)
