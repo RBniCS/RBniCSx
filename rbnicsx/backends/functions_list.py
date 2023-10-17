@@ -31,12 +31,12 @@ class FunctionsList(FunctionsListBase[dolfinx.fem.Function]):
         Finite element space provided as input.
     """
 
-    def __init__(self, function_space: dolfinx.fem.FunctionSpaceBase) -> None:
-        self._function_space: dolfinx.fem.FunctionSpaceBase = function_space
+    def __init__(self, function_space: dolfinx.fem.FunctionSpace) -> None:
+        self._function_space: dolfinx.fem.FunctionSpace = function_space
         super().__init__(function_space.mesh.comm)
 
     @property
-    def function_space(self) -> dolfinx.fem.FunctionSpaceBase:
+    def function_space(self) -> dolfinx.fem.FunctionSpace:
         """Return the common finite element space of any Function that will be added to this list."""
         return self._function_space
 
