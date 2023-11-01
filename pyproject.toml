@@ -109,6 +109,7 @@ line_length = 120
 multi_line_output = 4
 order_by_type = false
 combine_as_imports = true
+known_first_party = ["rbnicsx"]
 
 [tool.mypy]
 check_untyped_defs = true

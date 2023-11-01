@@ -99,6 +99,9 @@ jobs:
         if: startsWith(matrix.backend, 'none') != true
         run: |
           cd docs && make html
+      - name: Remove source directory to ensure that package from installation directory is used
+        run: |
+          rm -rf rbnicsx
       - name: Determine coverage and pytest options for unit tests
         id: unit_options
         run: |
