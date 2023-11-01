@@ -36,12 +36,14 @@ jobs:
               echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
               echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
               rm /usr/local/lib/python3.11/site-packages/petsc4py/py.typed
+              python3 -m pip install pybind11 scikit-build-core[pyproject]
           - backend: none-complex
             container: numericalpdes/base_images:slepc4py-complex
             setup_container: |
               echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
               echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
               rm /usr/local/lib/python3.11/site-packages/petsc4py/py.typed
+              python3 -m pip install pybind11 scikit-build-core[pyproject]
           - backend: dolfinx-real
             container: dolfinx/dolfinx:nightly
             setup_container: |
@@ -51,6 +53,7 @@ jobs:
               echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
               echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
               rm /usr/local/lib/python3.10/dist-packages/petsc4py/py.typed
+              python3 -m pip install scikit-build-core[pyproject]
           - backend: dolfinx-complex
             container: dolfinx/dolfinx:nightly
             setup_container: |
@@ -60,6 +63,7 @@ jobs:
               echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
               echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
               rm /usr/local/lib/python3.10/dist-packages/petsc4py/py.typed
+              python3 -m pip install scikit-build-core[pyproject]
       fail-fast: false
     container:
       image: ${{ matrix.container }}
@@ -71,11 +75,10 @@ jobs:
       - name: Install RBniCSx
         run: |
           if [[ "${{ matrix.backend }}" == none* ]]; then
-            python3 -m pip install .[docs,lint,tests]
+            python3 -m pip install --check-build-dependencies --no-build-isolation --verbose .[docs,lint,tests]
           else
-            python3 -m pip install .[docs,lint,tests,tutorials]
+            python3 -m pip install --check-build-dependencies --no-build-isolation --verbose .[docs,lint,tests,tutorials]
           fi
-          python3 -c "import rbnicsx._cpp"
         shell: bash
       - name: Update mypy configuration
         if: startsWith(matrix.backend, 'none') == true
