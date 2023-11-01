@@ -13,7 +13,7 @@ namespace rbnicsx_wrappers
     void _backends(py::module& m);
 }
 
-PYBIND11_MODULE(SIGNATURE, m)
+PYBIND11_MODULE(rbnicsx_cpp, m)
 {
     // Create module for C++ wrappers
     m.doc() = "RBniCSx Python interface";
