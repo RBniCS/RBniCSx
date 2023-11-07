@@ -4,17 +4,16 @@
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
-#include <pybind11/complex.h>
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 #include <rbnicsx/_backends/petsc_casters.h>
 #include <rbnicsx/_backends/frobenius_inner_product.h>
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 namespace rbnicsx_wrappers
 {
-    void _backends(py::module& m)
+    void _backends(nb::module_& m)
     {
         m.def("frobenius_inner_product", &rbnicsx::_backends::frobenius_inner_product,
               "Frobenius inner product between PETSc Mat objects.");

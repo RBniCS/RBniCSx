@@ -36,14 +36,14 @@ jobs:
               echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
               echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
               rm /usr/local/lib/python3.11/site-packages/petsc4py/py.typed
-              python3 -m pip install pybind11 scikit-build-core[pyproject]
+              python3 -m pip install nanobind scikit-build-core[pyproject]
           - backend: none-complex
             container: numericalpdes/base_images:slepc4py-complex
             setup_container: |
               echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
               echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
               rm /usr/local/lib/python3.11/site-packages/petsc4py/py.typed
-              python3 -m pip install pybind11 scikit-build-core[pyproject]
+              python3 -m pip install nanobind scikit-build-core[pyproject]
           - backend: dolfinx-real
             container: dolfinx/dolfinx:nightly
             setup_container: |
@@ -53,7 +53,6 @@ jobs:
               echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
               echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
               rm /usr/local/lib/python3.10/dist-packages/petsc4py/py.typed
-              python3 -m pip install scikit-build-core[pyproject]
           - backend: dolfinx-complex
             container: dolfinx/dolfinx:nightly
             setup_container: |
@@ -63,7 +62,6 @@ jobs:
               echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
               echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
               rm /usr/local/lib/python3.10/dist-packages/petsc4py/py.typed
-              python3 -m pip install scikit-build-core[pyproject]
       fail-fast: false
     container:
       image: ${{ matrix.container }}

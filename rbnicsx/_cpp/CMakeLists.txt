@@ -7,14 +7,30 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Find python
-find_package(Python3 COMPONENTS Interpreter Development.Module REQUIRED)
+# Set default build type
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
 
-# Find pybind11
-find_package(
-    pybind11 2.9.1 REQUIRED
-    CONFIG HINTS ${PYBIND11_DIR} ${PYBIND11_ROOT} $ENV{PYBIND11_DIR} $ENV{PYBIND11_ROOT}
+# Find python
+find_package(Python COMPONENTS Interpreter Development REQUIRED)
+
+# Find nanobind
+execute_process(
+    COMMAND ${Python_EXECUTABLE} -m nanobind --cmake_dir
+    OUTPUT_VARIABLE NANOBIND_CMAKE_DIR
+    RESULT_VARIABLE NANOBIND_CMAKE_DIR_COMMAND_RESULT
+    ERROR_VARIABLE NANOBIND_CMAKE_DIR_COMMAND_ERROR
+    OUTPUT_STRIP_TRAILING_WHITESPACE
 )
+if(NOT NANOBIND_CMAKE_DIR_COMMAND_RESULT)
+    list(APPEND CMAKE_PREFIX_PATH "${NANOBIND_CMAKE_DIR}")
+    find_package(nanobind CONFIG REQUIRED)
+    message(STATUS "Found nanobind python wrappers at ${NANOBIND_CMAKE_DIR}")
+else()
+    message(FATAL_ERROR "nanobind could not be found.")
+endif()
 
 # Check for PETSc
 find_package(PkgConfig REQUIRED)
@@ -25,7 +41,7 @@ pkg_search_module(PETSC REQUIRED IMPORTED_TARGET PETSc>=3.15 petsc>=3.15)
 
 # Check for petsc4py
 execute_process(
-    COMMAND ${Python3_EXECUTABLE} -c "import petsc4py; print(petsc4py.get_include())"
+    COMMAND ${Python_EXECUTABLE} -c "import petsc4py; print(petsc4py.get_include())"
     OUTPUT_VARIABLE PETSC4PY_INCLUDE_DIR
     RESULT_VARIABLE PETSC4PY_INCLUDE_COMMAND_RESULT
     ERROR_VARIABLE PETSC4PY_INCLUDE_COMMAND_ERROR
@@ -38,13 +54,12 @@ else()
     message(FATAL_ERROR "petsc4py could not be found.")
 endif()
 
-# Compile rbnicsx C++ backend and pybind11 wrappers
-pybind11_add_module(
+# Compile rbnicsx C++ backend and nanobind wrappers
+nanobind_add_module(
     rbnicsx_cpp
     MODULE
     rbnicsx/_backends/frobenius_inner_product.cpp
     rbnicsx/_backends/petsc_error.cpp
-    rbnicsx/_backends/petsc_casters.cpp
     rbnicsx/wrappers/_backends.cpp
     rbnicsx/wrappers/rbnicsx.cpp
 )

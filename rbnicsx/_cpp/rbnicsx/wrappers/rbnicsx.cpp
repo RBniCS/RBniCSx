@@ -4,21 +4,21 @@
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 namespace rbnicsx_wrappers
 {
-    void _backends(py::module& m);
+    void _backends(nb::module_& m);
 }
 
-PYBIND11_MODULE(rbnicsx_cpp, m)
+NB_MODULE(rbnicsx_cpp, m)
 {
     // Create module for C++ wrappers
     m.doc() = "RBniCSx Python interface";
 
     // Create internal backends submodule
-    py::module _backends = m.def_submodule("_backends", "Internal backends module");
+    nb::module_ _backends = m.def_submodule("_backends", "Internal backends module");
     rbnicsx_wrappers::_backends(_backends);
 }
