@@ -75,4 +75,5 @@ target_include_directories(rbnicsx_cpp PRIVATE ${PETSC4PY_INCLUDE_DIR})
 target_link_libraries(rbnicsx_cpp PRIVATE PkgConfig::PETSC)
 
 # Install the compiled library to the _cpp subdirectory
+set_target_properties(rbnicsx_cpp PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 install(TARGETS rbnicsx_cpp LIBRARY DESTINATION rbnicsx/_cpp)
