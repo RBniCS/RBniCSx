@@ -32,7 +32,7 @@ jobs:
       matrix:
         include:
           - backend: dolfinx-real
-            container: dolfinx/dolfinx:v0.5.2
+            container: ghcr.io/fenics/dolfinx/dolfinx:v0.5.2
             setup_container: |
               . /usr/local/bin/dolfinx-real-mode
               echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
@@ -40,7 +40,7 @@ jobs:
               echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
               echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
           - backend: dolfinx-complex
-            container: dolfinx/dolfinx:v0.5.2
+            container: ghcr.io/fenics/dolfinx/dolfinx:v0.5.2
             setup_container: |
               . /usr/local/bin/dolfinx-complex-mode
               echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
