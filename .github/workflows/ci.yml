@@ -146,10 +146,6 @@ jobs:
         uses: RBniCS/check-jupyter-metadata-action@main
         with:
           pattern: "tutorials/**/*.ipynb"
-      - name: Import modules at least once, so that tutorials duration is not affected by module setup
-        if: startsWith(matrix.backend, 'none') != true
-        run: |
-          python3 -m pytest --durations=0 --durations-min=1.0 tutorials/.imports.ipynb
       - name: Run tutorials (serial)
         if: startsWith(matrix.backend, 'none') != true
         run: |

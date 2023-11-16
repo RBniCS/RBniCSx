@@ -100,9 +100,7 @@ per-file-ignores = [
     "tutorials/0*.py: D100, F401, I004",
     "tutorials/1*.py: D100, F401, I004",
     "tutorials/**/0*.py: D100, F401, I004",
-    "tutorials/**/1*.py: D100, F401, I004",
-    "tutorials/.imports*.py: D100, F401, I004",
-    "tutorials/**/.imports*.py: D100, F401, I004"
+    "tutorials/**/1*.py: D100, F401, I004"
 ]
 
 [tool.isort]
