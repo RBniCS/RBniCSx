@@ -9,6 +9,7 @@ on:
       - main
   schedule:
     - cron: "0 5 * * *"
+  workflow_call:
   workflow_dispatch:
 
 jobs:
@@ -30,42 +31,20 @@ jobs:
     strategy:
       matrix:
         include:
-          - backend: none-real
-            container: ubuntu:rolling
-            setup_container: |
-              export DEBIAN_FRONTEND="noninteractive"
-              apt -y -qq update
-              apt install -y -qq git libpetsc-real-dev libslepc-real-dev python3-mpi4py python3-petsc4py-real python3-pip python3-scipy python3-slepc4py-real
-              python3 -m pip install --upgrade pip
-              echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
-              echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
-              echo "PETSC_DIR=/usr/lib/petscdir/petsc-real" >> $GITHUB_ENV
-              echo "SLEPC_DIR=/usr/lib/slepcdir/slepc-real" >> $GITHUB_ENV
-          - backend: none-complex
-            container: ubuntu:rolling
-            setup_container: |
-              export DEBIAN_FRONTEND="noninteractive"
-              apt -y -qq update
-              apt install -y -qq git libpetsc-complex-dev libslepc-complex-dev python3-mpi4py python3-petsc4py-complex python3-pip python3-scipy python3-slepc4py-complex
-              python3 -m pip install --upgrade pip
-              echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
-              echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
-              echo "PETSC_DIR=/usr/lib/petscdir/petsc-complex" >> $GITHUB_ENV
-              echo "SLEPC_DIR=/usr/lib/slepcdir/slepc-complex" >> $GITHUB_ENV
           - backend: dolfinx-real
-            container: dolfinx/dolfinx
+            container: dolfinx/dolfinx:v0.4.1
             setup_container: |
               . /usr/local/bin/dolfinx-real-mode
-              python3 -m pip install --upgrade pip
+              python3 -m pip install --upgrade pip setuptools
               echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
               echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> $GITHUB_ENV
               echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
               echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
           - backend: dolfinx-complex
-            container: dolfinx/dolfinx
+            container: dolfinx/dolfinx:v0.4.1
             setup_container: |
               . /usr/local/bin/dolfinx-complex-mode
-              python3 -m pip install --upgrade pip
+              python3 -m pip install --upgrade pip setuptools
               echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
               echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> $GITHUB_ENV
               echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
@@ -75,35 +54,24 @@ jobs:
       image: ${{ matrix.container }}
       options: --user root
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          ref: dolfinx-v0.4.1
       - name: Setup container
         run: ${{ matrix.setup_container }}
       - name: Install RBniCSx
         run: |
-          if [[ "${{ matrix.backend }}" == none* ]]; then
-            python3 -m pip install .[docs,lint,tests]
-          else
-            python3 -m pip install .[docs,lint,tests,tutorials]
-          fi
+          python3 -m pip install .[docs,lint,tests,tutorials]
           python3 -c "import rbnicsx._cpp"
         shell: bash
-      - name: Run flake8 checks on python files
-        run: |
-          python3 -m flake8 .
       - name: Run documentation generation
-        if: startsWith(matrix.backend, 'none') != true
         run: |
           cd docs && make html
       - name: Determine coverage and pytest options for unit tests
         id: unit_options
         run: |
-          if [[ "${{ matrix.backend }}" == none* ]]; then
-            COVERAGE_UNIT_OMIT="*/rbnicsx/backends/*.py,*/rbnicsx/_cpp/backends/*.py"
-            PYTEST_UNIT_OPTIONS="--skip-backends"
-          else
-            COVERAGE_UNIT_OMIT=""
-            PYTEST_UNIT_OPTIONS=""
-          fi
+          COVERAGE_UNIT_OMIT=""
+          PYTEST_UNIT_OPTIONS=""
           echo "::set-output name=coverage_omit::${COVERAGE_UNIT_OMIT}"
           echo "::set-output name=pytest_options::${PYTEST_UNIT_OPTIONS}"
         shell: bash
@@ -121,73 +89,18 @@ jobs:
         run: |
           python3 -m coverage combine .coverage*
           python3 -m coverage report --fail-under=100 --show-missing --skip-covered
-      - name: Run flake8 checks on tutorial files
-        if: startsWith(matrix.backend, 'none') != true
-        run: |
-          NO_TESTS_COLLECTED=5
-          python3 -m pytest --ipynb-action=create-notebooks tutorials || (($?==$NO_TESTS_COLLECTED))
-          python3 -m pytest --ipynb-action=create-notebooks --tag-collapse tutorials || (($?==$NO_TESTS_COLLECTED))
-          python3 -m pytest --ipynb-action=create-notebooks --np=2 tutorials || (($?==$NO_TESTS_COLLECTED))
-          python3 -m pytest --ipynb-action=create-notebooks --tag-collapse --np=2 tutorials || (($?==$NO_TESTS_COLLECTED))
-          python3 -m nbqa flake8 .
-        shell: bash
-      - name: Check for stray outputs, counts and metadata in tutorial files
-        if: startsWith(matrix.backend, 'none') != true
-        uses: RBniCS/check-jupyter-metadata-action@main
-        with:
-          pattern: "tutorials/**/*.ipynb"
       - name: Import modules at least once, so that tutorials duration is not affected by module setup
-        if: startsWith(matrix.backend, 'none') != true
         run: |
           python3 -m pytest --durations=0 --durations-min=1.0 tutorials/.imports.ipynb
       - name: Run tutorials (serial)
-        if: startsWith(matrix.backend, 'none') != true
         run: |
           python3 -m pytest --tag-collapse --durations=0 --durations-min=1.0 tutorials
       - name: Run tutorials (parallel)
-        if: startsWith(matrix.backend, 'none') != true
         run: |
           python3 -m pytest --tag-collapse --np=2 --durations=0 --durations-min=1.0 tutorials
       - name: Upload tutorials logs as an artifact in case of failure
-        if: startsWith(matrix.backend, 'none') != true && (failure() || cancelled())
         uses: actions/upload-artifact@v2
         with:
           name: "tutorials-logs-${{ matrix.backend }}"
           path: |
             tutorials/**/.ipynb_pytest/**/*.log*
-      - name: Warn if scheduled workflow is about to be disabled
-        if: github.repository == 'RBniCS/RBniCSx' && github.ref == 'refs/heads/main' && github.event_name == 'schedule'
-        uses: fem-on-colab/warn-workflow-about-to-be-disabled-action@main
-        with:
-          workflow-filename: ci.yml
-          days-elapsed: 55
-
-  open_in_colab:
-    uses: fem-on-colab/open-in-colab-workflow/.github/workflows/workflow_call.yml@main
-    needs: [test]
-    if: github.ref == 'refs/heads/main'
-    with:
-      work_directory: open_in_colab
-      notebook_pattern: "**/*.ipynb"
-      notebook_preparation: |
-        python3 -m pip install --no-dependencies git+https://github.com/multiphenics/nbvalx.git
-        NO_TESTS_COLLECTED=5
-        python3 -m pytest --ipynb-action=create-notebooks --tag-collapse --work-dir=.ipynb_colab tutorials || (($?==$NO_TESTS_COLLECTED))
-        find tutorials -type d -name .ipynb_colab -exec rsync -avz --remove-source-files --include="*.ipynb" --exclude="*" {}/ {}/.. \;
-        rsync -avz --include "*/" --include="*.ipynb" --exclude="*" tutorials open_in_colab/
-        mv open_in_colab/tutorials/.imports.ipynb open_in_colab/tutorials/imports.ipynb
-      fem_on_colab_packages: |
-        fenicsx$dolfinx
-        gmsh
-      pip_packages: |
-        itkwidgets pyvista$pyvista%multiphenicsx.io
-        pip>=22.0%rbnicsx
-        rbnicsx[colab]@https://github.com/RBniCS/RBniCSx.git
-      test_script: |
-        python3 -m pip install kaleido plotly
-        python3 -m pytest --nbval --durations=0 --durations-min=1.0 open_in_colab/tutorials/imports.ipynb
-        python3 -m pytest --nbval --durations=0 --durations-min=1.0 open_in_colab/tutorials
-      publish_on: github@RBniCS/rbnicsproject.org@open-in-colab-rbnicsx
-      publish_if_repository: RBniCS/RBniCSx
-    secrets:
-      REPO_ACCESS_TOKEN: "${{ secrets.REPO_ACCESS_TOKEN }}"
