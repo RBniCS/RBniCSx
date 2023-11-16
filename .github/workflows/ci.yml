@@ -9,6 +9,7 @@ on:
       - main
   schedule:
     - cron: "0 5 * * *"
+  workflow_call:
   workflow_dispatch:
 
 jobs:
@@ -30,18 +31,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - backend: none-real
-            container: numericalpdes/base_images:slepc4py-real
-            setup_container: |
-              echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
-              echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
-          - backend: none-complex
-            container: numericalpdes/base_images:slepc4py-complex
-            setup_container: |
-              echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
-              echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
           - backend: dolfinx-real
-            container: dolfinx/dolfinx:nightly
+            container: ghcr.io/fenics/dolfinx/dolfinx:v0.6.0-r1
             setup_container: |
               . /usr/local/bin/dolfinx-real-mode
               echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
@@ -49,7 +40,7 @@ jobs:
               echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
               echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
           - backend: dolfinx-complex
-            container: dolfinx/dolfinx:nightly
+            container: ghcr.io/fenics/dolfinx/dolfinx:v0.6.0-r1
             setup_container: |
               . /usr/local/bin/dolfinx-complex-mode
               echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
@@ -62,102 +53,45 @@ jobs:
       options: --user root
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: dolfinx-v0.6.0
       - name: Setup container
         run: ${{ matrix.setup_container }}
       - name: Install RBniCSx
         run: |
-          if [[ "${{ matrix.backend }}" == none* ]]; then
-            python3 -m pip install .[docs,lint,tests]
-          else
-            python3 -m pip install --upgrade https://dmf.unicatt.it/ballarin/public/itkwidgets-0.33.0.dev0-py2.py3-none-any.whl
-            python3 -m pip install .[docs,lint,tests,tutorials]
-          fi
+          python3 -m pip install .[docs,lint,tests,tutorials]
           python3 -c "import rbnicsx._cpp"
         shell: bash
-      - name: Update mypy configuration
-        if: startsWith(matrix.backend, 'none') == true
-        run: |
-          echo "[mypy-dolfinx]" >> setup.cfg
-          echo "ignore_missing_imports = True" >> setup.cfg
-          echo "[mypy-dolfinx.*]" >> setup.cfg
-          echo "ignore_missing_imports = True" >> setup.cfg
-          echo "[mypy-rbnicsx._cpp.default_compiler_options_with_dolfinx]" >> setup.cfg
-          echo "follow_imports = silent" >> setup.cfg
-          sed -i 's@exclude = (^\\\.eggs|^build|^dist|conftest\\\.py\$)@exclude = (^\\\.eggs|^build|^dist|conftest\\\.py\$|^rbnicsx/backends|^rbnicsx/_cpp/backends|^rbnicsx/_cpp/default_compiler_options_with_dolfinx\\\.py\$|^tests/unit/backends|^tests/unit/_cpp/backends)@g' setup.cfg
-        shell: bash
-      - name: Run flake8 and mypy checks on python files
-        run: |
-          python3 -m flake8 .
-          python3 -m mypy .
       - name: Run documentation generation
-        if: startsWith(matrix.backend, 'none') != true
         run: |
           cd docs && make html
-      - name: Determine coverage and pytest options for unit tests
-        id: unit_options
-        run: |
-          if [[ "${{ matrix.backend }}" == none* ]]; then
-            COVERAGE_UNIT_OMIT="*/rbnicsx/backends/*.py,*/rbnicsx/_cpp/backends/*.py"
-            PYTEST_UNIT_OPTIONS="--skip-backends"
-          else
-            COVERAGE_UNIT_OMIT=""
-            PYTEST_UNIT_OPTIONS=""
-          fi
-          echo "coverage_omit=${COVERAGE_UNIT_OMIT}" >> ${GITHUB_OUTPUT}
-          echo "pytest_options=${PYTEST_UNIT_OPTIONS}" >> ${GITHUB_OUTPUT}
-        shell: bash
       - name: Run unit tests (serial)
         run: |
-          COVERAGE_UNIT_OMIT="${{ steps.unit_options.outputs.coverage_omit }}"
-          PYTEST_UNIT_OPTIONS="${{ steps.unit_options.outputs.pytest_options }}"
+          COVERAGE_UNIT_OMIT=""
+          PYTEST_UNIT_OPTIONS=""
           COVERAGE_FILE=.coverage_unit_serial python3 -m coverage run --source=rbnicsx --omit="${COVERAGE_UNIT_OMIT}" -m pytest  ${PYTEST_UNIT_OPTIONS} tests/unit
       - name: Run unit tests (parallel)
         run: |
-          COVERAGE_UNIT_OMIT="${{ steps.unit_options.outputs.coverage_omit }}"
-          PYTEST_UNIT_OPTIONS="${{ steps.unit_options.outputs.pytest_options }}"
+          COVERAGE_UNIT_OMIT=""
+          PYTEST_UNIT_OPTIONS=""
           COVERAGE_FILE=.coverage_unit_parallel mpirun -n 2 python3 -m coverage run --source=rbnicsx --parallel-mode --omit="${COVERAGE_UNIT_OMIT}" -m pytest ${PYTEST_UNIT_OPTIONS} tests/unit
       - name: Combine coverage reports
         run: |
           python3 -m coverage combine .coverage*
           python3 -m coverage report --fail-under=100 --show-missing --skip-covered
-      - name: Run flake8 and mypy checks on tutorial files
-        if: startsWith(matrix.backend, 'none') != true
-        run: |
-          NO_TESTS_COLLECTED=5
-          python3 -m pytest --ipynb-action=create-notebooks tutorials || (($?==$NO_TESTS_COLLECTED))
-          python3 -m pytest --ipynb-action=create-notebooks --tag-collapse tutorials || (($?==$NO_TESTS_COLLECTED))
-          python3 -m pytest --ipynb-action=create-notebooks --np=2 tutorials || (($?==$NO_TESTS_COLLECTED))
-          python3 -m pytest --ipynb-action=create-notebooks --tag-collapse --np=2 tutorials || (($?==$NO_TESTS_COLLECTED))
-          python3 -m nbqa flake8 .
-          python3 -m nbqa mypy .
-        shell: bash
-      - name: Check for stray outputs, counts and metadata in tutorial files
-        if: startsWith(matrix.backend, 'none') != true
-        uses: RBniCS/check-jupyter-metadata-action@main
-        with:
-          pattern: "tutorials/**/*.ipynb"
       - name: Import modules at least once, so that tutorials duration is not affected by module setup
-        if: startsWith(matrix.backend, 'none') != true
         run: |
           python3 -m pytest --durations=0 --durations-min=1.0 tutorials/.imports.ipynb
       - name: Run tutorials (serial)
-        if: startsWith(matrix.backend, 'none') != true
         run: |
           python3 -m pytest --tag-collapse --durations=0 --durations-min=1.0 tutorials
       - name: Run tutorials (parallel)
-        if: startsWith(matrix.backend, 'none') != true
         run: |
           python3 -m pytest --tag-collapse --np=2 --durations=0 --durations-min=1.0 tutorials
       - name: Upload tutorials logs as an artifact in case of failure
-        if: startsWith(matrix.backend, 'none') != true && (failure() || cancelled())
+        if: failure() || cancelled()
         uses: actions/upload-artifact@v3
         with:
           name: "tutorials-logs-${{ matrix.backend }}"
           path: |
             tutorials/**/.ipynb_pytest/**/*.log*
-      - name: Warn if scheduled workflow is about to be disabled
-        if: github.repository == 'RBniCS/RBniCSx' && github.ref == 'refs/heads/main' && github.event_name == 'schedule'
-        uses: fem-on-colab/warn-workflow-about-to-be-disabled-action@main
-        with:
-          workflow-filename: ci.yml
-          days-elapsed: 55
