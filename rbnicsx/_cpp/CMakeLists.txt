@@ -7,11 +7,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Set default build type
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
-  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
-endif()
+# Report build type
+message(STATUS "Build type is ${CMAKE_BUILD_TYPE}")
 
 # Find python
 find_package(Python COMPONENTS Interpreter Development REQUIRED)
@@ -57,7 +54,7 @@ endif()
 # Compile rbnicsx C++ backend and nanobind wrappers
 nanobind_add_module(
     rbnicsx_cpp
-    MODULE
+    NOMINSIZE
     rbnicsx/_backends/frobenius_inner_product.cpp
     rbnicsx/_backends/petsc_error.cpp
     rbnicsx/wrappers/_backends.cpp
