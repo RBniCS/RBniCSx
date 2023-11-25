@@ -81,6 +81,10 @@ jobs:
             python3 -m pip install --check-build-dependencies --no-build-isolation --config-settings=build-dir="build" --config-settings=cmake.build-type="Debug" --verbose .[docs,lint,tests,tutorials]
           fi
         shell: bash
+      - name: Clean build files
+        run: |
+          git config --global --add safe.directory $PWD
+          git clean -xdf
       - name: Update mypy configuration
         if: startsWith(matrix.backend, 'none') == true
         run: |
@@ -101,6 +105,9 @@ jobs:
       - name: Run mypy on python files
         run: |
           python3 -m mypy .
+      - name: Run yamllint on workflows
+        run: |
+          python3 -m yamllint -d "{extends: default, rules: {document-start: {present: false}, line-length: disable, truthy: {check-keys: false}}}" .
       - name: Run documentation generation
         if: startsWith(matrix.backend, 'none') != true
         run: |
