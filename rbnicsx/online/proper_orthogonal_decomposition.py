@@ -26,7 +26,7 @@ from rbnicsx.online.tensors_list import TensorsList
 
 
 @plum.overload
-def proper_orthogonal_decomposition(  # type: ignore[no-any-unimported] # noqa: F811
+def proper_orthogonal_decomposition(  # type: ignore[no-any-unimported]
     functions_list: FunctionsList, inner_product: petsc4py.PETSc.Mat, N: int = -1,
     tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True
 ) -> typing.Tuple[
@@ -99,7 +99,9 @@ def proper_orthogonal_decomposition(  # type: ignore[no-any-unimported] # noqa: 
 
 
 @plum.dispatch
-def proper_orthogonal_decomposition(*args, **kwargs):  # type: ignore[no-untyped-def] # noqa: F811
+def proper_orthogonal_decomposition(  # type: ignore[no-untyped-def] # noqa: ANN201, F811
+    *args, **kwargs  # noqa: ANN002, ANN003
+):
     """Compute the proper orthogonal decomposition of a set of online snapshots or tensors."""
     raise NotImplementedError("The abstract case has not been implemented")  # pragma: no cover
 

@@ -179,12 +179,10 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
 
     @typing.overload
     def __getitem__(self: Self, key: int) -> Function:  # pragma: no cover
-        """Stub of __getitem__ for type checking. See the concrete implementation below."""
         ...
 
     @typing.overload
     def __getitem__(self: Self, key: slice) -> Self:  # pragma: no cover
-        """Stub of __getitem__ for type checking. See the concrete implementation below."""
         ...
 
     def __getitem__(self: Self, key: typing.Union[int, slice]) -> typing.Union[Function, Self]:

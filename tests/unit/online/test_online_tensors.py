@@ -288,7 +288,7 @@ def test_online_vector_block_sub_vector_wrapper_context_manager() -> None:
     for i in range(5):
         online_vec.setValue(i, i + 1)
     with rbnicsx.online.BlockVecSubVectorWrapper(online_vec, N) as online_vec_wrapper:
-        for (I, online_subvec) in enumerate(online_vec_wrapper):
+        for (I, online_subvec) in enumerate(online_vec_wrapper):  # noqa: E741
             assert isinstance(online_subvec, petsc4py.PETSc.Vec)
             assert online_subvec.size == N[I]
             for i in range(N[I]):
@@ -306,7 +306,7 @@ def test_online_vector_block_sub_vector_copier_context_manager() -> None:
     for i in range(5):
         online_vec.setValue(i, i + 1)
     with rbnicsx.online.BlockVecSubVectorCopier(online_vec, N) as online_vec_copier:
-        for (I, online_subvec) in enumerate(online_vec_copier):
+        for (I, online_subvec) in enumerate(online_vec_copier):  # noqa: E741
             assert isinstance(online_subvec, petsc4py.PETSc.Vec)
             assert online_subvec.size == N[I]
             for i in range(N[I]):
@@ -372,7 +372,7 @@ def test_online_matrix_block_sub_matrix_wrapper_context_manager() -> None:
             online_mat.setValue(i, j, i * 9 + j + 1)
     online_mat.assemble()
     with rbnicsx.online.BlockMatSubMatrixWrapper(online_mat, M, N) as online_mat_wrapper:
-        for (I, J, online_submat) in online_mat_wrapper:
+        for (I, J, online_submat) in online_mat_wrapper:  # noqa: E741
             assert isinstance(I, int)
             assert isinstance(J, int)
             assert isinstance(online_submat, petsc4py.PETSc.Mat)
@@ -400,7 +400,7 @@ def test_online_matrix_block_sub_matrix_copier_context_manager() -> None:
             online_mat.setValue(i, j, i * 9 + j + 1)
     online_mat.assemble()
     with rbnicsx.online.BlockMatSubMatrixCopier(online_mat, M, N) as online_mat_copier:
-        for (I, J, online_submat) in online_mat_copier:
+        for (I, J, online_submat) in online_mat_copier:  # noqa: E741
             assert isinstance(I, int)
             assert isinstance(J, int)
             assert isinstance(online_submat, petsc4py.PETSc.Mat)

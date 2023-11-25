@@ -66,7 +66,7 @@ class TensorsArray(TensorsArrayBase):
         if isinstance(self._content_shape, tuple):
             return self.shape + self.content_shape  # type: ignore[operator]
         else:
-            return self.shape + (self.content_shape, )  # type: ignore[operator]
+            return self.shape + (self.content_shape, )  # type: ignore[operator] # noqa: RUF005
 
     @property
     def content_shape(self) -> typing.Union[

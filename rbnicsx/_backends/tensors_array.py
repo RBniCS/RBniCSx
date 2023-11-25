@@ -218,12 +218,10 @@ class TensorsArray(abc.ABC):
     def __getitem__(  # type: ignore[no-any-unimported]
         self: Self, key: typing.Union[int, typing.Tuple[int, ...]]
     ) -> typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]:  # pragma: no cover
-        """Stub of __getitem__ for type checking. See the concrete implementation below."""
         ...
 
     @typing.overload
     def __getitem__(self: Self, key: typing.Union[slice, typing.Tuple[slice, slice]]) -> Self:  # pragma: no cover
-        """Stub of __getitem__ for type checking. See the concrete implementation below."""
         ...
 
     def __getitem__(  # type: ignore[no-any-unimported]

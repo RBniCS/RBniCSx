@@ -73,7 +73,7 @@ def project_vector(  # type: ignore[no-any-unimported] # noqa: F811
 
 
 @plum.dispatch
-def project_vector(*args, **kwargs):  # type: ignore[no-untyped-def] # noqa: F811
+def project_vector(*args, **kwargs):  # type: ignore[no-untyped-def] # noqa: ANN002, ANN003, ANN201, F811
     """Project a linear form onto the reduced basis."""
     raise NotImplementedError("The abstract case has not been implemented")  # pragma: no cover
 
@@ -127,7 +127,7 @@ def project_vector_block(  # type: ignore[no-any-unimported] # noqa: F811
 
 
 @plum.dispatch
-def project_vector_block(*args, **kwargs):  # type: ignore[no-untyped-def] # noqa: F811
+def project_vector_block(*args, **kwargs):  # type: ignore[no-untyped-def] # noqa: ANN002, ANN003, ANN201, F811
     """Project a list of linear forms onto the reduced basis."""
     raise NotImplementedError("The abstract case has not been implemented")  # pragma: no cover
 
@@ -191,7 +191,7 @@ def project_matrix(  # type: ignore[no-any-unimported] # noqa: F811
 
 
 @plum.dispatch
-def project_matrix(*args, **kwargs):  # type: ignore[no-untyped-def] # noqa: F811
+def project_matrix(*args, **kwargs):  # type: ignore[no-untyped-def] # noqa: ANN002, ANN003, ANN201, F811
     """Project a bilinear form onto the reduced basis."""
     raise NotImplementedError("The abstract case has not been implemented")  # pragma: no cover
 
@@ -260,7 +260,7 @@ def project_matrix_block(  # type: ignore[no-any-unimported] # noqa: F811
 
 
 @plum.dispatch
-def project_matrix_block(*args, **kwargs):  # type: ignore[no-untyped-def] # noqa: F811
+def project_matrix_block(*args, **kwargs):  # type: ignore[no-untyped-def] # noqa: ANN002, ANN003, ANN201, F811
     """Project a matrix of bilinear forms onto the reduced basis."""
     raise NotImplementedError("The abstract case has not been implemented")  # pragma: no cover
 

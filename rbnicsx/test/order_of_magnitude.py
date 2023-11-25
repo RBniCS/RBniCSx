@@ -14,7 +14,6 @@ import petsc4py.PETSc
 
 @typing.overload
 def order_of_magnitude(numbers: typing.Union[float, np.float32, np.float64]) -> np.int32:  # pragma: no cover
-    """Stub of order_of_magnitude for type checking. See the concrete implementation below."""
     ...
 
 
@@ -24,7 +23,6 @@ def order_of_magnitude(  # type: ignore[no-any-unimported]
         np.typing.NDArray[typing.Union[np.float32, np.float64, petsc4py.PETSc.RealType]],
         typing.List[typing.Union[np.float32, np.float64, petsc4py.PETSc.RealType]]]
 ) -> np.typing.NDArray[np.int32]:  # pragma: no cover
-    """Stub of order_of_magnitude for type checking. See the concrete implementation below."""
     ...
 
 

@@ -94,11 +94,10 @@ jobs:
           echo "[[tool.mypy.overrides]]" >> pyproject.toml
           echo 'module = "dolfinx.*"' >> pyproject.toml
           echo "ignore_missing_imports = true" >> pyproject.toml
-          sed -i 's@exclude = \[".eggs", "build", "dist"\]@exclude = [".eggs", "build", "dist", "rbnicsx/backends", "tests/unit/backends"]@g' pyproject.toml
           sed -i 's@exclude = "(^\\\\.eggs|^build|^dist|conftest\\\\.py\$)"@exclude = "(^\\\\.eggs|^build|^dist|conftest\\\\.py\$|^rbnicsx/backends|^tests/unit/backends)"@g' pyproject.toml
-      - name: Run flake8 on python files
+      - name: Run ruff on python files
         run: |
-          python3 -m flake8 .
+          python3 -m ruff .
       - name: Run isort on python files
         run: |
           python3 -m isort --check --diff .
@@ -151,10 +150,10 @@ jobs:
           python3 -m pytest --ipynb-action=create-notebooks --np=2 tutorials || (($?==$NO_TESTS_COLLECTED))
           python3 -m pytest --ipynb-action=create-notebooks --tag-collapse --np=2 tutorials || (($?==$NO_TESTS_COLLECTED))
         shell: bash
-      - name: Run flake8 on tutorial files
+      - name: Run ruff on tutorial files
         if: startsWith(matrix.backend, 'none') != true
         run: |
-          python3 -m nbqa flake8 .
+          python3 -m nbqa ruff .
       - name: Run isort on tutorial files
         if: startsWith(matrix.backend, 'none') != true
         run: |

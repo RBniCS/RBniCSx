@@ -224,12 +224,10 @@ class TensorsList(abc.ABC):
     @typing.overload
     def __getitem__(self: Self, key: int) -> typing.Union[  # type: ignore[no-any-unimported]
             petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]:  # pragma: no cover
-        """Stub of __getitem__ for type checking. See the concrete implementation below."""
         ...
 
     @typing.overload
     def __getitem__(self: Self, key: slice) -> Self:  # pragma: no cover
-        """Stub of __getitem__ for type checking. See the concrete implementation below."""
         ...
 
     def __getitem__(self: Self, key: typing.Union[int, slice]) -> typing.Union[  # type: ignore[no-any-unimported]

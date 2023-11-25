@@ -350,7 +350,7 @@ def BlockMatSubMatrixContextManager(
                 typing.Tuple[int, int, petsc4py.PETSc.Mat]]:
             """Iterate over blocks."""
             with contextlib.ExitStack() as wrapper_stack:
-                for (I, row_indices_) in enumerate(self._row_indices):
+                for (I, row_indices_) in enumerate(self._row_indices):  # noqa: E741
                     for (J, col_indices_) in enumerate(self._col_indices):
                         wrapper = MatSubMatrixContextManager(self._A, row_indices_, col_indices_)
                         yield (I, J, wrapper_stack.enter_context(wrapper))
