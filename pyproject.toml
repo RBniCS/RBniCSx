@@ -91,7 +91,6 @@ known_first_party = ["rbnicsx"]
 check_untyped_defs = true
 disallow_any_unimported = true
 disallow_untyped_defs = true
-exclude = "(^\\.eggs|^build|^dist|conftest\\.py$)"
 implicit_reexport = true
 no_implicit_optional = true
 pretty = true
@@ -126,6 +125,14 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = "plum"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "scipy"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "scipy.*"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]

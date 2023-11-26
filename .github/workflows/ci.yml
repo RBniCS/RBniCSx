@@ -88,13 +88,13 @@ jobs:
       - name: Update mypy configuration
         if: startsWith(matrix.backend, 'none') == true
         run: |
+          sed -i 's@\[tool\.mypy\]@[tool.mypy]\nexclude = "(^rbnicsx/backends|^tests/unit/backends)"@g' pyproject.toml
           echo "[[tool.mypy.overrides]]" >> pyproject.toml
           echo 'module = "dolfinx"' >> pyproject.toml
           echo "ignore_missing_imports = true" >> pyproject.toml
           echo "[[tool.mypy.overrides]]" >> pyproject.toml
           echo 'module = "dolfinx.*"' >> pyproject.toml
           echo "ignore_missing_imports = true" >> pyproject.toml
-          sed -i 's@exclude = "(^\\\\.eggs|^build|^dist|conftest\\\\.py\$)"@exclude = "(^\\\\.eggs|^build|^dist|conftest\\\\.py\$|^rbnicsx/backends|^tests/unit/backends)"@g' pyproject.toml
       - name: Run ruff on python files
         run: |
           python3 -m ruff .
@@ -103,7 +103,9 @@ jobs:
           python3 -m isort --check --diff .
       - name: Run mypy on python files
         run: |
-          python3 -m mypy .
+          python3 -m mypy --exclude=conftest.py .
+          python3 -m mypy tests/unit/conftest.py
+          python3 -m mypy tutorials/conftest.py
       - name: Run yamllint on workflows
         run: |
           python3 -m yamllint -d "{extends: default, rules: {document-start: {present: false}, line-length: disable, truthy: {check-keys: false}}}" .

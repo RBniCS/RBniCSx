@@ -122,8 +122,8 @@ def project_matrix_block(  # type: ignore[no-any-unimported]
     assert all(len(row) == len(a[0]) for row in a[1:]), "Matrix of forms has incorrect rows"
     assert len(B[1]) == len(a[0])
 
-    M = [len(B_i) for B_i in B[0]]
-    N = [len(B_j) for B_j in B[1]]
+    M = [len(B_i) for B_i in B[0]]  # type: ignore[arg-type]
+    N = [len(B_j) for B_j in B[1]]  # type: ignore[arg-type]
     assert A.size == (sum(M), sum(N))
     with BlockMatSubMatrixWrapper(A, M, N) as A_wrapper:
         for (i, j, A_ij) in A_wrapper:

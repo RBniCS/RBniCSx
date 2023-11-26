@@ -25,10 +25,11 @@ import scipy.sparse
 def to_dense_matrix() -> typing.Callable[  # type: ignore[no-any-unimported]
         [petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]:
     """Fixture that returns a function to convert the local part of a sparse PETSc Mat into a dense numpy ndarray."""
-    def _(mat: petsc4py.PETSc.Mat) -> np.typing.NDArray[petsc4py.PETSc.ScalarType]:
+    def _(mat: petsc4py.PETSc.Mat) -> np.typing.NDArray[petsc4py.PETSc.ScalarType]:  # type: ignore[no-any-unimported]
         """Convert the local part of a sparse PETSc Mat into a dense numpy ndarray."""
         ai, aj, av = mat.getValuesCSR()
-        return scipy.sparse.csr_matrix((av, aj, ai), shape=(mat.getLocalSize()[0], mat.getSize()[1])).toarray()
+        return scipy.sparse.csr_matrix(  # type: ignore[no-any-return]
+            (av, aj, ai), shape=(mat.getLocalSize()[0], mat.getSize()[1])).toarray()
     return _
 
 
@@ -37,7 +38,7 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption("--skip-backends", action="store_true", help="Skip tests which require backends to be installed")
 
 
-def pytest_ignore_collect(
+def pytest_ignore_collect(  # type: ignore[no-any-unimported]
     collection_path: pathlib.Path, path: _pytest.compat.LEGACY_PATH, config: pytest.Config
 ) -> bool:
     """Honor the --skip-backends option to skip tests which require backends to be installed."""
