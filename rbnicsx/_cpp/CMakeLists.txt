@@ -29,6 +29,9 @@ else()
     message(FATAL_ERROR "nanobind could not be found.")
 endif()
 
+# Check for MPI
+find_package(MPI 3 REQUIRED)
+
 # Check for PETSc
 find_package(PkgConfig REQUIRED)
 set(ENV{PKG_CONFIG_PATH}
@@ -61,15 +64,16 @@ nanobind_add_module(
     rbnicsx/wrappers/rbnicsx.cpp
 )
 
-# Add current source directory to include directories
-target_include_directories(rbnicsx_cpp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+# Add MPI and PETSc libraries
+target_link_libraries(rbnicsx_cpp PRIVATE MPI::MPI_CXX)
+target_link_libraries(rbnicsx_cpp PRIVATE PkgConfig::PETSC)
 
-# Add PETSc and petsc4py include directories
-target_include_directories(rbnicsx_cpp PRIVATE ${PETSC_INCLUDE_DIRS})
+# Add petsc4py include directories
+# (with MPI and PETSc ones already being added by target_link_libraries)
 target_include_directories(rbnicsx_cpp PRIVATE ${PETSC4PY_INCLUDE_DIR})
 
-# Add PETSc libraries
-target_link_libraries(rbnicsx_cpp PRIVATE PkgConfig::PETSC)
+# Add current source directory to include directories
+target_include_directories(rbnicsx_cpp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Install the compiled library to the _cpp subdirectory
 set_target_properties(rbnicsx_cpp PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
