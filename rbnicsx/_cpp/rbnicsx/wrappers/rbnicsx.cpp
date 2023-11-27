@@ -10,15 +10,16 @@ namespace nb = nanobind;
 
 namespace rbnicsx_wrappers
 {
-    void _backends(nb::module_& m);
+void _backends(nb::module_& m);
 }
 
 NB_MODULE(rbnicsx_cpp, m)
 {
-    // Create module for C++ wrappers
-    m.doc() = "RBniCSx Python interface";
+  // Create module for C++ wrappers
+  m.doc() = "RBniCSx Python interface";
 
-    // Create internal backends submodule
-    nb::module_ _backends = m.def_submodule("_backends", "Internal backends module");
-    rbnicsx_wrappers::_backends(_backends);
+  // Create internal backends submodule
+  nb::module_ _backends
+      = m.def_submodule("_backends", "Internal backends module");
+  rbnicsx_wrappers::_backends(_backends);
 }
