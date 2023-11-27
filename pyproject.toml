@@ -61,6 +61,8 @@ docs = [
     "sphinx"
 ]
 lint = [
+    "clang-format",
+    "cmakelang",
     "isort",
     "mypy",
     "ruff",
