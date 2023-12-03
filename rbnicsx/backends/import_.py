@@ -6,8 +6,10 @@
 """Backend to import dolfinx functions, matrices and vectors."""
 
 import os
+import pathlib
 import typing
 
+import adios4dolfinx
 import dolfinx.fem
 import dolfinx.fem.petsc
 import mpi4py.MPI
@@ -39,11 +41,9 @@ def import_function(
     :
         Function imported from file.
     """
-    comm = function_space.mesh.comm
     function = dolfinx.fem.Function(function_space)
-    viewer = petsc4py.PETSc.Viewer().createBinary(os.path.join(directory, filename + ".dat"), "r", comm)
-    function.vector.load(viewer)
-    viewer.destroy()
+    checkpointing_directory = os.path.join(directory, filename + ".bp", ".checkpoint")
+    adios4dolfinx.read_function(function, pathlib.Path(checkpointing_directory), "bp4")
     return function
 
 
@@ -68,10 +68,11 @@ def import_functions(
         Functions imported from file.
     """
     comm = function_space.mesh.comm
+    checkpointing_directory = os.path.join(directory, filename + ".bp", ".checkpoint")
 
     # Read in length of the list
     def read_length() -> int:
-        with open(os.path.join(directory, filename, "length.dat"), "r") as length_file:
+        with open(os.path.join(checkpointing_directory, "length.dat"), "r") as length_file:
             return int(length_file.readline())
     length = on_rank_zero(comm, read_length)
 
@@ -79,12 +80,10 @@ def import_functions(
     function_placeholder = dolfinx.fem.Function(function_space)
     functions = list()
     for index in range(length):
-        viewer = petsc4py.PETSc.Viewer().createBinary(
-            os.path.join(directory, filename, str(index) + ".dat"), "r", comm)
         function = function_placeholder.copy()
-        function.vector.load(viewer)
+        adios4dolfinx.read_function(function, pathlib.Path(os.path.join(checkpointing_directory, str(index))), "bp4")
         functions.append(function)
-        viewer.destroy()
+    del function_placeholder
     return functions
 
 

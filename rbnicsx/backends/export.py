@@ -6,8 +6,10 @@
 """Backend to export dolfinx functions, matrices and vectors."""
 
 import os
+import pathlib
 import typing
 
+import adios4dolfinx
 import dolfinx.fem
 import dolfinx.io
 import numpy as np
@@ -17,6 +19,7 @@ import petsc4py.PETSc
 from rbnicsx._backends.export import (
     export_matrices as export_matrices_super, export_matrix as export_matrix_super,
     export_vector as export_vector_super, export_vectors as export_vectors_super)
+from rbnicsx.io import on_rank_zero
 
 
 def export_function(function: dolfinx.fem.Function, directory: str, filename: str) -> None:
@@ -32,14 +35,18 @@ def export_function(function: dolfinx.fem.Function, directory: str, filename: st
     filename
         Name of the file where to export the function.
     """
-    os.makedirs(directory, exist_ok=True)
-    # Export to XDMF file for visualization
-    mesh = function.function_space.mesh
-    with dolfinx.io.XDMFFile(mesh.comm, os.path.join(directory, filename + ".xdmf"), "w") as xdmf_file:
-        xdmf_file.write_mesh(mesh)
-        xdmf_file.write_function(function)
-    # Export the underlying vector for restart purposes
-    export_vector(function.vector, directory, filename)
+    comm = function.function_space.mesh.comm
+    visualization_directory = os.path.join(directory, filename + ".bp")
+    checkpointing_directory = os.path.join(directory, filename + ".bp", ".checkpoint")
+    os.makedirs(visualization_directory, exist_ok=True)
+    os.makedirs(checkpointing_directory, exist_ok=True)
+
+    # Export for visualization
+    with dolfinx.io.VTXWriter(comm, visualization_directory, function, "bp4") as vtx_file:
+        vtx_file.write(0)
+
+    # Export for checkpointing
+    adios4dolfinx.write_function(function, pathlib.Path(checkpointing_directory), "bp4")
 
 
 def export_functions(
@@ -59,15 +66,31 @@ def export_functions(
     filename
         Name of the file where to export the function.
     """
-    os.makedirs(directory, exist_ok=True)
-    # Export to XDMF file for visualization
-    mesh = functions[0].function_space.mesh
-    with dolfinx.io.XDMFFile(mesh.comm, os.path.join(directory, filename + ".xdmf"), "w") as xdmf_file:
-        xdmf_file.write_mesh(mesh)
+    comm = functions[0].function_space.mesh.comm
+    visualization_directory = os.path.join(directory, filename + ".bp")
+    checkpointing_directory = os.path.join(directory, filename + ".bp", ".checkpoint")
+    os.makedirs(visualization_directory, exist_ok=True)
+    os.makedirs(checkpointing_directory, exist_ok=True)
+
+    # Export for visualization
+    output = functions[0].copy()
+    with dolfinx.io.VTXWriter(comm, visualization_directory, output, "bp4") as vtx_file:
         for (function, index) in zip(functions, indices):
-            xdmf_file.write_function(function, index)
-    # Export the underlying vectors for restart purposes
-    export_vectors([function.vector for function in functions], directory, filename)
+            output.x.array[:] = function.x.array
+            output.x.scatter_forward()
+            vtx_file.write(index)
+    del output
+
+    # Export for checkpointing: write out length of the list
+    def write_length() -> None:
+        with open(os.path.join(checkpointing_directory, "length.dat"), "w") as length_file:
+            length_file.write(str(len(functions)))
+    on_rank_zero(comm, write_length)
+
+    # Export for checkpointing: write out the list
+    # Note that here index is an integer counter, rather than an entry of the input array indices.
+    for (index, function) in enumerate(functions):
+        adios4dolfinx.write_function(function, pathlib.Path(os.path.join(checkpointing_directory, str(index))), "bp4")
 
 
 def export_matrix(  # type: ignore[no-any-unimported]
