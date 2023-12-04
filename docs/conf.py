@@ -8,7 +8,7 @@
 # Project information
 project = "RBniCSx"
 copyright = "2021-2023, the RBniCSx authors"
-author = "Francesco Ballarin (and contributors)"
+author = "Francesco Ballarin"
 
 # General configuration
 extensions = [
