@@ -89,12 +89,8 @@ jobs:
         if: startsWith(matrix.backend, 'none') == true
         run: |
           sed -i 's@\[tool\.mypy\]@[tool.mypy]\nexclude = "(^rbnicsx/backends|^tests/unit/backends)"@g' pyproject.toml
-          echo "[[tool.mypy.overrides]]" >> pyproject.toml
-          echo 'module = "dolfinx"' >> pyproject.toml
-          echo "ignore_missing_imports = true" >> pyproject.toml
-          echo "[[tool.mypy.overrides]]" >> pyproject.toml
-          echo 'module = "dolfinx.*"' >> pyproject.toml
-          echo "ignore_missing_imports = true" >> pyproject.toml
+          sed -i 's@    # "dolfinx",@    "dolfinx",@g' pyproject.toml
+          sed -i 's@    # "dolfinx.*",@    "dolfinx.*",@g' pyproject.toml
       - name: Run ruff on python files
         run: |
           python3 -m ruff .
