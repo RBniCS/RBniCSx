@@ -23,7 +23,7 @@ from rbnicsx.backends.functions_list import FunctionsList
 
 # We could have used functools.singledispatch rather than plum, but since rbnicsx.online.projection
 # introduces a dependency on plum we also use it here for its better handling in combining docstrings
-# and its easier integration with sympy.
+# and its easier integration with mypy.
 
 
 @plum.overload
