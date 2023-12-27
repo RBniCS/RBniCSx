@@ -32,7 +32,7 @@ jobs:
       matrix:
         include:
           - backend: dolfinx-real
-            container: ghcr.io/fenics/dolfinx/dolfinx:v0.7.2
+            container: ghcr.io/fenics/dolfinx/dolfinx:v0.7.3
             setup_container: |
               . /usr/local/bin/dolfinx-real-mode
               echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
@@ -41,7 +41,7 @@ jobs:
               echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
               rm /usr/local/lib/python3.10/dist-packages/petsc4py/py.typed
           - backend: dolfinx-complex
-            container: ghcr.io/fenics/dolfinx/dolfinx:v0.7.2
+            container: ghcr.io/fenics/dolfinx/dolfinx:v0.7.3
             setup_container: |
               . /usr/local/bin/dolfinx-complex-mode
               echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
@@ -56,7 +56,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: dolfinx-v0.7.2
+          ref: dolfinx-v0.7.3
       - name: Setup container
         run: ${{ matrix.setup_container }}
       - name: Install RBniCSx
