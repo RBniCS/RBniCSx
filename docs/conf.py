@@ -20,7 +20,10 @@ extensions = [
 
 # Extensions configuration
 autodoc_default_options = {
-    "exclude-members": "__dict__,__init__,__module__,__weakref__",
+    "exclude-members": ",".join([
+        "__abstractmethods__", "__dict__", "__init__", "__module__", "__orig_bases__",
+         "__parameters__", "__weakref__"
+    ]),
     "imported-members": True,
     "members": True,
     "show-inheritance": True,
