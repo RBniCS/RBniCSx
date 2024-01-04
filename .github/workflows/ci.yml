@@ -73,11 +73,13 @@ jobs:
           git config --global --add safe.directory $PWD
           git clean -xdf
       - name: Update mypy configuration
-        if: startsWith(matrix.backend, 'none') == true
         run: |
-          sed -i 's@\[tool\.mypy\]@[tool.mypy]\nexclude = "(^rbnicsx/backends|^tests/unit/backends)"@g' pyproject.toml
-          sed -i 's@    # "dolfinx",@    "dolfinx",@g' pyproject.toml
-          sed -i 's@    # "dolfinx.*",@    "dolfinx.*",@g' pyproject.toml
+          if [[ "${{ matrix.backend }}" == none* ]]; then
+            sed -i 's@\[tool\.mypy\]@[tool.mypy]\nexclude = "(^rbnicsx/backends|^tests/unit/backends)"@g' pyproject.toml
+            sed -i 's@    # "dolfinx",@    "dolfinx",@g' pyproject.toml
+            sed -i 's@    # "dolfinx.*",@    "dolfinx.*",@g' pyproject.toml
+          fi
+        shell: bash
       - name: Run ruff on python files
         run: |
           python3 -m ruff .
@@ -101,9 +103,13 @@ jobs:
           wget https://raw.githubusercontent.com/FEniCS/dolfinx/main/.cmake-format
           find . -type f \( -name "*.cmake" -o -name "*.cmake.in" -o -name "CMakeLists.txt" \) | xargs cmake-format --check
       - name: Run documentation generation
-        if: startsWith(matrix.backend, 'none') != true
         run: |
-          cd docs && python3 -m sphinx -W -b html . build/html
+          cd docs
+          if [[ "${{ matrix.backend }}" == none* ]]; then
+            sed -i "s@rbnicsx.backends@@g" api.rst
+          fi
+          python3 -m sphinx -W -b html . build/html
+        shell: bash
       - name: Remove source directory to ensure that package from installation directory is used
         run: |
           rm -rf rbnicsx
@@ -135,7 +141,6 @@ jobs:
           python3 -m coverage combine .coverage*
           python3 -m coverage report --fail-under=100 --show-missing --skip-covered
       - name: Generate tutorial files
-        if: startsWith(matrix.backend, 'none') != true
         run: |
           NO_TESTS_COLLECTED=5
           python3 -m pytest --ipynb-action=create-notebooks tutorials || (($?==$NO_TESTS_COLLECTED))
@@ -143,33 +148,35 @@ jobs:
           python3 -m pytest --ipynb-action=create-notebooks --np=2 tutorials || (($?==$NO_TESTS_COLLECTED))
           python3 -m pytest --ipynb-action=create-notebooks --tag-collapse --np=2 tutorials || (($?==$NO_TESTS_COLLECTED))
         shell: bash
+      - name: Update mypy configuration
+        run: |
+          if [[ "${{ matrix.backend }}" == none* ]]; then
+            echo "[tool.nbqa.exclude]" >> pyproject.toml
+            echo "ruff = \"(^tutorials)\"" >> pyproject.toml
+            echo "mypy = \"(^tutorials)\"" >> pyproject.toml
+          fi
+        shell: bash
       - name: Run ruff on tutorial files
-        if: startsWith(matrix.backend, 'none') != true
         run: |
           python3 -m nbqa ruff .
       - name: Run isort on tutorial files
-        if: startsWith(matrix.backend, 'none') != true
         run: |
           python3 -m nbqa isort --check --diff .
       - name: Run mypy on tutorial files
-        if: startsWith(matrix.backend, 'none') != true
         run: |
           python3 -m nbqa mypy .
       - name: Check for stray outputs, counts and metadata in tutorial files
-        if: startsWith(matrix.backend, 'none') != true
         uses: RBniCS/check-jupyter-metadata-action@main
         with:
           pattern: "tutorials/**/*.ipynb"
       - name: Run tutorials (serial)
-        if: startsWith(matrix.backend, 'none') != true
         run: |
           python3 -m pytest --tag-collapse --durations=0 --durations-min=1.0 tutorials
       - name: Run tutorials (parallel)
-        if: startsWith(matrix.backend, 'none') != true
         run: |
           python3 -m pytest --tag-collapse --np=2 --durations=0 --durations-min=1.0 tutorials
       - name: Upload tutorials logs as an artifact in case of failure
-        if: startsWith(matrix.backend, 'none') != true && (failure() || cancelled())
+        if: failure() || cancelled()
         uses: actions/upload-artifact@v3
         with:
           name: "tutorials-logs-${{ matrix.backend }}"
