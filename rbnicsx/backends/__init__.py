@@ -11,7 +11,6 @@ from rbnicsx.backends.functions_list import FunctionsList
 from rbnicsx.backends.gram_schmidt import gram_schmidt, gram_schmidt_block
 from rbnicsx.backends.import_ import (
     import_function, import_functions, import_matrices, import_matrix, import_vector, import_vectors)
-from rbnicsx.backends.mesh_motion import MeshMotion
 from rbnicsx.backends.projection import (
     bilinear_form_action, block_bilinear_form_action, block_diagonal_bilinear_form_action, block_linear_form_action,
     FormArgumentsReplacer, linear_form_action, project_matrix, project_matrix_block, project_vector,
