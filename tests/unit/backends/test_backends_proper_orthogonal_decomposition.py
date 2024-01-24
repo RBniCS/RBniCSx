@@ -240,4 +240,4 @@ def test_backends_proper_orthogonal_decomposition_wrong_iterable() -> None:
     """Check rbnicsx.backends.proper_orthogonal_decomposition raises when providing a plain list."""
     with pytest.raises(plum.NotFoundLookupError) as excinfo:
         rbnicsx.backends.proper_orthogonal_decomposition(list(), N=0, tol=0.0)  # type: ignore[call-overload]
-    assert str(excinfo.value) == "For function `proper_orthogonal_decomposition`, `([],)` could not be resolved."
+    assert str(excinfo.value).startswith("`proper_orthogonal_decomposition([])` could not be resolved.")
