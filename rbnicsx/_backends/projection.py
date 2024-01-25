@@ -62,7 +62,7 @@ def project_vector_block(  # type: ignore[no-any-unimported]
 
 def project_matrix(  # type: ignore[no-any-unimported]
     A: petsc4py.PETSc.Mat, a: typing.Callable[[Function], typing.Callable[[Function], petsc4py.PETSc.ScalarType]],
-    B: typing.Union[FunctionsList[Function], typing.Tuple[FunctionsList[Function], FunctionsList[Function]]]
+    B: typing.Union[FunctionsList[Function], tuple[FunctionsList[Function], FunctionsList[Function]]]
 ) -> None:
     """
     Project a bilinear form onto the reduced basis.
@@ -97,7 +97,7 @@ def project_matrix_block(  # type: ignore[no-any-unimported]
         typing.Callable[[Function], typing.Callable[[Function], petsc4py.PETSc.ScalarType]]]],
     B: typing.Union[
         typing.Sequence[FunctionsList[Function]],
-        typing.Tuple[typing.Sequence[FunctionsList[Function]], typing.Sequence[FunctionsList[Function]]]]
+        tuple[typing.Sequence[FunctionsList[Function]], typing.Sequence[FunctionsList[Function]]]]
 ) -> None:
     """
     Project a matrix of bilinear forms onto the reduced basis.

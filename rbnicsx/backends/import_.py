@@ -7,7 +7,6 @@
 
 import os
 import pathlib
-import typing
 
 import adios4dolfinx
 import dolfinx.fem
@@ -49,7 +48,7 @@ def import_function(
 
 def import_functions(
     function_space: dolfinx.fem.FunctionSpace, directory: str, filename: str
-) -> typing.List[dolfinx.fem.Function]:
+) -> list[dolfinx.fem.Function]:
     """
     Import a list of dolfinx.fem.Function from file.
 
@@ -72,7 +71,7 @@ def import_functions(
 
     # Read in length of the list
     def read_length() -> int:
-        with open(os.path.join(checkpointing_directory, "length.dat"), "r") as length_file:
+        with open(os.path.join(checkpointing_directory, "length.dat")) as length_file:
             return int(length_file.readline())
     length = on_rank_zero(comm, read_length)
 
@@ -114,7 +113,7 @@ def import_matrix(  # type: ignore[no-any-unimported]
 
 def import_matrices(  # type: ignore[no-any-unimported]
     form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
-) -> typing.List[petsc4py.PETSc.Mat]:
+) -> list[petsc4py.PETSc.Mat]:
     """
     Import a list of petsc4py.PETSc.Mat assembled by dolfinx from file.
 
@@ -164,7 +163,7 @@ def import_vector(  # type: ignore[no-any-unimported]
 
 def import_vectors(  # type: ignore[no-any-unimported]
     form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
-) -> typing.List[petsc4py.PETSc.Vec]:
+) -> list[petsc4py.PETSc.Vec]:
     """
     Import a list of petsc4py.PETSc.Vec assembled by dolfinx from file.
 

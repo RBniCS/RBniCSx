@@ -8,7 +8,7 @@
 import shutil
 
 
-class TextLine(object):
+class TextLine:
     """
     A class to draw a line of text surrounded by a fill character.
 

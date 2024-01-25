@@ -5,7 +5,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Tests for rbnicsx.backends.gram_schmidt module."""
 
-import typing
 
 import dolfinx.fem
 import dolfinx.mesh
@@ -25,7 +24,7 @@ def mesh() -> dolfinx.mesh.Mesh:
 
 
 @pytest.fixture
-def functions(mesh: dolfinx.mesh.Mesh) -> typing.List[dolfinx.fem.Function]:
+def functions(mesh: dolfinx.mesh.Mesh) -> list[dolfinx.fem.Function]:
     """Generate a list of pairwise linearly independent functions."""
     V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     function0 = dolfinx.fem.Function(V)
@@ -51,7 +50,7 @@ def inner_product(mesh: dolfinx.mesh.Mesh) -> ufl.Form:  # type: ignore[no-any-u
 
 
 def test_backends_gram_schmidt(  # type: ignore[no-any-unimported]
-    functions: typing.List[dolfinx.fem.Function], inner_product: ufl.Form
+    functions: list[dolfinx.fem.Function], inner_product: ufl.Form
 ) -> None:
     """Check rbnicsx.backends.gram_schmidt."""
     V = functions[0].function_space
@@ -94,7 +93,7 @@ def test_backends_gram_schmidt_zero(  # type: ignore[no-any-unimported]
 
 
 def test_backends_gram_schmidt_block(  # type: ignore[no-any-unimported]
-    functions: typing.List[dolfinx.fem.Function], inner_product: ufl.Form
+    functions: list[dolfinx.fem.Function], inner_product: ufl.Form
 ) -> None:
     """Check rbnicsx.backends.gram_schmidt_block."""
     V = functions[0].function_space

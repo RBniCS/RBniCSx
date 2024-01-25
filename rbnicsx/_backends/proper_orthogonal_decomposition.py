@@ -25,8 +25,8 @@ def proper_orthogonal_decomposition_functions(  # type: ignore[no-any-unimported
     compute_inner_product: typing.Callable[[Function], typing.Callable[[Function], petsc4py.PETSc.RealType]],
     scale: typing.Callable[[Function, petsc4py.PETSc.RealType], None],
     N: int = -1, tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True
-) -> typing.Tuple[
-    np.typing.NDArray[petsc4py.PETSc.RealType], FunctionsList[Function], typing.List[petsc4py.PETSc.Vec]
+) -> tuple[
+    np.typing.NDArray[petsc4py.PETSc.RealType], FunctionsList[Function], list[petsc4py.PETSc.Vec]
 ]:
     """
     Compute the proper orthogonal decomposition of a set of snapshots.
@@ -69,12 +69,12 @@ def proper_orthogonal_decomposition_functions_block(  # type: ignore[no-any-unim
     compute_inner_products: typing.Sequence[
         typing.Callable[[Function], typing.Callable[[Function], petsc4py.PETSc.RealType]]],
     scale: typing.Callable[[Function, petsc4py.PETSc.RealType], None],
-    N: typing.Union[int, typing.List[int]] = -1,
-    tol: typing.Union[petsc4py.PETSc.RealType, typing.List[petsc4py.PETSc.RealType]] = real_zero,
+    N: typing.Union[int, list[int]] = -1,
+    tol: typing.Union[petsc4py.PETSc.RealType, list[petsc4py.PETSc.RealType]] = real_zero,
     normalize: bool = True
-) -> typing.Tuple[
-    typing.List[np.typing.NDArray[petsc4py.PETSc.RealType]], typing.List[FunctionsList[Function]],
-    typing.List[typing.List[petsc4py.PETSc.Vec]]
+) -> tuple[
+    list[np.typing.NDArray[petsc4py.PETSc.RealType]], list[FunctionsList[Function]],
+    list[list[petsc4py.PETSc.Vec]]
 ]:
     """
     Compute the proper orthogonal decomposition of a set of snapshots, where each snapshot is made of several blocks.
@@ -137,8 +137,8 @@ def proper_orthogonal_decomposition_functions_block(  # type: ignore[no-any-unim
 
 def proper_orthogonal_decomposition_tensors(  # type: ignore[no-any-unimported]
     tensors_list: TensorsList, N: int = -1, tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True
-) -> typing.Tuple[
-    np.typing.NDArray[petsc4py.PETSc.RealType], TensorsList, typing.List[petsc4py.PETSc.Vec]
+) -> tuple[
+    np.typing.NDArray[petsc4py.PETSc.RealType], TensorsList, list[petsc4py.PETSc.Vec]
 ]:
     """
     Compute the proper orthogonal decomposition of a set of tensors.
@@ -213,11 +213,11 @@ def _solve_eigenvalue_problem(  # type: ignore[no-any-unimported]
         typing.Callable[[petsc4py.PETSc.Vec, petsc4py.PETSc.RealType], None],
     ],
     N: int, tol: petsc4py.PETSc.RealType, normalize: bool
-) -> typing.Tuple[
+) -> tuple[
     np.typing.NDArray[petsc4py.PETSc.RealType],
     typing.Union[
-        typing.List[Function], typing.List[petsc4py.PETSc.Mat], typing.List[petsc4py.PETSc.Vec]],
-    typing.List[petsc4py.PETSc.Vec]
+        list[Function], list[petsc4py.PETSc.Mat], list[petsc4py.PETSc.Vec]],
+    list[petsc4py.PETSc.Vec]
 ]:
     """
     Solve the eigenvalue problem for the correlation matrix.

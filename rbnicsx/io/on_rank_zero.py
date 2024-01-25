@@ -23,8 +23,8 @@ def on_rank_zero(  # type: ignore[no-any-unimported]
 
     return_value: typing.Optional[CallableOutput] = None
     error_raised = False
-    error_type: typing.Optional[typing.Type[BaseException]] = None
-    error_instance_args: typing.Optional[typing.Tuple[typing.Any, ...]] = None
+    error_type: typing.Optional[type[BaseException]] = None
+    error_instance_args: typing.Optional[tuple[typing.Any, ...]] = None
     if comm.rank == 0:
         try:
             return_value = callable_()

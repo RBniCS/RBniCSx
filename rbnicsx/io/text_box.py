@@ -6,10 +6,9 @@
 """Draw a box of text surrounded by a fill character."""
 
 import shutil
-import typing
 
 
-class TextBox(object):
+class TextBox:
     """
     A class to draw a box of text surrounded by a fill character.
 
@@ -29,7 +28,7 @@ class TextBox(object):
     """
 
     def __init__(self, text: str, fill: str) -> None:
-        self._text: typing.List[str] = text.split("\n")
+        self._text: list[str] = text.split("\n")
         self._fill: str = fill
 
     def __str__(self) -> str:

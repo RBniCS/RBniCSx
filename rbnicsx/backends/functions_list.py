@@ -5,7 +5,8 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Backend to wrap a list of dolfinx Functions."""
 
-from __future__ import annotations
+import sys
+import typing
 
 import dolfinx.fem
 import numpy as np
@@ -15,7 +16,13 @@ from rbnicsx._backends.functions_list import FunctionsList as FunctionsListBase
 from rbnicsx.backends.export import export_functions
 from rbnicsx.backends.import_ import import_functions
 
+if sys.version_info >= (3, 11):  # pragma: no cover
+    import typing as typing_extensions
+else:  # pragma: no cover
+    import typing_extensions
 
+
+@typing.final
 class FunctionsList(FunctionsListBase[dolfinx.fem.Function]):
     """
     A class wrapping a list of dolfinx Functions.
@@ -31,16 +38,16 @@ class FunctionsList(FunctionsListBase[dolfinx.fem.Function]):
         Finite element space provided as input.
     """
 
-    def __init__(self, function_space: dolfinx.fem.FunctionSpace) -> None:
+    def __init__(self: typing_extensions.Self, function_space: dolfinx.fem.FunctionSpace) -> None:
         self._function_space: dolfinx.fem.FunctionSpace = function_space
         super().__init__(function_space.mesh.comm)
 
     @property
-    def function_space(self) -> dolfinx.fem.FunctionSpace:
+    def function_space(self: typing_extensions.Self) -> dolfinx.fem.FunctionSpace:
         """Return the common finite element space of any Function that will be added to this list."""
         return self._function_space
 
-    def duplicate(self) -> FunctionsList:
+    def duplicate(self: typing_extensions.Self) -> typing_extensions.Self:
         """
         Duplicate this object to a new empty FunctionsList.
 
@@ -52,7 +59,7 @@ class FunctionsList(FunctionsListBase[dolfinx.fem.Function]):
         """
         return FunctionsList(self._function_space)
 
-    def _save(self, directory: str, filename: str) -> None:
+    def _save(self: typing_extensions.Self, directory: str, filename: str) -> None:
         """
         Save this list to file querying the I/O functions in the backend.
 
@@ -65,7 +72,7 @@ class FunctionsList(FunctionsListBase[dolfinx.fem.Function]):
         """
         export_functions(self._list, np.arange(len(self._list), dtype=float), directory, filename)
 
-    def _load(self, directory: str, filename: str) -> None:
+    def _load(self: typing_extensions.Self, directory: str, filename: str) -> None:
         """
         Load a list from file into this object querying the I/O functions in the backend.
 
@@ -78,7 +85,7 @@ class FunctionsList(FunctionsListBase[dolfinx.fem.Function]):
         """
         self._list = import_functions(self._function_space, directory, filename)
 
-    def _linearly_combine(self, other: petsc4py.PETSc.Vec) -> dolfinx.fem.Function:  # type: ignore[no-any-unimported]
+    def _linearly_combine(self: typing_extensions.Self, other: petsc4py.PETSc.Vec) -> dolfinx.fem.Function:  # type: ignore[no-any-unimported]
         """
         Linearly combine functions in the list using Function's API.
 

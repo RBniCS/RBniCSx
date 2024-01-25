@@ -8,6 +8,7 @@
 import abc
 import itertools
 import os
+import sys
 import typing
 
 import mpi4py.MPI
@@ -17,7 +18,10 @@ import petsc4py.PETSc
 
 from rbnicsx.io import on_rank_zero
 
-Self = typing.TypeVar("Self", bound="TensorsArray")
+if sys.version_info >= (3, 11):  # pragma: no cover
+    import typing as typing_extensions
+else:  # pragma: no cover
+    import typing_extensions
 
 
 class TensorsArray(abc.ABC):
@@ -41,29 +45,33 @@ class TensorsArray(abc.ABC):
         A string representing the type of tensors (Mat or Vec) currently stored.
     """
 
-    def __init__(self: Self, comm: mpi4py.MPI.Intracomm, shape: typing.Union[int, typing.Tuple[int, ...]]) -> None:
+    def __init__(
+        self: typing_extensions.Self, comm: mpi4py.MPI.Intracomm, shape: typing.Union[int, tuple[int, ...]]
+    ) -> None:
         self._comm: mpi4py.MPI.Intracomm = comm
         self._array: np.typing.NDArray[  # type: ignore[no-any-unimported]
             typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]] = np.full(shape, fill_value=None, dtype=object)
         self._type: typing.Optional[str] = None
 
     @property
-    def comm(self: Self) -> mpi4py.MPI.Intracomm:
+    def comm(self: typing_extensions.Self) -> mpi4py.MPI.Intracomm:
         """Return the common MPI communicator that the PETSc objects will use."""
         return self._comm
 
     @property
-    def shape(self: Self) -> typing.Tuple[int, ...]:
+    def shape(self: typing_extensions.Self) -> tuple[int, ...]:
         """Return the shape of the array."""
         return self._array.shape
 
     @property
-    def type(self: Self) -> typing.Optional[str]:
+    def type(self: typing_extensions.Self) -> typing.Optional[str]:
         """Return the type of tensors (Mat or Vec) currently stored."""
         return self._type
 
     @abc.abstractmethod
-    def duplicate(self: Self, shape: typing.Optional[typing.Union[int, typing.Tuple[int, ...]]] = None) -> Self:
+    def duplicate(
+        self: typing_extensions.Self, shape: typing.Optional[typing.Union[int, tuple[int, ...]]] = None
+    ) -> typing_extensions.Self:
         """
         Duplicate this object to a new empty TensorsArray.
 
@@ -80,7 +88,7 @@ class TensorsArray(abc.ABC):
         """
         pass  # pragma: no cover
 
-    def save(self: Self, directory: str, filename: str) -> None:
+    def save(self: typing_extensions.Self, directory: str, filename: str) -> None:
         """
         Save this array to file.
 
@@ -104,7 +112,7 @@ class TensorsArray(abc.ABC):
         self._save(directory, filename)
 
     @abc.abstractmethod
-    def _save(self: Self, directory: str, filename: str) -> None:
+    def _save(self: typing_extensions.Self, directory: str, filename: str) -> None:
         """
         Save this array to file querying the I/O functions in the backend.
 
@@ -117,7 +125,7 @@ class TensorsArray(abc.ABC):
         """
         pass  # pragma: no cover
 
-    def load(self: Self, directory: str, filename: str) -> None:
+    def load(self: typing_extensions.Self, directory: str, filename: str) -> None:
         """
         Load an array from file into this object.
 
@@ -132,7 +140,7 @@ class TensorsArray(abc.ABC):
 
         # Load type
         def load_type() -> str:
-            with open(os.path.join(directory, filename + ".type"), "r") as type_file:
+            with open(os.path.join(directory, filename + ".type")) as type_file:
                 return type_file.readline()
         self._type = on_rank_zero(self._comm, load_type)
 
@@ -140,7 +148,7 @@ class TensorsArray(abc.ABC):
         self._load(directory, filename)
 
     @abc.abstractmethod
-    def _load(self: Self, directory: str, filename: str) -> None:
+    def _load(self: typing_extensions.Self, directory: str, filename: str) -> None:
         """
         Load an array from file into this object querying the I/O functions in the backend.
 
@@ -154,7 +162,7 @@ class TensorsArray(abc.ABC):
         pass  # pragma: no cover
 
     def contraction(  # type: ignore[no-any-unimported]
-        self: Self, *args: petsc4py.PETSc.Vec
+        self: typing_extensions.Self, *args: petsc4py.PETSc.Vec
     ) -> petsc4py.PETSc.ScalarType:
         """
         Contract entries in the array.
@@ -216,17 +224,19 @@ class TensorsArray(abc.ABC):
 
     @typing.overload
     def __getitem__(  # type: ignore[no-any-unimported]
-        self: Self, key: typing.Union[int, typing.Tuple[int, ...]]
+        self: typing_extensions.Self, key: typing.Union[int, tuple[int, ...]]
     ) -> typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]:  # pragma: no cover
         ...
 
     @typing.overload
-    def __getitem__(self: Self, key: typing.Union[slice, typing.Tuple[slice, slice]]) -> Self:  # pragma: no cover
+    def __getitem__(
+        self: typing_extensions.Self, key: typing.Union[slice, tuple[slice, slice]]
+    ) -> typing_extensions.Self:  # pragma: no cover
         ...
 
     def __getitem__(  # type: ignore[no-any-unimported]
-        self: Self, key: typing.Union[int, typing.Tuple[int, ...], slice, typing.Tuple[slice, slice]]
-    ) -> typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec, Self]:
+        self: typing_extensions.Self, key: typing.Union[int, tuple[int, ...], slice, tuple[slice, slice]]
+    ) -> typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec, typing_extensions.Self]:
         """
         Extract a single tensor from the array, or slice the array.
 
@@ -252,7 +262,7 @@ class TensorsArray(abc.ABC):
             raise NotImplementedError()
 
     def __setitem__(  # type: ignore[no-any-unimported]
-        self: Self, key: typing.Union[int, typing.Tuple[int, ...]],
+        self: typing_extensions.Self, key: typing.Union[int, tuple[int, ...]],
         tensor: typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]
     ) -> None:
         """

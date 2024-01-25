@@ -5,8 +5,7 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Online backend to wrap an array of PETSc Mat or Vec used to assemble online systems."""
 
-from __future__ import annotations
-
+import sys
 import typing
 
 import mpi4py.MPI
@@ -18,7 +17,13 @@ from rbnicsx._backends.tensors_array import TensorsArray as TensorsArrayBase
 from rbnicsx.online.export import export_matrices, export_matrices_block, export_vectors, export_vectors_block
 from rbnicsx.online.import_ import import_matrices, import_matrices_block, import_vectors, import_vectors_block
 
+if sys.version_info >= (3, 11):  # pragma: no cover
+    import typing as typing_extensions
+else:  # pragma: no cover
+    import typing_extensions
 
+
+@typing.final
 class TensorsArray(TensorsArrayBase):
     """
     A class wrapping an array of online PETSc Mat or Vec used to assemble online systems.
@@ -42,12 +47,12 @@ class TensorsArray(TensorsArrayBase):
     _vector_with_one_entry.setValue(0, 1)
 
     def __init__(
-        self, content_shape: typing.Union[
-            int, typing.Tuple[int, int], typing.List[int], typing.Tuple[typing.List[int], typing.List[int]]],
-        array_shape: typing.Union[int, typing.Tuple[int, ...]]
+        self: typing_extensions.Self, content_shape: typing.Union[
+            int, tuple[int, int], list[int], tuple[list[int], list[int]]],
+        array_shape: typing.Union[int, tuple[int, ...]]
     ) -> None:
         self._content_shape: typing.Union[
-            int, typing.Tuple[int, int], typing.List[int], typing.Tuple[typing.List[int], typing.List[int]]
+            int, tuple[int, int], list[int], tuple[list[int], list[int]]
         ] = content_shape
         if isinstance(content_shape, list):
             is_block = True  # block vector
@@ -61,7 +66,7 @@ class TensorsArray(TensorsArrayBase):
         super().__init__(mpi4py.MPI.COMM_WORLD, array_shape)
 
     @property
-    def flattened_shape(self) -> typing.Tuple[typing.Union[int, typing.List[int]], ...]:
+    def flattened_shape(self: typing_extensions.Self) -> tuple[typing.Union[int, list[int]], ...]:
         """Return the union of the shape of the array and the content shape."""
         if isinstance(self._content_shape, tuple):
             return self.shape + self.content_shape  # type: ignore[operator]
@@ -69,19 +74,19 @@ class TensorsArray(TensorsArrayBase):
             return self.shape + (self.content_shape, )  # type: ignore[operator] # noqa: RUF005
 
     @property
-    def content_shape(self) -> typing.Union[
-            int, typing.Tuple[int, int], typing.List[int], typing.Tuple[typing.List[int], typing.List[int]]]:
+    def content_shape(self: typing_extensions.Self) -> typing.Union[
+            int, tuple[int, int], list[int], tuple[list[int], list[int]]]:
         """Return the shape of the tensors in the array."""
         return self._content_shape
 
     @property
-    def is_block(self) -> bool:
+    def is_block(self: typing_extensions.Self) -> bool:
         """Return whether the tensor has a block structure or not."""
         return self._is_block
 
     def duplicate(
-        self, array_shape: typing.Optional[typing.Union[int, typing.Tuple[int, ...]]] = None
-    ) -> TensorsArray:
+        self, array_shape: typing.Optional[typing.Union[int, tuple[int, ...]]] = None
+    ) -> typing_extensions.Self:
         """
         Duplicate this object to a new empty TensorsArray.
 
@@ -101,7 +106,7 @@ class TensorsArray(TensorsArrayBase):
 
         return TensorsArray(self._content_shape, array_shape)
 
-    def _save(self, directory: str, filename: str) -> None:
+    def _save(self: typing_extensions.Self, directory: str, filename: str) -> None:
         """
         Save this array to file querying the I/O functions in the online backend.
 
@@ -127,7 +132,7 @@ class TensorsArray(TensorsArrayBase):
         else:
             raise RuntimeError()
 
-    def _load(self, directory: str, filename: str) -> None:
+    def _load(self: typing_extensions.Self, directory: str, filename: str) -> None:
         """
         Load an array from file into this object querying the I/O functions in the online backend.
 
@@ -163,7 +168,7 @@ class TensorsArray(TensorsArrayBase):
         for (linear_index, tensor) in enumerate(array_flattened):
             self._array[np.unravel_index(linear_index, self.shape)] = tensor
 
-    def contraction(self, *args: petsc4py.PETSc.Vec) -> petsc4py.PETSc.ScalarType:  # type: ignore[no-any-unimported]
+    def contraction(self: typing_extensions.Self, *args: petsc4py.PETSc.Vec) -> petsc4py.PETSc.ScalarType:  # type: ignore[no-any-unimported]
         """
         Contract entries in the array.
 

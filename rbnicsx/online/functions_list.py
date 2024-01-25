@@ -5,8 +5,7 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Online backend to wrap a list of PETSc Vec which represent solutions to online systems."""
 
-from __future__ import annotations
-
+import sys
 import typing
 
 import mpi4py.MPI
@@ -18,7 +17,13 @@ from rbnicsx._backends.online_tensors import (
 from rbnicsx.online.export import export_vectors, export_vectors_block
 from rbnicsx.online.import_ import import_vectors, import_vectors_block
 
+if sys.version_info >= (3, 11):  # pragma: no cover
+    import typing as typing_extensions
+else:  # pragma: no cover
+    import typing_extensions
 
+
+@typing.final
 class FunctionsList(FunctionsListBase[petsc4py.PETSc.Vec]):  # type: ignore[no-any-unimported]
     """
     A class wrapping a list of online PETSc Vec which represent solutions to online systems.
@@ -36,8 +41,8 @@ class FunctionsList(FunctionsListBase[petsc4py.PETSc.Vec]):  # type: ignore[no-a
         Whether the vector has a block structure or not.
     """
 
-    def __init__(self, shape: typing.Union[int, typing.List[int]]) -> None:
-        self._shape: typing.Union[int, typing.List[int]] = shape
+    def __init__(self: typing_extensions.Self, shape: typing.Union[int, list[int]]) -> None:
+        self._shape: typing.Union[int, list[int]] = shape
         if isinstance(shape, list):
             is_block = True
         else:
@@ -47,16 +52,16 @@ class FunctionsList(FunctionsListBase[petsc4py.PETSc.Vec]):  # type: ignore[no-a
         super().__init__(mpi4py.MPI.COMM_WORLD)
 
     @property
-    def shape(self) -> typing.Union[int, typing.List[int]]:
+    def shape(self: typing_extensions.Self) -> typing.Union[int, list[int]]:
         """Return the shape of the vectors in the list."""
         return self._shape
 
     @property
-    def is_block(self) -> bool:
+    def is_block(self: typing_extensions.Self) -> bool:
         """Return whether the vector has a block structure or not."""
         return self._is_block
 
-    def duplicate(self) -> FunctionsList:
+    def duplicate(self: typing_extensions.Self) -> typing_extensions.Self:
         """
         Duplicate this object to a new empty FunctionsList.
 
@@ -68,7 +73,7 @@ class FunctionsList(FunctionsListBase[petsc4py.PETSc.Vec]):  # type: ignore[no-a
         """
         return FunctionsList(self._shape)
 
-    def _save(self, directory: str, filename: str) -> None:
+    def _save(self: typing_extensions.Self, directory: str, filename: str) -> None:
         """
         Save this list to file querying the I/O functions in the online backend.
 
@@ -84,7 +89,7 @@ class FunctionsList(FunctionsListBase[petsc4py.PETSc.Vec]):  # type: ignore[no-a
         else:
             export_vectors(self._list, directory, filename)
 
-    def _load(self, directory: str, filename: str) -> None:
+    def _load(self: typing_extensions.Self, directory: str, filename: str) -> None:
         """
         Load a list from file into this object querying the I/O functions in the online backend.
 
@@ -102,7 +107,7 @@ class FunctionsList(FunctionsListBase[petsc4py.PETSc.Vec]):  # type: ignore[no-a
             assert isinstance(self._shape, int)
             self._list = import_vectors(self._shape, directory, filename)
 
-    def _linearly_combine(self, other: petsc4py.PETSc.Vec) -> petsc4py.PETSc.Vec:  # type: ignore[no-any-unimported]
+    def _linearly_combine(self: typing_extensions.Self, other: petsc4py.PETSc.Vec) -> petsc4py.PETSc.Vec:  # type: ignore[no-any-unimported]
         """
         Linearly combine functions in the list using petsc4py API.
 

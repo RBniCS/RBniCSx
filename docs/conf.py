@@ -20,7 +20,7 @@ extensions = [
 
 # Extensions configuration
 autodoc_default_options = {
-    "exclude-members": ",".join([
+    "exclude-members": ",".join([  # noqa: FLY002
         "__abstractmethods__", "__dict__", "__init__", "__module__", "__orig_bases__",
          "__parameters__", "__weakref__"
     ]),

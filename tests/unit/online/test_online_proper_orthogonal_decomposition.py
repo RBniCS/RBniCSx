@@ -229,7 +229,7 @@ def test_online_proper_orthogonal_decomposition_functions_N_tol(  # type: ignore
 def test_online_proper_orthogonal_decomposition_block(  # type: ignore[no-any-unimported]
     functions_list: rbnicsx.online.FunctionsList, inner_product: typing.Callable[[int], petsc4py.PETSc.Mat],
     normalize: bool, stopping_criterion_generator: typing.Callable[
-        [typing.Any], typing.Union[typing.Any, typing.Tuple[typing.Any, typing.Any]]]
+        [typing.Any], typing.Union[typing.Any, tuple[typing.Any, typing.Any]]]
 ) -> None:
     """Check rbnicsx.online.proper_orthogonal_decomposition_block."""
     size = functions_list[0].size

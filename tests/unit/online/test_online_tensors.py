@@ -210,7 +210,7 @@ def test_online_eigenvalue_solve() -> None:
 
 def test_online_nonlinear_solve() -> None:
     """Solve a nonlinear problem with online data structures."""
-    class NonlinearProblem(object):
+    class NonlinearProblem:
         """Define a nonlinear problem."""
 
         def F(  # type: ignore[no-any-unimported]

@@ -16,8 +16,8 @@ import rbnicsx.online
 
 
 @pytest.fixture
-def functions_plain_and_size() -> typing.Tuple[  # type: ignore[no-any-unimported]
-        typing.List[petsc4py.PETSc.Vec], int, int]:
+def functions_plain_and_size() -> tuple[  # type: ignore[no-any-unimported]
+        list[petsc4py.PETSc.Vec], int, int]:
     """Generate a list of pairwise linearly independent vectors."""
     vectors = [rbnicsx.online.create_vector(3) for _ in range(4)]
     for i in range(3):
@@ -29,8 +29,8 @@ def functions_plain_and_size() -> typing.Tuple[  # type: ignore[no-any-unimporte
 
 
 @pytest.fixture
-def functions_block_and_size() -> typing.Tuple[  # type: ignore[no-any-unimported]
-        typing.List[petsc4py.PETSc.Vec], typing.List[int], int]:
+def functions_block_and_size() -> tuple[  # type: ignore[no-any-unimported]
+        list[petsc4py.PETSc.Vec], list[int], int]:
     """Generate a list of pairwise linearly independent vectors (block version)."""
     vectors = [rbnicsx.online.create_vector_block([3, 4]) for _ in range(4)]
     for i in range(7):
@@ -42,17 +42,17 @@ def functions_block_and_size() -> typing.Tuple[  # type: ignore[no-any-unimporte
 
 
 @pytest.fixture(params=["functions_plain_and_size", "functions_block_and_size"])
-def functions_and_size(request: _pytest.fixtures.SubRequest) -> typing.Tuple[  # type: ignore[no-any-unimported]
-        typing.List[petsc4py.PETSc.Vec], typing.Union[int, typing.List[int]], int]:
+def functions_and_size(request: _pytest.fixtures.SubRequest) -> tuple[  # type: ignore[no-any-unimported]
+        list[petsc4py.PETSc.Vec], typing.Union[int, list[int]], int]:
     """Parameterize functions generation considering either non-block or block content."""
     return request.getfixturevalue(request.param)  # type: ignore[no-any-return]
 
 
 @pytest.fixture
 def inner_product() -> typing.Callable[  # type: ignore[no-any-unimported]
-        [typing.Union[int, typing.List[int]]], petsc4py.PETSc.Mat]:
+        [typing.Union[int, list[int]]], petsc4py.PETSc.Mat]:
     """Return a callable that computes the identity matrix."""
-    def _(N: typing.Union[int, typing.List[int]]) -> petsc4py.PETSc.Mat:  # type: ignore[no-any-unimported]
+    def _(N: typing.Union[int, list[int]]) -> petsc4py.PETSc.Mat:  # type: ignore[no-any-unimported]
         """Return the identity matrix."""
         if isinstance(N, int):
             identity = rbnicsx.online.create_matrix(N, N)
@@ -75,8 +75,8 @@ def compute_inner_product(  # type: ignore[no-any-unimported]
 
 
 def test_online_gram_schmidt(  # type: ignore[no-any-unimported]
-    functions_and_size: typing.Tuple[typing.List[petsc4py.PETSc.Vec], typing.Union[int, typing.List[int]], int],
-    inner_product: typing.Callable[[typing.Union[int, typing.List[int]]], petsc4py.PETSc.Mat]
+    functions_and_size: tuple[list[petsc4py.PETSc.Vec], typing.Union[int, list[int]], int],
+    inner_product: typing.Callable[[typing.Union[int, list[int]]], petsc4py.PETSc.Mat]
 ) -> None:
     """Check rbnicsx.online.gram_schmidt."""
     functions, size, size_int = functions_and_size
@@ -101,7 +101,7 @@ def test_online_gram_schmidt(  # type: ignore[no-any-unimported]
 
 
 def test_online_gram_schmidt_zero(  # type: ignore[no-any-unimported]
-    inner_product: typing.Callable[[typing.Union[int, typing.List[int]]], petsc4py.PETSc.Mat]
+    inner_product: typing.Callable[[typing.Union[int, list[int]]], petsc4py.PETSc.Mat]
 ) -> None:
     """Check rbnicsx.online.gram_schmidt when adding a linearly dependent function (e.g., zero)."""
     functions_list = rbnicsx.online.FunctionsList(3)
@@ -114,8 +114,8 @@ def test_online_gram_schmidt_zero(  # type: ignore[no-any-unimported]
 
 
 def test_online_gram_schmidt_block(  # type: ignore[no-any-unimported]
-    functions_and_size: typing.Tuple[typing.List[petsc4py.PETSc.Vec], typing.Union[int, typing.List[int]], int],
-    inner_product: typing.Callable[[typing.Union[int, typing.List[int]]], petsc4py.PETSc.Mat]
+    functions_and_size: tuple[list[petsc4py.PETSc.Vec], typing.Union[int, list[int]], int],
+    inner_product: typing.Callable[[typing.Union[int, list[int]]], petsc4py.PETSc.Mat]
 ) -> None:
     """Check rbnicsx.online.gram_schmidt_block."""
     functions, size, size_int = functions_and_size

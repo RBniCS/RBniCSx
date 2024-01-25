@@ -130,7 +130,7 @@ def project_vector_block(*args, **kwargs):  # type: ignore[no-untyped-def] # noq
 
 @plum.overload
 def project_matrix(  # type: ignore[no-any-unimported]
-    a: petsc4py.PETSc.Mat, B: typing.Union[FunctionsList, typing.Tuple[FunctionsList, FunctionsList]]
+    a: petsc4py.PETSc.Mat, B: typing.Union[FunctionsList, tuple[FunctionsList, FunctionsList]]
 ) -> petsc4py.PETSc.Mat:
     """
     Project a bilinear form onto the reduced basis.
@@ -163,7 +163,7 @@ def project_matrix(  # type: ignore[no-any-unimported]
 @plum.overload
 def project_matrix(  # type: ignore[no-any-unimported] # noqa: F811
     A: petsc4py.PETSc.Mat, a: petsc4py.PETSc.Mat,
-    B: typing.Union[FunctionsList, typing.Tuple[FunctionsList, FunctionsList]]
+    B: typing.Union[FunctionsList, tuple[FunctionsList, FunctionsList]]
 ) -> None:
     """
     Project a bilinear form onto the reduced basis.
@@ -192,7 +192,7 @@ def project_matrix(*args, **kwargs):  # type: ignore[no-untyped-def] # noqa: ANN
 def project_matrix_block(  # type: ignore[no-any-unimported]
     a: petsc4py.PETSc.Mat,
     B: typing.Union[
-        typing.Sequence[FunctionsList], typing.Tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]]
+        typing.Sequence[FunctionsList], tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]]
 ) -> petsc4py.PETSc.Mat:
     """
     Project a matrix of bilinear forms onto the reduced basis.
@@ -226,7 +226,7 @@ def project_matrix_block(  # type: ignore[no-any-unimported] # noqa: F811
     A: petsc4py.PETSc.Mat,
     a: petsc4py.PETSc.Mat,
     B: typing.Union[
-        typing.Sequence[FunctionsList], typing.Tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]]
+        typing.Sequence[FunctionsList], tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]]
 ) -> None:
     """
     Project a matrix of bilinear forms onto the reduced basis.

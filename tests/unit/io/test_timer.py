@@ -6,7 +6,6 @@
 """Tests for rbnicsx.io.timer module."""
 
 import time
-import typing
 
 import mpi4py.MPI
 import petsc4py.PETSc
@@ -34,7 +33,7 @@ def _expected_measured_time(sleep_time: float, comm: mpi4py.MPI.Intracomm, op: m
 @pytest.mark.parametrize("op", [mpi4py.MPI.MAX, mpi4py.MPI.SUM])
 def test_timer(comm: mpi4py.MPI.Intracomm, op: mpi4py.MPI.Op) -> None:
     """Test timer with different communicators and operations."""
-    timings: typing.List[float] = [0.0]
+    timings: list[float] = [0.0]
     with rbnicsx.io.Timer(comm, op, rbnicsx.io.store_elapsed_time(timings, 0)):
         time.sleep(0.05)
     assert timings[0] >= _expected_measured_time(0.05, comm, op)

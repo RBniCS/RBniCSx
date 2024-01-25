@@ -5,7 +5,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Tests for rbnicsx.backends.symbolic_parameters module."""
 
-import typing
 
 import dolfinx.mesh
 import mpi4py.MPI
@@ -23,7 +22,7 @@ def mesh() -> dolfinx.mesh.Mesh:
 
 
 @pytest.mark.parametrize("shape", [(), (2,), (2, 2)])
-def test_backends_symbolic_parameters_shape(mesh: dolfinx.mesh.Mesh, shape: typing.Tuple[int]) -> None:
+def test_backends_symbolic_parameters_shape(mesh: dolfinx.mesh.Mesh, shape: tuple[int]) -> None:
     """Check null initialization of symbolic parameters."""
     mu = rbnicsx.backends.SymbolicParameters(mesh, shape=shape)
     assert mu.ufl_shape == shape

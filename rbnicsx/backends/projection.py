@@ -135,7 +135,7 @@ def project_vector_block(*args, **kwargs):  # type: ignore[no-untyped-def] # noq
 @plum.overload
 def project_matrix(  # type: ignore[no-any-unimported]
     a: typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]],
-    B: typing.Union[FunctionsList, typing.Tuple[FunctionsList, FunctionsList]]
+    B: typing.Union[FunctionsList, tuple[FunctionsList, FunctionsList]]
 ) -> petsc4py.PETSc.Mat:
     """
     Project a bilinear form onto the reduced basis.
@@ -170,7 +170,7 @@ def project_matrix(  # type: ignore[no-any-unimported]
 def project_matrix(  # type: ignore[no-any-unimported] # noqa: F811
     A: petsc4py.PETSc.Mat,
     a: typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]],
-    B: typing.Union[FunctionsList, typing.Tuple[FunctionsList, FunctionsList]]
+    B: typing.Union[FunctionsList, tuple[FunctionsList, FunctionsList]]
 ) -> None:
     """
     Project a bilinear form onto the reduced basis.
@@ -201,7 +201,7 @@ def project_matrix_block(  # type: ignore[no-any-unimported]
     a: typing.Sequence[typing.Sequence[
         typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]]],
     B: typing.Union[
-        typing.Sequence[FunctionsList], typing.Tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]]
+        typing.Sequence[FunctionsList], tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]]
 ) -> petsc4py.PETSc.Mat:
     """
     Project a matrix of bilinear forms onto the reduced basis.
@@ -238,7 +238,7 @@ def project_matrix_block(  # type: ignore[no-any-unimported] # noqa: F811
     a: typing.Sequence[typing.Sequence[
         typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]]],
     B: typing.Union[
-        typing.Sequence[FunctionsList], typing.Tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]]
+        typing.Sequence[FunctionsList], tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]]
 ) -> None:
     """
     Project a matrix of bilinear forms onto the reduced basis.
@@ -265,7 +265,7 @@ def project_matrix_block(*args, **kwargs):  # type: ignore[no-untyped-def] # noq
     raise NotImplementedError("The abstract case has not been implemented")  # pragma: no cover
 
 
-class FormArgumentsReplacer(object):
+class FormArgumentsReplacer:
     """A wrapper to successive calls to ufl.replace and dolfinx.fem.form."""
 
     def __init__(  # type: ignore[no-any-unimported]

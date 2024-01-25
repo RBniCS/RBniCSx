@@ -5,7 +5,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Backend to perform a step of the Gram-Schmidt process."""
 
-import typing
 
 import dolfinx.mesh
 import numpy as np
@@ -23,5 +22,5 @@ class SymbolicParameters(ufl4rom.utils.DolfinxNamedConstant):
         Domain of integration of forms which will use the symbolic parameters.
     """
 
-    def __init__(self, mesh: dolfinx.mesh.Mesh, shape: typing.Tuple[int, ...]) -> None:
+    def __init__(self, mesh: dolfinx.mesh.Mesh, shape: tuple[int, ...]) -> None:
         super().__init__("mu", np.zeros(shape, dtype=petsc4py.PETSc.ScalarType), mesh)

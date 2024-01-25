@@ -45,7 +45,7 @@ def import_matrix(  # type: ignore[no-any-unimported]
 
 def import_matrices(  # type: ignore[no-any-unimported]
     allocate: typing.Callable[[], petsc4py.PETSc.Mat], comm: mpi4py.MPI.Intracomm, directory: str, filename: str
-) -> typing.List[petsc4py.PETSc.Mat]:
+) -> list[petsc4py.PETSc.Mat]:
     """
     Import a list of petsc4py.PETSc.Mat from file.
 
@@ -67,7 +67,7 @@ def import_matrices(  # type: ignore[no-any-unimported]
     """
     # Read in length of the list
     def read_length() -> int:
-        with open(os.path.join(directory, filename, "length.dat"), "r") as length_file:
+        with open(os.path.join(directory, filename, "length.dat")) as length_file:
             return int(length_file.readline())
     length = on_rank_zero(comm, read_length)
 
@@ -114,7 +114,7 @@ def import_vector(  # type: ignore[no-any-unimported]
 
 def import_vectors(  # type: ignore[no-any-unimported]
     allocate: typing.Callable[[], petsc4py.PETSc.Vec], comm: mpi4py.MPI.Intracomm, directory: str, filename: str
-) -> typing.List[petsc4py.PETSc.Vec]:
+) -> list[petsc4py.PETSc.Vec]:
     """
     Import a list of petsc4py.PETSc.Vec from file.
 
@@ -136,7 +136,7 @@ def import_vectors(  # type: ignore[no-any-unimported]
     """
     # Read in length of the list
     def read_length() -> int:
-        with open(os.path.join(directory, filename, "length.dat"), "r") as length_file:
+        with open(os.path.join(directory, filename, "length.dat")) as length_file:
             return int(length_file.readline())
     length = on_rank_zero(comm, read_length)
 

@@ -7,7 +7,6 @@
 
 import os
 import pathlib
-import typing
 
 import adios4dolfinx
 import dolfinx.fem
@@ -50,7 +49,7 @@ def export_function(function: dolfinx.fem.Function, directory: str, filename: st
 
 
 def export_functions(
-    functions: typing.List[dolfinx.fem.Function], indices: np.typing.NDArray[np.float32], directory: str, filename: str
+    functions: list[dolfinx.fem.Function], indices: np.typing.NDArray[np.float32], directory: str, filename: str
 ) -> None:
     """
     Export a list of dolfinx.fem.Function to file.
@@ -112,7 +111,7 @@ def export_matrix(  # type: ignore[no-any-unimported]
 
 
 def export_matrices(  # type: ignore[no-any-unimported]
-    mats: typing.List[petsc4py.PETSc.Mat], directory: str, filename: str
+    mats: list[petsc4py.PETSc.Mat], directory: str, filename: str
 ) -> None:
     """
     Export a list of petsc4py.PETSc.Mat assembled by dolfinx to file.
@@ -148,7 +147,7 @@ def export_vector(  # type: ignore[no-any-unimported]
 
 
 def export_vectors(  # type: ignore[no-any-unimported]
-    vecs: typing.List[petsc4py.PETSc.Vec], directory: str, filename: str
+    vecs: list[petsc4py.PETSc.Vec], directory: str, filename: str
 ) -> None:
     """
     Export a list of petsc4py.PETSc.Vec assembled by dolfinx to file.

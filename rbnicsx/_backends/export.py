@@ -6,7 +6,6 @@
 """Internal backend to export PETSc matrices and vectors."""
 
 import os
-import typing
 
 import mpi4py.MPI
 import petsc4py.PETSc
@@ -38,7 +37,7 @@ def export_matrix(  # type: ignore[no-any-unimported]
 
 
 def export_matrices(  # type: ignore[no-any-unimported]
-    mats: typing.List[petsc4py.PETSc.Mat], comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+    mats: list[petsc4py.PETSc.Mat], comm: mpi4py.MPI.Intracomm, directory: str, filename: str
 ) -> None:
     """
     Export a list of petsc4py.PETSc.Mat to file.
@@ -94,7 +93,7 @@ def export_vector(  # type: ignore[no-any-unimported]
 
 
 def export_vectors(  # type: ignore[no-any-unimported]
-    vecs: typing.List[petsc4py.PETSc.Vec], comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+    vecs: list[petsc4py.PETSc.Vec], comm: mpi4py.MPI.Intracomm, directory: str, filename: str
 ) -> None:
     """
     Export a list of petsc4py.PETSc.Vec to file.

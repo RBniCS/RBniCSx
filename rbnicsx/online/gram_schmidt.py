@@ -45,7 +45,7 @@ def gram_schmidt(  # type: ignore[no-any-unimported]
 
 def gram_schmidt_block(  # type: ignore[no-any-unimported]
     functions_lists: typing.Sequence[FunctionsList], new_functions: typing.Sequence[petsc4py.PETSc.Vec],
-    inner_products: typing.List[petsc4py.PETSc.Mat]
+    inner_products: list[petsc4py.PETSc.Mat]
 ) -> None:
     """
     Perform a step of the Gram-Schmidt process on online functions, where each function is made of several blocks.

@@ -5,8 +5,7 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Context manager to time execution of a code and store the result."""
 
-from __future__ import annotations
-
+import sys
 import time
 import types
 import typing
@@ -14,8 +13,13 @@ import typing
 import mpi4py.MPI
 import petsc4py.PETSc
 
+if sys.version_info >= (3, 11):  # pragma: no cover
+    import typing as typing_extensions
+else:  # pragma: no cover
+    import typing_extensions
 
-class Timer(object):
+
+class Timer:
     """
     A context manager to time execution of a code and store the result.
 
@@ -41,7 +45,7 @@ class Timer(object):
     """
 
     def __init__(  # type: ignore[no-any-unimported]
-        self, comm: typing.Union[mpi4py.MPI.Intracomm, petsc4py.PETSc.Comm], op: mpi4py.MPI.Op,
+        self: typing_extensions.Self, comm: typing.Union[mpi4py.MPI.Intracomm, petsc4py.PETSc.Comm], op: mpi4py.MPI.Op,
         store: typing.Callable[[float], None]
     ) -> None:
         if isinstance(comm, petsc4py.PETSc.Comm):
@@ -52,13 +56,13 @@ class Timer(object):
         self._store: typing.Callable[[float], None] = store
         self._start: typing.Optional[float] = None
 
-    def __enter__(self) -> Timer:
+    def __enter__(self: typing_extensions.Self) -> typing_extensions.Self:
         """Enter the context and start the timer."""
         self._start = time.perf_counter()
         return self
 
     def __exit__(
-        self, exception_type: typing.Type[BaseException], exception_value: BaseException,
+        self: typing_extensions.Self, exception_type: type[BaseException], exception_value: BaseException,
         traceback: types.TracebackType
     ) -> None:
         """Stop the timer, store the elapsed time and exit the context."""

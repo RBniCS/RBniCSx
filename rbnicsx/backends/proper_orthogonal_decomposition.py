@@ -31,8 +31,8 @@ def proper_orthogonal_decomposition(  # type: ignore[no-any-unimported]
     compute_inner_product: typing.Callable[
         [dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.RealType]],
     N: int = -1, tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True
-) -> typing.Tuple[
-    np.typing.NDArray[petsc4py.PETSc.RealType], FunctionsList, typing.List[petsc4py.PETSc.Vec]
+) -> tuple[
+    np.typing.NDArray[petsc4py.PETSc.RealType], FunctionsList, list[petsc4py.PETSc.Vec]
 ]:
     """
     Compute the proper orthogonal decomposition of a set of snapshots.
@@ -69,8 +69,8 @@ def proper_orthogonal_decomposition(  # type: ignore[no-any-unimported]
 @plum.overload
 def proper_orthogonal_decomposition(  # type: ignore[no-any-unimported] # noqa: F811
     tensors_list: TensorsList, N: int = -1, tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True
-) -> typing.Tuple[
-    np.typing.NDArray[petsc4py.PETSc.RealType], TensorsList, typing.List[petsc4py.PETSc.Vec]
+) -> tuple[
+    np.typing.NDArray[petsc4py.PETSc.RealType], TensorsList, list[petsc4py.PETSc.Vec]
 ]:
     """
     Compute the proper orthogonal decomposition of a set of tensors.
@@ -111,12 +111,12 @@ def proper_orthogonal_decomposition_block(  # type: ignore[no-any-unimported]
     functions_lists: typing.Sequence[FunctionsList],
     compute_inner_products: typing.Sequence[
         typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.RealType]]],
-    N: typing.Union[int, typing.List[int]] = -1,
-    tol: typing.Union[petsc4py.PETSc.RealType, typing.List[petsc4py.PETSc.RealType]] = real_zero,
+    N: typing.Union[int, list[int]] = -1,
+    tol: typing.Union[petsc4py.PETSc.RealType, list[petsc4py.PETSc.RealType]] = real_zero,
     normalize: bool = True
-) -> typing.Tuple[
-    typing.List[np.typing.NDArray[petsc4py.PETSc.RealType]], typing.List[FunctionsList],
-    typing.List[typing.List[petsc4py.PETSc.Vec]]
+) -> tuple[
+    list[np.typing.NDArray[petsc4py.PETSc.RealType]], list[FunctionsList],
+    list[list[petsc4py.PETSc.Vec]]
 ]:
     """
     Compute the proper orthogonal decomposition of a set of snapshots, where each snapshot is made of several blocks.

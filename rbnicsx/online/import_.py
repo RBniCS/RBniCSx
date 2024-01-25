@@ -5,7 +5,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Online backend to import matrices and vectors."""
 
-import typing
 
 import mpi4py.MPI
 import petsc4py.PETSc
@@ -42,7 +41,7 @@ def import_matrix(  # type: ignore[no-any-unimported]
 
 
 def import_matrix_block(  # type: ignore[no-any-unimported]
-    M: typing.List[int], N: typing.List[int], directory: str, filename: str
+    M: list[int], N: list[int], directory: str, filename: str
 ) -> petsc4py.PETSc.Mat:
     """
     Import a dense petsc4py.PETSc.Mat from file.
@@ -66,7 +65,7 @@ def import_matrix_block(  # type: ignore[no-any-unimported]
 
 def import_matrices(  # type: ignore[no-any-unimported]
     M: int, N: int, directory: str, filename: str
-) -> typing.List[petsc4py.PETSc.Mat]:
+) -> list[petsc4py.PETSc.Mat]:
     """
     Import a list of dense petsc4py.PETSc.Mat from file.
 
@@ -88,8 +87,8 @@ def import_matrices(  # type: ignore[no-any-unimported]
 
 
 def import_matrices_block(  # type: ignore[no-any-unimported]
-    M: typing.List[int], N: typing.List[int], directory: str, filename: str
-) -> typing.List[petsc4py.PETSc.Mat]:
+    M: list[int], N: list[int], directory: str, filename: str
+) -> list[petsc4py.PETSc.Mat]:
     """
     Import a list of dense petsc4py.PETSc.Mat from file.
 
@@ -134,7 +133,7 @@ def import_vector(  # type: ignore[no-any-unimported]
 
 
 def import_vector_block(  # type: ignore[no-any-unimported]
-    N: typing.List[int], directory: str, filename: str
+    N: list[int], directory: str, filename: str
 ) -> petsc4py.PETSc.Vec:
     """
     Import a sequential petsc4py.PETSc.Vec from file.
@@ -158,7 +157,7 @@ def import_vector_block(  # type: ignore[no-any-unimported]
 
 def import_vectors(  # type: ignore[no-any-unimported]
     N: int, directory: str, filename: str
-) -> typing.List[petsc4py.PETSc.Vec]:
+) -> list[petsc4py.PETSc.Vec]:
     """
     Import a list of sequential petsc4py.PETSc.Vec from file.
 
@@ -180,8 +179,8 @@ def import_vectors(  # type: ignore[no-any-unimported]
 
 
 def import_vectors_block(  # type: ignore[no-any-unimported]
-    N: typing.List[int], directory: str, filename: str
-) -> typing.List[petsc4py.PETSc.Vec]:
+    N: list[int], directory: str, filename: str
+) -> list[petsc4py.PETSc.Vec]:
     """
     Import a list of sequential petsc4py.PETSc.Vec from file.
 

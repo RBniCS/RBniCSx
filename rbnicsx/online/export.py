@@ -5,7 +5,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Online backend to export matrices and vectors."""
 
-import typing
 
 import mpi4py.MPI
 import petsc4py.PETSc
@@ -38,7 +37,7 @@ export_matrix_block = export_matrix
 
 
 def export_matrices(  # type: ignore[no-any-unimported]
-    mats: typing.List[petsc4py.PETSc.Mat], directory: str, filename: str
+    mats: list[petsc4py.PETSc.Mat], directory: str, filename: str
 ) -> None:
     """
     Export a list of dense petsc4py.PETSc.Mat to file.
@@ -82,7 +81,7 @@ export_vector_block = export_vector
 
 
 def export_vectors(  # type: ignore[no-any-unimported]
-    vecs: typing.List[petsc4py.PETSc.Vec], directory: str, filename: str
+    vecs: list[petsc4py.PETSc.Vec], directory: str, filename: str
 ) -> None:
     """
     Export a list of sequential petsc4py.PETSc.Vec to file.
