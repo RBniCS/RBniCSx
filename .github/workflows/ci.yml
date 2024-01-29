@@ -54,7 +54,7 @@ jobs:
       image: ${{ matrix.container }}
       options: --user root
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: dolfinx-v0.7.2
       - name: Setup container
