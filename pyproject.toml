@@ -125,10 +125,12 @@ ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 120
+
+[tool.ruff.lint]
 select = ["ANN", "D", "E", "F", "FLY", "ICN", "N", "NPY", "Q", "RUF", "UP", "W"]
 ignore = ["ANN101"]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "rbnicsx/**/__init__.py" = ["F401"]
 "rbnicsx/**/*.py" = ["N802", "N803", "N806"]
 "tests/unit/**/*.py" = ["N802", "N803", "N806"]
@@ -137,10 +139,10 @@ ignore = ["ANN101"]
 "tutorials/**/0*.py" = ["D100", "F401", "N803", "N806"]
 "tutorials/**/1*.py" = ["D100", "F401", "N803", "N806"]
 
-[tool.ruff.pycodestyle]
+[tool.ruff.lint.pycodestyle]
 max-doc-length = 120
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "numpy"
 
 [tool.scikit-build]
