@@ -36,7 +36,7 @@ def export_function(function: dolfinx.fem.Function, directory: str, filename: st
     """
     comm = function.function_space.mesh.comm
     visualization_directory = os.path.join(directory, filename + ".bp")
-    checkpointing_directory = os.path.join(directory, filename + ".bp", ".checkpoint")
+    checkpointing_directory = os.path.join(directory, filename + "_checkpoint.bp")
     os.makedirs(visualization_directory, exist_ok=True)
     os.makedirs(checkpointing_directory, exist_ok=True)
 
@@ -67,7 +67,7 @@ def export_functions(
     """
     comm = functions[0].function_space.mesh.comm
     visualization_directory = os.path.join(directory, filename + ".bp")
-    checkpointing_directory = os.path.join(directory, filename + ".bp", ".checkpoint")
+    checkpointing_directory = os.path.join(directory, filename + "_checkpoint.bp")
     os.makedirs(visualization_directory, exist_ok=True)
     os.makedirs(checkpointing_directory, exist_ok=True)
 
