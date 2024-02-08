@@ -45,6 +45,7 @@ def export_function(function: dolfinx.fem.Function, directory: str, filename: st
         vtx_file.write(0)
 
     # Export for checkpointing
+    adios4dolfinx.write_mesh(function.function_space.mesh, pathlib.Path(checkpointing_directory), "bp4")
     adios4dolfinx.write_function(function, pathlib.Path(checkpointing_directory), "bp4")
 
 
@@ -88,6 +89,7 @@ def export_functions(
 
     # Export for checkpointing: write out the list
     # Note that here index is an integer counter, rather than an entry of the input array indices.
+    adios4dolfinx.write_mesh(function, pathlib.Path(checkpointing_directory), "bp4")
     for (index, function) in enumerate(functions):
         adios4dolfinx.write_function(function, pathlib.Path(os.path.join(checkpointing_directory, str(index))), "bp4")
 
