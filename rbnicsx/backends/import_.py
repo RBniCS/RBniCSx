@@ -79,7 +79,7 @@ def import_functions(
     functions = list()
     for index in range(length):
         function = function_placeholder.copy()
-        adios4dolfinx.read_function(function, checkpointing_directory / str(index), "bp4")
+        adios4dolfinx.read_function(function, checkpointing_directory, "bp4", time=index)
         functions.append(function)
     del function_placeholder
     return functions
