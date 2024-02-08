@@ -8,12 +8,14 @@
 import pathlib
 import typing
 
+import adios4dolfinx
 import dolfinx.fem
 import dolfinx.fem.petsc
 import dolfinx.mesh
 import mpi4py.MPI
 import nbvalx.tempfile
 import numpy as np
+import numpy.typing
 import petsc4py.PETSc
 import pytest
 import ufl
@@ -22,51 +24,189 @@ import rbnicsx.backends
 
 all_families = ["Lagrange", "Discontinuous Lagrange"]
 all_degrees = [1, 2]
+all_repeat = [1, 2]
 
 
 @pytest.fixture
 def mesh() -> dolfinx.mesh.Mesh:
     """Generate a unit square mesh for use in tests in this file."""
     comm = mpi4py.MPI.COMM_WORLD
-    return dolfinx.mesh.create_unit_square(comm, 2 * comm.size, 2 * comm.size)
+    return dolfinx.mesh.create_unit_square(
+        comm, 4 * comm.size, 4 * comm.size, ghost_mode=dolfinx.mesh.GhostMode.shared_facet)
+
+
+def mesh_generator_do_nothing(mesh: dolfinx.mesh.Mesh, path: pathlib.Path) -> dolfinx.mesh.Mesh:
+    """Return the provided mesh."""
+    return mesh
+
+
+def mesh_generator_save_to_file(mesh: dolfinx.mesh.Mesh, path: pathlib.Path) -> dolfinx.mesh.Mesh:
+    """Save the mesh to file with adios4dolfinx, and return the provided mesh."""
+    adios4dolfinx.write_mesh(mesh, path, "bp4")
+    return mesh
+
+
+def mesh_generator_load_from_file(mesh: dolfinx.mesh.Mesh, path: pathlib.Path) -> dolfinx.mesh.Mesh:
+    """Load the mesh from file with adios4dolfinx, and return the loaded mesh."""
+    return adios4dolfinx.read_mesh(mesh.comm, path, engine="bp4", ghost_mode=dolfinx.mesh.GhostMode.shared_facet)
+
+
+def mesh_generator_save_to_and_load_from_file(mesh: dolfinx.mesh.Mesh, path: pathlib.Path) -> dolfinx.mesh.Mesh:
+    """Save the mesh to file with adios4dolfinx, load it back in, and return the loaded mesh."""
+    adios4dolfinx.write_mesh(mesh, path, "bp4")
+    return adios4dolfinx.read_mesh(mesh.comm, path, engine="bp4", ghost_mode=dolfinx.mesh.GhostMode.shared_facet)
+
+
+all_mesh_generators = [
+    (
+        # use mesh from the mesh fixture when preparing output files
+        lambda mesh, tempdir: mesh_generator_do_nothing(mesh, pathlib.Path(tempdir)),
+        # use mesh from the mesh fixture when loading input files
+        lambda mesh, tempdir: mesh_generator_do_nothing(mesh, pathlib.Path(tempdir)),
+        # this case is expected to fail because the mesh must be read back in using adios4dolfinx
+        False
+    ),
+    (
+        # use mesh from the mesh fixture when preparing output files, but also save it to file with adios4dolfinx
+        lambda mesh, tempdir: mesh_generator_save_to_file(mesh, pathlib.Path(tempdir) / "mesh.bp"),
+        # and also use mesh from a standalone mesh checkpoint when loading input files
+        lambda mesh, tempdir: mesh_generator_load_from_file(mesh, pathlib.Path(tempdir) / "mesh.bp"),
+        # this case is expected to pass
+        True
+    ),
+    (
+        # save mesh from the mesh fixture to file with adios4dolfinx and load it back in for output file preparation
+        lambda mesh, tempdir: mesh_generator_save_to_and_load_from_file(mesh, pathlib.Path(tempdir) / "mesh.bp"),
+        # and also use mesh from a standalone mesh checkpoint when loading input files
+        lambda mesh, tempdir: mesh_generator_load_from_file(mesh, pathlib.Path(tempdir) / "mesh.bp"),
+        # this case is expected to fail in parallel due to https://github.com/jorgensd/adios4dolfinx/issues/62
+        mpi4py.MPI.COMM_WORLD.size == 1
+    ),
+    (
+        # use mesh from the mesh fixture when preparing output files
+        lambda mesh, tempdir: mesh_generator_do_nothing(mesh, pathlib.Path(tempdir)),
+        # but use mesh from the first function checkpoint when loading input files
+        lambda mesh, tempdir: mesh_generator_load_from_file(mesh, pathlib.Path(tempdir) / "adios_0_checkpoint.bp"),
+        # this case is expected to pass
+        True
+    ),
+    (
+        # use mesh from the mesh fixture when preparing output files, but also save it to file with adios4dolfinx
+        lambda mesh, tempdir: mesh_generator_save_to_file(mesh, pathlib.Path(tempdir) / "mesh.bp"),
+        # but use mesh from the first function checkpoint when loading input files
+        lambda mesh, tempdir: mesh_generator_load_from_file(mesh, pathlib.Path(tempdir) / "adios_0_checkpoint.bp"),
+        # this case is expected to pass
+        True
+    ),
+    (
+        # save mesh from the mesh fixture to file with adios4dolfinx and load it back in for output file preparation
+        lambda mesh, tempdir: mesh_generator_save_to_and_load_from_file(mesh, pathlib.Path(tempdir) / "mesh.bp"),
+        # but use mesh from the first function checkpoint when loading input files
+        lambda mesh, tempdir: mesh_generator_load_from_file(mesh, pathlib.Path(tempdir) / "adios_0_checkpoint.bp"),
+        # this case is expected to pass
+        True
+    )
+]
+all_mesh_generators_ids = [
+    "in: do_nothing, out: do_nothing, expected_success: False",
+    'in: save_to_file("mesh.bp"), out: load_from_file("mesh.bp"), expected_success: True',
+    'in: save_to_and_load_from_file("mesh.bp"), out: load_from_file("mesh.bp"), expected_success: only in serial',
+    'in: do_nothing, out: load_from_file("adios_0_checkpoint.bp"), expected_success: True',
+    'in: save_to_file("mesh.bp"), out: load_from_file("adios_0_checkpoint.bp"), expected_success: True',
+    'in: save_to_and_load_from_file("mesh.bp"), out: load_from_file("adios_0_checkpoint.bp"), expected_success: True'
+]
 
 
 @pytest.mark.parametrize("family", all_families)
 @pytest.mark.parametrize("degree", all_degrees)
-def test_backends_export_import_function(mesh: dolfinx.mesh.Mesh, family: str, degree: str) -> None:
+@pytest.mark.parametrize("repeat", all_repeat)
+@pytest.mark.parametrize(
+    "mesh_out_generator,mesh_in_generator,expected_success", all_mesh_generators, ids=all_mesh_generators_ids)
+def test_backends_export_import_function(
+    mesh: dolfinx.mesh.Mesh, family: str, degree: str, repeat: int,
+    mesh_out_generator: typing.Callable[[dolfinx.mesh.Mesh, str], dolfinx.mesh.Mesh],
+    mesh_in_generator: typing.Callable[[dolfinx.mesh.Mesh, str], dolfinx.mesh.Mesh],
+    expected_success: bool
+) -> None:
     """Check I/O for a dolfinx.fem.Function."""
-    V = dolfinx.fem.functionspace(mesh, (family, degree))
-    function = dolfinx.fem.Function(V)
-    function.vector.set(1.0)
-
     with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:
-        rbnicsx.backends.export_function(function, pathlib.Path(tempdir), "function")
+        def function_space_generator(mesh: dolfinx.mesh.Mesh) -> dolfinx.fem.FunctionSpace:
+            """Create a function space on the provided mesh."""
+            return dolfinx.fem.functionspace(mesh, (family, degree))
 
-        function2 = rbnicsx.backends.import_function(V, pathlib.Path(tempdir), "function")
-        assert np.allclose(function2.vector.array, function.vector.array)
+        def expression_generator(r: int) -> typing.Callable[
+                [np.typing.NDArray[np.float64]], np.typing.NDArray[np.float64]]:
+            """Return the expression to be interpolated."""
+            return lambda x: (r + 1) * (x[0]**2 + x[1]**3)
+
+        mesh_out = mesh_out_generator(mesh, tempdir)
+        V_out = function_space_generator(mesh_out)
+        for r in range(repeat):
+            function_out = dolfinx.fem.Function(V_out)
+            function_out.interpolate(expression_generator(r))
+            rbnicsx.backends.export_function(function_out, pathlib.Path(tempdir), f"adios_{r}")
+
+        mesh_in = mesh_in_generator(mesh, tempdir)
+        V_in = function_space_generator(mesh_in)
+        for r in range(repeat):
+            function_ex = dolfinx.fem.Function(V_in)
+            function_ex.interpolate(expression_generator(r))
+            function_in = rbnicsx.backends.import_function(V_in, pathlib.Path(tempdir), f"adios_{r}")
+            if expected_success:
+                assert np.allclose(function_in.vector.array, function_ex.vector.array)
+            else:
+                assert not np.allclose(function_in.vector.array, function_ex.vector.array)
 
 
 @pytest.mark.parametrize("family", all_families)
 @pytest.mark.parametrize("degree", all_degrees)
-def test_backends_export_import_functions(mesh: dolfinx.mesh.Mesh, family: str, degree: str) -> None:
+@pytest.mark.parametrize("repeat", all_repeat)
+@pytest.mark.parametrize(
+    "mesh_out_generator,mesh_in_generator,expected_success", all_mesh_generators, ids=all_mesh_generators_ids)
+def test_backends_export_import_functions(
+    mesh: dolfinx.mesh.Mesh, family: str, degree: str, repeat: int,
+    mesh_out_generator: typing.Callable[[dolfinx.mesh.Mesh, str], dolfinx.mesh.Mesh],
+    mesh_in_generator: typing.Callable[[dolfinx.mesh.Mesh, str], dolfinx.mesh.Mesh],
+    expected_success: bool
+) -> None:
     """Check I/O for a list of dolfinx.fem.Function."""
-    V = dolfinx.fem.functionspace(mesh, (family, degree))
-    functions = list()
-    indices = list()
-    for i in range(2):
-        function = dolfinx.fem.Function(V)
-        function.vector.set(i + 1)
-        functions.append(function)
-        indices.append(i)
-
     with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:
-        rbnicsx.backends.export_functions(
-            functions, np.array(indices, dtype=float), pathlib.Path(tempdir), "functions")
+        def function_space_generator(mesh: dolfinx.mesh.Mesh) -> dolfinx.fem.FunctionSpace:
+            """Create a function space on the provided mesh."""
+            return dolfinx.fem.functionspace(mesh, (family, degree))
 
-        functions2 = rbnicsx.backends.import_functions(V, pathlib.Path(tempdir), "functions")
-        assert len(functions2) == 2
-        for (function, function2) in zip(functions, functions2):
-            assert np.allclose(function2.vector.array, function.vector.array)
+        T = 4
+
+        def expression_generator(r: int, t: int) -> typing.Callable[
+                [np.typing.NDArray[np.float64]], np.typing.NDArray[np.float64]]:
+            """Return the expression to be interpolated."""
+            return lambda x: (r + 1) * (x[0]**(t + 2) + x[1]**(t + 3))
+
+        mesh_out = mesh_out_generator(mesh, tempdir)
+        V_out = function_space_generator(mesh_out)
+        for r in range(repeat):
+            functions_out_r = list()
+            indices_out_r = list()
+            for t in range(T):
+                function_out = dolfinx.fem.Function(V_out)
+                function_out.interpolate(expression_generator(r, t))
+                functions_out_r.append(function_out)
+                indices_out_r.append(t)
+            rbnicsx.backends.export_functions(
+                functions_out_r, np.array(indices_out_r, dtype=float), pathlib.Path(tempdir), f"adios_{r}")
+
+        mesh_in = mesh_in_generator(mesh, tempdir)
+        V_in = function_space_generator(mesh_in)
+        for r in range(repeat):
+            functions_in = rbnicsx.backends.import_functions(V_in, pathlib.Path(tempdir), f"adios_{r}")
+            assert len(functions_in) == T
+            for t in range(T):
+                function_ex_t = dolfinx.fem.Function(V_in)
+                function_ex_t.interpolate(expression_generator(r, t))
+                if expected_success:
+                    assert np.allclose(functions_in[t].vector.array, function_ex_t.vector.array)
+                else:
+                    assert not np.allclose(functions_in[t].vector.array, function_ex_t.vector.array)
 
 
 @pytest.mark.parametrize("family", all_families)
