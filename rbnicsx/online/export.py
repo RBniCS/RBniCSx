@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Online backend to export matrices and vectors."""
 
+import pathlib
 
 import mpi4py.MPI
 import petsc4py.PETSc
@@ -15,7 +16,7 @@ from rbnicsx._backends.export import (
 
 
 def export_matrix(  # type: ignore[no-any-unimported]
-    mat: petsc4py.PETSc.Mat, directory: str, filename: str
+    mat: petsc4py.PETSc.Mat, directory: pathlib.Path, filename: str
 ) -> None:
     """
     Export a dense petsc4py.PETSc.Mat to file.
@@ -37,7 +38,7 @@ export_matrix_block = export_matrix
 
 
 def export_matrices(  # type: ignore[no-any-unimported]
-    mats: list[petsc4py.PETSc.Mat], directory: str, filename: str
+    mats: list[petsc4py.PETSc.Mat], directory: pathlib.Path, filename: str
 ) -> None:
     """
     Export a list of dense petsc4py.PETSc.Mat to file.
@@ -59,7 +60,7 @@ export_matrices_block = export_matrices
 
 
 def export_vector(  # type: ignore[no-any-unimported]
-    vec: petsc4py.PETSc.Vec, directory: str, filename: str
+    vec: petsc4py.PETSc.Vec, directory: pathlib.Path, filename: str
 ) -> None:
     """
     Export a sequential petsc4py.PETSc.Vec to file.
@@ -81,7 +82,7 @@ export_vector_block = export_vector
 
 
 def export_vectors(  # type: ignore[no-any-unimported]
-    vecs: list[petsc4py.PETSc.Vec], directory: str, filename: str
+    vecs: list[petsc4py.PETSc.Vec], directory: pathlib.Path, filename: str
 ) -> None:
     """
     Export a list of sequential petsc4py.PETSc.Vec to file.

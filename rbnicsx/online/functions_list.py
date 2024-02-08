@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Online backend to wrap a list of PETSc Vec which represent solutions to online systems."""
 
+import pathlib
 import sys
 import typing
 
@@ -73,7 +74,7 @@ class FunctionsList(FunctionsListBase[petsc4py.PETSc.Vec]):  # type: ignore[no-a
         """
         return FunctionsList(self._shape)
 
-    def _save(self: typing_extensions.Self, directory: str, filename: str) -> None:
+    def _save(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Save this list to file querying the I/O functions in the online backend.
 
@@ -89,7 +90,7 @@ class FunctionsList(FunctionsListBase[petsc4py.PETSc.Vec]):  # type: ignore[no-a
         else:
             export_vectors(self._list, directory, filename)
 
-    def _load(self: typing_extensions.Self, directory: str, filename: str) -> None:
+    def _load(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Load a list from file into this object querying the I/O functions in the online backend.
 

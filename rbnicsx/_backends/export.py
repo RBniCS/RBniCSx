@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Internal backend to export PETSc matrices and vectors."""
 
-import os
+import pathlib
 
 import mpi4py.MPI
 import petsc4py.PETSc
@@ -14,7 +14,7 @@ from rbnicsx.io import on_rank_zero
 
 
 def export_matrix(  # type: ignore[no-any-unimported]
-    mat: petsc4py.PETSc.Mat, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+    mat: petsc4py.PETSc.Mat, comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
 ) -> None:
     """
     Export a petsc4py.PETSc.Mat to file.
@@ -30,14 +30,14 @@ def export_matrix(  # type: ignore[no-any-unimported]
     filename
         Name of the file where to export the matrix.
     """
-    os.makedirs(directory, exist_ok=True)
-    viewer = petsc4py.PETSc.Viewer().createBinary(os.path.join(directory, filename + ".dat"), "w", comm)
+    directory.mkdir(parents=True, exist_ok=True)
+    viewer = petsc4py.PETSc.Viewer().createBinary(str(directory / (filename + ".dat")), "w", comm)
     viewer.view(mat)
     viewer.destroy()
 
 
 def export_matrices(  # type: ignore[no-any-unimported]
-    mats: list[petsc4py.PETSc.Mat], comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+    mats: list[petsc4py.PETSc.Mat], comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
 ) -> None:
     """
     Export a list of petsc4py.PETSc.Mat to file.
@@ -53,24 +53,23 @@ def export_matrices(  # type: ignore[no-any-unimported]
     filename
         Name of the file where to export the matrix.
     """
-    os.makedirs(os.path.join(directory, filename), exist_ok=True)
+    (directory / filename).mkdir(parents=True, exist_ok=True)
 
     # Write out length of the list
     def write_length() -> None:
-        with open(os.path.join(directory, filename, "length.dat"), "w") as length_file:
+        with open(directory / filename / "length.dat", "w") as length_file:
             length_file.write(str(len(mats)))
     on_rank_zero(comm, write_length)
 
     # Write out the list
     for (index, mat) in enumerate(mats):
-        viewer = petsc4py.PETSc.Viewer().createBinary(
-            os.path.join(directory, filename, str(index) + ".dat"), "w", comm)
+        viewer = petsc4py.PETSc.Viewer().createBinary(str(directory / filename / (str(index) + ".dat")), "w", comm)
         viewer.view(mat)
         viewer.destroy()
 
 
 def export_vector(  # type: ignore[no-any-unimported]
-    vec: petsc4py.PETSc.Vec, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+    vec: petsc4py.PETSc.Vec, comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
 ) -> None:
     """
     Export a petsc4py.PETSc.Vec to file.
@@ -86,14 +85,14 @@ def export_vector(  # type: ignore[no-any-unimported]
     filename
         Name of the file where to export the vector.
     """
-    os.makedirs(directory, exist_ok=True)
-    viewer = petsc4py.PETSc.Viewer().createBinary(os.path.join(directory, filename + ".dat"), "w", comm)
+    directory.mkdir(parents=True, exist_ok=True)
+    viewer = petsc4py.PETSc.Viewer().createBinary(str(directory / (filename + ".dat")), "w", comm)
     viewer.view(vec)
     viewer.destroy()
 
 
 def export_vectors(  # type: ignore[no-any-unimported]
-    vecs: list[petsc4py.PETSc.Vec], comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+    vecs: list[petsc4py.PETSc.Vec], comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
 ) -> None:
     """
     Export a list of petsc4py.PETSc.Vec to file.
@@ -109,17 +108,16 @@ def export_vectors(  # type: ignore[no-any-unimported]
     filename
         Name of the file where to export the vector.
     """
-    os.makedirs(os.path.join(directory, filename), exist_ok=True)
+    (directory / filename).mkdir(parents=True, exist_ok=True)
 
     # Write out length of the list
     def write_length() -> None:
-        with open(os.path.join(directory, filename, "length.dat"), "w") as length_file:
+        with open(directory / filename / "length.dat", "w") as length_file:
             length_file.write(str(len(vecs)))
     on_rank_zero(comm, write_length)
 
     # Write out the list
     for (index, vec) in enumerate(vecs):
-        viewer = petsc4py.PETSc.Viewer().createBinary(
-            os.path.join(directory, filename, str(index) + ".dat"), "w", comm)
+        viewer = petsc4py.PETSc.Viewer().createBinary(str(directory / filename / (str(index) + ".dat")), "w", comm)
         viewer.view(vec)
         viewer.destroy()

@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Tests for rbnicsx.online.export and rbnicsx.online.import_ modules."""
 
+import pathlib
 import typing
 
 import mpi4py.MPI
@@ -24,9 +25,9 @@ def test_online_export_import_vector() -> None:
     vector.view()
 
     with nbvalx.tempfile.TemporaryDirectory(mpi4py.MPI.COMM_WORLD) as tempdir:
-        rbnicsx.online.export_vector(vector, tempdir, "vector")
+        rbnicsx.online.export_vector(vector, pathlib.Path(tempdir), "vector")
 
-        vector2 = rbnicsx.online.import_vector(2, tempdir, "vector")
+        vector2 = rbnicsx.online.import_vector(2, pathlib.Path(tempdir), "vector")
         assert np.allclose(vector2.array, vector.array)
 
 
@@ -38,9 +39,9 @@ def test_online_export_import_vector_block() -> None:
     vector.view()
 
     with nbvalx.tempfile.TemporaryDirectory(mpi4py.MPI.COMM_WORLD) as tempdir:
-        rbnicsx.online.export_vector(vector, tempdir, "vector")
+        rbnicsx.online.export_vector(vector, pathlib.Path(tempdir), "vector")
 
-        vector2 = rbnicsx.online.import_vector_block([2, 3], tempdir, "vector")
+        vector2 = rbnicsx.online.import_vector_block([2, 3], pathlib.Path(tempdir), "vector")
         assert np.allclose(vector2.array, vector.array)
 
 
@@ -53,9 +54,9 @@ def test_online_export_import_vectors() -> None:
         vector.view()
 
     with nbvalx.tempfile.TemporaryDirectory(mpi4py.MPI.COMM_WORLD) as tempdir:
-        rbnicsx.online.export_vectors(vectors, tempdir, "vectors")
+        rbnicsx.online.export_vectors(vectors, pathlib.Path(tempdir), "vectors")
 
-        vectors2 = rbnicsx.online.import_vectors(2, tempdir, "vectors")
+        vectors2 = rbnicsx.online.import_vectors(2, pathlib.Path(tempdir), "vectors")
         assert len(vectors2) == 3
         for (vector, vector2) in zip(vectors, vectors2):
             assert np.allclose(vector2.array, vector.array)
@@ -69,9 +70,9 @@ def test_online_export_import_vectors_block() -> None:
             vector.setValue(i, v * 5 + i + 1)
 
     with nbvalx.tempfile.TemporaryDirectory(mpi4py.MPI.COMM_WORLD) as tempdir:
-        rbnicsx.online.export_vectors(vectors, tempdir, "vectors")
+        rbnicsx.online.export_vectors(vectors, pathlib.Path(tempdir), "vectors")
 
-        vectors2 = rbnicsx.online.import_vectors_block([2, 3], tempdir, "vectors")
+        vectors2 = rbnicsx.online.import_vectors_block([2, 3], pathlib.Path(tempdir), "vectors")
         assert len(vectors2) == 3
         for (vector, vector2) in zip(vectors, vectors2):
             assert np.allclose(vector2.array, vector.array)
@@ -89,9 +90,9 @@ def test_online_export_import_matrix(  # type: ignore[no-any-unimported]
     matrix.view()
 
     with nbvalx.tempfile.TemporaryDirectory(mpi4py.MPI.COMM_WORLD) as tempdir:
-        rbnicsx.online.export_matrix(matrix, tempdir, "matrix")
+        rbnicsx.online.export_matrix(matrix, pathlib.Path(tempdir), "matrix")
 
-        matrix2 = rbnicsx.online.import_matrix(2, 3, tempdir, "matrix")
+        matrix2 = rbnicsx.online.import_matrix(2, 3, pathlib.Path(tempdir), "matrix")
         assert np.allclose(to_dense_matrix(matrix2), to_dense_matrix(matrix))
 
 
@@ -107,9 +108,9 @@ def test_online_export_import_matrix_block(  # type: ignore[no-any-unimported]
     matrix.view()
 
     with nbvalx.tempfile.TemporaryDirectory(mpi4py.MPI.COMM_WORLD) as tempdir:
-        rbnicsx.online.export_matrix(matrix, tempdir, "matrix")
+        rbnicsx.online.export_matrix(matrix, pathlib.Path(tempdir), "matrix")
 
-        matrix2 = rbnicsx.online.import_matrix_block([2, 3], [4, 5], tempdir, "matrix")
+        matrix2 = rbnicsx.online.import_matrix_block([2, 3], [4, 5], pathlib.Path(tempdir), "matrix")
         assert np.allclose(to_dense_matrix(matrix2), to_dense_matrix(matrix))
 
 
@@ -126,9 +127,9 @@ def test_online_export_import_matrices(  # type: ignore[no-any-unimported]
         matrix.view()
 
     with nbvalx.tempfile.TemporaryDirectory(mpi4py.MPI.COMM_WORLD) as tempdir:
-        rbnicsx.online.export_matrices(matrices, tempdir, "matrices")
+        rbnicsx.online.export_matrices(matrices, pathlib.Path(tempdir), "matrices")
 
-        matrices2 = rbnicsx.online.import_matrices(2, 3, tempdir, "matrices")
+        matrices2 = rbnicsx.online.import_matrices(2, 3, pathlib.Path(tempdir), "matrices")
         for (matrix, matrix2) in zip(matrices, matrices2):
             assert np.allclose(to_dense_matrix(matrix2), to_dense_matrix(matrix))
 
@@ -146,8 +147,8 @@ def test_online_export_import_matrices_block(  # type: ignore[no-any-unimported]
         matrix.view()
 
     with nbvalx.tempfile.TemporaryDirectory(mpi4py.MPI.COMM_WORLD) as tempdir:
-        rbnicsx.online.export_matrices(matrices, tempdir, "matrices")
+        rbnicsx.online.export_matrices(matrices, pathlib.Path(tempdir), "matrices")
 
-        matrices2 = rbnicsx.online.import_matrices_block([2, 3], [4, 5], tempdir, "matrices")
+        matrices2 = rbnicsx.online.import_matrices_block([2, 3], [4, 5], pathlib.Path(tempdir), "matrices")
         for (matrix, matrix2) in zip(matrices, matrices2):
             assert np.allclose(to_dense_matrix(matrix2), to_dense_matrix(matrix))

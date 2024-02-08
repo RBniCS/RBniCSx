@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Tests for rbnicsx.backends.tensors_list module."""
 
+import pathlib
 import typing
 
 import _pytest.fixtures
@@ -250,10 +251,10 @@ def test_backends_tensors_list_setitem_wrong_type(tensors_list_vec: rbnicsx.back
 def test_backends_tensors_list_save_load_vec(tensors_list_vec: rbnicsx.backends.TensorsList) -> None:
     """Check I/O for a rbnicsx.backends.TensorsList in the case of petsc4py.PETSc.Vec content."""
     with nbvalx.tempfile.TemporaryDirectory(tensors_list_vec.comm) as tempdir:
-        tensors_list_vec.save(tempdir, "tensors_list_vec")
+        tensors_list_vec.save(pathlib.Path(tempdir), "tensors_list_vec")
 
         tensors_list_vec2 = tensors_list_vec.duplicate()
-        tensors_list_vec2.load(tempdir, "tensors_list_vec")
+        tensors_list_vec2.load(pathlib.Path(tempdir), "tensors_list_vec")
 
         assert len(tensors_list_vec2) == 2
         for (vector, vector2) in zip(tensors_list_vec, tensors_list_vec2):
@@ -266,10 +267,10 @@ def test_backends_tensors_list_save_load_mat(  # type: ignore[no-any-unimported]
 ) -> None:
     """Check I/O for a rbnicsx.backends.TensorsList in the case of petsc4py.PETSc.Mat content."""
     with nbvalx.tempfile.TemporaryDirectory(tensors_list_mat.comm) as tempdir:
-        tensors_list_mat.save(tempdir, "tensors_list_mat")
+        tensors_list_mat.save(pathlib.Path(tempdir), "tensors_list_mat")
 
         tensors_list_mat2 = tensors_list_mat.duplicate()
-        tensors_list_mat2.load(tempdir, "tensors_list_mat")
+        tensors_list_mat2.load(pathlib.Path(tempdir), "tensors_list_mat")
 
         assert len(tensors_list_mat2) == 2
         for (matrix, matrix2) in zip(tensors_list_mat, tensors_list_mat2):
@@ -283,10 +284,10 @@ def test_backends_tensors_list_save_load_empty() -> None:
 
     with nbvalx.tempfile.TemporaryDirectory(empty_tensors_list.comm) as tempdir:
         with pytest.raises(RuntimeError):
-            empty_tensors_list.save(tempdir, "empty_tensors_list")
+            empty_tensors_list.save(pathlib.Path(tempdir), "empty_tensors_list")
 
         with pytest.raises(RuntimeError):
-            empty_tensors_list.load(tempdir, "empty_tensors_list")
+            empty_tensors_list.load(pathlib.Path(tempdir), "empty_tensors_list")
 
 
 def test_backends_tensors_list_mul_vec(tensors_list_vec: rbnicsx.backends.TensorsList) -> None:

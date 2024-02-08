@@ -7,7 +7,7 @@
 
 import abc
 import itertools
-import os
+import pathlib
 import sys
 import typing
 
@@ -88,7 +88,7 @@ class TensorsArray(abc.ABC):
         """
         pass  # pragma: no cover
 
-    def save(self: typing_extensions.Self, directory: str, filename: str) -> None:
+    def save(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Save this array to file.
 
@@ -99,9 +99,11 @@ class TensorsArray(abc.ABC):
         filename
             Name of the file where to export the array.
         """
+        directory.mkdir(parents=True, exist_ok=True)
+
         # Save type
         def save_type() -> None:
-            with open(os.path.join(directory, filename + ".type"), "w") as type_file:
+            with open(directory / (filename + ".type"), "w") as type_file:
                 if self._type is not None:
                     type_file.write(self._type)
                 else:
@@ -112,7 +114,7 @@ class TensorsArray(abc.ABC):
         self._save(directory, filename)
 
     @abc.abstractmethod
-    def _save(self: typing_extensions.Self, directory: str, filename: str) -> None:
+    def _save(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Save this array to file querying the I/O functions in the backend.
 
@@ -125,7 +127,7 @@ class TensorsArray(abc.ABC):
         """
         pass  # pragma: no cover
 
-    def load(self: typing_extensions.Self, directory: str, filename: str) -> None:
+    def load(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Load an array from file into this object.
 
@@ -140,7 +142,7 @@ class TensorsArray(abc.ABC):
 
         # Load type
         def load_type() -> str:
-            with open(os.path.join(directory, filename + ".type")) as type_file:
+            with open(directory / (filename + ".type")) as type_file:
                 return type_file.readline()
         self._type = on_rank_zero(self._comm, load_type)
 
@@ -148,7 +150,7 @@ class TensorsArray(abc.ABC):
         self._load(directory, filename)
 
     @abc.abstractmethod
-    def _load(self: typing_extensions.Self, directory: str, filename: str) -> None:
+    def _load(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Load an array from file into this object querying the I/O functions in the backend.
 

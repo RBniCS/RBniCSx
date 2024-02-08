@@ -5,7 +5,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Backend to import dolfinx functions, matrices and vectors."""
 
-import os
 import pathlib
 
 import adios4dolfinx
@@ -21,7 +20,7 @@ from rbnicsx.io import on_rank_zero
 
 
 def import_function(
-    function_space: dolfinx.fem.FunctionSpace, directory: str, filename: str
+    function_space: dolfinx.fem.FunctionSpace, directory: pathlib.Path, filename: str
 ) -> dolfinx.fem.Function:
     """
     Import a dolfinx.fem.Function from file.
@@ -41,13 +40,13 @@ def import_function(
         Function imported from file.
     """
     function = dolfinx.fem.Function(function_space)
-    checkpointing_directory = os.path.join(directory, filename + "_checkpoint.bp")
-    adios4dolfinx.read_function(function, pathlib.Path(checkpointing_directory), "bp4")
+    checkpointing_directory = directory / (filename + "_checkpoint.bp")
+    adios4dolfinx.read_function(function, checkpointing_directory, "bp4")
     return function
 
 
 def import_functions(
-    function_space: dolfinx.fem.FunctionSpace, directory: str, filename: str
+    function_space: dolfinx.fem.FunctionSpace, directory: pathlib.Path, filename: str
 ) -> list[dolfinx.fem.Function]:
     """
     Import a list of dolfinx.fem.Function from file.
@@ -67,11 +66,11 @@ def import_functions(
         Functions imported from file.
     """
     comm = function_space.mesh.comm
-    checkpointing_directory = os.path.join(directory, filename + "_checkpoint.bp")
+    checkpointing_directory = directory / (filename + "_checkpoint.bp")
 
     # Read in length of the list
     def read_length() -> int:
-        with open(os.path.join(checkpointing_directory, "length.dat")) as length_file:
+        with open(checkpointing_directory / "length.dat") as length_file:
             return int(length_file.readline())
     length = on_rank_zero(comm, read_length)
 
@@ -80,14 +79,14 @@ def import_functions(
     functions = list()
     for index in range(length):
         function = function_placeholder.copy()
-        adios4dolfinx.read_function(function, pathlib.Path(os.path.join(checkpointing_directory, str(index))), "bp4")
+        adios4dolfinx.read_function(function, checkpointing_directory / str(index), "bp4")
         functions.append(function)
     del function_placeholder
     return functions
 
 
 def import_matrix(  # type: ignore[no-any-unimported]
-    form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+    form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
 ) -> petsc4py.PETSc.Mat:
     """
     Import a petsc4py.PETSc.Mat assembled by dolfinx from file.
@@ -112,7 +111,7 @@ def import_matrix(  # type: ignore[no-any-unimported]
 
 
 def import_matrices(  # type: ignore[no-any-unimported]
-    form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+    form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
 ) -> list[petsc4py.PETSc.Mat]:
     """
     Import a list of petsc4py.PETSc.Mat assembled by dolfinx from file.
@@ -137,7 +136,7 @@ def import_matrices(  # type: ignore[no-any-unimported]
 
 
 def import_vector(  # type: ignore[no-any-unimported]
-    form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+    form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
 ) -> petsc4py.PETSc.Vec:
     """
     Import a petsc4py.PETSc.Vec assembled by dolfinx from file.
@@ -162,7 +161,7 @@ def import_vector(  # type: ignore[no-any-unimported]
 
 
 def import_vectors(  # type: ignore[no-any-unimported]
-    form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+    form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
 ) -> list[petsc4py.PETSc.Vec]:
     """
     Import a list of petsc4py.PETSc.Vec assembled by dolfinx from file.

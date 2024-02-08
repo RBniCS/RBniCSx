@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Tests for rbnicsx.backends.export and rbnicsx.backends.import_ modules."""
 
+import pathlib
 import typing
 
 import dolfinx.fem
@@ -39,9 +40,9 @@ def test_backends_export_import_function(mesh: dolfinx.mesh.Mesh, family: str, d
     function.vector.set(1.0)
 
     with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:
-        rbnicsx.backends.export_function(function, tempdir, "function")
+        rbnicsx.backends.export_function(function, pathlib.Path(tempdir), "function")
 
-        function2 = rbnicsx.backends.import_function(V, tempdir, "function")
+        function2 = rbnicsx.backends.import_function(V, pathlib.Path(tempdir), "function")
         assert np.allclose(function2.vector.array, function.vector.array)
 
 
@@ -59,9 +60,10 @@ def test_backends_export_import_functions(mesh: dolfinx.mesh.Mesh, family: str, 
         indices.append(i)
 
     with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:
-        rbnicsx.backends.export_functions(functions, np.array(indices, dtype=float), tempdir, "functions")
+        rbnicsx.backends.export_functions(
+            functions, np.array(indices, dtype=float), pathlib.Path(tempdir), "functions")
 
-        functions2 = rbnicsx.backends.import_functions(V, tempdir, "functions")
+        functions2 = rbnicsx.backends.import_functions(V, pathlib.Path(tempdir), "functions")
         assert len(functions2) == 2
         for (function, function2) in zip(functions, functions2):
             assert np.allclose(function2.vector.array, function.vector.array)
@@ -79,9 +81,9 @@ def test_backends_export_import_vector(mesh: dolfinx.mesh.Mesh, family: str, deg
     vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
 
     with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:
-        rbnicsx.backends.export_vector(vector, tempdir, "vector")
+        rbnicsx.backends.export_vector(vector, pathlib.Path(tempdir), "vector")
 
-        vector2 = rbnicsx.backends.import_vector(linear_form_cpp, mesh.comm, tempdir, "vector")
+        vector2 = rbnicsx.backends.import_vector(linear_form_cpp, mesh.comm, pathlib.Path(tempdir), "vector")
         assert np.allclose(vector2.array, vector.array)
 
 
@@ -98,9 +100,9 @@ def test_backends_export_import_vectors(mesh: dolfinx.mesh.Mesh, family: str, de
         addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE) for vector in vectors]
 
     with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:
-        rbnicsx.backends.export_vectors(vectors, tempdir, "vectors")
+        rbnicsx.backends.export_vectors(vectors, pathlib.Path(tempdir), "vectors")
 
-        vectors2 = rbnicsx.backends.import_vectors(linear_forms_cpp[0], mesh.comm, tempdir, "vectors")
+        vectors2 = rbnicsx.backends.import_vectors(linear_forms_cpp[0], mesh.comm, pathlib.Path(tempdir), "vectors")
         assert len(vectors2) == 2
         for (vector, vector2) in zip(vectors, vectors2):
             assert np.allclose(vector2.array, vector.array)
@@ -123,9 +125,9 @@ def test_backends_export_import_matrix(  # type: ignore[no-any-unimported]
     matrix.assemble()
 
     with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:
-        rbnicsx.backends.export_matrix(matrix, tempdir, "matrix")
+        rbnicsx.backends.export_matrix(matrix, pathlib.Path(tempdir), "matrix")
 
-        matrix2 = rbnicsx.backends.import_matrix(bilinear_form_cpp, mesh.comm, tempdir, "matrix")
+        matrix2 = rbnicsx.backends.import_matrix(bilinear_form_cpp, mesh.comm, pathlib.Path(tempdir), "matrix")
         assert np.allclose(to_dense_matrix(matrix2), to_dense_matrix(matrix))
 
 
@@ -146,8 +148,9 @@ def test_backends_export_import_matrices(  # type: ignore[no-any-unimported]
     [matrix.assemble() for matrix in matrices]
 
     with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:
-        rbnicsx.backends.export_matrices(matrices, tempdir, "matrices")
+        rbnicsx.backends.export_matrices(matrices, pathlib.Path(tempdir), "matrices")
 
-        matrices2 = rbnicsx.backends.import_matrices(bilinear_forms_cpp[0], mesh.comm, tempdir, "matrices")
+        matrices2 = rbnicsx.backends.import_matrices(
+            bilinear_forms_cpp[0], mesh.comm, pathlib.Path(tempdir), "matrices")
         for (matrix, matrix2) in zip(matrices, matrices2):
             assert np.allclose(to_dense_matrix(matrix2), to_dense_matrix(matrix))

@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Internal backend to import PETSc matrices and vectors."""
 
-import os
+import pathlib
 import typing
 
 import mpi4py.MPI
@@ -15,7 +15,8 @@ from rbnicsx.io import on_rank_zero
 
 
 def import_matrix(  # type: ignore[no-any-unimported]
-    allocate: typing.Callable[[], petsc4py.PETSc.Mat], comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+    allocate: typing.Callable[[], petsc4py.PETSc.Mat], comm: mpi4py.MPI.Intracomm,
+    directory: pathlib.Path, filename: str
 ) -> petsc4py.PETSc.Mat:
     """
     Import a petsc4py.PETSc.Mat from file.
@@ -36,7 +37,7 @@ def import_matrix(  # type: ignore[no-any-unimported]
     :
         Matrix imported from file.
     """
-    viewer = petsc4py.PETSc.Viewer().createBinary(os.path.join(directory, filename + ".dat"), "r", comm)
+    viewer = petsc4py.PETSc.Viewer().createBinary(str(directory / (filename + ".dat")), "r", comm)
     mat = allocate()
     mat.load(viewer)
     viewer.destroy()
@@ -44,7 +45,8 @@ def import_matrix(  # type: ignore[no-any-unimported]
 
 
 def import_matrices(  # type: ignore[no-any-unimported]
-    allocate: typing.Callable[[], petsc4py.PETSc.Mat], comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+    allocate: typing.Callable[[], petsc4py.PETSc.Mat], comm: mpi4py.MPI.Intracomm,
+    directory: pathlib.Path, filename: str
 ) -> list[petsc4py.PETSc.Mat]:
     """
     Import a list of petsc4py.PETSc.Mat from file.
@@ -67,15 +69,14 @@ def import_matrices(  # type: ignore[no-any-unimported]
     """
     # Read in length of the list
     def read_length() -> int:
-        with open(os.path.join(directory, filename, "length.dat")) as length_file:
+        with open(directory / filename / "length.dat") as length_file:
             return int(length_file.readline())
     length = on_rank_zero(comm, read_length)
 
     # Read in the list
     mats = list()
     for index in range(length):
-        viewer = petsc4py.PETSc.Viewer().createBinary(
-            os.path.join(directory, filename, str(index) + ".dat"), "r", comm)
+        viewer = petsc4py.PETSc.Viewer().createBinary(str(directory / filename / (str(index) + ".dat")), "r", comm)
         mat = allocate()
         mat.load(viewer)
         mats.append(mat)
@@ -84,7 +85,8 @@ def import_matrices(  # type: ignore[no-any-unimported]
 
 
 def import_vector(  # type: ignore[no-any-unimported]
-    allocate: typing.Callable[[], petsc4py.PETSc.Vec], comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+    allocate: typing.Callable[[], petsc4py.PETSc.Vec], comm: mpi4py.MPI.Intracomm,
+    directory: pathlib.Path, filename: str
 ) -> petsc4py.PETSc.Vec:
     """
     Import a petsc4py.PETSc.Vec from file.
@@ -105,7 +107,7 @@ def import_vector(  # type: ignore[no-any-unimported]
     :
         Vector imported from file.
     """
-    viewer = petsc4py.PETSc.Viewer().createBinary(os.path.join(directory, filename + ".dat"), "r", comm)
+    viewer = petsc4py.PETSc.Viewer().createBinary(str(directory / (filename + ".dat")), "r", comm)
     vec = allocate()
     vec.load(viewer)
     viewer.destroy()
@@ -113,7 +115,8 @@ def import_vector(  # type: ignore[no-any-unimported]
 
 
 def import_vectors(  # type: ignore[no-any-unimported]
-    allocate: typing.Callable[[], petsc4py.PETSc.Vec], comm: mpi4py.MPI.Intracomm, directory: str, filename: str
+    allocate: typing.Callable[[], petsc4py.PETSc.Vec], comm: mpi4py.MPI.Intracomm,
+    directory: pathlib.Path, filename: str
 ) -> list[petsc4py.PETSc.Vec]:
     """
     Import a list of petsc4py.PETSc.Vec from file.
@@ -136,15 +139,14 @@ def import_vectors(  # type: ignore[no-any-unimported]
     """
     # Read in length of the list
     def read_length() -> int:
-        with open(os.path.join(directory, filename, "length.dat")) as length_file:
+        with open(directory / filename / "length.dat") as length_file:
             return int(length_file.readline())
     length = on_rank_zero(comm, read_length)
 
     # Read in the list
     vecs = list()
     for index in range(length):
-        viewer = petsc4py.PETSc.Viewer().createBinary(
-            os.path.join(directory, filename, str(index) + ".dat"), "r", comm)
+        viewer = petsc4py.PETSc.Viewer().createBinary(str(directory / filename / (str(index) + ".dat")), "r", comm)
         vec = allocate()
         vec.load(viewer)
         vecs.append(vec)

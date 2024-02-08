@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Backend to wrap a list of dolfinx Functions."""
 
+import pathlib
 import sys
 import typing
 
@@ -59,7 +60,7 @@ class FunctionsList(FunctionsListBase[dolfinx.fem.Function]):
         """
         return FunctionsList(self._function_space)
 
-    def _save(self: typing_extensions.Self, directory: str, filename: str) -> None:
+    def _save(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Save this list to file querying the I/O functions in the backend.
 
@@ -72,7 +73,7 @@ class FunctionsList(FunctionsListBase[dolfinx.fem.Function]):
         """
         export_functions(self._list, np.arange(len(self._list), dtype=float), directory, filename)
 
-    def _load(self: typing_extensions.Self, directory: str, filename: str) -> None:
+    def _load(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Load a list from file into this object querying the I/O functions in the backend.
 

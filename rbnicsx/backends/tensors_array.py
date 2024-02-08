@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Backend to wrap an array of PETSc Mat or Vec assembled by dolfinx."""
 
+import pathlib
 import sys
 import typing
 
@@ -77,7 +78,7 @@ class TensorsArray(TensorsArrayBase):
 
         return TensorsArray(self._form, self._comm, shape)
 
-    def _save(self: typing_extensions.Self, directory: str, filename: str) -> None:
+    def _save(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Save this array to file querying the I/O functions in the backend.
 
@@ -97,7 +98,7 @@ class TensorsArray(TensorsArrayBase):
         else:
             raise RuntimeError()
 
-    def _load(self: typing_extensions.Self, directory: str, filename: str) -> None:
+    def _load(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Load an array from file into this object querying the I/O functions in the backend.
 

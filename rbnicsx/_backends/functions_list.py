@@ -6,6 +6,7 @@
 """Internal backend to wrap a list of Functions."""
 
 import abc
+import pathlib
 import sys
 import typing
 
@@ -85,7 +86,7 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
         """Clear the storage."""
         self._list = list()
 
-    def save(self: typing_extensions.Self, directory: str, filename: str) -> None:
+    def save(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Save this list to file.
 
@@ -99,7 +100,7 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
         self._save(directory, filename)
 
     @abc.abstractmethod
-    def _save(self: typing_extensions.Self, directory: str, filename: str) -> None:
+    def _save(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Save this list to file querying the I/O functions in the backend.
 
@@ -112,7 +113,7 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
         """
         pass  # pragma: no cover
 
-    def load(self: typing_extensions.Self, directory: str, filename: str) -> None:
+    def load(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Load a list from file into this object.
 
@@ -127,7 +128,7 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
         self._load(directory, filename)
 
     @abc.abstractmethod
-    def _load(self: typing_extensions.Self, directory: str, filename: str) -> None:
+    def _load(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Load a list from file into this object querying the I/O functions in the backend.
 

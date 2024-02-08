@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Backend to wrap a list of PETSc Mat or Vec assembled by dolfinx."""
 
+import pathlib
 import sys
 import typing
 
@@ -60,7 +61,7 @@ class TensorsList(TensorsListBase):
         """
         return TensorsList(self._form, self._comm)
 
-    def _save(self: typing_extensions.Self, directory: str, filename: str) -> None:
+    def _save(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Save this list to file querying the I/O functions in the backend.
 
@@ -78,7 +79,7 @@ class TensorsList(TensorsListBase):
         else:
             raise RuntimeError()
 
-    def _load(self: typing_extensions.Self, directory: str, filename: str) -> None:
+    def _load(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Load a list from file into this object querying the I/O functions in the backend.
 

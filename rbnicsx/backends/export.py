@@ -5,7 +5,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Backend to export dolfinx functions, matrices and vectors."""
 
-import os
 import pathlib
 
 import adios4dolfinx
@@ -21,7 +20,7 @@ from rbnicsx._backends.export import (
 from rbnicsx.io import on_rank_zero
 
 
-def export_function(function: dolfinx.fem.Function, directory: str, filename: str) -> None:
+def export_function(function: dolfinx.fem.Function, directory: pathlib.Path, filename: str) -> None:
     """
     Export a dolfinx.fem.Function to file.
 
@@ -35,10 +34,10 @@ def export_function(function: dolfinx.fem.Function, directory: str, filename: st
         Name of the file where to export the function.
     """
     comm = function.function_space.mesh.comm
-    visualization_directory = os.path.join(directory, filename + ".bp")
-    checkpointing_directory = os.path.join(directory, filename + "_checkpoint.bp")
-    os.makedirs(visualization_directory, exist_ok=True)
-    os.makedirs(checkpointing_directory, exist_ok=True)
+    visualization_directory = directory / (filename + ".bp")
+    checkpointing_directory = directory / (filename + "_checkpoint.bp")
+    visualization_directory.mkdir(parents=True, exist_ok=True)
+    checkpointing_directory.mkdir(parents=True, exist_ok=True)
 
     # Export for visualization
     with dolfinx.io.VTXWriter(comm, visualization_directory, function, "bp4") as vtx_file:
@@ -50,7 +49,8 @@ def export_function(function: dolfinx.fem.Function, directory: str, filename: st
 
 
 def export_functions(
-    functions: list[dolfinx.fem.Function], indices: np.typing.NDArray[np.float32], directory: str, filename: str
+    functions: list[dolfinx.fem.Function], indices: np.typing.NDArray[np.float32],
+    directory: pathlib.Path, filename: str
 ) -> None:
     """
     Export a list of dolfinx.fem.Function to file.
@@ -67,10 +67,10 @@ def export_functions(
         Name of the file where to export the function.
     """
     comm = functions[0].function_space.mesh.comm
-    visualization_directory = os.path.join(directory, filename + ".bp")
-    checkpointing_directory = os.path.join(directory, filename + "_checkpoint.bp")
-    os.makedirs(visualization_directory, exist_ok=True)
-    os.makedirs(checkpointing_directory, exist_ok=True)
+    visualization_directory = directory / (filename + ".bp")
+    checkpointing_directory = directory / (filename + "_checkpoint.bp")
+    visualization_directory.mkdir(parents=True, exist_ok=True)
+    checkpointing_directory.mkdir(parents=True, exist_ok=True)
 
     # Export for visualization
     output = functions[0].copy()
@@ -83,19 +83,19 @@ def export_functions(
 
     # Export for checkpointing: write out length of the list
     def write_length() -> None:
-        with open(os.path.join(checkpointing_directory, "length.dat"), "w") as length_file:
+        with open(checkpointing_directory / "length.dat", "w") as length_file:
             length_file.write(str(len(functions)))
     on_rank_zero(comm, write_length)
 
     # Export for checkpointing: write out the list
     # Note that here index is an integer counter, rather than an entry of the input array indices.
-    adios4dolfinx.write_mesh(function, pathlib.Path(checkpointing_directory), "bp4")
     for (index, function) in enumerate(functions):
-        adios4dolfinx.write_function(function, pathlib.Path(os.path.join(checkpointing_directory, str(index))), "bp4")
+        adios4dolfinx.write_mesh(function.function_space.mesh, checkpointing_directory / str(index), "bp4")
+        adios4dolfinx.write_function(function, checkpointing_directory / str(index), "bp4")
 
 
 def export_matrix(  # type: ignore[no-any-unimported]
-    mat: petsc4py.PETSc.Mat, directory: str, filename: str
+    mat: petsc4py.PETSc.Mat, directory: pathlib.Path, filename: str
 ) -> None:
     """
     Export a petsc4py.PETSc.Mat assembled by dolfinx to file.
@@ -113,7 +113,7 @@ def export_matrix(  # type: ignore[no-any-unimported]
 
 
 def export_matrices(  # type: ignore[no-any-unimported]
-    mats: list[petsc4py.PETSc.Mat], directory: str, filename: str
+    mats: list[petsc4py.PETSc.Mat], directory: pathlib.Path, filename: str
 ) -> None:
     """
     Export a list of petsc4py.PETSc.Mat assembled by dolfinx to file.
@@ -131,7 +131,7 @@ def export_matrices(  # type: ignore[no-any-unimported]
 
 
 def export_vector(  # type: ignore[no-any-unimported]
-    vec: petsc4py.PETSc.Vec, directory: str, filename: str
+    vec: petsc4py.PETSc.Vec, directory: pathlib.Path, filename: str
 ) -> None:
     """
     Export a petsc4py.PETSc.Vec assembled by dolfinx to file.
@@ -149,7 +149,7 @@ def export_vector(  # type: ignore[no-any-unimported]
 
 
 def export_vectors(  # type: ignore[no-any-unimported]
-    vecs: list[petsc4py.PETSc.Vec], directory: str, filename: str
+    vecs: list[petsc4py.PETSc.Vec], directory: pathlib.Path, filename: str
 ) -> None:
     """
     Export a list of petsc4py.PETSc.Vec assembled by dolfinx to file.

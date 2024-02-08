@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Tests for rbnicsx.online.tensors_array module."""
 
+import pathlib
 import typing
 
 import _pytest.fixtures
@@ -502,10 +503,10 @@ def test_online_tensors_array_setitem_wrong_type(tensors_1d_array_vec: rbnicsx.o
 def test_online_tensors_array_save_load_1d_vec(tensors_1d_array_vec: rbnicsx.online.TensorsArray) -> None:
     """Check I/O for a rbnicsx.online.TensorsArray in the case of 1d array and petsc4py.PETSc.Vec content."""
     with nbvalx.tempfile.TemporaryDirectory(tensors_1d_array_vec.comm) as tempdir:
-        tensors_1d_array_vec.save(tempdir, "tensors_1d_array_vec")
+        tensors_1d_array_vec.save(pathlib.Path(tempdir), "tensors_1d_array_vec")
 
         tensors_1d_array_vec2 = tensors_1d_array_vec.duplicate()
-        tensors_1d_array_vec2.load(tempdir, "tensors_1d_array_vec")
+        tensors_1d_array_vec2.load(pathlib.Path(tempdir), "tensors_1d_array_vec")
 
         assert tensors_1d_array_vec2.shape == (6, )
         for i in range(6):
@@ -515,10 +516,10 @@ def test_online_tensors_array_save_load_1d_vec(tensors_1d_array_vec: rbnicsx.onl
 def test_online_tensors_array_save_load_2d_vec(tensors_2d_array_vec: rbnicsx.online.TensorsArray) -> None:
     """Check I/O for a rbnicsx.online.TensorsArray in the case of 2d array and petsc4py.PETSc.Vec content."""
     with nbvalx.tempfile.TemporaryDirectory(tensors_2d_array_vec.comm) as tempdir:
-        tensors_2d_array_vec.save(tempdir, "tensors_2d_array_vec")
+        tensors_2d_array_vec.save(pathlib.Path(tempdir), "tensors_2d_array_vec")
 
         tensors_2d_array_vec2 = tensors_2d_array_vec.duplicate()
-        tensors_2d_array_vec2.load(tempdir, "tensors_2d_array_vec")
+        tensors_2d_array_vec2.load(pathlib.Path(tempdir), "tensors_2d_array_vec")
 
         assert tensors_2d_array_vec2.shape == (2, 3)
         for i in range(2):
@@ -532,10 +533,10 @@ def test_online_tensors_array_save_load_1d_mat(  # type: ignore[no-any-unimporte
 ) -> None:
     """Check I/O for a rbnicsx.online.TensorsArray in the case of 1d array and petsc4py.PETSc.Mat content."""
     with nbvalx.tempfile.TemporaryDirectory(tensors_1d_array_mat.comm) as tempdir:
-        tensors_1d_array_mat.save(tempdir, "tensors_1d_array_mat")
+        tensors_1d_array_mat.save(pathlib.Path(tempdir), "tensors_1d_array_mat")
 
         tensors_1d_array_mat2 = tensors_1d_array_mat.duplicate()
-        tensors_1d_array_mat2.load(tempdir, "tensors_1d_array_mat")
+        tensors_1d_array_mat2.load(pathlib.Path(tempdir), "tensors_1d_array_mat")
 
         assert tensors_1d_array_mat2.shape == (6, )
         for i in range(6):
@@ -548,10 +549,10 @@ def test_online_tensors_array_save_load_2d_mat(  # type: ignore[no-any-unimporte
 ) -> None:
     """Check I/O for a rbnicsx.online.TensorsArray in the case of 2d array and petsc4py.PETSc.Mat content."""
     with nbvalx.tempfile.TemporaryDirectory(tensors_2d_array_mat.comm) as tempdir:
-        tensors_2d_array_mat.save(tempdir, "tensors_2d_array_mat")
+        tensors_2d_array_mat.save(pathlib.Path(tempdir), "tensors_2d_array_mat")
 
         tensors_2d_array_mat2 = tensors_2d_array_mat.duplicate()
-        tensors_2d_array_mat2.load(tempdir, "tensors_2d_array_mat")
+        tensors_2d_array_mat2.load(pathlib.Path(tempdir), "tensors_2d_array_mat")
 
         assert tensors_2d_array_mat2.shape == (2, 3)
         for i in range(2):
@@ -566,10 +567,10 @@ def test_online_tensors_array_save_load_empty() -> None:
 
     with nbvalx.tempfile.TemporaryDirectory(empty_tensors_array.comm) as tempdir:
         with pytest.raises(RuntimeError):
-            empty_tensors_array.save(tempdir, "empty_tensors_array")
+            empty_tensors_array.save(pathlib.Path(tempdir), "empty_tensors_array")
 
         with pytest.raises(RuntimeError):
-            empty_tensors_array.load(tempdir, "empty_tensors_array")
+            empty_tensors_array.load(pathlib.Path(tempdir), "empty_tensors_array")
 
 
 def test_online_tensors_array_contraction_1d_vec(tensors_1d_array_vec: rbnicsx.online.TensorsArray) -> None:

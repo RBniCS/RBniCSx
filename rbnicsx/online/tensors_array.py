@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Online backend to wrap an array of PETSc Mat or Vec used to assemble online systems."""
 
+import pathlib
 import sys
 import typing
 
@@ -106,7 +107,7 @@ class TensorsArray(TensorsArrayBase):
 
         return TensorsArray(self._content_shape, array_shape)
 
-    def _save(self: typing_extensions.Self, directory: str, filename: str) -> None:
+    def _save(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Save this array to file querying the I/O functions in the online backend.
 
@@ -132,7 +133,7 @@ class TensorsArray(TensorsArrayBase):
         else:
             raise RuntimeError()
 
-    def _load(self: typing_extensions.Self, directory: str, filename: str) -> None:
+    def _load(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Load an array from file into this object querying the I/O functions in the online backend.
 
@@ -168,7 +169,9 @@ class TensorsArray(TensorsArrayBase):
         for (linear_index, tensor) in enumerate(array_flattened):
             self._array[np.unravel_index(linear_index, self.shape)] = tensor
 
-    def contraction(self: typing_extensions.Self, *args: petsc4py.PETSc.Vec) -> petsc4py.PETSc.ScalarType:  # type: ignore[no-any-unimported]
+    def contraction(  # type: ignore[no-any-unimported]
+        self: typing_extensions.Self, *args: petsc4py.PETSc.Vec
+    ) -> petsc4py.PETSc.ScalarType:
         """
         Contract entries in the array.
 

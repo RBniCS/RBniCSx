@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 """Tests for rbnicsx.online.functions_list module."""
 
+import pathlib
 import typing
 
 import _pytest.fixtures
@@ -141,10 +142,10 @@ def test_online_functions_list_setitem(functions_list: rbnicsx.online.FunctionsL
 def test_online_functions_list_save_load(functions_list: rbnicsx.online.FunctionsList) -> None:
     """Check I/O for a rbnicsx.online.FunctionsList."""
     with nbvalx.tempfile.TemporaryDirectory(functions_list.comm) as tempdir:
-        functions_list.save(tempdir, "functions_list")
+        functions_list.save(pathlib.Path(tempdir), "functions_list")
 
         functions_list2 = functions_list.duplicate()
-        functions_list2.load(tempdir, "functions_list")
+        functions_list2.load(pathlib.Path(tempdir), "functions_list")
 
         assert len(functions_list2) == 2
         for (function, function2) in zip(functions_list, functions_list2):
