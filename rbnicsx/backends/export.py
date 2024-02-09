@@ -44,8 +44,8 @@ def export_function(function: dolfinx.fem.Function, directory: pathlib.Path, fil
         vtx_file.write(0)
 
     # Export for checkpointing
-    adios4dolfinx.write_mesh(function.function_space.mesh, pathlib.Path(checkpointing_directory), "bp4")
-    adios4dolfinx.write_function(function, pathlib.Path(checkpointing_directory), "bp4")
+    adios4dolfinx.write_mesh(function.function_space.mesh, checkpointing_directory, "bp4")
+    adios4dolfinx.write_function(function, checkpointing_directory, "bp4")
 
 
 def export_functions(
