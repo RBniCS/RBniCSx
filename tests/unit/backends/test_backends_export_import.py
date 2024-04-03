@@ -8,9 +8,9 @@
 import pathlib
 import typing
 
-import adios4dolfinx
 import dolfinx.fem
 import dolfinx.fem.petsc
+import dolfinx.io
 import dolfinx.mesh
 import mpi4py.MPI
 import nbvalx.tempfile
@@ -41,20 +41,22 @@ def mesh_generator_do_nothing(mesh: dolfinx.mesh.Mesh, path: pathlib.Path) -> do
 
 
 def mesh_generator_save_to_file(mesh: dolfinx.mesh.Mesh, path: pathlib.Path) -> dolfinx.mesh.Mesh:
-    """Save the mesh to file with adios4dolfinx, and return the provided mesh."""
-    adios4dolfinx.write_mesh(mesh, path, "bp4")
+    """Save the mesh to file and return the provided mesh."""
+    with dolfinx.io.XDMFFile(mesh.comm, path, "w") as xdmf_file:
+        xdmf_file.write_mesh(mesh)
     return mesh
 
 
 def mesh_generator_load_from_file(mesh: dolfinx.mesh.Mesh, path: pathlib.Path) -> dolfinx.mesh.Mesh:
-    """Load the mesh from file with adios4dolfinx, and return the loaded mesh."""
-    return adios4dolfinx.read_mesh(mesh.comm, path, engine="bp4", ghost_mode=dolfinx.mesh.GhostMode.shared_facet)
+    """Load the mesh from file and return the loaded mesh."""
+    with dolfinx.io.XDMFFile(mesh.comm, path, "r") as xdmf_file:
+        return xdmf_file.read_mesh()  # type: ignore[no-any-return]
 
 
 def mesh_generator_save_to_and_load_from_file(mesh: dolfinx.mesh.Mesh, path: pathlib.Path) -> dolfinx.mesh.Mesh:
-    """Save the mesh to file with adios4dolfinx, load it back in, and return the loaded mesh."""
-    adios4dolfinx.write_mesh(mesh, path, "bp4")
-    return adios4dolfinx.read_mesh(mesh.comm, path, engine="bp4", ghost_mode=dolfinx.mesh.GhostMode.shared_facet)
+    """Save the mesh to file, load it back in, and return the loaded mesh."""
+    mesh_generator_save_to_file(mesh, path)
+    return mesh_generator_load_from_file(mesh, path)
 
 
 all_mesh_generators = [
@@ -63,57 +65,31 @@ all_mesh_generators = [
         lambda mesh, tempdir: mesh_generator_do_nothing(mesh, pathlib.Path(tempdir)),
         # use mesh from the mesh fixture when loading input files
         lambda mesh, tempdir: mesh_generator_do_nothing(mesh, pathlib.Path(tempdir)),
-        # this case is expected to fail because the mesh must be read back in using adios4dolfinx
+        # this case is expected to pass
+        True
+    ),
+    (
+        # use mesh from the mesh fixture when preparing output files, but also save it to file
+        lambda mesh, tempdir: mesh_generator_save_to_file(mesh, pathlib.Path(tempdir) / "mesh.xdmf"),
+        # and also use mesh from a standalone mesh checkpoint when loading input files
+        lambda mesh, tempdir: mesh_generator_load_from_file(mesh, pathlib.Path(tempdir) / "mesh.xdmf"),
+        # adios4dolfinx original checkpoint was not designed to support this case
+        # see https://github.com/jorgensd/adios4dolfinx/issues/62
         False
     ),
     (
-        # use mesh from the mesh fixture when preparing output files, but also save it to file with adios4dolfinx
-        lambda mesh, tempdir: mesh_generator_save_to_file(mesh, pathlib.Path(tempdir) / "mesh.bp"),
+        # save mesh from the mesh fixture to file and load it back in for output file preparation
+        lambda mesh, tempdir: mesh_generator_save_to_and_load_from_file(mesh, pathlib.Path(tempdir) / "mesh.xdmf"),
         # and also use mesh from a standalone mesh checkpoint when loading input files
-        lambda mesh, tempdir: mesh_generator_load_from_file(mesh, pathlib.Path(tempdir) / "mesh.bp"),
-        # this case is expected to pass
-        True
-    ),
-    (
-        # save mesh from the mesh fixture to file with adios4dolfinx and load it back in for output file preparation
-        lambda mesh, tempdir: mesh_generator_save_to_and_load_from_file(mesh, pathlib.Path(tempdir) / "mesh.bp"),
-        # and also use mesh from a standalone mesh checkpoint when loading input files
-        lambda mesh, tempdir: mesh_generator_load_from_file(mesh, pathlib.Path(tempdir) / "mesh.bp"),
-        # this case is expected to fail in parallel due to https://github.com/jorgensd/adios4dolfinx/issues/62
-        mpi4py.MPI.COMM_WORLD.size == 1
-    ),
-    (
-        # use mesh from the mesh fixture when preparing output files
-        lambda mesh, tempdir: mesh_generator_do_nothing(mesh, pathlib.Path(tempdir)),
-        # but use mesh from the first function checkpoint when loading input files
-        lambda mesh, tempdir: mesh_generator_load_from_file(mesh, pathlib.Path(tempdir) / "adios_0_checkpoint.bp"),
-        # this case is expected to pass
-        True
-    ),
-    (
-        # use mesh from the mesh fixture when preparing output files, but also save it to file with adios4dolfinx
-        lambda mesh, tempdir: mesh_generator_save_to_file(mesh, pathlib.Path(tempdir) / "mesh.bp"),
-        # but use mesh from the first function checkpoint when loading input files
-        lambda mesh, tempdir: mesh_generator_load_from_file(mesh, pathlib.Path(tempdir) / "adios_0_checkpoint.bp"),
-        # this case is expected to pass
-        True
-    ),
-    (
-        # save mesh from the mesh fixture to file with adios4dolfinx and load it back in for output file preparation
-        lambda mesh, tempdir: mesh_generator_save_to_and_load_from_file(mesh, pathlib.Path(tempdir) / "mesh.bp"),
-        # but use mesh from the first function checkpoint when loading input files
-        lambda mesh, tempdir: mesh_generator_load_from_file(mesh, pathlib.Path(tempdir) / "adios_0_checkpoint.bp"),
+        lambda mesh, tempdir: mesh_generator_load_from_file(mesh, pathlib.Path(tempdir) / "mesh.xdmf"),
         # this case is expected to pass
         True
     )
 ]
 all_mesh_generators_ids = [
-    "in: do_nothing, out: do_nothing, expected_success: False",
-    'in: save_to_file("mesh.bp"), out: load_from_file("mesh.bp"), expected_success: True',
-    'in: save_to_and_load_from_file("mesh.bp"), out: load_from_file("mesh.bp"), expected_success: only in serial',
-    'in: do_nothing, out: load_from_file("adios_0_checkpoint.bp"), expected_success: True',
-    'in: save_to_file("mesh.bp"), out: load_from_file("adios_0_checkpoint.bp"), expected_success: True',
-    'in: save_to_and_load_from_file("mesh.bp"), out: load_from_file("adios_0_checkpoint.bp"), expected_success: True'
+    "in: do_nothing, out: do_nothing, expected_success: True",
+    'in: save_to_file("mesh.xdmf"), out: load_from_file("mesh.xdmf"), expected_success: False',
+    'in: save_to_and_load_from_file("mesh.xdmf"), out: load_from_file("mesh.xdmf"), expected_success: True',
 ]
 
 

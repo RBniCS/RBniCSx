@@ -41,7 +41,7 @@ def import_function(
     """
     function = dolfinx.fem.Function(function_space)
     checkpointing_directory = directory / (filename + "_checkpoint.bp")
-    adios4dolfinx.read_function(function, checkpointing_directory, "bp4")
+    adios4dolfinx.read_function(checkpointing_directory, function, "bp4")
     return function
 
 
@@ -79,7 +79,7 @@ def import_functions(
     functions = list()
     for index in range(length):
         function = function_placeholder.copy()
-        adios4dolfinx.read_function(function, checkpointing_directory, "bp4", time=index)
+        adios4dolfinx.read_function(checkpointing_directory, function, "bp4", time=index)
         functions.append(function)
     del function_placeholder
     return functions
