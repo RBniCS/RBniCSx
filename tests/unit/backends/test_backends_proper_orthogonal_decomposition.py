@@ -34,7 +34,7 @@ def functions_list(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.FunctionsList:
     functions_list = rbnicsx.backends.FunctionsList(V)
     for i in range(4):
         function = dolfinx.fem.Function(V)
-        with function.vector.localForm() as function_local:
+        with function.x.petsc_vec.localForm() as function_local:
             function_local.set(i + 1)
         functions_list.append(function)
     return functions_list
@@ -100,7 +100,7 @@ def test_backends_proper_orthogonal_decomposition_functions(  # type: ignore[no-
     assert len(modes) == 2
     assert np.isclose(compute_inner_product(modes[0])(modes[0]), 1 if normalize else 5)
     if normalize:
-        assert np.allclose(modes[0].vector.array, 1)
+        assert np.allclose(modes[0].x.array, 1)
     # np.allclose(modes[2], 0) may not be true in arithmetic precision when scaling with a very small eigenvalue
     assert len(eigenvectors) == 2
 
@@ -123,7 +123,7 @@ def test_backends_proper_orthogonal_decomposition_functions_N(  # type: ignore[n
     assert len(modes) == 2
     assert np.isclose(compute_inner_product(modes[0])(modes[0]), 1 if normalize else 5)
     if normalize:
-        assert np.allclose(modes[0].vector.array, 1)
+        assert np.allclose(modes[0].x.array, 1)
     # np.allclose(modes[2], 0) may not be true in arithmetic precision when scaling with a very small eigenvalue
     assert len(eigenvectors) == 2
 
@@ -146,7 +146,7 @@ def test_backends_proper_orthogonal_decomposition_functions_N_tol(  # type: igno
     assert len(modes) == 1
     assert np.isclose(compute_inner_product(modes[0])(modes[0]), 1 if normalize else 5)
     if normalize:
-        assert np.allclose(modes[0].vector.array, 1)
+        assert np.allclose(modes[0].x.array, 1)
     assert len(eigenvectors) == 1
 
 
@@ -178,7 +178,7 @@ def test_backends_proper_orthogonal_decomposition_block(  # type: ignore[no-any-
             compute_inner_product_(modes[component][0])(modes[component][0]),
             1 if normalize else 5 * eigenvalue_factor)
         if normalize:
-            assert np.allclose(modes[component][0].vector.array, mode_factor)
+            assert np.allclose(modes[component][0].x.array, mode_factor)
     assert len(eigenvectors) == 2
     for component in range(2):
         assert len(eigenvectors[component]) == 2
@@ -231,8 +231,8 @@ def test_backends_proper_orthogonal_decomposition_zero(  # type: ignore[no-any-u
     assert np.isclose(eigenvalues[0], 0)
     assert np.isclose(eigenvalues[1], 0)
     assert len(modes) == 2
-    assert np.allclose(modes[0].vector.array, 0)
-    assert np.allclose(modes[1].vector.array, 0)
+    assert np.allclose(modes[0].x.array, 0)
+    assert np.allclose(modes[1].x.array, 0)
     assert len(eigenvectors) == 2
 
 

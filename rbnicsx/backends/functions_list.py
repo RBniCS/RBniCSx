@@ -102,11 +102,11 @@ class FunctionsList(FunctionsListBase[dolfinx.fem.Function]):
         """
         if len(self._list) > 0:
             output = self._list[0].copy()
-            with output.vector.localForm() as output_local:
+            with output.x.petsc_vec.localForm() as output_local:
                 output_local.set(0.0)
             for i in range(other.size):
-                output.vector.axpy(other[i], self._list[i].vector)
-            output.vector.ghostUpdate(
+                output.x.petsc_vec.axpy(other[i], self._list[i].x.petsc_vec)
+            output.x.petsc_vec.ghostUpdate(
                 addv=petsc4py.PETSc.InsertMode.INSERT, mode=petsc4py.PETSc.ScatterMode.FORWARD)
             return output
         else:

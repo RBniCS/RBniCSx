@@ -164,5 +164,5 @@ def _scale_function(  # type: ignore[no-any-unimported]
     function: dolfinx.fem.Function, factor: petsc4py.PETSc.RealType
 ) -> None:
     """Scale a dolfinx Function."""
-    with function.vector.localForm() as function_local:
+    with function.x.petsc_vec.localForm() as function_local:
         function_local *= factor

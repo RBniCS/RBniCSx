@@ -129,9 +129,9 @@ def test_backends_export_import_function(
             function_ex.interpolate(expression_generator(r))
             function_in = rbnicsx.backends.import_function(V_in, pathlib.Path(tempdir), f"adios_{r}")
             if expected_success:
-                assert np.allclose(function_in.vector.array, function_ex.vector.array)
+                assert np.allclose(function_in.x.array, function_ex.x.array)
             else:
-                assert not np.allclose(function_in.vector.array, function_ex.vector.array)
+                assert not np.allclose(function_in.x.array, function_ex.x.array)
 
 
 @pytest.mark.parametrize("family", all_families)
@@ -180,9 +180,9 @@ def test_backends_export_import_functions(
                 function_ex_t = dolfinx.fem.Function(V_in)
                 function_ex_t.interpolate(expression_generator(r, t))
                 if expected_success:
-                    assert np.allclose(functions_in[t].vector.array, function_ex_t.vector.array)
+                    assert np.allclose(functions_in[t].x.array, function_ex_t.x.array)
                 else:
-                    assert not np.allclose(functions_in[t].vector.array, function_ex_t.vector.array)
+                    assert not np.allclose(functions_in[t].x.array, function_ex_t.x.array)
 
 
 @pytest.mark.parametrize("family", all_families)

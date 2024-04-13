@@ -38,13 +38,13 @@ def gram_schmidt(  # type: ignore[no-any-unimported]
     orthonormalized = new_function.copy()
     orthonormalized.x.array[:] = new_function.x.array
     for function_n in functions_list:
-        orthonormalized.vector.axpy(
-            - compute_inner_product(function_n)(orthonormalized), function_n.vector)
-    orthonormalized.vector.ghostUpdate(
+        orthonormalized.x.petsc_vec.axpy(
+            - compute_inner_product(function_n)(orthonormalized), function_n.x.petsc_vec)
+    orthonormalized.x.petsc_vec.ghostUpdate(
         addv=petsc4py.PETSc.InsertMode.INSERT, mode=petsc4py.PETSc.ScatterMode.FORWARD)
     norm = np.sqrt(compute_inner_product(orthonormalized)(orthonormalized))
     if norm != 0.0:
-        with orthonormalized.vector.localForm() as orthonormalized_local:
+        with orthonormalized.x.petsc_vec.localForm() as orthonormalized_local:
             orthonormalized_local *= 1.0 / norm
         functions_list.append(orthonormalized)
 

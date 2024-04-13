@@ -34,7 +34,7 @@ def functions_list(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.FunctionsList:
     functions_list = rbnicsx.backends.FunctionsList(V)
     for i in range(14):
         function = dolfinx.fem.Function(V)
-        with function.vector.localForm() as function_local:
+        with function.x.petsc_vec.localForm() as function_local:
             function_local.set(i + 1)
         functions_list.append(function)
     return functions_list

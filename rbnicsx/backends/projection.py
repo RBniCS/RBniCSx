@@ -350,7 +350,7 @@ class FormArgumentsReplacer:
     @staticmethod
     def _copy_dolfinx_function(source: dolfinx.fem.Function, destination: dolfinx.fem.Function) -> None:
         """Copy a dolfinx Function to the internal storage."""
-        with source.vector.localForm() as source_local, destination.vector.localForm() as destination_local:
+        with source.x.petsc_vec.localForm() as source_local, destination.x.petsc_vec.localForm() as destination_local:
             source_local.copy(destination_local)
 
 
