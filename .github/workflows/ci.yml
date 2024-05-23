@@ -41,7 +41,7 @@ jobs:
               echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
               echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
               echo "CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH" >> $GITHUB_ENV
-              rm /usr/local/lib/python3.10/dist-packages/petsc4py/py.typed
+              rm /usr/local/lib/python3.12/dist-packages/petsc4py/py.typed
           - backend: dolfinx-complex
             container: ghcr.io/fenics/dolfinx/dolfinx:nightly
             setup_container: |
@@ -51,7 +51,7 @@ jobs:
               echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
               echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
               echo "CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH" >> $GITHUB_ENV
-              rm /usr/local/lib/python3.10/dist-packages/petsc4py/py.typed
+              rm /usr/local/lib/python3.12/dist-packages/petsc4py/py.typed
       fail-fast: false
     container:
       image: ${{ matrix.container }}
