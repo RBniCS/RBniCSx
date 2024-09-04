@@ -182,6 +182,7 @@ jobs:
           name: "tutorials-logs-${{ matrix.backend }}"
           path: |
             tutorials/**/.ipynb_pytest/**/*.log*
+          include-hidden-files: true
 
   warn:
     runs-on: ubuntu-latest
