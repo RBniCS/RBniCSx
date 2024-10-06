@@ -61,7 +61,7 @@ class TensorsArray(abc.ABC):
     @property
     def shape(self: typing_extensions.Self) -> tuple[int, ...]:
         """Return the shape of the array."""
-        return self._array.shape  # type: ignore[no-any-return]
+        return self._array.shape  # type: ignore[no-any-return, unused-ignore]
 
     @property
     def type(self: typing_extensions.Self) -> typing.Optional[str]:
