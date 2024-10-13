@@ -52,10 +52,10 @@ funding = "https://github.com/sponsors/francesco-ballarin"
 
 [project.optional-dependencies]
 backends = [
-    "adios4dolfinx @ git+https://github.com/jorgensd/adios4dolfinx.git",
-    "fenics-dolfinx >=0.9.0.dev0, <0.10.0",
-    "multiphenicsx @ git+https://github.com/multiphenics/multiphenicsx.git",
-    "ufl4rom @ git+https://github.com/RBniCS/ufl4rom.git"
+    "adios4dolfinx @ git+https://github.com/jorgensd/adios4dolfinx.git@81f1a08",
+    "fenics-dolfinx >=0.9.0, <0.10.0",
+    "multiphenicsx @ git+https://github.com/multiphenics/multiphenicsx.git@dolfinx-v0.9.0",
+    "ufl4rom @ git+https://github.com/RBniCS/ufl4rom.git@a636f9a"
 ]
 docs = [
     "sphinx"
@@ -79,8 +79,9 @@ tutorials = [
     "gmsh",
     "nbvalx[notebooks]",
     "plotly",
+    "pyvista < 0.44.1",
     "rbnicsx[backends]",
-    "viskex @ git+https://github.com/viskex/viskex.git"
+    "viskex @ git+https://github.com/viskex/viskex.git@e77f91c"
 ]
 
 [tool.isort]

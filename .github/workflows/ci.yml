@@ -18,22 +18,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - backend: none-real
-            container: numericalpdes/base_images:slepc4py-real
-            setup_container: |
-              echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
-              echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
-              rm /usr/local/lib/python3.12/site-packages/petsc4py/py.typed
-              python3 -m pip install nanobind scikit-build-core[pyproject]
-          - backend: none-complex
-            container: numericalpdes/base_images:slepc4py-complex
-            setup_container: |
-              echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
-              echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
-              rm /usr/local/lib/python3.12/site-packages/petsc4py/py.typed
-              python3 -m pip install nanobind scikit-build-core[pyproject]
           - backend: dolfinx-real
-            container: ghcr.io/fenics/dolfinx/dolfinx:nightly
+            container: ghcr.io/fenics/dolfinx/dolfinx:v0.9.0
             setup_container: |
               . /usr/local/bin/dolfinx-real-mode
               echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
@@ -43,7 +29,7 @@ jobs:
               echo "CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH" >> $GITHUB_ENV
               rm /dolfinx-env/lib/python3.12/site-packages/petsc4py/py.typed
           - backend: dolfinx-complex
-            container: ghcr.io/fenics/dolfinx/dolfinx:nightly
+            container: ghcr.io/fenics/dolfinx/dolfinx:v0.9.0
             setup_container: |
               . /usr/local/bin/dolfinx-complex-mode
               echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
@@ -58,28 +44,18 @@ jobs:
       options: --user root
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: dolfinx-v0.9.0
       - name: Setup container
         run: ${{ matrix.setup_container }}
       - name: Install RBniCSx
         run: |
-          if [[ "${{ matrix.backend }}" == none* ]]; then
-            python3 -m pip install --check-build-dependencies --no-build-isolation --config-settings=build-dir="build" --config-settings=cmake.build-type="Debug" --verbose .[docs,lint,tests]
-          else
-            python3 -m pip install --check-build-dependencies --no-build-isolation --config-settings=build-dir="build" --config-settings=cmake.build-type="Debug" --verbose .[docs,lint,tests,tutorials]
-          fi
+          python3 -m pip install --check-build-dependencies --no-build-isolation --config-settings=build-dir="build" --config-settings=cmake.build-type="Debug" --verbose .[docs,lint,tests,tutorials]
         shell: bash
       - name: Clean build files
         run: |
           git config --global --add safe.directory $PWD
           git clean -xdf
-      - name: Update mypy configuration
-        run: |
-          if [[ "${{ matrix.backend }}" == none* ]]; then
-            sed -i 's@\[tool\.mypy\]@[tool.mypy]\nexclude = "(^rbnicsx/backends|^tests/unit/backends)"@g' pyproject.toml
-            sed -i 's@    # "dolfinx",@    "dolfinx",@g' pyproject.toml
-            sed -i 's@    # "dolfinx.*",@    "dolfinx.*",@g' pyproject.toml
-          fi
-        shell: bash
       - name: Run ruff on python files
         run: |
           python3 -m ruff check .
@@ -105,36 +81,20 @@ jobs:
       - name: Run documentation generation
         run: |
           cd docs
-          if [[ "${{ matrix.backend }}" == none* ]]; then
-            sed -i "s@rbnicsx.backends@@g" api.rst
-          fi
           python3 -m sphinx -W -b html . build/html
         shell: bash
       - name: Remove source directory to ensure that package from installation directory is used
         run: |
           rm -rf rbnicsx
-      - name: Determine coverage and pytest options for unit tests
-        id: unit_options
-        run: |
-          if [[ "${{ matrix.backend }}" == none* ]]; then
-            COVERAGE_UNIT_OMIT="*/rbnicsx/backends/*.py,*/rbnicsx/_cpp/backends/*.py"
-            PYTEST_UNIT_OPTIONS="--skip-backends"
-          else
-            COVERAGE_UNIT_OMIT=""
-            PYTEST_UNIT_OPTIONS=""
-          fi
-          echo "coverage_omit=${COVERAGE_UNIT_OMIT}" >> ${GITHUB_OUTPUT}
-          echo "pytest_options=${PYTEST_UNIT_OPTIONS}" >> ${GITHUB_OUTPUT}
-        shell: bash
       - name: Run unit tests (serial)
         run: |
-          COVERAGE_UNIT_OMIT="${{ steps.unit_options.outputs.coverage_omit }}"
-          PYTEST_UNIT_OPTIONS="${{ steps.unit_options.outputs.pytest_options }}"
+          COVERAGE_UNIT_OMIT=""
+          PYTEST_UNIT_OPTIONS=""
           COVERAGE_FILE=.coverage_unit_serial python3 -m coverage run --source=rbnicsx --omit="${COVERAGE_UNIT_OMIT}" -m pytest  ${PYTEST_UNIT_OPTIONS} tests/unit
       - name: Run unit tests (parallel)
         run: |
-          COVERAGE_UNIT_OMIT="${{ steps.unit_options.outputs.coverage_omit }}"
-          PYTEST_UNIT_OPTIONS="${{ steps.unit_options.outputs.pytest_options }}"
+          COVERAGE_UNIT_OMIT=""
+          PYTEST_UNIT_OPTIONS=""
           COVERAGE_FILE=.coverage_unit_parallel mpirun -n 2 python3 -m coverage run --source=rbnicsx --parallel-mode --omit="${COVERAGE_UNIT_OMIT}" -m pytest ${PYTEST_UNIT_OPTIONS} tests/unit
       - name: Combine coverage reports
         run: |
@@ -147,14 +107,6 @@ jobs:
           python3 -m pytest --ipynb-action=create-notebooks --tag-collapse tutorials || (($?==$NO_TESTS_COLLECTED))
           python3 -m pytest --ipynb-action=create-notebooks --np=2 tutorials || (($?==$NO_TESTS_COLLECTED))
           python3 -m pytest --ipynb-action=create-notebooks --tag-collapse --np=2 tutorials || (($?==$NO_TESTS_COLLECTED))
-        shell: bash
-      - name: Update mypy configuration
-        run: |
-          if [[ "${{ matrix.backend }}" == none* ]]; then
-            echo "[tool.nbqa.exclude]" >> pyproject.toml
-            echo "ruff = \"(^tutorials)\"" >> pyproject.toml
-            echo "mypy = \"(^tutorials)\"" >> pyproject.toml
-          fi
         shell: bash
       - name: Run ruff on tutorial files
         run: |
@@ -183,13 +135,3 @@ jobs:
           path: |
             tutorials/**/.ipynb_pytest/**/*.log*
           include-hidden-files: true
-
-  warn:
-    runs-on: ubuntu-latest
-    if: github.repository == 'RBniCS/RBniCSx' && github.ref == 'refs/heads/main' && github.event_name == 'schedule'
-    steps:
-      - name: Warn if scheduled workflow is about to be disabled
-        uses: fem-on-colab/warn-workflow-about-to-be-disabled-action@main
-        with:
-          workflow-filename: ci.yml
-          days-elapsed: 55
