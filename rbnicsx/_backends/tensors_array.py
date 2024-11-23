@@ -253,9 +253,9 @@ class TensorsArray(abc.ABC):
             Tensor at position `key` if `key` is an integer, otherwise TensorsArray obtained by
             storing every element at the indices in the slice `key`.
         """
-        if isinstance(key, int) or isinstance(key, tuple) and all([isinstance(key_, int) for key_ in key]):
+        if isinstance(key, int) or (isinstance(key, tuple) and all([isinstance(key_, int) for key_ in key])):
             return self._array[key]
-        elif isinstance(key, slice) or isinstance(key, tuple) and all([isinstance(key_, slice) for key_ in key]):
+        elif isinstance(key, slice) or (isinstance(key, tuple) and all([isinstance(key_, slice) for key_ in key])):
             output_array = self._array[key]
             output = self.duplicate(output_array.shape)
             output._array = output_array
