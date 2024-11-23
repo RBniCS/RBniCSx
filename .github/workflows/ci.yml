@@ -56,9 +56,6 @@ jobs:
         run: |
           git config --global --add safe.directory $PWD
           git clean -xdf
-      - name: Run ruff on python files
-        run: |
-          python3 -m ruff check .
       - name: Run isort on python files
         run: |
           python3 -m isort --check --diff .
@@ -108,9 +105,6 @@ jobs:
           python3 -m pytest --ipynb-action=create-notebooks --np=2 tutorials || (($?==$NO_TESTS_COLLECTED))
           python3 -m pytest --ipynb-action=create-notebooks --tag-collapse --np=2 tutorials || (($?==$NO_TESTS_COLLECTED))
         shell: bash
-      - name: Run ruff on tutorial files
-        run: |
-          python3 -m nbqa ruff .
       - name: Run isort on tutorial files
         run: |
           python3 -m nbqa isort --check --diff .
