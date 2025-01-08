@@ -1,4 +1,4 @@
-# Copyright (C) 2021-2024 by the RBniCSx authors
+# Copyright (C) 2021-2025 by the RBniCSx authors
 #
 # This file is part of RBniCSx.
 #
