@@ -81,7 +81,8 @@ tutorials = [
     "plotly",
     "rbnicsx[backends]",
     "pyvista < 0.43.5",
-    "viskex @ git+https://github.com/viskex/viskex.git@e77f91c"
+    "viskex @ git+https://github.com/viskex/viskex.git@e77f91c",
+    "vtk < 9.4.0"
 ]
 
 [tool.isort]
