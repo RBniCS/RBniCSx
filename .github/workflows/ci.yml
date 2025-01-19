@@ -19,14 +19,14 @@ jobs:
       matrix:
         include:
           - backend: none-real
-            container: numericalpdes/base_images:slepc4py-real
+            container: ghcr.io/numericalpdes/slepc4py-real:latest
             setup_container: |
               echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
               echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
               rm /usr/local/lib/python3.12/site-packages/petsc4py/py.typed
               python3 -m pip install nanobind scikit-build-core[pyproject]
           - backend: none-complex
-            container: numericalpdes/base_images:slepc4py-complex
+            container: ghcr.io/numericalpdes/slepc4py-complex:latest
             setup_container: |
               echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
               echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
