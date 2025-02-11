@@ -19,21 +19,44 @@ jobs:
       matrix:
         include:
           - backend: none-real
-            container: ghcr.io/numericalpdes/slepc4py-real:latest
+            container: debian:testing
+            setup_git: |
+              export DEBIAN_FRONTEND="noninteractive"
+              apt update -y -q
+              apt install -y -qq git
             setup_container: |
+              export DEBIAN_FRONTEND="noninteractive"
+              apt update -y -q
+              apt install -y -qq cmake libpetsc-real-dev libslepc-real-dev python3-mpi4py python3-nanobind python3-petsc4py-real python3-scikit-build-core python3-setuptools python3-slepc4py-real python3-pip wget
               echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
               echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
-              rm /usr/local/lib/python3.12/site-packages/petsc4py/py.typed
-              python3 -m pip install nanobind scikit-build-core[pyproject]
+              rm /usr/lib/python3.*/EXTERNALLY-MANAGED
+              PETSC_DIR=/usr/lib/petscdir/petsc-real
+              rm $PETSC_DIR/lib/python3/dist-packages/petsc4py/py.typed
+              echo "PETSC_DIR=$PETSC_DIR" >> $GITHUB_ENV
+              SLEPC_DIR=/usr/lib/slepcdir/slepc-real
+              echo "SLEPC_DIR=$SLEPC_DIR" >> $GITHUB_ENV
           - backend: none-complex
-            container: ghcr.io/numericalpdes/slepc4py-complex:latest
+            container: debian:testing
+            setup_git: |
+              export DEBIAN_FRONTEND="noninteractive"
+              apt update -y -q
+              apt install -y -qq git
             setup_container: |
+              export DEBIAN_FRONTEND="noninteractive"
+              apt update -y -q
+              apt install -y -qq cmake libpetsc-complex-dev libslepc-complex-dev python3-mpi4py python3-nanobind python3-petsc4py-complex python3-scikit-build-core python3-setuptools python3-slepc4py-complex python3-pip wget
               echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
               echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
-              rm /usr/local/lib/python3.12/site-packages/petsc4py/py.typed
-              python3 -m pip install nanobind scikit-build-core[pyproject]
+              rm /usr/lib/python3.*/EXTERNALLY-MANAGED
+              PETSC_DIR=/usr/lib/petscdir/petsc-complex
+              rm $PETSC_DIR/lib/python3/dist-packages/petsc4py/py.typed
+              echo "PETSC_DIR=$PETSC_DIR" >> $GITHUB_ENV
+              SLEPC_DIR=/usr/lib/slepcdir/slepc-complex
+              echo "SLEPC_DIR=$SLEPC_DIR" >> $GITHUB_ENV
           - backend: dolfinx-real
             container: ghcr.io/fenics/dolfinx/dolfinx:nightly
+            setup_git: ""
             setup_container: |
               . /usr/local/bin/dolfinx-real-mode
               echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
@@ -44,6 +67,7 @@ jobs:
               rm /dolfinx-env/lib/python3.12/site-packages/petsc4py/py.typed
           - backend: dolfinx-complex
             container: ghcr.io/fenics/dolfinx/dolfinx:nightly
+            setup_git: ""
             setup_container: |
               . /usr/local/bin/dolfinx-complex-mode
               echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
@@ -57,6 +81,8 @@ jobs:
       image: ${{ matrix.container }}
       options: --user root
     steps:
+      - name: Setup git
+        run: ${{ matrix.setup_git }}
       - uses: actions/checkout@v4
       - name: Setup container
         run: ${{ matrix.setup_container }}
