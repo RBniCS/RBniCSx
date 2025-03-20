@@ -35,7 +35,7 @@ jobs:
             container: dolfinx/dolfinx:v0.4.1
             setup_container: |
               . /usr/local/bin/dolfinx-real-mode
-              python3 -m pip install --upgrade pip setuptools
+              python3 -m pip install --upgrade packaging pip setuptools
               echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
               echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> $GITHUB_ENV
               echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
@@ -44,7 +44,7 @@ jobs:
             container: dolfinx/dolfinx:v0.4.1
             setup_container: |
               . /usr/local/bin/dolfinx-complex-mode
-              python3 -m pip install --upgrade pip setuptools
+              python3 -m pip install --upgrade packaging pip setuptools
               echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
               echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> $GITHUB_ENV
               echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
