@@ -12,7 +12,7 @@ import typing
 
 import mpi4py.MPI
 import numpy as np
-import numpy.typing
+import numpy.typing as npt
 import petsc4py.PETSc
 
 if sys.version_info >= (3, 11):  # pragma: no cover
@@ -120,7 +120,7 @@ class VecSubVectorWrapper(typing.ContextManager[petsc4py.PETSc.Vec]):  # type: i
     """
 
     def __init__(  # type: ignore[no-any-unimported]
-        self, b: petsc4py.PETSc.Vec, indices: np.typing.NDArray[np.int32]
+        self, b: petsc4py.PETSc.Vec, indices: npt.NDArray[np.int32]
     ) -> None:
         self._b = b
         self._index_set = petsc4py.PETSc.IS().createGeneral(indices, comm=b.comm)
@@ -156,7 +156,7 @@ class VecSubVectorCopier(typing.ContextManager[petsc4py.PETSc.Vec]):  # type: ig
     """
 
     def __init__(  # type: ignore[no-any-unimported]
-        self, b: petsc4py.PETSc.Vec, indices: np.typing.NDArray[np.int32]
+        self, b: petsc4py.PETSc.Vec, indices: npt.NDArray[np.int32]
     ) -> None:
         self._b = b
         self._indices = indices
@@ -266,7 +266,7 @@ class MatSubMatrixWrapper(typing.ContextManager[petsc4py.PETSc.Mat]):  # type: i
     """
 
     def __init__(  # type: ignore[no-any-unimported]
-        self, A: petsc4py.PETSc.Mat, row_indices: np.typing.NDArray[np.int32], col_indices: np.typing.NDArray[np.int32]
+        self, A: petsc4py.PETSc.Mat, row_indices: npt.NDArray[np.int32], col_indices: npt.NDArray[np.int32]
     ) -> None:
         self._A = A
         self._index_sets = (
@@ -305,7 +305,7 @@ class MatSubMatrixCopier(typing.ContextManager[petsc4py.PETSc.Mat]):  # type: ig
     """
 
     def __init__(  # type: ignore[no-any-unimported]
-        self, A: petsc4py.PETSc.Mat, row_indices: np.typing.NDArray[np.int32], col_indices: np.typing.NDArray[np.int32]
+        self, A: petsc4py.PETSc.Mat, row_indices: npt.NDArray[np.int32], col_indices: npt.NDArray[np.int32]
     ) -> None:
         self._A = A
         self._row_indices = row_indices

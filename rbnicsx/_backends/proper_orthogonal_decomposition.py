@@ -8,7 +8,7 @@
 import typing
 
 import numpy as np
-import numpy.typing
+import numpy.typing as npt
 import petsc4py.PETSc
 import slepc4py.SLEPc
 
@@ -26,7 +26,7 @@ def proper_orthogonal_decomposition_functions(  # type: ignore[no-any-unimported
     scale: typing.Callable[[Function, petsc4py.PETSc.RealType], None],
     N: int = -1, tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True
 ) -> tuple[
-    np.typing.NDArray[petsc4py.PETSc.RealType], FunctionsList[Function], list[petsc4py.PETSc.Vec]
+    npt.NDArray[petsc4py.PETSc.RealType], FunctionsList[Function], list[petsc4py.PETSc.Vec]
 ]:
     """
     Compute the proper orthogonal decomposition of a set of snapshots.
@@ -73,7 +73,7 @@ def proper_orthogonal_decomposition_functions_block(  # type: ignore[no-any-unim
     tol: typing.Union[petsc4py.PETSc.RealType, list[petsc4py.PETSc.RealType]] = real_zero,
     normalize: bool = True
 ) -> tuple[
-    list[np.typing.NDArray[petsc4py.PETSc.RealType]], list[FunctionsList[Function]],
+    list[npt.NDArray[petsc4py.PETSc.RealType]], list[FunctionsList[Function]],
     list[list[petsc4py.PETSc.Vec]]
 ]:
     """
@@ -138,7 +138,7 @@ def proper_orthogonal_decomposition_functions_block(  # type: ignore[no-any-unim
 def proper_orthogonal_decomposition_tensors(  # type: ignore[no-any-unimported]
     tensors_list: TensorsList, N: int = -1, tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True
 ) -> tuple[
-    np.typing.NDArray[petsc4py.PETSc.RealType], TensorsList, list[petsc4py.PETSc.Vec]
+    npt.NDArray[petsc4py.PETSc.RealType], TensorsList, list[petsc4py.PETSc.Vec]
 ]:
     """
     Compute the proper orthogonal decomposition of a set of tensors.
@@ -214,7 +214,7 @@ def _solve_eigenvalue_problem(  # type: ignore[no-any-unimported]
     ],
     N: int, tol: petsc4py.PETSc.RealType, normalize: bool
 ) -> tuple[
-    np.typing.NDArray[petsc4py.PETSc.RealType],
+    npt.NDArray[petsc4py.PETSc.RealType],
     typing.Union[
         list[Function], list[petsc4py.PETSc.Mat], list[petsc4py.PETSc.Vec]],
     list[petsc4py.PETSc.Vec]

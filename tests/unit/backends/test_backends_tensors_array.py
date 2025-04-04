@@ -15,6 +15,7 @@ import dolfinx.mesh
 import mpi4py.MPI
 import nbvalx.tempfile
 import numpy as np
+import numpy.typing as npt
 import petsc4py.PETSc
 import pytest
 import ufl
@@ -171,7 +172,7 @@ def test_backends_tensors_array_getitem_2d_tuple_int_vec(tensors_2d_array_vec: r
 
 def test_backends_tensors_array_getitem_1d_int_mat(  # type: ignore[no-any-unimported]
     tensors_1d_array_mat: rbnicsx.backends.TensorsArray,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.backends.TensorsArray.__getitem__ with integer input, 1d array and petsc4py.PETSc.Mat content."""
     first_matrix = dolfinx.fem.petsc.assemble_matrix(tensors_1d_array_mat.form)
@@ -182,7 +183,7 @@ def test_backends_tensors_array_getitem_1d_int_mat(  # type: ignore[no-any-unimp
 
 def test_backends_tensors_array_getitem_2d_tuple_int_mat(  # type: ignore[no-any-unimported]
     tensors_2d_array_mat: rbnicsx.backends.TensorsArray,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.backends.TensorsArray.__getitem__ with integer input, 2d array and petsc4py.PETSc.Mat content."""
     first_matrix = dolfinx.fem.petsc.assemble_matrix(tensors_2d_array_mat.form)
@@ -215,7 +216,7 @@ def test_backends_tensors_array_getitem_2d_slice_vec(tensors_2d_array_vec: rbnic
 
 def test_backends_tensors_array_getitem_1d_slice_mat(  # type: ignore[no-any-unimported]
     tensors_1d_array_mat: rbnicsx.backends.TensorsArray,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.backends.TensorsArray.__getitem__ with slice input, 1d array and petsc4py.PETSc.Mat content."""
     first_matrix = dolfinx.fem.petsc.assemble_matrix(tensors_1d_array_mat.form)
@@ -228,7 +229,7 @@ def test_backends_tensors_array_getitem_1d_slice_mat(  # type: ignore[no-any-uni
 
 def test_backends_tensors_array_getitem_2d_slice_mat(  # type: ignore[no-any-unimported]
     tensors_2d_array_mat: rbnicsx.backends.TensorsArray,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.backends.TensorsArray.__getitem__ with slice input, 1d array and petsc4py.PETSc.Mat content."""
     first_matrix = dolfinx.fem.petsc.assemble_matrix(tensors_2d_array_mat.form)
@@ -282,7 +283,7 @@ def test_backends_tensors_array_setitem_2d_vec(tensors_2d_array_vec: rbnicsx.bac
 
 def test_backends_tensors_array_setitem_1d_mat(  # type: ignore[no-any-unimported]
     tensors_1d_array_mat: rbnicsx.backends.TensorsArray,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.backends.TensorsArray.__setitem__ in the case of 1d array and petsc4py.PETSc.Mat content."""
     form_ufl = getattr(tensors_1d_array_mat, "form_ufl")
@@ -302,7 +303,7 @@ def test_backends_tensors_array_setitem_1d_mat(  # type: ignore[no-any-unimporte
 
 def test_backends_tensors_array_setitem_2d_mat(  # type: ignore[no-any-unimported]
     tensors_2d_array_mat: rbnicsx.backends.TensorsArray,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.backends.TensorsArray.__setitem__ in the case of 1d array and petsc4py.PETSc.Mat content."""
     form_ufl = getattr(tensors_2d_array_mat, "form_ufl")
@@ -370,7 +371,7 @@ def test_backends_tensors_array_save_load_2d_vec(tensors_2d_array_vec: rbnicsx.b
 
 def test_backends_tensors_array_save_load_1d_mat(  # type: ignore[no-any-unimported]
     tensors_1d_array_mat: rbnicsx.backends.TensorsArray,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check I/O for a rbnicsx.backends.TensorsArray in the case of 1d array and petsc4py.PETSc.Mat content."""
     with nbvalx.tempfile.TemporaryDirectory(tensors_1d_array_mat.comm) as tempdir:
@@ -386,7 +387,7 @@ def test_backends_tensors_array_save_load_1d_mat(  # type: ignore[no-any-unimpor
 
 def test_backends_tensors_array_save_load_2d_mat(  # type: ignore[no-any-unimported]
     tensors_2d_array_mat: rbnicsx.backends.TensorsArray,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check I/O for a rbnicsx.backends.TensorsArray in the case of 2d array and petsc4py.PETSc.Mat content."""
     with nbvalx.tempfile.TemporaryDirectory(tensors_2d_array_mat.comm) as tempdir:
@@ -441,7 +442,7 @@ def test_backends_tensors_array_contraction_2d_vec(tensors_2d_array_vec: rbnicsx
 
 def test_backends_tensors_array_contraction_1d_mat(  # type: ignore[no-any-unimported]
     tensors_1d_array_vec: rbnicsx.backends.TensorsArray, tensors_1d_array_mat: rbnicsx.backends.TensorsArray,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.backends.TensorsArray.contraction in the case of 1d array and petsc4py.PETSc.Mat content."""
     online_vec = rbnicsx.online.create_vector(6)
@@ -456,7 +457,7 @@ def test_backends_tensors_array_contraction_1d_mat(  # type: ignore[no-any-unimp
 
 def test_backends_tensors_array_contraction_2d_mat(  # type: ignore[no-any-unimported]
     tensors_1d_array_vec: rbnicsx.backends.TensorsArray, tensors_2d_array_mat: rbnicsx.backends.TensorsArray,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.backends.TensorsArray.contraction in the case of 2d array and petsc4py.PETSc.Mat content."""
     online_vec0 = rbnicsx.online.create_vector(2)

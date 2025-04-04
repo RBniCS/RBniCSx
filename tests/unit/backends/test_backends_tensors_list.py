@@ -15,6 +15,7 @@ import dolfinx.mesh
 import mpi4py.MPI
 import nbvalx.tempfile
 import numpy as np
+import numpy.typing as npt
 import petsc4py.PETSc
 import pytest
 import ufl
@@ -143,7 +144,7 @@ def test_backends_tensors_list_iter_vec(tensors_list_vec: rbnicsx.backends.Tenso
 
 def test_backends_tensors_list_iter_mat(  # type: ignore[no-any-unimported]
     tensors_list_mat: rbnicsx.backends.TensorsList,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.backends.TensorsList.__iter__ in the case of petsc4py.PETSc.Mat content."""
     first_matrix = dolfinx.fem.petsc.assemble_matrix(tensors_list_mat.form)
@@ -162,7 +163,7 @@ def test_backends_tensors_list_getitem_int_vec(tensors_list_vec: rbnicsx.backend
 
 def test_backends_tensors_list_getitem_int_mat(  # type: ignore[no-any-unimported]
     tensors_list_mat: rbnicsx.backends.TensorsList,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.backends.TensorsList.__getitem__ with integer input in the case of petsc4py.PETSc.Mat content."""
     first_matrix = dolfinx.fem.petsc.assemble_matrix(tensors_list_mat.form)
@@ -183,7 +184,7 @@ def test_backends_tensors_list_getitem_slice_vec(tensors_list_vec: rbnicsx.backe
 
 def test_backends_tensors_list_getitem_slice_mat(  # type: ignore[no-any-unimported]
     tensors_list_mat: rbnicsx.backends.TensorsList,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.backends.TensorsList.__getitem__ with slice input in the case of petsc4py.PETSc.Mat content."""
     first_matrix = dolfinx.fem.petsc.assemble_matrix(tensors_list_mat.form)
@@ -215,7 +216,7 @@ def test_backends_tensors_list_setitem_vec(tensors_list_vec: rbnicsx.backends.Te
 
 def test_backends_tensors_list_setitem_mat(  # type: ignore[no-any-unimported]
     tensors_list_mat: rbnicsx.backends.TensorsList,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.backends.TensorsList.__setitem__ in the case of petsc4py.PETSc.Mat content."""
     form_ufl = getattr(tensors_list_mat, "form_ufl")
@@ -263,7 +264,7 @@ def test_backends_tensors_list_save_load_vec(tensors_list_vec: rbnicsx.backends.
 
 def test_backends_tensors_list_save_load_mat(  # type: ignore[no-any-unimported]
     tensors_list_mat: rbnicsx.backends.TensorsList,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check I/O for a rbnicsx.backends.TensorsList in the case of petsc4py.PETSc.Mat content."""
     with nbvalx.tempfile.TemporaryDirectory(tensors_list_mat.comm) as tempdir:
@@ -304,7 +305,7 @@ def test_backends_tensors_list_mul_vec(tensors_list_vec: rbnicsx.backends.Tensor
 
 def test_backends_tensors_list_mul_mat(  # type: ignore[no-any-unimported]
     tensors_list_mat: rbnicsx.backends.TensorsList,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.backends.TensorsList.__mul__ in the case of petsc4py.PETSc.Mat content."""
     online_vec = rbnicsx.online.create_vector(2)

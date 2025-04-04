@@ -13,7 +13,7 @@ import typing
 
 import mpi4py.MPI
 import numpy as np
-import numpy.typing
+import numpy.typing as npt
 import petsc4py.PETSc
 
 from rbnicsx.io import on_rank_zero
@@ -49,7 +49,7 @@ class TensorsArray(abc.ABC):
         self: typing_extensions.Self, comm: mpi4py.MPI.Intracomm, shape: typing.Union[int, tuple[int, ...]]
     ) -> None:
         self._comm: mpi4py.MPI.Intracomm = comm
-        self._array: np.typing.NDArray[  # type: ignore[no-any-unimported]
+        self._array: npt.NDArray[  # type: ignore[no-any-unimported]
             typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]] = np.full(shape, fill_value=None, dtype=object)
         self._type: typing.Optional[str] = None
 

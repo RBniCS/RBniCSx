@@ -11,7 +11,7 @@ import adios4dolfinx
 import dolfinx.fem
 import dolfinx.io
 import numpy as np
-import numpy.typing
+import numpy.typing as npt
 import petsc4py.PETSc
 
 from rbnicsx._backends.export import (
@@ -48,7 +48,7 @@ def export_function(function: dolfinx.fem.Function, directory: pathlib.Path, fil
 
 
 def export_functions(
-    functions: list[dolfinx.fem.Function], indices: np.typing.NDArray[np.float32],
+    functions: list[dolfinx.fem.Function], indices: npt.NDArray[np.float32],
     directory: pathlib.Path, filename: str
 ) -> None:
     """

@@ -14,8 +14,7 @@ import typing
 
 import _pytest.compat
 import nbvalx.pytest_hooks_unit_tests
-import numpy as np
-import numpy.typing
+import numpy.typing as npt
 import petsc4py.PETSc
 import pytest
 import scipy.sparse
@@ -23,9 +22,9 @@ import scipy.sparse
 
 @pytest.fixture(scope="module")
 def to_dense_matrix() -> typing.Callable[  # type: ignore[no-any-unimported]
-        [petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]:
+        [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]:
     """Fixture that returns a function to convert the local part of a sparse PETSc Mat into a dense numpy ndarray."""
-    def _(mat: petsc4py.PETSc.Mat) -> np.typing.NDArray[petsc4py.PETSc.ScalarType]:  # type: ignore[no-any-unimported]
+    def _(mat: petsc4py.PETSc.Mat) -> npt.NDArray[petsc4py.PETSc.ScalarType]:  # type: ignore[no-any-unimported]
         """Convert the local part of a sparse PETSc Mat into a dense numpy ndarray."""
         ai, aj, av = mat.getValuesCSR()
         return scipy.sparse.csr_matrix(  # type: ignore[no-any-return]

@@ -11,7 +11,7 @@ import typing
 import _pytest.fixtures
 import nbvalx.tempfile
 import numpy as np
-import numpy.typing
+import numpy.typing as npt
 import petsc4py.PETSc
 import pytest
 
@@ -230,7 +230,7 @@ def test_online_tensors_list_iter_vec(tensors_list_vec: rbnicsx.online.TensorsLi
 
 def test_online_tensors_list_iter_mat(  # type: ignore[no-any-unimported]
     tensors_list_mat: rbnicsx.online.TensorsList,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.online.TensorsList.__iter__ in the case of petsc4py.PETSc.Mat content."""
     first_matrix = getattr(tensors_list_mat, "first_matrix")
@@ -247,7 +247,7 @@ def test_online_tensors_list_getitem_int_vec(tensors_list_vec: rbnicsx.online.Te
 
 def test_online_tensors_list_getitem_int_mat(  # type: ignore[no-any-unimported]
     tensors_list_mat: rbnicsx.online.TensorsList,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.online.TensorsList.__getitem__ with integer input in the case of petsc4py.PETSc.Mat content."""
     first_matrix = getattr(tensors_list_mat, "first_matrix")
@@ -266,7 +266,7 @@ def test_online_tensors_list_getitem_slice_vec(tensors_list_vec: rbnicsx.online.
 
 def test_online_tensors_list_getitem_slice_mat(  # type: ignore[no-any-unimported]
     tensors_list_mat: rbnicsx.online.TensorsList,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.online.TensorsList.__getitem__ with slice input in the case of petsc4py.PETSc.Mat content."""
     tensors_list_mat2 = tensors_list_mat[0:2]
@@ -292,7 +292,7 @@ def test_online_tensors_list_setitem_vec(tensors_list_vec: rbnicsx.online.Tensor
 
 def test_online_tensors_list_setitem_mat(  # type: ignore[no-any-unimported]
     tensors_list_mat: rbnicsx.online.TensorsList,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.online.TensorsList.__setitem__ in the case of petsc4py.PETSc.Mat content."""
     first_matrix = getattr(tensors_list_mat, "first_matrix")
@@ -335,7 +335,7 @@ def test_online_tensors_list_save_load_vec(tensors_list_vec: rbnicsx.online.Tens
 
 def test_online_tensors_list_save_load_mat(  # type: ignore[no-any-unimported]
     tensors_list_mat: rbnicsx.online.TensorsList,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check I/O for a rbnicsx.online.TensorsList in the case of petsc4py.PETSc.Mat content."""
     with nbvalx.tempfile.TemporaryDirectory(tensors_list_mat.comm) as tempdir:
@@ -374,7 +374,7 @@ def test_online_tensors_list_mul_vec(tensors_list_vec: rbnicsx.online.TensorsLis
 
 def test_online_tensors_list_mul_mat(  # type: ignore[no-any-unimported]
     tensors_list_mat: rbnicsx.online.TensorsList,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.online.TensorsList.__mul__ in the case of petsc4py.PETSc.Mat content."""
     online_vec = rbnicsx.online.create_vector(2)

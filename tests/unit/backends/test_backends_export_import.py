@@ -15,7 +15,7 @@ import dolfinx.mesh
 import mpi4py.MPI
 import nbvalx.tempfile
 import numpy as np
-import numpy.typing
+import numpy.typing as npt
 import petsc4py.PETSc
 import pytest
 import ufl
@@ -111,7 +111,7 @@ def test_backends_export_import_function(
             return dolfinx.fem.functionspace(mesh, (family, degree))
 
         def expression_generator(r: int) -> typing.Callable[
-                [np.typing.NDArray[np.float64]], np.typing.NDArray[np.float64]]:
+                [npt.NDArray[np.float64]], npt.NDArray[np.float64]]:
             """Return the expression to be interpolated."""
             return lambda x: (r + 1) * (x[0]**2 + x[1]**3)
 
@@ -154,7 +154,7 @@ def test_backends_export_import_functions(
         T = 4
 
         def expression_generator(r: int, t: int) -> typing.Callable[
-                [np.typing.NDArray[np.float64]], np.typing.NDArray[np.float64]]:
+                [npt.NDArray[np.float64]], npt.NDArray[np.float64]]:
             """Return the expression to be interpolated."""
             return lambda x: (r + 1) * (x[0]**(t + 2) + x[1]**(t + 3))
 
@@ -228,7 +228,7 @@ def test_backends_export_import_vectors(mesh: dolfinx.mesh.Mesh, family: str, de
 @pytest.mark.parametrize("degree", all_degrees)
 def test_backends_export_import_matrix(  # type: ignore[no-any-unimported]
     mesh: dolfinx.mesh.Mesh,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]],
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]],
     family: str, degree: str
 ) -> None:
     """Check I/O for a petsc4py.PETSc.Mat."""
@@ -251,7 +251,7 @@ def test_backends_export_import_matrix(  # type: ignore[no-any-unimported]
 @pytest.mark.parametrize("degree", all_degrees)
 def test_backends_export_import_matrices(  # type: ignore[no-any-unimported]
     mesh: dolfinx.mesh.Mesh,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], np.typing.NDArray[petsc4py.PETSc.ScalarType]],
+    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]],
     family: str, degree: str
 ) -> None:
     """Check I/O for a list of petsc4py.PETSc.Mat."""

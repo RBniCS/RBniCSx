@@ -8,8 +8,7 @@
 import typing
 
 import dolfinx.fem
-import numpy as np
-import numpy.typing
+import numpy.typing as npt
 import petsc4py.PETSc
 import plum
 
@@ -32,7 +31,7 @@ def proper_orthogonal_decomposition(  # type: ignore[no-any-unimported]
         [dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.RealType]],
     N: int = -1, tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True
 ) -> tuple[
-    np.typing.NDArray[petsc4py.PETSc.RealType], FunctionsList, list[petsc4py.PETSc.Vec]
+    npt.NDArray[petsc4py.PETSc.RealType], FunctionsList, list[petsc4py.PETSc.Vec]
 ]:
     """
     Compute the proper orthogonal decomposition of a set of snapshots.
@@ -70,7 +69,7 @@ def proper_orthogonal_decomposition(  # type: ignore[no-any-unimported]
 def proper_orthogonal_decomposition(  # type: ignore[no-any-unimported] # noqa: F811
     tensors_list: TensorsList, N: int = -1, tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True
 ) -> tuple[
-    np.typing.NDArray[petsc4py.PETSc.RealType], TensorsList, list[petsc4py.PETSc.Vec]
+    npt.NDArray[petsc4py.PETSc.RealType], TensorsList, list[petsc4py.PETSc.Vec]
 ]:
     """
     Compute the proper orthogonal decomposition of a set of tensors.
@@ -115,7 +114,7 @@ def proper_orthogonal_decomposition_block(  # type: ignore[no-any-unimported]
     tol: typing.Union[petsc4py.PETSc.RealType, list[petsc4py.PETSc.RealType]] = real_zero,
     normalize: bool = True
 ) -> tuple[
-    list[np.typing.NDArray[petsc4py.PETSc.RealType]], list[FunctionsList],
+    list[npt.NDArray[petsc4py.PETSc.RealType]], list[FunctionsList],
     list[list[petsc4py.PETSc.Vec]]
 ]:
     """
