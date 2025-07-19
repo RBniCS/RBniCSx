@@ -40,7 +40,7 @@ def import_function(
         Function imported from file.
     """
     function = dolfinx.fem.Function(function_space)
-    checkpointing_directory = directory / (filename + "_checkpoint.bp")
+    checkpointing_directory = directory / filename / "checkpoint.bp"
     adios4dolfinx.read_function(checkpointing_directory, function, "bp4")
     return function
 
@@ -66,11 +66,12 @@ def import_functions(
         Functions imported from file.
     """
     comm = function_space.mesh.comm
-    checkpointing_directory = directory / (filename + "_checkpoint.bp")
+    checkpointing_directory = directory / filename / "checkpoint.bp"
+    length_directory = directory / filename / "checkpoint.length"
 
     # Read in length of the list
     def read_length() -> int:
-        with open(checkpointing_directory / "length.dat") as length_file:
+        with open(length_directory / "length.dat") as length_file:
             return int(length_file.readline())
     length = on_rank_zero(comm, read_length)
 

@@ -34,10 +34,9 @@ def export_function(function: dolfinx.fem.Function, directory: pathlib.Path, fil
         Name of the file where to export the function.
     """
     comm = function.function_space.mesh.comm
-    visualization_directory = directory / (filename + ".bp")
-    checkpointing_directory = directory / (filename + "_checkpoint.bp")
-    visualization_directory.mkdir(parents=True, exist_ok=True)
-    checkpointing_directory.mkdir(parents=True, exist_ok=True)
+    (directory / filename).mkdir(parents=True, exist_ok=True)
+    visualization_directory = directory / filename / "visualization.bp"
+    checkpointing_directory = directory / filename / "checkpoint.bp"
 
     # Export for visualization
     with dolfinx.io.VTXWriter(comm, visualization_directory, function, "bp4") as vtx_file:
@@ -66,10 +65,10 @@ def export_functions(
         Name of the file where to export the function.
     """
     comm = functions[0].function_space.mesh.comm
-    visualization_directory = directory / (filename + ".bp")
-    checkpointing_directory = directory / (filename + "_checkpoint.bp")
-    visualization_directory.mkdir(parents=True, exist_ok=True)
-    checkpointing_directory.mkdir(parents=True, exist_ok=True)
+    (directory / filename).mkdir(parents=True, exist_ok=True)
+    visualization_directory = directory / filename / "visualization.bp"
+    checkpointing_directory = directory / filename / "checkpoint.bp"
+    length_directory = directory / filename / "checkpoint.length"
 
     # Export for visualization
     output = functions[0].copy()
@@ -82,7 +81,8 @@ def export_functions(
 
     # Export for checkpointing: write out length of the list
     def write_length() -> None:
-        with open(checkpointing_directory / "length.dat", "w") as length_file:
+        length_directory.mkdir(parents=True, exist_ok=True)
+        with open(length_directory / "length.dat", "w") as length_file:
             length_file.write(str(len(functions)))
     on_rank_zero(comm, write_length)
 
