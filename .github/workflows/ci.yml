@@ -62,6 +62,7 @@ jobs:
               echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
               echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
               echo "CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH" >> $GITHUB_ENV
+              rm /dolfinx-env/lib/python3.*/site-packages/ufl/py.typed
           - backend: dolfinx-complex
             container: ghcr.io/fenics/dolfinx/dolfinx:nightly
             setup_git: ""
@@ -72,6 +73,7 @@ jobs:
               echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
               echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
               echo "CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH" >> $GITHUB_ENV
+              rm /dolfinx-env/lib/python3.*/site-packages/ufl/py.typed
       fail-fast: false
     container: ${{ matrix.container }}
     steps:
