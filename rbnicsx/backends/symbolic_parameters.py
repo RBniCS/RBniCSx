@@ -6,13 +6,13 @@
 """Backend to perform a step of the Gram-Schmidt process."""
 
 
+import dolfinx.fem
 import dolfinx.mesh
 import numpy as np
 import petsc4py.PETSc
-import ufl4rom.utils
 
 
-class SymbolicParameters(ufl4rom.utils.DolfinxNamedConstant):
+class SymbolicParameters(dolfinx.fem.Constant):
     """
     A class to store parameters for use inside UFL expressions.
 
@@ -23,4 +23,4 @@ class SymbolicParameters(ufl4rom.utils.DolfinxNamedConstant):
     """
 
     def __init__(self, mesh: dolfinx.mesh.Mesh, shape: tuple[int, ...]) -> None:
-        super().__init__("mu", np.zeros(shape, dtype=petsc4py.PETSc.ScalarType), mesh)  # type: ignore[attr-defined]
+        super().__init__(mesh, np.zeros(shape, dtype=petsc4py.PETSc.ScalarType))  # type: ignore[attr-defined]

@@ -34,10 +34,3 @@ def test_backends_symbolic_parameters_mesh(mesh: dolfinx.mesh.Mesh) -> None:
     """Check mesh initialization of symbolic parameters."""
     mu = rbnicsx.backends.SymbolicParameters(mesh, shape=())
     assert mu.ufl_domain() == mesh.ufl_domain()
-
-
-def test_backends_symbolic_parameters_name(mesh: dolfinx.mesh.Mesh) -> None:
-    """Check name initialization of symbolic parameters."""
-    mu = rbnicsx.backends.SymbolicParameters(mesh, shape=())
-    assert mu._name == "mu"
-    assert str(mu) == "mu"

@@ -54,8 +54,7 @@ funding = "https://github.com/sponsors/francesco-ballarin"
 backends = [
     "adios4dolfinx @ git+https://github.com/jorgensd/adios4dolfinx.git",
     "fenics-dolfinx >=0.10.0.dev0, <0.11.0",
-    "multiphenicsx @ git+https://github.com/multiphenics/multiphenicsx.git",
-    "ufl4rom @ git+https://github.com/RBniCS/ufl4rom.git"
+    "multiphenicsx @ git+https://github.com/multiphenics/multiphenicsx.git"
 ]
 docs = [
     "sphinx"
