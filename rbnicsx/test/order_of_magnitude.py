@@ -18,16 +18,16 @@ def order_of_magnitude(numbers: typing.Union[float, np.float32, np.float64]) -> 
 
 
 @typing.overload
-def order_of_magnitude(  # type: ignore[no-any-unimported]
-    numbers: typing.Union[
+def order_of_magnitude(
+    numbers: typing.Union[  # type: ignore[name-defined]
         npt.NDArray[typing.Union[np.float32, np.float64, petsc4py.PETSc.RealType]],
         list[typing.Union[np.float32, np.float64, petsc4py.PETSc.RealType]]]
 ) -> npt.NDArray[np.int32]:  # pragma: no cover
     ...
 
 
-def order_of_magnitude(  # type: ignore[no-any-unimported]
-    numbers: typing.Union[
+def order_of_magnitude(
+    numbers: typing.Union[  # type: ignore[name-defined]
         typing.Union[float, np.float32, np.float64],
         npt.NDArray[typing.Union[np.float32, np.float64, petsc4py.PETSc.RealType]],
         list[typing.Union[np.float32, np.float64, petsc4py.PETSc.RealType]]]

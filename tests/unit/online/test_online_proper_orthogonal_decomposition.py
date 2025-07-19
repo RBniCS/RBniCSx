@@ -49,9 +49,9 @@ def functions_list(request: _pytest.fixtures.SubRequest) -> rbnicsx.online.Funct
 
 
 @pytest.fixture
-def inner_product() -> typing.Callable[[int], petsc4py.PETSc.Mat]:  # type: ignore[no-any-unimported]
+def inner_product() -> typing.Callable[[int], petsc4py.PETSc.Mat]:  # type: ignore[name-defined]
     """Return a callable that computes the identity matrix."""
-    def _(N: int) -> petsc4py.PETSc.Mat:  # type: ignore[no-any-unimported]
+    def _(N: int) -> petsc4py.PETSc.Mat:  # type: ignore[name-defined]
         """Return the identity matrix."""
         identity = rbnicsx.online.create_matrix(N, N)
         for i in range(N):
@@ -62,10 +62,10 @@ def inner_product() -> typing.Callable[[int], petsc4py.PETSc.Mat]:  # type: igno
     return _
 
 
-def compute_inner_product(  # type: ignore[no-any-unimported]
-    inner_product: typing.Callable[[int], petsc4py.PETSc.Mat],
-    function_i: petsc4py.PETSc.Vec, function_j: petsc4py.PETSc.Vec
-) -> petsc4py.PETSc.ScalarType:
+def compute_inner_product(
+    inner_product: typing.Callable[[int], petsc4py.PETSc.Mat],  # type: ignore[name-defined]
+    function_i: petsc4py.PETSc.Vec, function_j: petsc4py.PETSc.Vec  # type: ignore[name-defined]
+) -> petsc4py.PETSc.ScalarType:  # type: ignore[name-defined]
     """Evaluate the inner product between two functions."""
     inner_product_action = rbnicsx.online.matrix_action(inner_product)
     return inner_product_action(function_i)(function_j)
@@ -140,8 +140,9 @@ def tensors_list_mat(request: _pytest.fixtures.SubRequest) -> rbnicsx.online.Ten
 
 
 @pytest.mark.parametrize("normalize", [True, False])
-def test_online_proper_orthogonal_decomposition_functions(  # type: ignore[no-any-unimported]
-    functions_list: rbnicsx.online.FunctionsList, inner_product: typing.Callable[[int], petsc4py.PETSc.Mat],
+def test_online_proper_orthogonal_decomposition_functions(
+    functions_list: rbnicsx.online.FunctionsList,
+    inner_product: typing.Callable[[int], petsc4py.PETSc.Mat],  # type: ignore[name-defined]
     normalize: bool
 ) -> None:
     """
@@ -168,8 +169,9 @@ def test_online_proper_orthogonal_decomposition_functions(  # type: ignore[no-an
 
 
 @pytest.mark.parametrize("normalize", [True, False])
-def test_online_proper_orthogonal_decomposition_functions_N(  # type: ignore[no-any-unimported]
-    functions_list: rbnicsx.online.FunctionsList, inner_product: typing.Callable[[int], petsc4py.PETSc.Mat],
+def test_online_proper_orthogonal_decomposition_functions_N(
+    functions_list: rbnicsx.online.FunctionsList,
+    inner_product: typing.Callable[[int], petsc4py.PETSc.Mat],  # type: ignore[name-defined]
     normalize: bool
 ) -> None:
     """
@@ -196,8 +198,9 @@ def test_online_proper_orthogonal_decomposition_functions_N(  # type: ignore[no-
 
 
 @pytest.mark.parametrize("normalize", [True, False])
-def test_online_proper_orthogonal_decomposition_functions_N_tol(  # type: ignore[no-any-unimported]
-    functions_list: rbnicsx.online.FunctionsList, inner_product: typing.Callable[[int], petsc4py.PETSc.Mat],
+def test_online_proper_orthogonal_decomposition_functions_N_tol(
+    functions_list: rbnicsx.online.FunctionsList,
+    inner_product: typing.Callable[[int], petsc4py.PETSc.Mat],  # type: ignore[name-defined]
     normalize: bool
 ) -> None:
     """
@@ -226,9 +229,11 @@ def test_online_proper_orthogonal_decomposition_functions_N_tol(  # type: ignore
 @pytest.mark.parametrize(
     "stopping_criterion_generator",
     [lambda arg: arg, lambda arg: [arg, arg]])
-def test_online_proper_orthogonal_decomposition_block(  # type: ignore[no-any-unimported]
-    functions_list: rbnicsx.online.FunctionsList, inner_product: typing.Callable[[int], petsc4py.PETSc.Mat],
-    normalize: bool, stopping_criterion_generator: typing.Callable[
+def test_online_proper_orthogonal_decomposition_block(
+    functions_list: rbnicsx.online.FunctionsList,
+    inner_product: typing.Callable[[int], petsc4py.PETSc.Mat],  # type: ignore[name-defined]
+    normalize: bool,
+    stopping_criterion_generator: typing.Callable[
         [typing.Any], typing.Union[typing.Any, tuple[typing.Any, typing.Any]]]
 ) -> None:
     """Check rbnicsx.online.proper_orthogonal_decomposition_block."""
@@ -273,7 +278,9 @@ def test_online_proper_orthogonal_decomposition_vectors(
     assert not np.isclose(eigenvalues[0], 0)
     assert np.isclose(eigenvalues[1], 0)
     assert len(modes) == 2
-    assert np.isclose(modes[0].norm(petsc4py.PETSc.NormType.NORM_2), 1 if normalize else np.sqrt(eigenvalues[0]))
+    assert np.isclose(
+        modes[0].norm(petsc4py.PETSc.NormType.NORM_2),  # type: ignore[attr-defined]
+        1 if normalize else np.sqrt(eigenvalues[0]))
     assert len(eigenvectors) == 2
 
 
@@ -289,13 +296,15 @@ def test_online_proper_orthogonal_decomposition_matrices(
     assert not np.isclose(eigenvalues[0], 0)
     assert np.isclose(eigenvalues[1], 0)
     assert len(modes) == 2
-    assert np.isclose(modes[0].norm(petsc4py.PETSc.NormType.FROBENIUS), 1 if normalize else np.sqrt(eigenvalues[0]))
+    assert np.isclose(
+        modes[0].norm(petsc4py.PETSc.NormType.FROBENIUS),  # type: ignore[attr-defined]
+        1 if normalize else np.sqrt(eigenvalues[0]))
     assert len(eigenvectors) == 2
 
 
 @pytest.mark.parametrize("normalize", [True, False])
-def test_online_proper_orthogonal_decomposition_zero(  # type: ignore[no-any-unimported]
-    inner_product: typing.Callable[[int], petsc4py.PETSc.Mat], normalize: bool
+def test_online_proper_orthogonal_decomposition_zero(
+    inner_product: typing.Callable[[int], petsc4py.PETSc.Mat], normalize: bool  # type: ignore[name-defined]
 ) -> None:
     """Check rbnicsx.online.proper_orthogonal_decomposition for the case of all zero snapshots."""
     functions_list = rbnicsx.online.FunctionsList(3)

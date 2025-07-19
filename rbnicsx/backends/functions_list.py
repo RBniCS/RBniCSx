@@ -86,7 +86,9 @@ class FunctionsList(FunctionsListBase[dolfinx.fem.Function]):
         """
         self._list = import_functions(self._function_space, directory, filename)
 
-    def _linearly_combine(self: typing_extensions.Self, other: petsc4py.PETSc.Vec) -> dolfinx.fem.Function:  # type: ignore[no-any-unimported]
+    def _linearly_combine(
+        self: typing_extensions.Self, other: petsc4py.PETSc.Vec  # type: ignore[name-defined]
+    ) -> dolfinx.fem.Function:
         """
         Linearly combine functions in the list using Function's API.
 
@@ -107,7 +109,8 @@ class FunctionsList(FunctionsListBase[dolfinx.fem.Function]):
             for i in range(other.size):
                 output.x.petsc_vec.axpy(other[i], self._list[i].x.petsc_vec)
             output.x.petsc_vec.ghostUpdate(
-                addv=petsc4py.PETSc.InsertMode.INSERT, mode=petsc4py.PETSc.ScatterMode.FORWARD)
+                addv=petsc4py.PETSc.InsertMode.INSERT,  # type: ignore[attr-defined]
+                mode=petsc4py.PETSc.ScatterMode.FORWARD)  # type: ignore[attr-defined]
             return output
         else:
             return dolfinx.fem.Function(self._function_space)

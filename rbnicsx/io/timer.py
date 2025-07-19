@@ -44,11 +44,13 @@ class Timer:
         Time stamp, in fractional seconds, when the context was entered.
     """
 
-    def __init__(  # type: ignore[no-any-unimported]
-        self: typing_extensions.Self, comm: typing.Union[mpi4py.MPI.Intracomm, petsc4py.PETSc.Comm], op: mpi4py.MPI.Op,
+    def __init__(
+        self: typing_extensions.Self,
+        comm: typing.Union[mpi4py.MPI.Intracomm, petsc4py.PETSc.Comm],  # type: ignore[name-defined]
+        op: mpi4py.MPI.Op,
         store: typing.Callable[[float], None]
     ) -> None:
-        if isinstance(comm, petsc4py.PETSc.Comm):
+        if isinstance(comm, petsc4py.PETSc.Comm):  # type: ignore[attr-defined]
             comm = comm.tompi4py()
 
         self._comm: mpi4py.MPI.Intracomm = comm

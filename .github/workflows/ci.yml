@@ -32,7 +32,6 @@ jobs:
               echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
               rm /usr/lib/python3.*/EXTERNALLY-MANAGED
               PETSC_DIR=/usr/lib/petscdir/petsc-real
-              rm $PETSC_DIR/lib/python3/dist-packages/petsc4py/py.typed
               echo "PETSC_DIR=$PETSC_DIR" >> $GITHUB_ENV
               SLEPC_DIR=/usr/lib/slepcdir/slepc-real
               echo "SLEPC_DIR=$SLEPC_DIR" >> $GITHUB_ENV
@@ -50,7 +49,6 @@ jobs:
               echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
               rm /usr/lib/python3.*/EXTERNALLY-MANAGED
               PETSC_DIR=/usr/lib/petscdir/petsc-complex
-              rm $PETSC_DIR/lib/python3/dist-packages/petsc4py/py.typed
               echo "PETSC_DIR=$PETSC_DIR" >> $GITHUB_ENV
               SLEPC_DIR=/usr/lib/slepcdir/slepc-complex
               echo "SLEPC_DIR=$SLEPC_DIR" >> $GITHUB_ENV
@@ -64,7 +62,6 @@ jobs:
               echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
               echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
               echo "CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH" >> $GITHUB_ENV
-              rm /dolfinx-env/lib/python3.*/site-packages/petsc4py/py.typed
           - backend: dolfinx-complex
             container: ghcr.io/fenics/dolfinx/dolfinx:nightly
             setup_git: ""
@@ -75,7 +72,6 @@ jobs:
               echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
               echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
               echo "CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH" >> $GITHUB_ENV
-              rm /dolfinx-env/lib/python3.*/site-packages/petsc4py/py.typed
       fail-fast: false
     container: ${{ matrix.container }}
     steps:

@@ -49,7 +49,7 @@ class TensorsArray(abc.ABC):
         self: typing_extensions.Self, comm: mpi4py.MPI.Intracomm, shape: typing.Union[int, tuple[int, ...]]
     ) -> None:
         self._comm: mpi4py.MPI.Intracomm = comm
-        self._array: npt.NDArray[  # type: ignore[no-any-unimported]
+        self._array: npt.NDArray[  # type: ignore[name-defined]
             typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]] = np.full(shape, fill_value=None, dtype=object)
         self._type: typing.Optional[str] = None
 
@@ -163,9 +163,9 @@ class TensorsArray(abc.ABC):
         """
         pass  # pragma: no cover
 
-    def contraction(  # type: ignore[no-any-unimported]
-        self: typing_extensions.Self, *args: petsc4py.PETSc.Vec
-    ) -> petsc4py.PETSc.ScalarType:
+    def contraction(
+        self: typing_extensions.Self, *args: petsc4py.PETSc.Vec  # type: ignore[name-defined]
+    ) -> petsc4py.PETSc.ScalarType:  # type: ignore[name-defined]
         """
         Contract entries in the array.
 
@@ -189,7 +189,7 @@ class TensorsArray(abc.ABC):
 
         # Check dimension compatibility for arguments provided for dimensions up to array shape
         for dim in range(len(self.shape)):
-            assert args[dim].getType() == petsc4py.PETSc.Vec.Type.SEQ
+            assert args[dim].getType() == petsc4py.PETSc.Vec.Type.SEQ  # type: ignore[attr-defined]
             assert args[dim].size == self.shape[dim]
 
         # Flatten the cartesian product of arguments provided for dimensions up to array shape
@@ -205,15 +205,16 @@ class TensorsArray(abc.ABC):
             first_output.axpy(arg_it, array_it)
         if self._type == "Vec":
             first_output.ghostUpdate(
-                addv=petsc4py.PETSc.InsertMode.INSERT, mode=petsc4py.PETSc.ScatterMode.FORWARD)
+                addv=petsc4py.PETSc.InsertMode.INSERT,  # type: ignore[attr-defined]
+                mode=petsc4py.PETSc.ScatterMode.FORWARD)  # type: ignore[attr-defined]
 
         # Check dimension compatibility for arguments provided after the dimensions up to array shape
         if self._type == "Mat":
-            assert isinstance(first_output, petsc4py.PETSc.Mat)
+            assert isinstance(first_output, petsc4py.PETSc.Mat)  # type: ignore[attr-defined]
             assert args[-2].size == first_output.size[0]
             assert args[-1].size == first_output.size[1]
         elif self._type == "Vec":
-            assert isinstance(first_output, petsc4py.PETSc.Vec)
+            assert isinstance(first_output, petsc4py.PETSc.Vec)  # type: ignore[attr-defined]
             assert args[-1].size == first_output.size
 
         # Contract with the dimensions after array shape
@@ -225,9 +226,9 @@ class TensorsArray(abc.ABC):
             return first_output.dot(args[-1])
 
     @typing.overload
-    def __getitem__(  # type: ignore[no-any-unimported]
+    def __getitem__(
         self: typing_extensions.Self, key: typing.Union[int, tuple[int, ...]]
-    ) -> typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]:  # pragma: no cover
+    ) -> typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]:  # type: ignore[name-defined] # pragma: no cover
         ...
 
     @typing.overload
@@ -236,9 +237,9 @@ class TensorsArray(abc.ABC):
     ) -> typing_extensions.Self:  # pragma: no cover
         ...
 
-    def __getitem__(  # type: ignore[no-any-unimported]
+    def __getitem__(
         self: typing_extensions.Self, key: typing.Union[int, tuple[int, ...], slice, tuple[slice, slice]]
-    ) -> typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec, typing_extensions.Self]:
+    ) -> typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec, typing_extensions.Self]:  # type: ignore[name-defined]
         """
         Extract a single tensor from the array, or slice the array.
 
@@ -263,9 +264,9 @@ class TensorsArray(abc.ABC):
         else:
             raise NotImplementedError()
 
-    def __setitem__(  # type: ignore[no-any-unimported]
+    def __setitem__(
         self: typing_extensions.Self, key: typing.Union[int, tuple[int, ...]],
-        tensor: typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]
+        tensor: typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]  # type: ignore[name-defined]
     ) -> None:
         """
         Update the content of the array with the provided tensor.
@@ -278,12 +279,12 @@ class TensorsArray(abc.ABC):
             Tensor to be stored.
         """
         # Check that tensors of the same type are set
-        if isinstance(tensor, petsc4py.PETSc.Mat):
+        if isinstance(tensor, petsc4py.PETSc.Mat):  # type: ignore[attr-defined]
             if self._type is None:
                 self._type = "Mat"
             else:
                 assert self._type == "Mat"
-        elif isinstance(tensor, petsc4py.PETSc.Vec):
+        elif isinstance(tensor, petsc4py.PETSc.Vec):  # type: ignore[attr-defined]
             if self._type is None:
                 self._type = "Vec"
             else:

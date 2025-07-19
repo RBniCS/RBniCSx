@@ -29,7 +29,9 @@ def _expected_measured_time(sleep_time: float, comm: mpi4py.MPI.Intracomm, op: m
         raise RuntimeError("Invalid MPI operation.")
 
 
-@pytest.mark.parametrize("comm", [mpi4py.MPI.COMM_WORLD, petsc4py.PETSc.COMM_WORLD, mpi4py.MPI.COMM_SELF])
+@pytest.mark.parametrize("comm", [
+    mpi4py.MPI.COMM_WORLD, petsc4py.PETSc.COMM_WORLD, mpi4py.MPI.COMM_SELF  # type: ignore[attr-defined]
+])
 @pytest.mark.parametrize("op", [mpi4py.MPI.MAX, mpi4py.MPI.SUM])
 def test_timer(comm: mpi4py.MPI.Intracomm, op: mpi4py.MPI.Op) -> None:
     """Test timer with different communicators and operations."""

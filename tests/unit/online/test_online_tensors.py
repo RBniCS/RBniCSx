@@ -79,7 +79,7 @@ def test_online_vector_block_set() -> None:
     online_vec = rbnicsx.online.create_vector_block(N)
     blocks = np.hstack((0, np.cumsum(N)))
     for I in range(2):  # noqa: E741
-        is_I = petsc4py.PETSc.IS().createGeneral(
+        is_I = petsc4py.PETSc.IS().createGeneral(  # type: ignore[attr-defined]
             np.arange(blocks[I], blocks[I + 1], dtype=np.int32), comm=online_vec.comm)
         is_I.view()
         online_vec_I = online_vec.getSubVector(is_I)
@@ -128,11 +128,11 @@ def test_online_matrix_block_set() -> None:
     row_blocks = np.hstack((0, np.cumsum(M)))
     col_blocks = np.hstack((0, np.cumsum(N)))
     for I in range(2):  # noqa: E741
-        is_I = petsc4py.PETSc.IS().createGeneral(
+        is_I = petsc4py.PETSc.IS().createGeneral(  # type: ignore[attr-defined]
             np.arange(row_blocks[I], row_blocks[I + 1], dtype=np.int32), comm=online_mat.comm)
         is_I.view()
         for J in range(2):
-            is_J = petsc4py.PETSc.IS().createGeneral(
+            is_J = petsc4py.PETSc.IS().createGeneral(  # type: ignore[attr-defined]
                 np.arange(col_blocks[J], col_blocks[J + 1], dtype=np.int32), comm=online_mat.comm)
             is_J.view()
             online_mat_IJ = online_mat.getLocalSubMatrix(is_I, is_J)
@@ -164,9 +164,9 @@ def test_online_linear_solve() -> None:
         online_mat.setValue(i, i, 1 / (i + 1))
     online_mat.assemble()
 
-    ksp = petsc4py.PETSc.KSP().create(online_solution.comm)
-    ksp.setType(petsc4py.PETSc.KSP.Type.PREONLY)
-    ksp.getPC().setType(petsc4py.PETSc.PC.Type.LU)
+    ksp = petsc4py.PETSc.KSP().create(online_solution.comm)  # type: ignore[attr-defined]
+    ksp.setType(petsc4py.PETSc.KSP.Type.PREONLY)  # type: ignore[attr-defined]
+    ksp.getPC().setType(petsc4py.PETSc.PC.Type.LU)  # type: ignore[attr-defined]
     ksp.setFromOptions()
     ksp.setOperators(online_mat)
     ksp.solve(online_vec, online_solution)
@@ -213,25 +213,26 @@ def test_online_nonlinear_solve() -> None:
     class NonlinearProblem:
         """Define a nonlinear problem."""
 
-        def F(  # type: ignore[no-any-unimported]
-            self, snes: petsc4py.PETSc.SNES, x: petsc4py.PETSc.Vec, F_vec: petsc4py.PETSc.Vec
+        def F(
+            self, snes: petsc4py.PETSc.SNES, x: petsc4py.PETSc.Vec,  # type: ignore[name-defined]
+            F_vec: petsc4py.PETSc.Vec  # type: ignore[name-defined]
         ) -> None:
             """Assemble the residual of the problem."""
             F_vec[0] = (x[0] - 1)**2
             F_vec[1] = (x[1] - 2)**2
 
-        def J(  # type: ignore[no-any-unimported]
-            self, snes: petsc4py.PETSc.SNES, x: petsc4py.PETSc.Vec, J_mat: petsc4py.PETSc.Mat,
-            P_mat: petsc4py.PETSc.Mat
+        def J(
+            self, snes: petsc4py.PETSc.SNES, x: petsc4py.PETSc.Vec,  # type: ignore[name-defined]
+            J_mat: petsc4py.PETSc.Mat, P_mat: petsc4py.PETSc.Mat  # type: ignore[name-defined]
         ) -> None:
             """Assemble the jacobian of the problem."""
             J_mat[0, 0] = 2 * x[0] - 2
             J_mat[1, 1] = 2 * x[1] - 4
             J_mat.assemble()
 
-    snes = petsc4py.PETSc.SNES().create(mpi4py.MPI.COMM_SELF)
-    snes.getKSP().setType(petsc4py.PETSc.KSP.Type.PREONLY)
-    snes.getKSP().getPC().setType(petsc4py.PETSc.PC.Type.LU)
+    snes = petsc4py.PETSc.SNES().create(mpi4py.MPI.COMM_SELF)  # type: ignore[attr-defined]
+    snes.getKSP().setType(petsc4py.PETSc.KSP.Type.PREONLY)  # type: ignore[attr-defined]
+    snes.getKSP().getPC().setType(petsc4py.PETSc.PC.Type.LU)  # type: ignore[attr-defined]
 
     problem = NonlinearProblem()
     online_residual = rbnicsx.online.create_vector(2)
@@ -256,7 +257,7 @@ def test_online_vector_sub_vector_wrapper_context_manager() -> None:
     for i in range(5):
         online_vec.setValue(i, i + 1)
     with rbnicsx.online.VecSubVectorWrapper(online_vec, np.array([2, 3], dtype=np.int32)) as online_subvec:
-        assert isinstance(online_subvec, petsc4py.PETSc.Vec)
+        assert isinstance(online_subvec, petsc4py.PETSc.Vec)  # type: ignore[attr-defined]
         assert online_subvec.size == 2
         for i in range(2):
             online_subvec.setValue(i, - (i + 3))
@@ -271,7 +272,7 @@ def test_online_vector_sub_vector_copier_context_manager() -> None:
     for i in range(5):
         online_vec.setValue(i, i + 1)
     with rbnicsx.online.VecSubVectorCopier(online_vec, np.array([2, 3], dtype=np.int32)) as online_subvec:
-        assert isinstance(online_subvec, petsc4py.PETSc.Vec)
+        assert isinstance(online_subvec, petsc4py.PETSc.Vec)  # type: ignore[attr-defined]
         assert online_subvec.size == 2
         for i in range(2):
             assert online_subvec[i] == i + 3
@@ -289,7 +290,7 @@ def test_online_vector_block_sub_vector_wrapper_context_manager() -> None:
         online_vec.setValue(i, i + 1)
     with rbnicsx.online.BlockVecSubVectorWrapper(online_vec, N) as online_vec_wrapper:
         for (I, online_subvec) in enumerate(online_vec_wrapper):  # noqa: E741
-            assert isinstance(online_subvec, petsc4py.PETSc.Vec)
+            assert isinstance(online_subvec, petsc4py.PETSc.Vec)  # type: ignore[attr-defined]
             assert online_subvec.size == N[I]
             for i in range(N[I]):
                 online_subvec.setValue(i, (I + 1) * (N_cumsum[I] + i + 1))
@@ -307,7 +308,7 @@ def test_online_vector_block_sub_vector_copier_context_manager() -> None:
         online_vec.setValue(i, i + 1)
     with rbnicsx.online.BlockVecSubVectorCopier(online_vec, N) as online_vec_copier:
         for (I, online_subvec) in enumerate(online_vec_copier):  # noqa: E741
-            assert isinstance(online_subvec, petsc4py.PETSc.Vec)
+            assert isinstance(online_subvec, petsc4py.PETSc.Vec)  # type: ignore[attr-defined]
             assert online_subvec.size == N[I]
             for i in range(N[I]):
                 assert online_subvec[i] == N_cumsum[I] + i + 1
@@ -326,7 +327,7 @@ def test_online_matrix_sub_matrix_wrapper_context_manager() -> None:
     online_mat.assemble()
     with rbnicsx.online.MatSubMatrixWrapper(
             online_mat, np.array([1, 2], dtype=np.int32), np.array([3, 4, 5], dtype=np.int32)) as online_submat:
-        assert isinstance(online_submat, petsc4py.PETSc.Mat)
+        assert isinstance(online_submat, petsc4py.PETSc.Mat)  # type: ignore[attr-defined]
         assert online_submat.size == (2, 3)
         for i in range(2):
             for j in range(3):
@@ -347,7 +348,7 @@ def test_online_matrix_sub_matrix_copier_context_manager() -> None:
     online_mat.assemble()
     with rbnicsx.online.MatSubMatrixCopier(
             online_mat, np.array([1, 2], dtype=np.int32), np.array([3, 4, 5], dtype=np.int32)) as online_submat:
-        assert isinstance(online_submat, petsc4py.PETSc.Mat)
+        assert isinstance(online_submat, petsc4py.PETSc.Mat)  # type: ignore[attr-defined]
         assert online_submat.size == (2, 3)
         for i in range(2):
             for j in range(3):
@@ -375,7 +376,7 @@ def test_online_matrix_block_sub_matrix_wrapper_context_manager() -> None:
         for (I, J, online_submat) in online_mat_wrapper:  # noqa: E741
             assert isinstance(I, int)
             assert isinstance(J, int)
-            assert isinstance(online_submat, petsc4py.PETSc.Mat)
+            assert isinstance(online_submat, petsc4py.PETSc.Mat)  # type: ignore[attr-defined]
             assert online_submat.size == (M[I], N[J])
             factor = I * 2 + J + 1
             for i in range(M[I]):
@@ -403,7 +404,7 @@ def test_online_matrix_block_sub_matrix_copier_context_manager() -> None:
         for (I, J, online_submat) in online_mat_copier:  # noqa: E741
             assert isinstance(I, int)
             assert isinstance(J, int)
-            assert isinstance(online_submat, petsc4py.PETSc.Mat)
+            assert isinstance(online_submat, petsc4py.PETSc.Mat)  # type: ignore[attr-defined]
             assert online_submat.size == (M[I], N[J])
             for i in range(M[I]):
                 for j in range(N[J]):

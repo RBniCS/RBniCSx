@@ -74,7 +74,7 @@ def test_backends_gram_schmidt(  # type: ignore[no-any-unimported]
     expected1.interpolate(lambda x: 2 * x[0] + x[1] - 1.5)
     expected1.x.petsc_vec.scale(1 / np.sqrt(compute_inner_product(expected1)(expected1)))
     expected1.x.petsc_vec.ghostUpdate(
-        addv=petsc4py.PETSc.InsertMode.INSERT, mode=petsc4py.PETSc.ScatterMode.FORWARD)
+        addv=petsc4py.PETSc.InsertMode.INSERT, mode=petsc4py.PETSc.ScatterMode.FORWARD)  # type: ignore[attr-defined]
     assert np.allclose(functions_list[1].x.array, expected1.x.array)
 
 
@@ -126,5 +126,6 @@ def test_backends_gram_schmidt_block(  # type: ignore[no-any-unimported]
         expected1.interpolate(expected1_expr)
         expected1.x.petsc_vec.scale(1 / np.sqrt(compute_inner_product_(expected1)(expected1)))
         expected1.x.petsc_vec.ghostUpdate(
-            addv=petsc4py.PETSc.InsertMode.INSERT, mode=petsc4py.PETSc.ScatterMode.FORWARD)
+            addv=petsc4py.PETSc.InsertMode.INSERT,  # type: ignore[attr-defined]
+            mode=petsc4py.PETSc.ScatterMode.FORWARD)  # type: ignore[attr-defined]
         assert np.allclose(functions_list[1].x.array, expected1.x.array)

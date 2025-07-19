@@ -40,7 +40,8 @@ def tensors_1d_array_vec(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsArr
     linear_forms_cpp = dolfinx.fem.form(linear_forms)
     vectors = [dolfinx.fem.petsc.assemble_vector(linear_form_cpp) for linear_form_cpp in linear_forms_cpp]
     for vector in vectors:
-        vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
+        vector.ghostUpdate(
+            addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)  # type: ignore[attr-defined]
     tensors_1d_array = rbnicsx.backends.TensorsArray(linear_forms_cpp[0], mesh.comm, 6)
     for (i, vector) in enumerate(vectors):
         tensors_1d_array[i] = vector
@@ -57,7 +58,8 @@ def tensors_2d_array_vec(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsArr
     linear_forms_cpp = dolfinx.fem.form(linear_forms)
     vectors = [dolfinx.fem.petsc.assemble_vector(linear_form_cpp) for linear_form_cpp in linear_forms_cpp]
     for vector in vectors:
-        vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
+        vector.ghostUpdate(
+            addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)  # type: ignore[attr-defined]
     tensors_2d_array = rbnicsx.backends.TensorsArray(linear_forms_cpp[0], mesh.comm, (2, 3))
     for i in range(2):
         for j in range(3):
@@ -149,7 +151,8 @@ def test_backends_tensors_array_duplicate(tensors_array: rbnicsx.backends.Tensor
 def test_backends_tensors_array_getitem_1d_int_vec(tensors_1d_array_vec: rbnicsx.backends.TensorsArray) -> None:
     """Check rbnicsx.backends.TensorsArray.__getitem__ with integer input, 1d array and petsc4py.PETSc.Vec content."""
     first_vector = dolfinx.fem.petsc.assemble_vector(tensors_1d_array_vec.form)
-    first_vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
+    first_vector.ghostUpdate(
+        addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)  # type: ignore[attr-defined]
     for i in range(6):
         assert np.allclose(tensors_1d_array_vec[i].array, (i + 1) * first_vector.array)
 
@@ -164,15 +167,17 @@ def test_backends_tensors_array_getitem_1d_tuple_int_vec(tensors_1d_array_vec: r
 def test_backends_tensors_array_getitem_2d_tuple_int_vec(tensors_2d_array_vec: rbnicsx.backends.TensorsArray) -> None:
     """Check rbnicsx.backends.TensorsArray.__getitem__ with integer input, 2d array and petsc4py.PETSc.Vec content."""
     first_vector = dolfinx.fem.petsc.assemble_vector(tensors_2d_array_vec.form)
-    first_vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
+    first_vector.ghostUpdate(
+        addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)  # type: ignore[attr-defined]
     for i in range(2):
         for j in range(3):
             assert np.allclose(tensors_2d_array_vec[i, j].array, (i * 3 + j + 1) * first_vector.array)
 
 
-def test_backends_tensors_array_getitem_1d_int_mat(  # type: ignore[no-any-unimported]
+def test_backends_tensors_array_getitem_1d_int_mat(
     tensors_1d_array_mat: rbnicsx.backends.TensorsArray,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+        [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.backends.TensorsArray.__getitem__ with integer input, 1d array and petsc4py.PETSc.Mat content."""
     first_matrix = dolfinx.fem.petsc.assemble_matrix(tensors_1d_array_mat.form)
@@ -181,9 +186,10 @@ def test_backends_tensors_array_getitem_1d_int_mat(  # type: ignore[no-any-unimp
         assert np.allclose(to_dense_matrix(tensors_1d_array_mat[i]), (i + 1) * to_dense_matrix(first_matrix))
 
 
-def test_backends_tensors_array_getitem_2d_tuple_int_mat(  # type: ignore[no-any-unimported]
+def test_backends_tensors_array_getitem_2d_tuple_int_mat(
     tensors_2d_array_mat: rbnicsx.backends.TensorsArray,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+        [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.backends.TensorsArray.__getitem__ with integer input, 2d array and petsc4py.PETSc.Mat content."""
     first_matrix = dolfinx.fem.petsc.assemble_matrix(tensors_2d_array_mat.form)
@@ -197,7 +203,8 @@ def test_backends_tensors_array_getitem_2d_tuple_int_mat(  # type: ignore[no-any
 def test_backends_tensors_array_getitem_1d_slice_vec(tensors_1d_array_vec: rbnicsx.backends.TensorsArray) -> None:
     """Check rbnicsx.backends.TensorsArray.__getitem__ with slice input, 1d array and petsc4py.PETSc.Vec content."""
     first_vector = dolfinx.fem.petsc.assemble_vector(tensors_1d_array_vec.form)
-    first_vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
+    first_vector.ghostUpdate(
+        addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)  # type: ignore[attr-defined]
     tensors_1d_array_vec2 = tensors_1d_array_vec[0:2]
     assert tensors_1d_array_vec2.shape == (2, )
     assert np.allclose(tensors_1d_array_vec2[0].array, first_vector.array)
@@ -207,16 +214,18 @@ def test_backends_tensors_array_getitem_1d_slice_vec(tensors_1d_array_vec: rbnic
 def test_backends_tensors_array_getitem_2d_slice_vec(tensors_2d_array_vec: rbnicsx.backends.TensorsArray) -> None:
     """Check rbnicsx.backends.TensorsArray.__getitem__ with slice input, 2d array and petsc4py.PETSc.Vec content."""
     first_vector = dolfinx.fem.petsc.assemble_vector(tensors_2d_array_vec.form)
-    first_vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
+    first_vector.ghostUpdate(
+        addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)  # type: ignore[attr-defined]
     tensors_2d_array_vec2 = tensors_2d_array_vec[0:1, 0:2]
     assert tensors_2d_array_vec2.shape == (1, 2)
     assert np.allclose(tensors_2d_array_vec2[0, 0].array, first_vector.array)
     assert np.allclose(tensors_2d_array_vec2[0, 1].array, 2 * first_vector.array)
 
 
-def test_backends_tensors_array_getitem_1d_slice_mat(  # type: ignore[no-any-unimported]
+def test_backends_tensors_array_getitem_1d_slice_mat(
     tensors_1d_array_mat: rbnicsx.backends.TensorsArray,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+        [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.backends.TensorsArray.__getitem__ with slice input, 1d array and petsc4py.PETSc.Mat content."""
     first_matrix = dolfinx.fem.petsc.assemble_matrix(tensors_1d_array_mat.form)
@@ -227,9 +236,10 @@ def test_backends_tensors_array_getitem_1d_slice_mat(  # type: ignore[no-any-uni
     assert np.allclose(to_dense_matrix(tensors_1d_array_mat2[1]), 2 * to_dense_matrix(first_matrix))
 
 
-def test_backends_tensors_array_getitem_2d_slice_mat(  # type: ignore[no-any-unimported]
+def test_backends_tensors_array_getitem_2d_slice_mat(
     tensors_2d_array_mat: rbnicsx.backends.TensorsArray,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+        [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.backends.TensorsArray.__getitem__ with slice input, 1d array and petsc4py.PETSc.Mat content."""
     first_matrix = dolfinx.fem.petsc.assemble_matrix(tensors_2d_array_mat.form)
@@ -250,11 +260,13 @@ def test_backends_tensors_array_setitem_1d_vec(tensors_1d_array_vec: rbnicsx.bac
     """Check rbnicsx.backends.TensorsArray.__setitem__ in the case of 1d array and petsc4py.PETSc.Vec content."""
     form_ufl = getattr(tensors_1d_array_vec, "form_ufl")
     new_vector = dolfinx.fem.petsc.assemble_vector(dolfinx.fem.form(7 * form_ufl))
-    new_vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
+    new_vector.ghostUpdate(
+        addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)  # type: ignore[attr-defined]
     tensors_1d_array_vec[0] = new_vector
 
     first_vector = dolfinx.fem.petsc.assemble_vector(tensors_1d_array_vec.form)
-    first_vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
+    first_vector.ghostUpdate(
+        addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)  # type: ignore[attr-defined]
     for i in range(6):
         if i == 0:
             coeff = 7
@@ -267,11 +279,13 @@ def test_backends_tensors_array_setitem_2d_vec(tensors_2d_array_vec: rbnicsx.bac
     """Check rbnicsx.backends.TensorsArray.__setitem__ in the case of 2d array and petsc4py.PETSc.Vec content."""
     form_ufl = getattr(tensors_2d_array_vec, "form_ufl")
     new_vector = dolfinx.fem.petsc.assemble_vector(dolfinx.fem.form(7 * form_ufl))
-    new_vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
+    new_vector.ghostUpdate(
+        addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)  # type: ignore[attr-defined]
     tensors_2d_array_vec[0, 0] = new_vector
 
     first_vector = dolfinx.fem.petsc.assemble_vector(tensors_2d_array_vec.form)
-    first_vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
+    first_vector.ghostUpdate(
+        addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)  # type: ignore[attr-defined]
     for i in range(2):
         for j in range(3):
             if i == 0 and j == 0:
@@ -281,9 +295,10 @@ def test_backends_tensors_array_setitem_2d_vec(tensors_2d_array_vec: rbnicsx.bac
             assert np.allclose(tensors_2d_array_vec[i, j].array, coeff * first_vector.array)
 
 
-def test_backends_tensors_array_setitem_1d_mat(  # type: ignore[no-any-unimported]
+def test_backends_tensors_array_setitem_1d_mat(
     tensors_1d_array_mat: rbnicsx.backends.TensorsArray,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+        [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.backends.TensorsArray.__setitem__ in the case of 1d array and petsc4py.PETSc.Mat content."""
     form_ufl = getattr(tensors_1d_array_mat, "form_ufl")
@@ -301,9 +316,10 @@ def test_backends_tensors_array_setitem_1d_mat(  # type: ignore[no-any-unimporte
         assert np.allclose(to_dense_matrix(tensors_1d_array_mat[i]), coeff * to_dense_matrix(first_matrix))
 
 
-def test_backends_tensors_array_setitem_2d_mat(  # type: ignore[no-any-unimported]
+def test_backends_tensors_array_setitem_2d_mat(
     tensors_2d_array_mat: rbnicsx.backends.TensorsArray,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+        [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.backends.TensorsArray.__setitem__ in the case of 1d array and petsc4py.PETSc.Mat content."""
     form_ufl = getattr(tensors_2d_array_mat, "form_ufl")
@@ -369,9 +385,10 @@ def test_backends_tensors_array_save_load_2d_vec(tensors_2d_array_vec: rbnicsx.b
                 assert np.allclose(tensors_2d_array_vec2[i, j].array, tensors_2d_array_vec[i, j].array)
 
 
-def test_backends_tensors_array_save_load_1d_mat(  # type: ignore[no-any-unimported]
+def test_backends_tensors_array_save_load_1d_mat(
     tensors_1d_array_mat: rbnicsx.backends.TensorsArray,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+        [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check I/O for a rbnicsx.backends.TensorsArray in the case of 1d array and petsc4py.PETSc.Mat content."""
     with nbvalx.tempfile.TemporaryDirectory(tensors_1d_array_mat.comm) as tempdir:
@@ -385,9 +402,10 @@ def test_backends_tensors_array_save_load_1d_mat(  # type: ignore[no-any-unimpor
             assert np.allclose(to_dense_matrix(tensors_1d_array_mat2[i]), to_dense_matrix(tensors_1d_array_mat[i]))
 
 
-def test_backends_tensors_array_save_load_2d_mat(  # type: ignore[no-any-unimported]
+def test_backends_tensors_array_save_load_2d_mat(
     tensors_2d_array_mat: rbnicsx.backends.TensorsArray,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+        [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check I/O for a rbnicsx.backends.TensorsArray in the case of 2d array and petsc4py.PETSc.Mat content."""
     with nbvalx.tempfile.TemporaryDirectory(tensors_2d_array_mat.comm) as tempdir:
@@ -422,9 +440,11 @@ def test_backends_tensors_array_contraction_1d_vec(tensors_1d_array_vec: rbnicsx
     online_vec[:] = np.arange(1, 7)
 
     first_vector = dolfinx.fem.petsc.assemble_vector(tensors_1d_array_vec.form)
-    first_vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
+    first_vector.ghostUpdate(
+        addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)  # type: ignore[attr-defined]
     contraction = tensors_1d_array_vec.contraction(online_vec, first_vector)
-    assert np.isclose(contraction, 91 * first_vector.norm(petsc4py.PETSc.NormType.NORM_2)**2)
+    assert np.isclose(
+        contraction, 91 * first_vector.norm(petsc4py.PETSc.NormType.NORM_2)**2)  # type: ignore[attr-defined]
 
 
 def test_backends_tensors_array_contraction_2d_vec(tensors_2d_array_vec: rbnicsx.backends.TensorsArray) -> None:
@@ -435,14 +455,17 @@ def test_backends_tensors_array_contraction_2d_vec(tensors_2d_array_vec: rbnicsx
     online_vec1[:] = [3, 4, 5]
 
     first_vector = dolfinx.fem.petsc.assemble_vector(tensors_2d_array_vec.form)
-    first_vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
+    first_vector.ghostUpdate(
+        addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)  # type: ignore[attr-defined]
     contraction = tensors_2d_array_vec.contraction(online_vec0, online_vec1, first_vector)
-    assert np.isclose(contraction, 150 * first_vector.norm(petsc4py.PETSc.NormType.NORM_2)**2)
+    assert np.isclose(
+        contraction, 150 * first_vector.norm(petsc4py.PETSc.NormType.NORM_2)**2)  # type: ignore[attr-defined]
 
 
-def test_backends_tensors_array_contraction_1d_mat(  # type: ignore[no-any-unimported]
+def test_backends_tensors_array_contraction_1d_mat(
     tensors_1d_array_vec: rbnicsx.backends.TensorsArray, tensors_1d_array_mat: rbnicsx.backends.TensorsArray,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+        [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.backends.TensorsArray.contraction in the case of 1d array and petsc4py.PETSc.Mat content."""
     online_vec = rbnicsx.online.create_vector(6)
@@ -455,9 +478,10 @@ def test_backends_tensors_array_contraction_1d_mat(  # type: ignore[no-any-unimp
     assert np.isclose(contraction, 91 * first_matrix_action(tensors_1d_array_vec[1])(tensors_1d_array_vec[0]))
 
 
-def test_backends_tensors_array_contraction_2d_mat(  # type: ignore[no-any-unimported]
+def test_backends_tensors_array_contraction_2d_mat(
     tensors_1d_array_vec: rbnicsx.backends.TensorsArray, tensors_2d_array_mat: rbnicsx.backends.TensorsArray,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+        [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check rbnicsx.backends.TensorsArray.contraction in the case of 2d array and petsc4py.PETSc.Mat content."""
     online_vec0 = rbnicsx.online.create_vector(2)
@@ -481,7 +505,8 @@ def test_backends_tensors_array_contraction_1d_vec_too_many_args(
     online_vec[:] = np.arange(1, 7)
 
     first_vector = dolfinx.fem.petsc.assemble_vector(tensors_1d_array_vec.form)
-    first_vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
+    first_vector.ghostUpdate(
+        addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)  # type: ignore[attr-defined]
     with pytest.raises(AssertionError):
         tensors_1d_array_vec.contraction(online_vec, online_vec, first_vector)
 

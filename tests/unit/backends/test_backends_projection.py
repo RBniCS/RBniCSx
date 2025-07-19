@@ -136,9 +136,10 @@ def test_backends_projection_vector_block(functions_list: rbnicsx.backends.Funct
     assert np.allclose(online_vec2.array, online_vec.array)
 
 
-def test_backends_projection_matrix_galerkin(  # type: ignore[no-any-unimported]
+def test_backends_projection_matrix_galerkin(
     functions_list: rbnicsx.backends.FunctionsList,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+        [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Test projection of a bilinear form onto the reduced basis (for use in Galerkin methods)."""
     basis_functions = functions_list[:2]
@@ -162,9 +163,10 @@ def test_backends_projection_matrix_galerkin(  # type: ignore[no-any-unimported]
     assert np.allclose(to_dense_matrix(online_mat2), to_dense_matrix(online_mat))
 
 
-def test_backends_projection_matrix_petrov_galerkin(  # type: ignore[no-any-unimported]
+def test_backends_projection_matrix_petrov_galerkin(
     functions_list: rbnicsx.backends.FunctionsList,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+        [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Test projection of a bilinear form onto the reduced basis (for use in Petrov-Galerkin methods)."""
     basis_functions = (functions_list[:2], functions_list[2:5])
@@ -188,9 +190,10 @@ def test_backends_projection_matrix_petrov_galerkin(  # type: ignore[no-any-unim
     assert np.allclose(to_dense_matrix(online_mat2), to_dense_matrix(online_mat))
 
 
-def test_backends_projection_matrix_block_galerkin(  # type: ignore[no-any-unimported]
+def test_backends_projection_matrix_block_galerkin(
     functions_list: rbnicsx.backends.FunctionsList,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+        [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Test projection of a matrix of bilinear forms onto the reduced basis (for use in Galerkin methods)."""
     basis_functions = [functions_list[:2], functions_list[2:5]]
@@ -227,9 +230,10 @@ def test_backends_projection_matrix_block_galerkin(  # type: ignore[no-any-unimp
     assert np.allclose(to_dense_matrix(online_mat2), to_dense_matrix(online_mat))
 
 
-def test_backends_projection_matrix_block_petrov_galerkin(  # type: ignore[no-any-unimported]
+def test_backends_projection_matrix_block_petrov_galerkin(
     functions_list: rbnicsx.backends.FunctionsList,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
+    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+        [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Test projection of a matrix of bilinear forms onto the reduced basis (for use in Petrov-Galerkin methods)."""
     basis_functions = ([functions_list[:2], functions_list[2:5]], [functions_list[5:9], functions_list[9:14]])

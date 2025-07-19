@@ -25,10 +25,10 @@ from rbnicsx.online.tensors_list import TensorsList
 
 
 @plum.overload
-def proper_orthogonal_decomposition(  # type: ignore[no-any-unimported]
-    functions_list: FunctionsList, inner_product: petsc4py.PETSc.Mat, N: int = -1,
-    tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True
-) -> tuple[
+def proper_orthogonal_decomposition(
+    functions_list: FunctionsList, inner_product: petsc4py.PETSc.Mat, N: int = -1,  # type: ignore[name-defined]
+    tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True  # type: ignore[name-defined]
+) -> tuple[  # type: ignore[name-defined]
     npt.NDArray[petsc4py.PETSc.RealType], FunctionsList, list[petsc4py.PETSc.Vec]
 ]:
     """
@@ -65,9 +65,10 @@ def proper_orthogonal_decomposition(  # type: ignore[no-any-unimported]
 
 
 @plum.overload
-def proper_orthogonal_decomposition(  # type: ignore[no-any-unimported] # noqa: F811
-    tensors_list: TensorsList, N: int = -1, tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True
-) -> tuple[
+def proper_orthogonal_decomposition(  # noqa: F811
+    tensors_list: TensorsList, N: int = -1,
+    tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True  # type: ignore[name-defined]
+) -> tuple[  # type: ignore[name-defined]
     npt.NDArray[petsc4py.PETSc.RealType], TensorsList, list[petsc4py.PETSc.Vec]
 ]:
     """
@@ -105,12 +106,13 @@ def proper_orthogonal_decomposition(  # type: ignore[no-untyped-def] # noqa: ANN
     raise NotImplementedError("The abstract case has not been implemented")  # pragma: no cover
 
 
-def proper_orthogonal_decomposition_block(  # type: ignore[no-any-unimported]
-    functions_lists: typing.Sequence[FunctionsList], inner_products: list[petsc4py.PETSc.Mat],
+def proper_orthogonal_decomposition_block(
+    functions_lists: typing.Sequence[FunctionsList],
+    inner_products: list[petsc4py.PETSc.Mat],  # type: ignore[name-defined]
     N: typing.Union[int, list[int]] = -1,
-    tol: typing.Union[petsc4py.PETSc.RealType, list[petsc4py.PETSc.RealType]] = real_zero,
+    tol: typing.Union[petsc4py.PETSc.RealType, list[petsc4py.PETSc.RealType]] = real_zero,  # type: ignore[name-defined]
     normalize: bool = True
-) -> tuple[
+) -> tuple[  # type: ignore[name-defined]
     list[npt.NDArray[petsc4py.PETSc.RealType]], list[FunctionsList],
     list[list[petsc4py.PETSc.Vec]]
 ]:
@@ -156,8 +158,8 @@ def proper_orthogonal_decomposition_block(  # type: ignore[no-any-unimported]
         functions_lists, compute_inner_products, _scale_online_vector, N, tol, normalize)
 
 
-def _scale_online_vector(  # type: ignore[no-any-unimported]
-    vector: petsc4py.PETSc.Vec, factor: petsc4py.PETSc.RealType
+def _scale_online_vector(
+    vector: petsc4py.PETSc.Vec, factor: petsc4py.PETSc.RealType  # type: ignore[name-defined]
 ) -> None:
     """Scale an online petsc4py.PETSc.Vec."""
     vector *= factor

@@ -141,7 +141,7 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
         """
         pass  # pragma: no cover
 
-    def __mul__(self: typing_extensions.Self, other: petsc4py.PETSc.Vec) -> Function:  # type: ignore[no-any-unimported]
+    def __mul__(self: typing_extensions.Self, other: petsc4py.PETSc.Vec) -> Function:  # type: ignore[name-defined]
         """
         Linearly combine functions in the list.
 
@@ -155,15 +155,17 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
         :
             Function object storing the result of the linear combination.
         """
-        if isinstance(other, petsc4py.PETSc.Vec):
-            assert other.getType() == petsc4py.PETSc.Vec.Type.SEQ
+        if isinstance(other, petsc4py.PETSc.Vec):  # type: ignore[attr-defined]
+            assert other.getType() == petsc4py.PETSc.Vec.Type.SEQ  # type: ignore[attr-defined]
             assert other.size == len(self._list)
             return self._linearly_combine(other)
         else:
             return NotImplemented
 
     @abc.abstractmethod
-    def _linearly_combine(self: typing_extensions.Self, coefficients: petsc4py.PETSc.Vec) -> Function:  # type: ignore[no-any-unimported]
+    def _linearly_combine(
+        self: typing_extensions.Self, coefficients: petsc4py.PETSc.Vec  # type: ignore[name-defined]
+    ) -> Function:
         """
         Linearly combine functions in the list using Function's API.
 

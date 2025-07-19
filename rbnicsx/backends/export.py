@@ -92,8 +92,8 @@ def export_functions(
         adios4dolfinx.write_function_on_input_mesh(checkpointing_directory, function, "bp4", time=index)
 
 
-def export_matrix(  # type: ignore[no-any-unimported]
-    mat: petsc4py.PETSc.Mat, directory: pathlib.Path, filename: str
+def export_matrix(
+    mat: petsc4py.PETSc.Mat, directory: pathlib.Path, filename: str  # type: ignore[name-defined]
 ) -> None:
     """
     Export a petsc4py.PETSc.Mat assembled by dolfinx to file.
@@ -110,8 +110,8 @@ def export_matrix(  # type: ignore[no-any-unimported]
     export_matrix_super(mat, mat.comm, directory, filename)
 
 
-def export_matrices(  # type: ignore[no-any-unimported]
-    mats: list[petsc4py.PETSc.Mat], directory: pathlib.Path, filename: str
+def export_matrices(
+    mats: list[petsc4py.PETSc.Mat], directory: pathlib.Path, filename: str  # type: ignore[name-defined]
 ) -> None:
     """
     Export a list of petsc4py.PETSc.Mat assembled by dolfinx to file.
@@ -128,8 +128,8 @@ def export_matrices(  # type: ignore[no-any-unimported]
     export_matrices_super(mats, mats[0].comm, directory, filename)
 
 
-def export_vector(  # type: ignore[no-any-unimported]
-    vec: petsc4py.PETSc.Vec, directory: pathlib.Path, filename: str
+def export_vector(
+    vec: petsc4py.PETSc.Vec, directory: pathlib.Path, filename: str  # type: ignore[name-defined]
 ) -> None:
     """
     Export a petsc4py.PETSc.Vec assembled by dolfinx to file.
@@ -146,8 +146,8 @@ def export_vector(  # type: ignore[no-any-unimported]
     export_vector_super(vec, vec.comm, directory, filename)
 
 
-def export_vectors(  # type: ignore[no-any-unimported]
-    vecs: list[petsc4py.PETSc.Vec], directory: pathlib.Path, filename: str
+def export_vectors(
+    vecs: list[petsc4py.PETSc.Vec], directory: pathlib.Path, filename: str  # type: ignore[name-defined]
 ) -> None:
     """
     Export a list of petsc4py.PETSc.Vec assembled by dolfinx to file.

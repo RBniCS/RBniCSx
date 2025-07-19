@@ -85,9 +85,9 @@ def import_functions(
     return functions
 
 
-def import_matrix(  # type: ignore[no-any-unimported]
+def import_matrix(
     form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
-) -> petsc4py.PETSc.Mat:
+) -> petsc4py.PETSc.Mat:  # type: ignore[name-defined]
     """
     Import a petsc4py.PETSc.Mat assembled by dolfinx from file.
 
@@ -110,9 +110,9 @@ def import_matrix(  # type: ignore[no-any-unimported]
     return import_matrix_super(lambda: dolfinx.fem.petsc.create_matrix(form), comm, directory, filename)
 
 
-def import_matrices(  # type: ignore[no-any-unimported]
+def import_matrices(
     form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
-) -> list[petsc4py.PETSc.Mat]:
+) -> list[petsc4py.PETSc.Mat]:  # type: ignore[name-defined]
     """
     Import a list of petsc4py.PETSc.Mat assembled by dolfinx from file.
 
@@ -135,9 +135,9 @@ def import_matrices(  # type: ignore[no-any-unimported]
     return import_matrices_super(lambda: dolfinx.fem.petsc.create_matrix(form), comm, directory, filename)
 
 
-def import_vector(  # type: ignore[no-any-unimported]
+def import_vector(
     form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
-) -> petsc4py.PETSc.Vec:
+) -> petsc4py.PETSc.Vec:  # type: ignore[name-defined]
     """
     Import a petsc4py.PETSc.Vec assembled by dolfinx from file.
 
@@ -160,9 +160,9 @@ def import_vector(  # type: ignore[no-any-unimported]
     return import_vector_super(lambda: dolfinx.fem.petsc.create_vector(form), comm, directory, filename)
 
 
-def import_vectors(  # type: ignore[no-any-unimported]
+def import_vectors(
     form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
-) -> list[petsc4py.PETSc.Vec]:
+) -> list[petsc4py.PETSc.Vec]:  # type: ignore[name-defined]
     """
     Import a list of petsc4py.PETSc.Vec assembled by dolfinx from file.
 

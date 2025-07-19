@@ -13,9 +13,9 @@ import rbnicsx._cpp
 
 def test_cpp_backends_frobenius_inner_product() -> None:
     """Test C++ function rbnicsx::_backends::frobenius_inner_product."""
-    A = petsc4py.PETSc.Mat().createDense((2, 3), comm=mpi4py.MPI.COMM_WORLD)
+    A = petsc4py.PETSc.Mat().createDense((2, 3), comm=mpi4py.MPI.COMM_WORLD)  # type: ignore[attr-defined]
     A.setUp()
-    B = petsc4py.PETSc.Mat().createDense((2, 3), comm=mpi4py.MPI.COMM_WORLD)
+    B = petsc4py.PETSc.Mat().createDense((2, 3), comm=mpi4py.MPI.COMM_WORLD)  # type: ignore[attr-defined]
     B.setUp()
     for i in range(2):
         for j in range(3):

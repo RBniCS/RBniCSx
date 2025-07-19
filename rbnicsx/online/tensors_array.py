@@ -169,9 +169,9 @@ class TensorsArray(TensorsArrayBase):
         for (linear_index, tensor) in enumerate(array_flattened):
             self._array[np.unravel_index(linear_index, self.shape)] = tensor
 
-    def contraction(  # type: ignore[no-any-unimported]
-        self: typing_extensions.Self, *args: petsc4py.PETSc.Vec
-    ) -> petsc4py.PETSc.ScalarType:
+    def contraction(
+        self: typing_extensions.Self, *args: petsc4py.PETSc.Vec  # type: ignore[name-defined]
+    ) -> petsc4py.PETSc.ScalarType:  # type: ignore[name-defined]
         """
         Contract entries in the array.
 

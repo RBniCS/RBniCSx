@@ -194,7 +194,8 @@ def test_backends_export_import_vector(mesh: dolfinx.mesh.Mesh, family: str, deg
     linear_form = ufl.inner(1, v) * ufl.dx
     linear_form_cpp = dolfinx.fem.form(linear_form)
     vector = dolfinx.fem.petsc.assemble_vector(linear_form_cpp)
-    vector.ghostUpdate(addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)
+    vector.ghostUpdate(
+        addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)  # type: ignore[attr-defined]
 
     with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:
         rbnicsx.backends.export_vector(vector, pathlib.Path(tempdir), "vector")
@@ -212,8 +213,9 @@ def test_backends_export_import_vectors(mesh: dolfinx.mesh.Mesh, family: str, de
     linear_forms = [ufl.inner(i + 1, v) * ufl.dx for i in range(2)]
     linear_forms_cpp = dolfinx.fem.form(linear_forms)
     vectors = [dolfinx.fem.petsc.assemble_vector(linear_form_cpp) for linear_form_cpp in linear_forms_cpp]
-    [vector.ghostUpdate(
-        addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE) for vector in vectors]
+    for vector in vectors:
+        vector.ghostUpdate(
+            addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)  # type: ignore[attr-defined]
 
     with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:
         rbnicsx.backends.export_vectors(vectors, pathlib.Path(tempdir), "vectors")
@@ -226,9 +228,10 @@ def test_backends_export_import_vectors(mesh: dolfinx.mesh.Mesh, family: str, de
 
 @pytest.mark.parametrize("family", all_families)
 @pytest.mark.parametrize("degree", all_degrees)
-def test_backends_export_import_matrix(  # type: ignore[no-any-unimported]
+def test_backends_export_import_matrix(
     mesh: dolfinx.mesh.Mesh,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]],
+    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+        [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]],
     family: str, degree: str
 ) -> None:
     """Check I/O for a petsc4py.PETSc.Mat."""
@@ -249,9 +252,10 @@ def test_backends_export_import_matrix(  # type: ignore[no-any-unimported]
 
 @pytest.mark.parametrize("family", all_families)
 @pytest.mark.parametrize("degree", all_degrees)
-def test_backends_export_import_matrices(  # type: ignore[no-any-unimported]
+def test_backends_export_import_matrices(
     mesh: dolfinx.mesh.Mesh,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]],
+    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+        [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]],
     family: str, degree: str
 ) -> None:
     """Check I/O for a list of petsc4py.PETSc.Mat."""
@@ -261,7 +265,8 @@ def test_backends_export_import_matrices(  # type: ignore[no-any-unimported]
     bilinear_forms = [(i + 1) * ufl.inner(u, v) * ufl.dx for i in range(2)]
     bilinear_forms_cpp = dolfinx.fem.form(bilinear_forms)
     matrices = [dolfinx.fem.petsc.assemble_matrix(bilinear_form_cpp) for bilinear_form_cpp in bilinear_forms_cpp]
-    [matrix.assemble() for matrix in matrices]
+    for matrix in matrices:
+        matrix.assemble()
 
     with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:
         rbnicsx.backends.export_matrices(matrices, pathlib.Path(tempdir), "matrices")

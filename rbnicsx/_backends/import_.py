@@ -14,10 +14,10 @@ import petsc4py.PETSc
 from rbnicsx.io import on_rank_zero
 
 
-def import_matrix(  # type: ignore[no-any-unimported]
-    allocate: typing.Callable[[], petsc4py.PETSc.Mat], comm: mpi4py.MPI.Intracomm,
-    directory: pathlib.Path, filename: str
-) -> petsc4py.PETSc.Mat:
+def import_matrix(
+    allocate: typing.Callable[[], petsc4py.PETSc.Mat],  # type: ignore[name-defined]
+    comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
+) -> petsc4py.PETSc.Mat:  # type: ignore[name-defined]
     """
     Import a petsc4py.PETSc.Mat from file.
 
@@ -37,17 +37,18 @@ def import_matrix(  # type: ignore[no-any-unimported]
     :
         Matrix imported from file.
     """
-    viewer = petsc4py.PETSc.Viewer().createBinary(str(directory / (filename + ".dat")), "r", comm)
+    viewer = petsc4py.PETSc.Viewer().createBinary(  # type: ignore[attr-defined]
+        str(directory / (filename + ".dat")), "r", comm)
     mat = allocate()
     mat.load(viewer)
     viewer.destroy()
     return mat
 
 
-def import_matrices(  # type: ignore[no-any-unimported]
-    allocate: typing.Callable[[], petsc4py.PETSc.Mat], comm: mpi4py.MPI.Intracomm,
-    directory: pathlib.Path, filename: str
-) -> list[petsc4py.PETSc.Mat]:
+def import_matrices(
+    allocate: typing.Callable[[], petsc4py.PETSc.Mat],  # type: ignore[name-defined]
+    comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
+) -> list[petsc4py.PETSc.Mat]:  # type: ignore[name-defined]
     """
     Import a list of petsc4py.PETSc.Mat from file.
 
@@ -76,7 +77,8 @@ def import_matrices(  # type: ignore[no-any-unimported]
     # Read in the list
     mats = list()
     for index in range(length):
-        viewer = petsc4py.PETSc.Viewer().createBinary(str(directory / filename / (str(index) + ".dat")), "r", comm)
+        viewer = petsc4py.PETSc.Viewer().createBinary(  # type: ignore[attr-defined]
+            str(directory / filename / (str(index) + ".dat")), "r", comm)
         mat = allocate()
         mat.load(viewer)
         mats.append(mat)
@@ -84,10 +86,10 @@ def import_matrices(  # type: ignore[no-any-unimported]
     return mats
 
 
-def import_vector(  # type: ignore[no-any-unimported]
-    allocate: typing.Callable[[], petsc4py.PETSc.Vec], comm: mpi4py.MPI.Intracomm,
-    directory: pathlib.Path, filename: str
-) -> petsc4py.PETSc.Vec:
+def import_vector(
+    allocate: typing.Callable[[], petsc4py.PETSc.Vec],  # type: ignore[name-defined]
+    comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
+) -> petsc4py.PETSc.Vec:  # type: ignore[name-defined]
     """
     Import a petsc4py.PETSc.Vec from file.
 
@@ -107,17 +109,18 @@ def import_vector(  # type: ignore[no-any-unimported]
     :
         Vector imported from file.
     """
-    viewer = petsc4py.PETSc.Viewer().createBinary(str(directory / (filename + ".dat")), "r", comm)
+    viewer = petsc4py.PETSc.Viewer().createBinary(  # type: ignore[attr-defined]
+        str(directory / (filename + ".dat")), "r", comm)
     vec = allocate()
     vec.load(viewer)
     viewer.destroy()
     return vec
 
 
-def import_vectors(  # type: ignore[no-any-unimported]
-    allocate: typing.Callable[[], petsc4py.PETSc.Vec], comm: mpi4py.MPI.Intracomm,
-    directory: pathlib.Path, filename: str
-) -> list[petsc4py.PETSc.Vec]:
+def import_vectors(
+    allocate: typing.Callable[[], petsc4py.PETSc.Vec],  # type: ignore[name-defined]
+    comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
+) -> list[petsc4py.PETSc.Vec]:  # type: ignore[name-defined]
     """
     Import a list of petsc4py.PETSc.Vec from file.
 
@@ -146,7 +149,8 @@ def import_vectors(  # type: ignore[no-any-unimported]
     # Read in the list
     vecs = list()
     for index in range(length):
-        viewer = petsc4py.PETSc.Viewer().createBinary(str(directory / filename / (str(index) + ".dat")), "r", comm)
+        viewer = petsc4py.PETSc.Viewer().createBinary(  # type: ignore[attr-defined]
+            str(directory / filename / (str(index) + ".dat")), "r", comm)
         vec = allocate()
         vec.load(viewer)
         vecs.append(vec)

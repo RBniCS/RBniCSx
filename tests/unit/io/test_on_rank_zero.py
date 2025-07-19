@@ -43,7 +43,7 @@ def test_on_rank_zero_raise() -> None:
 
 def test_on_rank_zero_petsc4py_comm() -> None:
     """Check that on_rank_zero runs correctly when using a petsc4py communicator, rather than a mpi4py one."""
-    comm = petsc4py.PETSc.COMM_WORLD
+    comm = petsc4py.PETSc.COMM_WORLD  # type: ignore[attr-defined]
 
     def int_return_function() -> int:
         return comm.rank  # type: ignore[no-any-return]

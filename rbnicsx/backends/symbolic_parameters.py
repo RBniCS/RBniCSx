@@ -23,4 +23,4 @@ class SymbolicParameters(ufl4rom.utils.DolfinxNamedConstant):
     """
 
     def __init__(self, mesh: dolfinx.mesh.Mesh, shape: tuple[int, ...]) -> None:
-        super().__init__("mu", np.zeros(shape, dtype=petsc4py.PETSc.ScalarType), mesh)
+        super().__init__("mu", np.zeros(shape, dtype=petsc4py.PETSc.ScalarType), mesh)  # type: ignore[attr-defined]

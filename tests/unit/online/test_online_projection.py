@@ -29,7 +29,7 @@ def functions_list() -> rbnicsx.online.FunctionsList:
 
 
 @pytest.fixture
-def linear_form() -> petsc4py.PETSc.Vec:  # type: ignore[no-any-unimported]
+def linear_form() -> petsc4py.PETSc.Vec:  # type: ignore[name-defined]
     """Generate a petsc4py.PETSc.Vec representing a linear form in the 30-dimensional reduced basis space."""
     vector = rbnicsx.online.create_vector(30)
     for i in range(30):
@@ -38,7 +38,7 @@ def linear_form() -> petsc4py.PETSc.Vec:  # type: ignore[no-any-unimported]
 
 
 @pytest.fixture
-def linear_form_block() -> petsc4py.PETSc.Vec:  # type: ignore[no-any-unimported]
+def linear_form_block() -> petsc4py.PETSc.Vec:  # type: ignore[name-defined]
     """Generate a petsc4py.PETSc.Vec representing a linear block form in a 2x30-dimensional reduced basis space."""
     vector = rbnicsx.online.create_vector_block([30, 30])
     for i in range(30):
@@ -49,7 +49,7 @@ def linear_form_block() -> petsc4py.PETSc.Vec:  # type: ignore[no-any-unimported
 
 
 @pytest.fixture
-def bilinear_form() -> petsc4py.PETSc.Mat:  # type: ignore[no-any-unimported]
+def bilinear_form() -> petsc4py.PETSc.Mat:  # type: ignore[name-defined]
     """Generate a petsc4py.PETSc.Mat representing a bilinear form in the 30-dimensional reduced basis space."""
     matrix = rbnicsx.online.create_matrix(30, 30)
     for i in range(30):
@@ -59,7 +59,7 @@ def bilinear_form() -> petsc4py.PETSc.Mat:  # type: ignore[no-any-unimported]
 
 
 @pytest.fixture
-def bilinear_form_block() -> petsc4py.PETSc.Mat:  # type: ignore[no-any-unimported]
+def bilinear_form_block() -> petsc4py.PETSc.Mat:  # type: ignore[name-defined]
     """Generate a petsc4py.PETSc.Mat representing a bilinear block form in the 2x30-dimensional reduced basis space."""
     matrix = rbnicsx.online.create_matrix_block([30, 30], [30, 30])
     for I in range(2):  # noqa: E741
@@ -70,8 +70,8 @@ def bilinear_form_block() -> petsc4py.PETSc.Mat:  # type: ignore[no-any-unimport
     return matrix
 
 
-def test_online_projection_vector(  # type: ignore[no-any-unimported]
-    linear_form: petsc4py.PETSc.Vec, functions_list: rbnicsx.online.FunctionsList
+def test_online_projection_vector(
+    linear_form: petsc4py.PETSc.Vec, functions_list: rbnicsx.online.FunctionsList  # type: ignore[name-defined]
 ) -> None:
     """Test projection of a linear form onto the reduced basis."""
     N = linear_form.size
@@ -88,8 +88,8 @@ def test_online_projection_vector(  # type: ignore[no-any-unimported]
     assert np.allclose(online_vec2.array, online_vec.array)
 
 
-def test_online_projection_vector_block(  # type: ignore[no-any-unimported]
-    linear_form_block: petsc4py.PETSc.Vec, functions_list: rbnicsx.online.FunctionsList
+def test_online_projection_vector_block(
+    linear_form_block: petsc4py.PETSc.Vec, functions_list: rbnicsx.online.FunctionsList  # type: ignore[name-defined]
 ) -> None:
     """Test projection of a list of linear forms onto the reduced basis."""
     N = linear_form_block.size / 2
@@ -107,9 +107,10 @@ def test_online_projection_vector_block(  # type: ignore[no-any-unimported]
     assert np.allclose(online_vec2.array, online_vec.array)
 
 
-def test_online_projection_matrix_galerkin(  # type: ignore[no-any-unimported]
-    bilinear_form: petsc4py.PETSc.Mat, functions_list: rbnicsx.online.FunctionsList,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
+def test_online_projection_matrix_galerkin(
+    bilinear_form: petsc4py.PETSc.Mat, functions_list: rbnicsx.online.FunctionsList,  # type: ignore[name-defined]
+    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+        [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Test projection of a bilinear form onto the reduced basis (for use in Galerkin methods)."""
     N = bilinear_form.size[0]
@@ -128,9 +129,10 @@ def test_online_projection_matrix_galerkin(  # type: ignore[no-any-unimported]
     assert np.allclose(to_dense_matrix(online_mat2), to_dense_matrix(online_mat))
 
 
-def test_online_projection_matrix_petrov_galerkin(  # type: ignore[no-any-unimported]
-    bilinear_form: petsc4py.PETSc.Mat, functions_list: rbnicsx.online.FunctionsList,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
+def test_online_projection_matrix_petrov_galerkin(
+    bilinear_form: petsc4py.PETSc.Mat, functions_list: rbnicsx.online.FunctionsList,  # type: ignore[name-defined]
+    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+        [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Test projection of a bilinear form onto the reduced basis (for use in Petrov-Galerkin methods)."""
     N = bilinear_form.size[0]
@@ -149,9 +151,10 @@ def test_online_projection_matrix_petrov_galerkin(  # type: ignore[no-any-unimpo
     assert np.allclose(to_dense_matrix(online_mat2), to_dense_matrix(online_mat))
 
 
-def test_online_projection_matrix_block_galerkin(  # type: ignore[no-any-unimported]
-    bilinear_form_block: petsc4py.PETSc.Mat, functions_list: rbnicsx.online.FunctionsList,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
+def test_online_projection_matrix_block_galerkin(
+    bilinear_form_block: petsc4py.PETSc.Mat, functions_list: rbnicsx.online.FunctionsList,  # type: ignore[name-defined]
+    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+        [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Test projection of a matrix of bilinear forms onto the reduced basis (for use in Galerkin methods)."""
     N = bilinear_form_block.size[0] / 2
@@ -178,9 +181,10 @@ def test_online_projection_matrix_block_galerkin(  # type: ignore[no-any-unimpor
     assert np.allclose(to_dense_matrix(online_mat2), to_dense_matrix(online_mat))
 
 
-def test_online_projection_matrix_block_petrov_galerkin(  # type: ignore[no-any-unimported]
-    bilinear_form_block: petsc4py.PETSc.Mat, functions_list: rbnicsx.online.FunctionsList,
-    to_dense_matrix: typing.Callable[[petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
+def test_online_projection_matrix_block_petrov_galerkin(
+    bilinear_form_block: petsc4py.PETSc.Mat, functions_list: rbnicsx.online.FunctionsList,  # type: ignore[name-defined]
+    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+        [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Test projection of a matrix of bilinear forms onto the reduced basis (for use in Petrov-Galerkin methods)."""
     N = bilinear_form_block.size[0] / 2
