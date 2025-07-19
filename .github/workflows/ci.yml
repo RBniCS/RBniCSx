@@ -56,6 +56,9 @@ jobs:
             container: ghcr.io/fenics/dolfinx/dolfinx:nightly
             setup_git: ""
             setup_container: |
+              export DEBIAN_FRONTEND="noninteractive"
+              apt update -y -q
+              apt install -y -qq xvfb
               . /usr/local/bin/dolfinx-real-mode
               echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
               echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> $GITHUB_ENV
@@ -67,6 +70,9 @@ jobs:
             container: ghcr.io/fenics/dolfinx/dolfinx:nightly
             setup_git: ""
             setup_container: |
+              export DEBIAN_FRONTEND="noninteractive"
+              apt update -y -q
+              apt install -y -qq xvfb
               . /usr/local/bin/dolfinx-complex-mode
               echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
               echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> $GITHUB_ENV
@@ -191,10 +197,14 @@ jobs:
       - name: Run tutorials (serial)
         if: startsWith(matrix.backend, 'dolfinx') == true
         run: |
+          export DISPLAY=":99"
+          Xvfb $DISPLAY -screen 0 1024x768x24 > /dev/null 2>&1 &
           python3 -m pytest --tag-collapse --durations=0 --durations-min=1.0 tutorials
       - name: Run tutorials (parallel)
         if: startsWith(matrix.backend, 'dolfinx') == true
         run: |
+          export DISPLAY=":99"
+          Xvfb $DISPLAY -screen 0 1024x768x24 > /dev/null 2>&1 &
           python3 -m pytest --tag-collapse --np=2 --durations=0 --durations-min=1.0 tutorials
       - name: Upload tutorials logs as an artifact in case of failure
         if: startsWith(matrix.backend, 'dolfinx') == true && (failure() || cancelled())
