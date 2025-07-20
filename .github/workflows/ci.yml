@@ -20,74 +20,52 @@ jobs:
         include:
           - backend: none-real
             container: debian:testing
-            setup_git: |
-              export DEBIAN_FRONTEND="noninteractive"
-              apt update -y -q
-              apt install -y -qq git
-            setup_container: |
-              export DEBIAN_FRONTEND="noninteractive"
-              apt update -y -q
-              apt install -y -qq cmake libpetsc-real-dev libslepc-real-dev python3-mpi4py python3-nanobind python3-petsc4py-real python3-scikit-build-core python3-setuptools python3-slepc4py-real python3-pip wget
-              echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
-              echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
-              rm /usr/lib/python3.*/EXTERNALLY-MANAGED
-              PETSC_DIR=/usr/lib/petscdir/petsc-real
-              echo "PETSC_DIR=$PETSC_DIR" >> $GITHUB_ENV
-              SLEPC_DIR=/usr/lib/slepcdir/slepc-real
-              echo "SLEPC_DIR=$SLEPC_DIR" >> $GITHUB_ENV
+            petsc_arch: real
           - backend: none-complex
             container: debian:testing
-            setup_git: |
-              export DEBIAN_FRONTEND="noninteractive"
-              apt update -y -q
-              apt install -y -qq git
-            setup_container: |
-              export DEBIAN_FRONTEND="noninteractive"
-              apt update -y -q
-              apt install -y -qq cmake libpetsc-complex-dev libslepc-complex-dev python3-mpi4py python3-nanobind python3-petsc4py-complex python3-scikit-build-core python3-setuptools python3-slepc4py-complex python3-pip wget
-              echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
-              echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
-              rm /usr/lib/python3.*/EXTERNALLY-MANAGED
-              PETSC_DIR=/usr/lib/petscdir/petsc-complex
-              echo "PETSC_DIR=$PETSC_DIR" >> $GITHUB_ENV
-              SLEPC_DIR=/usr/lib/slepcdir/slepc-complex
-              echo "SLEPC_DIR=$SLEPC_DIR" >> $GITHUB_ENV
-          - backend: dolfinx-real
+            petsc_arch: complex
+          - backend: dolfinx-nightly-real
             container: ghcr.io/fenics/dolfinx/dolfinx:nightly
-            setup_git: ""
-            setup_container: |
-              export DEBIAN_FRONTEND="noninteractive"
-              apt update -y -q
-              apt install -y -qq xvfb
-              . /usr/local/bin/dolfinx-real-mode
-              echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
-              echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> $GITHUB_ENV
-              echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
-              echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
-              echo "CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH" >> $GITHUB_ENV
-              rm /dolfinx-env/lib/python3.*/site-packages/ufl/py.typed
-          - backend: dolfinx-complex
+            petsc_arch: real
+          - backend: dolfinx-nightly-complex
             container: ghcr.io/fenics/dolfinx/dolfinx:nightly
-            setup_git: ""
-            setup_container: |
-              export DEBIAN_FRONTEND="noninteractive"
-              apt update -y -q
-              apt install -y -qq xvfb
-              . /usr/local/bin/dolfinx-complex-mode
-              echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
-              echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> $GITHUB_ENV
-              echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
-              echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
-              echo "CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH" >> $GITHUB_ENV
-              rm /dolfinx-env/lib/python3.*/site-packages/ufl/py.typed
+            petsc_arch: complex
       fail-fast: false
     container: ${{ matrix.container }}
     steps:
       - name: Setup git
-        run: ${{ matrix.setup_git }}
+        run: |
+          export DEBIAN_FRONTEND="noninteractive"
+          apt update -y -q
+          apt install -y -qq git
       - uses: actions/checkout@v4
       - name: Setup container
-        run: ${{ matrix.setup_container }}
+        run: |
+          export DEBIAN_FRONTEND="noninteractive"
+          apt update -y -q
+          apt install -y -qq xvfb
+          if [[ "${{ matrix.backend }}" == "dolfinx"* ]]; then
+            . /usr/local/bin/dolfinx-${{ matrix.petsc_arch }}-mode
+            echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
+            echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> $GITHUB_ENV
+            echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
+            echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
+            echo "CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH" >> $GITHUB_ENV
+            rm /dolfinx-env/lib/python3.*/site-packages/ufl/py.typed
+          elif [[ "${{ matrix.backend }}" == "firedrake"* ]]; then
+            rm /usr/lib/python3.*/EXTERNALLY-MANAGED
+          else
+            apt install -y -qq cmake python3-mpi4py python3-nanobind python3-pip python3-scikit-build-core python3-setuptools wget
+            echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
+            echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
+            rm /usr/lib/python3.*/EXTERNALLY-MANAGED
+            apt install -y -qq libpetsc-${{ matrix.petsc_arch }}-dev libslepc-${{ matrix.petsc_arch }}-dev python3-petsc4py-${{ matrix.petsc_arch }} python3-slepc4py-${{ matrix.petsc_arch }}
+            PETSC_DIR=/usr/lib/petscdir/petsc-${{ matrix.petsc_arch }}
+            echo "PETSC_DIR=$PETSC_DIR" >> $GITHUB_ENV
+            SLEPC_DIR=/usr/lib/slepcdir/slepc-${{ matrix.petsc_arch }}
+            echo "SLEPC_DIR=$SLEPC_DIR" >> $GITHUB_ENV
+          fi
+        shell: bash
       - name: Install RBniCSx
         run: |
           if [[ "${{ matrix.backend }}" == none* ]]; then
