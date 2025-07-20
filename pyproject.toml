@@ -16,6 +16,7 @@ maintainers = [
     {name = "Francesco Ballarin", email = "francesco.ballarin@unicatt.it"},
 ]
 description = "Reduced order modelling in FEniCSx"
+readme = "README.md"
 license = {file = "COPYING"}
 requires-python = ">=3.9"
 classifiers = [
