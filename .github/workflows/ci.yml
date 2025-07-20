@@ -24,6 +24,24 @@ jobs:
           - backend: none-complex
             container: debian:testing
             petsc_arch: complex
+          - backend: dolfinx-v0.9.0-real
+            container: ghcr.io/fenics/dolfinx/dolfinx:v0.9.0
+            petsc_arch: real
+          - backend: dolfinx-v0.9.0-complex
+            container: ghcr.io/fenics/dolfinx/dolfinx:v0.9.0
+            petsc_arch: complex
+          # - backend: dolfinx-v0.10.0-real
+          #   container: ghcr.io/fenics/dolfinx/dolfinx:v0.10.0
+          #   petsc_arch: real
+          # - backend: dolfinx-v0.10.0-complex
+          #   container: ghcr.io/fenics/dolfinx/dolfinx:v0.10.0
+          #   petsc_arch: complex
+          - backend: dolfinx-stable-real
+            container: ghcr.io/fenics/dolfinx/dolfinx:stable
+            petsc_arch: real
+          - backend: dolfinx-stable-complex
+            container: ghcr.io/fenics/dolfinx/dolfinx:stable
+            petsc_arch: complex
           - backend: dolfinx-nightly-real
             container: ghcr.io/fenics/dolfinx/dolfinx:nightly
             petsc_arch: real
@@ -51,9 +69,7 @@ jobs:
             echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
             echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
             echo "CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH" >> $GITHUB_ENV
-            rm /dolfinx-env/lib/python3.*/site-packages/ufl/py.typed
-          elif [[ "${{ matrix.backend }}" == "firedrake"* ]]; then
-            rm /usr/lib/python3.*/EXTERNALLY-MANAGED
+            rm -f /dolfinx-env/lib/python3.*/site-packages/ufl/py.typed
           else
             apt install -y -qq cmake python3-mpi4py python3-nanobind python3-pip python3-scikit-build-core python3-setuptools wget
             echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
