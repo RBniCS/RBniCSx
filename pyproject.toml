@@ -81,7 +81,7 @@ tutorials = [
     "nbvalx[notebooks]",
     "plotly",
     "rbnicsx[backends]",
-    "viskex @ git+https://github.com/viskex/viskex.git"
+    "viskex"
 ]
 
 [tool.isort]
