@@ -150,4 +150,3 @@ convention = "numpy"
 [tool.scikit-build]
 cmake.source-dir = "rbnicsx/_cpp"
 wheel.packages = ["rbnicsx"]
-sdist.exclude = ["*.cpp", "*.h", "CMakeLists.txt"]
