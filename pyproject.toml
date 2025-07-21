@@ -81,7 +81,7 @@ tutorials = [
     "nbvalx[notebooks]",
     "plotly",
     "rbnicsx[backends]",
-    "viskex"
+    "viskex[backend-dolfinx]"
 ]
 
 [tool.isort]
