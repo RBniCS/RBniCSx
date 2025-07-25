@@ -255,9 +255,9 @@ jobs:
         run: |
           NO_TESTS_COLLECTED=5
           python3 -m pytest --ipynb-action=create-notebooks tutorials || (($?==$NO_TESTS_COLLECTED))
-          python3 -m pytest --ipynb-action=create-notebooks --tag-collapse tutorials || (($?==$NO_TESTS_COLLECTED))
+          python3 -m pytest --ipynb-action=create-notebooks --collapse tutorials || (($?==$NO_TESTS_COLLECTED))
           python3 -m pytest --ipynb-action=create-notebooks --np=2 tutorials || (($?==$NO_TESTS_COLLECTED))
-          python3 -m pytest --ipynb-action=create-notebooks --tag-collapse --np=2 tutorials || (($?==$NO_TESTS_COLLECTED))
+          python3 -m pytest --ipynb-action=create-notebooks --collapse --np=2 tutorials || (($?==$NO_TESTS_COLLECTED))
         shell: bash
       - name: Run ruff on tutorial files
         if: startsWith(matrix.backend, 'dolfinx') == true
@@ -281,13 +281,13 @@ jobs:
         run: |
           export DISPLAY=":99"
           Xvfb $DISPLAY -screen 0 1024x768x24 > /dev/null 2>&1 &
-          python3 -m pytest --tag-collapse --durations=0 --durations-min=1.0 tutorials
+          python3 -m pytest --collapse --durations=0 --durations-min=1.0 tutorials
       - name: Run tutorials (parallel)
         if: startsWith(matrix.backend, 'dolfinx') == true
         run: |
           export DISPLAY=":99"
           Xvfb $DISPLAY -screen 0 1024x768x24 > /dev/null 2>&1 &
-          python3 -m pytest --tag-collapse --np=2 --durations=0 --durations-min=1.0 tutorials
+          python3 -m pytest --collapse --np=2 --durations=0 --durations-min=1.0 tutorials
       - name: Upload tutorials logs as an artifact in case of failure
         if: startsWith(matrix.backend, 'dolfinx') == true && (failure() || cancelled())
         uses: actions/upload-artifact@v4

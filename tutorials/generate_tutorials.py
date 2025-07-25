@@ -14,7 +14,7 @@ import pytest
 if __name__ == "__main__":  # pragma: no cover
     discard_stdout = io.StringIO()
     with contextlib.redirect_stdout(discard_stdout):
-        retcode = pytest.main(["--ipynb-action=create-notebooks", "--tag-collapse", "--work-dir=."])
+        retcode = pytest.main(["--ipynb-action=create-notebooks", "--collapse", "--work-dir=."])
     if retcode == pytest.ExitCode.NO_TESTS_COLLECTED:
         sys.exit(0)
     else:
