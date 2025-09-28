@@ -41,6 +41,7 @@ classifiers = [
 dependencies = [
     "mpi4py",
     "numpy >= 1.21.0",
+    "packaging",
     "petsc4py",
     "plum-dispatch",
     "slepc4py",

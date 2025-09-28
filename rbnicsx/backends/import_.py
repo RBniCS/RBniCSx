@@ -11,6 +11,7 @@ import adios4dolfinx
 import dolfinx.fem
 import dolfinx.fem.petsc
 import mpi4py.MPI
+import packaging.version
 import petsc4py.PETSc
 
 from rbnicsx._backends.import_ import (
@@ -158,7 +159,15 @@ def import_vector(
     :
         Vector imported from file.
     """
-    return import_vector_super(lambda: dolfinx.fem.petsc.create_vector(form), comm, directory, filename)
+    if packaging.version.Version(dolfinx.__version__) >= packaging.version.Version("0.10.0"):  # pragma: no cover
+        function_space: dolfinx.fem.FunctionSpace = dolfinx.fem.extract_function_spaces(form)  # type: ignore
+        return import_vector_super(
+            lambda: dolfinx.fem.petsc.create_vector(function_space),  # type: ignore[arg-type, unused-ignore]
+            comm, directory, filename)
+    else:  # pragma: no cover
+        return import_vector_super(
+            lambda: dolfinx.fem.petsc.create_vector(form),  # type: ignore[arg-type, unused-ignore]
+            comm, directory, filename)
 
 
 def import_vectors(
@@ -183,4 +192,12 @@ def import_vectors(
     :
         Vectors imported from file.
     """
-    return import_vectors_super(lambda: dolfinx.fem.petsc.create_vector(form), comm, directory, filename)
+    if packaging.version.Version(dolfinx.__version__) >= packaging.version.Version("0.10.0"):  # pragma: no cover
+        function_space: dolfinx.fem.FunctionSpace = dolfinx.fem.extract_function_spaces(form)  # type: ignore
+        return import_vectors_super(
+            lambda: dolfinx.fem.petsc.create_vector(function_space),  # type: ignore[arg-type, unused-ignore]
+            comm, directory, filename)
+    else:  # pragma: no cover
+        return import_vectors_super(
+            lambda: dolfinx.fem.petsc.create_vector(form),  # type: ignore[arg-type, unused-ignore]
+            comm, directory, filename)
