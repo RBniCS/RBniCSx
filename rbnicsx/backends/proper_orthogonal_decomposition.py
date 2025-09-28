@@ -111,8 +111,8 @@ def proper_orthogonal_decomposition_block(
     functions_lists: typing.Sequence[FunctionsList],
     compute_inner_products: typing.Sequence[  # type: ignore[name-defined]
         typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.RealType]]],
-    N: typing.Union[int, list[int]] = -1,
-    tol: typing.Union[petsc4py.PETSc.RealType, list[petsc4py.PETSc.RealType]] = real_zero,  # type: ignore[name-defined]
+    N: int | list[int] = -1,
+    tol: petsc4py.PETSc.RealType | list[petsc4py.PETSc.RealType] = real_zero,  # type: ignore[name-defined]
     normalize: bool = True
 ) -> tuple[  # type: ignore[name-defined]
     list[npt.NDArray[petsc4py.PETSc.RealType]], list[FunctionsList],

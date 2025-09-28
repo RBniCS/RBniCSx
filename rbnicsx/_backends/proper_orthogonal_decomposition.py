@@ -72,8 +72,8 @@ def proper_orthogonal_decomposition_functions_block(
         typing.Callable[[Function], typing.Callable[[Function], petsc4py.PETSc.RealType]]
     ],
     scale: typing.Callable[[Function, petsc4py.PETSc.RealType], None],  # type: ignore[name-defined]
-    N: typing.Union[int, list[int]] = -1,
-    tol: typing.Union[petsc4py.PETSc.RealType, list[petsc4py.PETSc.RealType]] = real_zero,  # type: ignore[name-defined]
+    N: int | list[int] = -1,
+    tol: petsc4py.PETSc.RealType | list[petsc4py.PETSc.RealType] = real_zero,  # type: ignore[name-defined]
     normalize: bool = True
 ) -> tuple[  # type: ignore[name-defined]
     list[npt.NDArray[petsc4py.PETSc.RealType]], list[FunctionsList[Function]], list[list[petsc4py.PETSc.Vec]]
@@ -204,22 +204,21 @@ def proper_orthogonal_decomposition_tensors(
 
 
 def _solve_eigenvalue_problem(
-    snapshots: typing.Union[FunctionsList[Function], TensorsList],
-    compute_inner_product: typing.Union[  # type: ignore[name-defined]
-        typing.Callable[[Function], typing.Callable[[Function], petsc4py.PETSc.RealType]],
-        typing.Callable[[petsc4py.PETSc.Mat], typing.Callable[[petsc4py.PETSc.Mat], petsc4py.PETSc.RealType]],
-        typing.Callable[[petsc4py.PETSc.Vec], typing.Callable[[petsc4py.PETSc.Vec], petsc4py.PETSc.RealType]]
-    ],
-    scale: typing.Union[  # type: ignore[name-defined]
-        typing.Callable[[Function, petsc4py.PETSc.RealType], None],
-        typing.Callable[[petsc4py.PETSc.Mat, petsc4py.PETSc.RealType], None],
-        typing.Callable[[petsc4py.PETSc.Vec, petsc4py.PETSc.RealType], None],
-    ],
+    snapshots: FunctionsList[Function] | TensorsList,
+    compute_inner_product: typing.Callable[  # type: ignore[name-defined]
+            [Function], typing.Callable[[Function], petsc4py.PETSc.RealType]
+        ] | typing.Callable[
+            [petsc4py.PETSc.Mat], typing.Callable[[petsc4py.PETSc.Mat], petsc4py.PETSc.RealType]
+        ] | typing.Callable[
+            [petsc4py.PETSc.Vec], typing.Callable[[petsc4py.PETSc.Vec], petsc4py.PETSc.RealType]
+        ],
+    scale: typing.Callable[[Function, petsc4py.PETSc.RealType], None]  # type: ignore[name-defined]
+           | typing.Callable[[petsc4py.PETSc.Mat, petsc4py.PETSc.RealType], None]
+           | typing.Callable[[petsc4py.PETSc.Vec, petsc4py.PETSc.RealType], None],
     N: int, tol: petsc4py.PETSc.RealType, normalize: bool  # type: ignore[name-defined]
 ) -> tuple[  # type: ignore[name-defined]
     npt.NDArray[petsc4py.PETSc.RealType],
-    typing.Union[
-        list[Function], list[petsc4py.PETSc.Mat], list[petsc4py.PETSc.Vec]],
+    list[Function] | list[petsc4py.PETSc.Mat] | list[petsc4py.PETSc.Vec],
     list[petsc4py.PETSc.Vec]
 ]:
     """

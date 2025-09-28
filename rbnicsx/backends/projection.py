@@ -143,7 +143,7 @@ def project_vector_block(*args, **kwargs):  # type: ignore[no-untyped-def] # noq
 def project_matrix(
     a: typing.Callable[  # type: ignore[name-defined]
         [dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]],
-    B: typing.Union[FunctionsList, tuple[FunctionsList, FunctionsList]]
+    B: FunctionsList | tuple[FunctionsList, FunctionsList]
 ) -> petsc4py.PETSc.Mat:  # type: ignore[name-defined]
     """
     Project a bilinear form onto the reduced basis.
@@ -179,7 +179,7 @@ def project_matrix(  # noqa: F811
     A: petsc4py.PETSc.Mat,  # type: ignore[name-defined]
     a: typing.Callable[  # type: ignore[name-defined]
         [dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]],
-    B: typing.Union[FunctionsList, tuple[FunctionsList, FunctionsList]]
+    B: FunctionsList | tuple[FunctionsList, FunctionsList]
 ) -> None:
     """
     Project a bilinear form onto the reduced basis.
@@ -209,8 +209,7 @@ def project_matrix(*args, **kwargs):  # type: ignore[no-untyped-def] # noqa: ANN
 def project_matrix_block(
     a: typing.Sequence[typing.Sequence[  # type: ignore[name-defined]
         typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]]],
-    B: typing.Union[
-        typing.Sequence[FunctionsList], tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]]
+    B: typing.Sequence[FunctionsList] | tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]
 ) -> petsc4py.PETSc.Mat:  # type: ignore[name-defined]
     """
     Project a matrix of bilinear forms onto the reduced basis.
@@ -246,8 +245,7 @@ def project_matrix_block(  # noqa: F811
     A: petsc4py.PETSc.Mat,  # type: ignore[name-defined]
     a: typing.Sequence[typing.Sequence[  # type: ignore[name-defined]
         typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]]],
-    B: typing.Union[
-        typing.Sequence[FunctionsList], tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]]
+    B: typing.Sequence[FunctionsList] | tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]
 ) -> None:
     """
     Project a matrix of bilinear forms onto the reduced basis.
@@ -278,7 +276,7 @@ class FormArgumentsReplacer:
     """A wrapper to successive calls to ufl.replace and dolfinx.fem.form."""
 
     def __init__(  # type: ignore[no-any-unimported]
-        self, form: ufl.Form, test: typing.Optional[bool] = False, trial: typing.Optional[bool] = False
+        self, form: ufl.Form, test: bool | None = False, trial: bool | None = False
     ) -> None:
         form_arguments = form.arguments()
 
@@ -319,8 +317,8 @@ class FormArgumentsReplacer:
         return self._form_cpp
 
     def replace(  # type: ignore[no-any-unimported]
-        self, test: typing.Optional[typing.Union[dolfinx.fem.Function, ufl.core.expr.Expr]] = None,
-        trial: typing.Optional[typing.Union[dolfinx.fem.Function, ufl.core.expr.Expr]] = None
+        self, test: dolfinx.fem.Function | ufl.core.expr.Expr | None = None,
+        trial: dolfinx.fem.Function | ufl.core.expr.Expr | None = None
     ) -> None:
         """
         Update the placeholder associated to one or more arguments.
@@ -367,7 +365,7 @@ class FormArgumentsReplacer:
 
 
 def linear_form_action(  # type: ignore[no-any-unimported]
-    L: ufl.Form, part: typing.Optional[str] = None
+    L: ufl.Form, part: str | None = None
 ) -> typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]:  # type: ignore[name-defined]
     """
     Return a callable that represents the action of a linear form on a function.
@@ -389,7 +387,7 @@ def linear_form_action(  # type: ignore[no-any-unimported]
 
     def _(
         fun: dolfinx.fem.Function
-    ) -> typing.Union[petsc4py.PETSc.ScalarType, petsc4py.PETSc.RealType]:  # type: ignore[name-defined]
+    ) -> petsc4py.PETSc.ScalarType | petsc4py.PETSc.RealType:  # type: ignore[name-defined]
         """
         Compute the action of a linear form on a function.
 
@@ -413,7 +411,7 @@ def linear_form_action(  # type: ignore[no-any-unimported]
 
 
 def block_linear_form_action(  # type: ignore[no-any-unimported]
-    L: typing.Sequence[ufl.Form], part: typing.Optional[str] = None
+    L: typing.Sequence[ufl.Form], part: str | None = None
 ) -> typing.Sequence[typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]:  # type: ignore[name-defined]
     """
     Return a callable that represents the action of a block linear form on a function.
@@ -435,7 +433,7 @@ def block_linear_form_action(  # type: ignore[no-any-unimported]
 
 
 def bilinear_form_action(  # type: ignore[no-any-unimported]
-    a: ufl.Form, part: typing.Optional[str] = None
+    a: ufl.Form, part: str | None = None
 ) -> typing.Callable[  # type: ignore[name-defined]
     [dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]
 ]:
@@ -474,8 +472,9 @@ def bilinear_form_action(  # type: ignore[no-any-unimported]
         """
         a_replacement_cpp.replace(trial=fun_1)
 
-        def _test_action(fun_0: dolfinx.fem.Function) -> typing.Union[  # type: ignore[name-defined]
-                petsc4py.PETSc.ScalarType, petsc4py.PETSc.RealType]:
+        def _test_action(
+            fun_0: dolfinx.fem.Function
+        ) -> petsc4py.PETSc.ScalarType | petsc4py.PETSc.RealType:  # type: ignore[name-defined]
             """
             Compute the action of a bilinear form on a pair of functions.
 
@@ -501,7 +500,7 @@ def bilinear_form_action(  # type: ignore[no-any-unimported]
 
 
 def block_diagonal_bilinear_form_action(  # type: ignore[no-any-unimported]
-    a: typing.Sequence[ufl.Form], part: typing.Optional[str] = None
+    a: typing.Sequence[ufl.Form], part: str | None = None
 ) -> typing.Sequence[  # type: ignore[name-defined]
     typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]
 ]:
@@ -526,7 +525,7 @@ def block_diagonal_bilinear_form_action(  # type: ignore[no-any-unimported]
 
 def block_bilinear_form_action(  # type: ignore[no-any-unimported]
     a: typing.Sequence[typing.Sequence[ufl.Form]],
-    part: typing.Optional[str] = None
+    part: str | None = None
 ) -> typing.Sequence[typing.Sequence[  # type: ignore[name-defined]
     typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]]
 ]:
@@ -550,8 +549,8 @@ def block_bilinear_form_action(  # type: ignore[no-any-unimported]
 
 
 def _extract_part(
-    value: petsc4py.PETSc.ScalarType, part: typing.Optional[str]  # type: ignore[name-defined]
-) -> typing.Union[petsc4py.PETSc.ScalarType, petsc4py.PETSc.RealType]:  # type: ignore[name-defined] # pragma: no cover
+    value: petsc4py.PETSc.ScalarType, part: str | None  # type: ignore[name-defined]
+) -> petsc4py.PETSc.ScalarType | petsc4py.PETSc.RealType:  # type: ignore[name-defined] # pragma: no cover
     if np.issubdtype(petsc4py.PETSc.ScalarType, np.complexfloating):  # type: ignore[attr-defined]
         if part == "real":
             return value.real

@@ -46,12 +46,12 @@ class TensorsArray(abc.ABC):
     """
 
     def __init__(
-        self: typing_extensions.Self, comm: mpi4py.MPI.Intracomm, shape: typing.Union[int, tuple[int, ...]]
+        self: typing_extensions.Self, comm: mpi4py.MPI.Intracomm, shape: int | tuple[int, ...]
     ) -> None:
         self._comm: mpi4py.MPI.Intracomm = comm
         self._array: npt.NDArray[  # type: ignore[name-defined]
-            typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]] = np.full(shape, fill_value=None, dtype=object)
-        self._type: typing.Optional[str] = None
+            petsc4py.PETSc.Mat | petsc4py.PETSc.Vec] = np.full(shape, fill_value=None, dtype=object)
+        self._type: str | None = None
 
     @property
     def comm(self: typing_extensions.Self) -> mpi4py.MPI.Intracomm:
@@ -64,13 +64,13 @@ class TensorsArray(abc.ABC):
         return self._array.shape  # type: ignore[no-any-return, unused-ignore]
 
     @property
-    def type(self: typing_extensions.Self) -> typing.Optional[str]:
+    def type(self: typing_extensions.Self) -> str | None:
         """Return the type of tensors (Mat or Vec) currently stored."""
         return self._type
 
     @abc.abstractmethod
     def duplicate(
-        self: typing_extensions.Self, shape: typing.Optional[typing.Union[int, tuple[int, ...]]] = None
+        self: typing_extensions.Self, shape: int | tuple[int, ...] | None = None
     ) -> typing_extensions.Self:
         """
         Duplicate this object to a new empty TensorsArray.
@@ -227,19 +227,19 @@ class TensorsArray(abc.ABC):
 
     @typing.overload
     def __getitem__(
-        self: typing_extensions.Self, key: typing.Union[int, tuple[int, ...]]
-    ) -> typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]:  # type: ignore[name-defined] # pragma: no cover
+        self: typing_extensions.Self, key: int | tuple[int, ...]
+    ) -> petsc4py.PETSc.Mat | petsc4py.PETSc.Vec:  # type: ignore[name-defined] # pragma: no cover
         ...
 
     @typing.overload
     def __getitem__(
-        self: typing_extensions.Self, key: typing.Union[slice, tuple[slice, slice]]
+        self: typing_extensions.Self, key: slice | tuple[slice, slice]
     ) -> typing_extensions.Self:  # pragma: no cover
         ...
 
     def __getitem__(
-        self: typing_extensions.Self, key: typing.Union[int, tuple[int, ...], slice, tuple[slice, slice]]
-    ) -> typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec, typing_extensions.Self]:  # type: ignore[name-defined]
+        self: typing_extensions.Self, key: int | tuple[int, ...] | slice | tuple[slice, slice]
+    ) -> petsc4py.PETSc.Mat | petsc4py.PETSc.Vec | typing_extensions.Self:  # type: ignore[name-defined]
         """
         Extract a single tensor from the array, or slice the array.
 
@@ -265,8 +265,8 @@ class TensorsArray(abc.ABC):
             raise NotImplementedError()
 
     def __setitem__(
-        self: typing_extensions.Self, key: typing.Union[int, tuple[int, ...]],
-        tensor: typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]  # type: ignore[name-defined]
+        self: typing_extensions.Self, key: int | tuple[int, ...],
+        tensor: petsc4py.PETSc.Mat | petsc4py.PETSc.Vec  # type: ignore[name-defined]
     ) -> None:
         """
         Update the content of the array with the provided tensor.

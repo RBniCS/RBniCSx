@@ -45,7 +45,7 @@ class TensorsArray(TensorsArrayBase):
 
     def __init__(
         self: typing_extensions.Self, form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm,
-        shape: typing.Union[int, tuple[int, ...]]
+        shape: int | tuple[int, ...]
     ) -> None:
         self._form: dolfinx.fem.Form = form
         super().__init__(comm, shape)
@@ -56,7 +56,7 @@ class TensorsArray(TensorsArrayBase):
         return self._form
 
     def duplicate(
-        self: typing_extensions.Self, shape: typing.Optional[typing.Union[int, tuple[int, ...]]] = None
+        self: typing_extensions.Self, shape: int | tuple[int, ...] | None = None
     ) -> typing_extensions.Self:
         """
         Duplicate this object to a new empty TensorsArray.

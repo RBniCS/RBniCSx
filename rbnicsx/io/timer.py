@@ -46,7 +46,7 @@ class Timer:
 
     def __init__(
         self: typing_extensions.Self,
-        comm: typing.Union[mpi4py.MPI.Intracomm, petsc4py.PETSc.Comm],  # type: ignore[name-defined]
+        comm: mpi4py.MPI.Intracomm | petsc4py.PETSc.Comm,  # type: ignore[name-defined]
         op: mpi4py.MPI.Op,
         store: typing.Callable[[float], None]
     ) -> None:
@@ -56,7 +56,7 @@ class Timer:
         self._comm: mpi4py.MPI.Intracomm = comm
         self._op: mpi4py.MPI.Op = op
         self._store: typing.Callable[[float], None] = store
-        self._start: typing.Optional[float] = None
+        self._start: float | None = None
 
     def __enter__(self: typing_extensions.Self) -> typing_extensions.Self:
         """Enter the context and start the timer."""

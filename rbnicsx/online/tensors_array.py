@@ -48,13 +48,10 @@ class TensorsArray(TensorsArrayBase):
     _vector_with_one_entry.setValue(0, 1)
 
     def __init__(
-        self: typing_extensions.Self, content_shape: typing.Union[
-            int, tuple[int, int], list[int], tuple[list[int], list[int]]],
-        array_shape: typing.Union[int, tuple[int, ...]]
+        self: typing_extensions.Self, content_shape: int | tuple[int, int] | list[int] | tuple[list[int], list[int]],
+        array_shape: int | tuple[int, ...]
     ) -> None:
-        self._content_shape: typing.Union[
-            int, tuple[int, int], list[int], tuple[list[int], list[int]]
-        ] = content_shape
+        self._content_shape: int | tuple[int, int] | list[int] | tuple[list[int], list[int]] = content_shape
         if isinstance(content_shape, list):
             is_block = True  # block vector
         elif isinstance(content_shape, tuple) and all([
@@ -67,7 +64,7 @@ class TensorsArray(TensorsArrayBase):
         super().__init__(mpi4py.MPI.COMM_WORLD, array_shape)
 
     @property
-    def flattened_shape(self: typing_extensions.Self) -> tuple[typing.Union[int, list[int]], ...]:
+    def flattened_shape(self: typing_extensions.Self) -> tuple[int | list[int], ...]:
         """Return the union of the shape of the array and the content shape."""
         if isinstance(self._content_shape, tuple):
             return self.shape + self.content_shape  # type: ignore[operator]
@@ -75,8 +72,7 @@ class TensorsArray(TensorsArrayBase):
             return self.shape + (self.content_shape, )  # type: ignore[operator] # noqa: RUF005
 
     @property
-    def content_shape(self: typing_extensions.Self) -> typing.Union[
-            int, tuple[int, int], list[int], tuple[list[int], list[int]]]:
+    def content_shape(self: typing_extensions.Self) -> int | tuple[int, int] | list[int] | tuple[list[int], list[int]]:
         """Return the shape of the tensors in the array."""
         return self._content_shape
 
@@ -86,7 +82,7 @@ class TensorsArray(TensorsArrayBase):
         return self._is_block
 
     def duplicate(
-        self, array_shape: typing.Optional[typing.Union[int, tuple[int, ...]]] = None
+        self, array_shape: int | tuple[int, ...] | None = None
     ) -> typing_extensions.Self:
         """
         Duplicate this object to a new empty TensorsArray.

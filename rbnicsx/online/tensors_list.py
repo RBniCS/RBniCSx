@@ -40,11 +40,9 @@ class TensorsList(TensorsListBase):
     """
 
     def __init__(
-        self: typing_extensions.Self, shape: typing.Union[
-            int, tuple[int, int], list[int], tuple[list[int], list[int]]]
+        self: typing_extensions.Self, shape: int | tuple[int, int] | list[int] | tuple[list[int], list[int]]
     ) -> None:
-        self._shape: typing.Union[
-            int, tuple[int, int], list[int], tuple[list[int], list[int]]] = shape
+        self._shape: int | tuple[int, int] | list[int] | tuple[list[int], list[int]] = shape
         if isinstance(shape, list):
             is_block = True  # block vector
         elif isinstance(shape, tuple) and all([isinstance(shape_, list) for shape_ in shape]):
@@ -56,8 +54,7 @@ class TensorsList(TensorsListBase):
         super().__init__(mpi4py.MPI.COMM_WORLD)
 
     @property
-    def shape(self: typing_extensions.Self) -> typing.Union[
-            int, tuple[int, int], list[int], tuple[list[int], list[int]]]:
+    def shape(self: typing_extensions.Self) -> int | tuple[int, int] | list[int] | tuple[list[int], list[int]]:
         """Return the shape of the tensors in the list."""
         return self._shape
 

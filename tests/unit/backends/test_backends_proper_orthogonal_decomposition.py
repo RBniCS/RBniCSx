@@ -158,7 +158,7 @@ def test_backends_proper_orthogonal_decomposition_functions_N_tol(  # type: igno
 def test_backends_proper_orthogonal_decomposition_block(  # type: ignore[no-any-unimported]
     functions_list: rbnicsx.backends.FunctionsList, inner_product: ufl.Form, normalize: bool,
     stopping_criterion_generator: typing.Callable[
-        [typing.Any], typing.Union[typing.Any, tuple[typing.Any, typing.Any]]]
+        [typing.Any], typing.Any | tuple[typing.Any, typing.Any]]
 ) -> None:
     """Check rbnicsx.backends.proper_orthogonal_decomposition_block."""
     compute_inner_product = rbnicsx.backends.block_diagonal_bilinear_form_action([inner_product, 2 * inner_product])

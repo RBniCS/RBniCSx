@@ -6,7 +6,6 @@
 """Tests for rbnicsx.online.functions_list module."""
 
 import pathlib
-import typing
 
 import _pytest.fixtures
 import nbvalx.tempfile
@@ -164,7 +163,7 @@ def test_online_functions_list_mul(functions_list: rbnicsx.online.FunctionsList)
 
 
 @pytest.mark.parametrize("shape", [10, [5, 5]])
-def test_online_functions_list_mul_empty(shape: typing.Union[int, list[int]]) -> None:
+def test_online_functions_list_mul_empty(shape: int | list[int]) -> None:
     """Check rbnicsx.online.FunctionsList.__mul__ with empty list."""
     empty_functions_list = rbnicsx.online.FunctionsList(shape)
 

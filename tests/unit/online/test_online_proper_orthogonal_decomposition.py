@@ -234,7 +234,7 @@ def test_online_proper_orthogonal_decomposition_block(
     inner_product: typing.Callable[[int], petsc4py.PETSc.Mat],  # type: ignore[name-defined]
     normalize: bool,
     stopping_criterion_generator: typing.Callable[
-        [typing.Any], typing.Union[typing.Any, tuple[typing.Any, typing.Any]]]
+        [typing.Any], typing.Any | tuple[typing.Any, typing.Any]]
 ) -> None:
     """Check rbnicsx.online.proper_orthogonal_decomposition_block."""
     size = functions_list[0].size

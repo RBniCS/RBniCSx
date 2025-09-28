@@ -109,8 +109,8 @@ def proper_orthogonal_decomposition(  # type: ignore[no-untyped-def] # noqa: ANN
 def proper_orthogonal_decomposition_block(
     functions_lists: typing.Sequence[FunctionsList],
     inner_products: list[petsc4py.PETSc.Mat],  # type: ignore[name-defined]
-    N: typing.Union[int, list[int]] = -1,
-    tol: typing.Union[petsc4py.PETSc.RealType, list[petsc4py.PETSc.RealType]] = real_zero,  # type: ignore[name-defined]
+    N: int | list[int] = -1,
+    tol: petsc4py.PETSc.RealType | list[petsc4py.PETSc.RealType] = real_zero,  # type: ignore[name-defined]
     normalize: bool = True
 ) -> tuple[  # type: ignore[name-defined]
     list[npt.NDArray[petsc4py.PETSc.RealType]], list[FunctionsList],

@@ -42,9 +42,8 @@ class TensorsList(abc.ABC):
 
     def __init__(self: typing_extensions.Self, comm: mpi4py.MPI.Intracomm) -> None:
         self._comm: mpi4py.MPI.Intracomm = comm
-        self._list: typing.Union[  # type: ignore[name-defined]
-            list[petsc4py.PETSc.Mat], list[petsc4py.PETSc.Vec]] = list()
-        self._type: typing.Optional[str] = None
+        self._list: list[petsc4py.PETSc.Mat] | list[petsc4py.PETSc.Vec] = list()  # type: ignore[name-defined]
+        self._type: str | None = None
 
     @property
     def comm(self: typing_extensions.Self) -> mpi4py.MPI.Intracomm:
@@ -52,7 +51,7 @@ class TensorsList(abc.ABC):
         return self._comm
 
     @property
-    def type(self: typing_extensions.Self) -> typing.Optional[str]:
+    def type(self: typing_extensions.Self) -> str | None:
         """Return the type of tensors (Mat or Vec) currently stored."""
         return self._type
 
@@ -71,7 +70,7 @@ class TensorsList(abc.ABC):
 
     def append(
         self: typing_extensions.Self,
-        tensor: typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]  # type: ignore[name-defined]
+        tensor: petsc4py.PETSc.Mat | petsc4py.PETSc.Vec  # type: ignore[name-defined]
     ) -> None:
         """
         Append a PETSc Mat or Vec to the list.
@@ -100,8 +99,7 @@ class TensorsList(abc.ABC):
 
     def extend(
         self: typing_extensions.Self,
-        tensors: typing.Union[  # type: ignore[name-defined]
-            typing.Iterable[petsc4py.PETSc.Mat], typing.Iterable[petsc4py.PETSc.Vec]]
+        tensors: typing.Iterable[petsc4py.PETSc.Mat] | typing.Iterable[petsc4py.PETSc.Vec]  # type: ignore[name-defined]
     ) -> None:
         """
         Extend the current list with an iterable of PETSc Mat or an iterable of Vec.
@@ -195,7 +193,7 @@ class TensorsList(abc.ABC):
 
     def __mul__(
         self: typing_extensions.Self, other: petsc4py.PETSc.Vec  # type: ignore[name-defined]
-    ) -> typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]:  # type: ignore[name-defined]
+    ) -> petsc4py.PETSc.Mat | petsc4py.PETSc.Vec:  # type: ignore[name-defined]
         """
         Linearly combine tensors in the list.
 
@@ -232,16 +230,18 @@ class TensorsList(abc.ABC):
         return len(self._list)
 
     @typing.overload
-    def __getitem__(self: typing_extensions.Self, key: int) -> typing.Union[  # type: ignore[name-defined]
-            petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]:  # pragma: no cover
+    def __getitem__(
+        self: typing_extensions.Self, key: int
+    ) -> petsc4py.PETSc.Mat | petsc4py.PETSc.Vec:   # type: ignore[name-defined] # pragma: no cover
         ...
 
     @typing.overload
     def __getitem__(self: typing_extensions.Self, key: slice) -> typing_extensions.Self:  # pragma: no cover
         ...
 
-    def __getitem__(self: typing_extensions.Self, key: typing.Union[int, slice]) -> typing.Union[  # type: ignore[name-defined]
-            petsc4py.PETSc.Mat, petsc4py.PETSc.Vec, typing_extensions.Self]:
+    def __getitem__(
+        self: typing_extensions.Self, key: int | slice
+    ) -> petsc4py.PETSc.Mat | petsc4py.PETSc.Vec | typing_extensions.Self:   # type: ignore[name-defined]
         """
         Extract a single tensor from the list, or slice the list.
 
@@ -267,7 +267,7 @@ class TensorsList(abc.ABC):
 
     def __setitem__(
         self: typing_extensions.Self, key: int,
-        tensor: typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]  # type: ignore[name-defined]
+        tensor: petsc4py.PETSc.Mat | petsc4py.PETSc.Vec  # type: ignore[name-defined]
     ) -> None:
         """
         Update the content of the list with the provided tensor.
@@ -292,6 +292,6 @@ class TensorsList(abc.ABC):
         self._list[key] = tensor
 
     def __iter__(self: typing_extensions.Self) -> typing.Iterator[  # type: ignore[name-defined]
-            typing.Union[petsc4py.PETSc.Mat, petsc4py.PETSc.Vec]]:
+            petsc4py.PETSc.Mat | petsc4py.PETSc.Vec]:
         """Return an iterator over the list."""
         return self._list.__iter__()

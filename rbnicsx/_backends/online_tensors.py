@@ -132,9 +132,9 @@ class VecSubVectorWrapper(typing.ContextManager[petsc4py.PETSc.Vec]):  # type: i
         return self._b_sub
 
     def __exit__(
-        self, exception_type: typing.Optional[type[BaseException]],
-        exception_value: typing.Optional[BaseException],
-        traceback: typing.Optional[types.TracebackType]
+        self, exception_type: type[BaseException] | None,
+        exception_value: BaseException | None,
+        traceback: types.TracebackType | None
     ) -> None:
         """Restore subvector and clean up index set upon leaving the context."""
         self._b.restoreSubVector(self._index_set, self._b_sub)
@@ -168,16 +168,16 @@ class VecSubVectorCopier(typing.ContextManager[petsc4py.PETSc.Vec]):  # type: ig
         return b_sub_copy
 
     def __exit__(
-        self, exception_type: typing.Optional[type[BaseException]],
-        exception_value: typing.Optional[BaseException],
-        traceback: typing.Optional[types.TracebackType]
+        self, exception_type: type[BaseException] | None,
+        exception_value: BaseException | None,
+        traceback: types.TracebackType | None
     ) -> None:
         """Do nothing upon exit."""
         pass
 
 
 def BlockVecSubVectorContextManager(
-    VecSubVectorContextManager: typing.Union[type[VecSubVectorCopier], type[VecSubVectorWrapper]]
+    VecSubVectorContextManager: type[VecSubVectorCopier] | type[VecSubVectorWrapper]
 ) -> type:
     """Apply VecSubVectorContextManager to every block of a block vector."""
 
@@ -213,9 +213,9 @@ def BlockVecSubVectorContextManager(
             return self
 
         def __exit__(
-            self: typing_extensions.Self, exception_type: typing.Optional[type[BaseException]],
-            exception_value: typing.Optional[BaseException],
-            traceback: typing.Optional[types.TracebackType]
+            self: typing_extensions.Self, exception_type: type[BaseException] | None,
+            exception_value: BaseException | None,
+            traceback: types.TracebackType | None
         ) -> None:
             """Do nothing upon exit."""
             pass
@@ -282,9 +282,9 @@ class MatSubMatrixWrapper(typing.ContextManager[petsc4py.PETSc.Mat]):  # type: i
         return self._A_sub
 
     def __exit__(
-        self, exception_type: typing.Optional[type[BaseException]],
-        exception_value: typing.Optional[BaseException],
-        traceback: typing.Optional[types.TracebackType]
+        self, exception_type: type[BaseException] | None,
+        exception_value: BaseException | None,
+        traceback: types.TracebackType | None
     ) -> None:
         """Restore submatrix and clean up index sets upon leaving the context."""
         self._A.restoreLocalSubMatrix(*self._index_sets, self._A_sub)
@@ -321,16 +321,16 @@ class MatSubMatrixCopier(typing.ContextManager[petsc4py.PETSc.Mat]):  # type: ig
         return A_sub_copy
 
     def __exit__(
-        self, exception_type: typing.Optional[type[BaseException]],
-        exception_value: typing.Optional[BaseException],
-        traceback: typing.Optional[types.TracebackType]
+        self, exception_type: type[BaseException] | None,
+        exception_value: BaseException | None,
+        traceback: types.TracebackType | None
     ) -> None:
         """Do nothing upon exit."""
         pass
 
 
 def BlockMatSubMatrixContextManager(
-    MatSubMatrixContextManager: typing.Union[type[MatSubMatrixCopier], type[MatSubMatrixWrapper]]
+    MatSubMatrixContextManager: type[MatSubMatrixCopier] | type[MatSubMatrixWrapper]
 ) -> type:
     """Apply MatSubMatrixContextManager to every block of a block matrix."""
 
@@ -370,9 +370,9 @@ def BlockMatSubMatrixContextManager(
             return self
 
         def __exit__(
-            self: typing_extensions.Self, exception_type: typing.Optional[type[BaseException]],
-            exception_value: typing.Optional[BaseException],
-            traceback: typing.Optional[types.TracebackType]
+            self: typing_extensions.Self, exception_type: type[BaseException] | None,
+            exception_value: BaseException | None,
+            traceback: types.TracebackType | None
         ) -> None:
             """Do nothing upon exit."""
             pass

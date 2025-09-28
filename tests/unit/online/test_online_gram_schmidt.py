@@ -43,16 +43,16 @@ def functions_block_and_size() -> tuple[  # type: ignore[name-defined]
 
 @pytest.fixture(params=["functions_plain_and_size", "functions_block_and_size"])
 def functions_and_size(request: _pytest.fixtures.SubRequest) -> tuple[  # type: ignore[name-defined]
-        list[petsc4py.PETSc.Vec], typing.Union[int, list[int]], int]:
+        list[petsc4py.PETSc.Vec], int | list[int], int]:
     """Parameterize functions generation considering either non-block or block content."""
     return request.getfixturevalue(request.param)  # type: ignore[no-any-return]
 
 
 @pytest.fixture
 def inner_product() -> typing.Callable[  # type: ignore[name-defined]
-        [typing.Union[int, list[int]]], petsc4py.PETSc.Mat]:
+        [int | list[int]], petsc4py.PETSc.Mat]:
     """Return a callable that computes the identity matrix."""
-    def _(N: typing.Union[int, list[int]]) -> petsc4py.PETSc.Mat:  # type: ignore[name-defined]
+    def _(N: int | list[int]) -> petsc4py.PETSc.Mat:  # type: ignore[name-defined]
         """Return the identity matrix."""
         if isinstance(N, int):
             identity = rbnicsx.online.create_matrix(N, N)
@@ -77,8 +77,8 @@ def compute_inner_product(
 
 def test_online_gram_schmidt(
     functions_and_size: tuple[  # type: ignore[name-defined]
-        list[petsc4py.PETSc.Vec], typing.Union[int, list[int]], int],
-    inner_product: typing.Callable[[typing.Union[int, list[int]]], petsc4py.PETSc.Mat]  # type: ignore[name-defined]
+        list[petsc4py.PETSc.Vec], int | list[int], int],
+    inner_product: typing.Callable[[int | list[int]], petsc4py.PETSc.Mat]  # type: ignore[name-defined]
 ) -> None:
     """Check rbnicsx.online.gram_schmidt."""
     functions, size, size_int = functions_and_size
@@ -103,7 +103,7 @@ def test_online_gram_schmidt(
 
 
 def test_online_gram_schmidt_zero(
-    inner_product: typing.Callable[[typing.Union[int, list[int]]], petsc4py.PETSc.Mat]  # type: ignore[name-defined]
+    inner_product: typing.Callable[[int | list[int]], petsc4py.PETSc.Mat]  # type: ignore[name-defined]
 ) -> None:
     """Check rbnicsx.online.gram_schmidt when adding a linearly dependent function (e.g., zero)."""
     functions_list = rbnicsx.online.FunctionsList(3)
@@ -117,8 +117,8 @@ def test_online_gram_schmidt_zero(
 
 def test_online_gram_schmidt_block(
     functions_and_size: tuple[  # type: ignore[name-defined]
-        list[petsc4py.PETSc.Vec], typing.Union[int, list[int]], int],
-    inner_product: typing.Callable[[typing.Union[int, list[int]]], petsc4py.PETSc.Mat]  # type: ignore[name-defined]
+        list[petsc4py.PETSc.Vec], int | list[int], int],
+    inner_product: typing.Callable[[int | list[int]], petsc4py.PETSc.Mat]  # type: ignore[name-defined]
 ) -> None:
     """Check rbnicsx.online.gram_schmidt_block."""
     functions, size, size_int = functions_and_size

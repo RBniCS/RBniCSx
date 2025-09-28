@@ -42,8 +42,8 @@ class FunctionsList(FunctionsListBase[petsc4py.PETSc.Vec]):  # type: ignore[name
         Whether the vector has a block structure or not.
     """
 
-    def __init__(self: typing_extensions.Self, shape: typing.Union[int, list[int]]) -> None:
-        self._shape: typing.Union[int, list[int]] = shape
+    def __init__(self: typing_extensions.Self, shape: int | list[int]) -> None:
+        self._shape: int | list[int] = shape
         if isinstance(shape, list):
             is_block = True
         else:
@@ -53,7 +53,7 @@ class FunctionsList(FunctionsListBase[petsc4py.PETSc.Vec]):  # type: ignore[name
         super().__init__(mpi4py.MPI.COMM_WORLD)
 
     @property
-    def shape(self: typing_extensions.Self) -> typing.Union[int, list[int]]:
+    def shape(self: typing_extensions.Self) -> int | list[int]:
         """Return the shape of the vectors in the list."""
         return self._shape
 

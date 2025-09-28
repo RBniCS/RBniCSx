@@ -193,8 +193,7 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
     def __getitem__(self: typing_extensions.Self, key: slice) -> typing_extensions.Self:  # pragma: no cover
         ...
 
-    def __getitem__(self: typing_extensions.Self, key: typing.Union[int, slice]) -> typing.Union[
-            Function, typing_extensions.Self]:
+    def __getitem__(self: typing_extensions.Self, key: int | slice) -> Function | typing_extensions.Self:
         """
         Extract a single function from the list, or slice the list.
 

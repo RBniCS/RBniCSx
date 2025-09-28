@@ -13,25 +13,23 @@ import petsc4py.PETSc
 
 
 @typing.overload
-def order_of_magnitude(numbers: typing.Union[float, np.float32, np.float64]) -> np.int32:  # pragma: no cover
+def order_of_magnitude(numbers: float | np.float32 | np.float64) -> np.int32:  # pragma: no cover
     ...
 
 
 @typing.overload
 def order_of_magnitude(
-    numbers: typing.Union[  # type: ignore[name-defined]
-        npt.NDArray[typing.Union[np.float32, np.float64, petsc4py.PETSc.RealType]],
-        list[typing.Union[np.float32, np.float64, petsc4py.PETSc.RealType]]]
+    numbers: npt.NDArray[np.float32 | np.float64 | petsc4py.PETSc.RealType]  # type: ignore[name-defined]
+            | list[np.float32 | np.float64 | petsc4py.PETSc.RealType]
 ) -> npt.NDArray[np.int32]:  # pragma: no cover
     ...
 
 
 def order_of_magnitude(
-    numbers: typing.Union[  # type: ignore[name-defined]
-        typing.Union[float, np.float32, np.float64],
-        npt.NDArray[typing.Union[np.float32, np.float64, petsc4py.PETSc.RealType]],
-        list[typing.Union[np.float32, np.float64, petsc4py.PETSc.RealType]]]
-) -> typing.Union[np.int32, npt.NDArray[np.int32]]:
+    numbers: float | np.float32 | np.float64  # type: ignore[name-defined]
+             | npt.NDArray[np.float32 | np.float64 | petsc4py.PETSc.RealType]
+             | list[np.float32 | np.float64 | petsc4py.PETSc.RealType]
+) -> np.int32 | npt.NDArray[np.int32]:
     """Compute the order of magnitude of a number."""
-    output: typing.Union[np.int32, npt.NDArray[np.int32]] = np.floor(np.log10(numbers)).astype(np.int32)
+    output: np.int32 | npt.NDArray[np.int32] = np.floor(np.log10(numbers)).astype(np.int32)
     return output
