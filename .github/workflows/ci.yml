@@ -49,12 +49,12 @@ jobs:
           - backend: dolfinx-v0.9.0-complex
             container: ghcr.io/fenics/dolfinx/dolfinx:v0.9.0
             petsc_arch: complex
-          # - backend: dolfinx-v0.10.0-real
-          #   container: ghcr.io/fenics/dolfinx/dolfinx:v0.10.0
-          #   petsc_arch: real
-          # - backend: dolfinx-v0.10.0-complex
-          #   container: ghcr.io/fenics/dolfinx/dolfinx:v0.10.0
-          #   petsc_arch: complex
+          - backend: dolfinx-v0.10.0-real
+            container: ghcr.io/fenics/dolfinx/dolfinx:v0.10.0
+            petsc_arch: real
+          - backend: dolfinx-v0.10.0-complex
+            container: ghcr.io/fenics/dolfinx/dolfinx:v0.10.0
+            petsc_arch: complex
           - backend: dolfinx-stable-real
             container: ghcr.io/fenics/dolfinx/dolfinx:stable
             petsc_arch: real
