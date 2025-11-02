@@ -8,7 +8,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "RBniCSx"
-version = "0.1.dev0"
+version = "0.1.0"
 authors = [
     {name = "Francesco Ballarin", email = "francesco.ballarin@unicatt.it"},
 ]
