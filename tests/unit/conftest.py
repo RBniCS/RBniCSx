@@ -12,7 +12,6 @@ This file assigns pytest hooks and declares common fixtures used across several 
 import pathlib
 import typing
 
-import _pytest.compat
 import nbvalx.pytest_hooks_unit_tests
 import numpy.typing as npt
 import petsc4py.PETSc
@@ -37,9 +36,7 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption("--skip-backends", action="store_true", help="Skip tests which require backends to be installed")
 
 
-def pytest_ignore_collect(  # type: ignore[no-any-unimported]
-    collection_path: pathlib.Path, path: _pytest.compat.LEGACY_PATH, config: pytest.Config
-) -> bool:
+def pytest_ignore_collect(collection_path: pathlib.Path, config: pytest.Config) -> bool:
     """Honor the --skip-backends option to skip tests which require backends to be installed."""
     skip_backends = config.option.skip_backends
     if skip_backends:
