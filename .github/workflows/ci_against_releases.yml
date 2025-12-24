@@ -10,11 +10,13 @@ jobs:
   # If main becomes incompatible with the latest version on PyPI then temporarily
   # comment out this test, and restore it on the next PyPI release.
 
-  test_main_branch_against_latest_release_from_pypi:
-    uses: RBniCS/RBniCSx/.github/workflows/ci.yml@main
-    with:
-      ref: main
-      index: PyPI
+  # TODO: temporarily commented out due to backward incompatible mypy error introduced by numpy 2.4.0
+  # and ignored in 01b4b
+  # test_main_branch_against_latest_release_from_pypi:
+  #   uses: RBniCS/RBniCSx/.github/workflows/ci.yml@main
+  #   with:
+  #     ref: main
+  #     index: PyPI
 
   # Test released versions on github or PyPI against the workflow on the corresponding git tag.
 
