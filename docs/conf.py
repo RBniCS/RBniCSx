@@ -1,4 +1,4 @@
-# Copyright (C) 2021-2025 by the RBniCSx authors
+# Copyright (C) 2021-2026 by the RBniCSx authors
 #
 # This file is part of RBniCSx.
 #
@@ -7,7 +7,7 @@
 
 # Project information
 project = "RBniCSx"
-copyright = "2021-2025, the RBniCSx authors"
+copyright = "2021-2026, the RBniCSx authors"
 author = "Francesco Ballarin"
 
 # General configuration
