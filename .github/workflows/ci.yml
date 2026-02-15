@@ -82,7 +82,7 @@ jobs:
         run: |
           export DEBIAN_FRONTEND="noninteractive"
           apt update -y -q
-          apt install -y -qq xvfb
+          apt install -y -qq libegl1 libgl1-mesa-dri
           if [[ "${{ matrix.backend }}" == "dolfinx"* ]]; then
             . /usr/local/bin/dolfinx-${{ matrix.petsc_arch }}-mode
             echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
@@ -285,15 +285,11 @@ jobs:
       - name: Run tutorials (serial)
         if: startsWith(matrix.backend, 'dolfinx') == true
         run: |
-          export DISPLAY=":99"
-          Xvfb $DISPLAY -screen 0 1024x768x24 > /dev/null 2>&1 &
-          python3 -m pytest --collapse --durations=0 --durations-min=1.0 tutorials
+          VISKEX_PYVISTA_BACKEND="static" python3 -m pytest --collapse --durations=0 --durations-min=1.0 tutorials
       - name: Run tutorials (parallel)
         if: startsWith(matrix.backend, 'dolfinx') == true
         run: |
-          export DISPLAY=":99"
-          Xvfb $DISPLAY -screen 0 1024x768x24 > /dev/null 2>&1 &
-          python3 -m pytest --collapse --np=2 --durations=0 --durations-min=1.0 tutorials
+          VISKEX_PYVISTA_BACKEND="static" python3 -m pytest --collapse --np=2 --durations=0 --durations-min=1.0 tutorials
       - name: Upload tutorials logs as an artifact in case of failure
         if: startsWith(matrix.backend, 'dolfinx') == true && (failure() || cancelled())
         uses: actions/upload-artifact@v4
