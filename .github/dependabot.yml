@@ -5,3 +5,5 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
+    ignore:
+      - dependency-name: "RBniCS/RBniCSx/.github/workflows/ci.yml"
