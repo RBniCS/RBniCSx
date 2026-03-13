@@ -21,12 +21,12 @@ jobs:
   # Test released versions on github or PyPI against the workflow on the corresponding git tag.
 
   test_0_1_0_installing_from_github:
-    uses: RBniCS/RBniCSx/.github/workflows/ci.yml@v0.1.0.post3
+    uses: RBniCS/RBniCSx/.github/workflows/ci.yml@v0.1.0
     with:
       ref: v0.1.0.post3
 
   test_0_1_0_installing_from_pypi_versioned:
-    uses: RBniCS/RBniCSx/.github/workflows/ci.yml@v0.1.0.post3
+    uses: RBniCS/RBniCSx/.github/workflows/ci.yml@v0.1.0
     with:
       ref: v0.1.0.post3
       index: PyPI
@@ -34,7 +34,7 @@ jobs:
       expected_index_version: 0.1.0
 
   test_0_1_0_installing_from_pypi_unversioned:
-    uses: RBniCS/RBniCSx/.github/workflows/ci.yml@v0.1.0.post3
+    uses: RBniCS/RBniCSx/.github/workflows/ci.yml@v0.1.0
     with:
       ref: v0.1.0.post3
       index: PyPI
