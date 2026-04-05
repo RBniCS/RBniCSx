@@ -75,7 +75,7 @@ jobs:
           export DEBIAN_FRONTEND="noninteractive"
           apt update -y -q
           apt install -y -qq ca-certificates git
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           ref: ${{ inputs.ref }}
       - name: Setup container
@@ -256,7 +256,7 @@ jobs:
           python3 -m nbqa isort --check --diff .
       - name: Check for stray outputs, counts and metadata in tutorial files
         if: startsWith(matrix.backend, 'dolfinx') == true
-        uses: RBniCS/check-jupyter-metadata-action@main
+        uses: RBniCS/check-jupyter-metadata-action@6df653e5d45f7620d888c6a1bd85d07b4f903045  # v1.0.0
         with:
           pattern: "tutorials/**/*.ipynb"
       - name: Run tutorials (serial)
@@ -269,19 +269,9 @@ jobs:
           VISKEX_PYVISTA_BACKEND="static" python3 -m pytest --collapse --np=2 --durations=0 --durations-min=1.0 tutorials
       - name: Upload tutorials logs as an artifact in case of failure
         if: startsWith(matrix.backend, 'dolfinx') == true && (failure() || cancelled())
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: "tutorials-logs-${{ matrix.backend }}"
           path: |
             tutorials/**/.ipynb_pytest/**/*.log*
           include-hidden-files: true
-
-  warn:
-    runs-on: ubuntu-latest
-    if: github.repository == 'RBniCS/RBniCSx' && github.ref == 'refs/heads/main' && github.event_name == 'schedule'
-    steps:
-      - name: Warn if scheduled workflow is about to be disabled
-        uses: fem-on-colab/warn-workflow-about-to-be-disabled-action@main
-        with:
-          workflow-filename: ci.yml
-          days-elapsed: 55
