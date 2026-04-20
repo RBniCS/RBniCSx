@@ -42,7 +42,7 @@ class TensorsList(abc.ABC):
 
     def __init__(self: typing_extensions.Self, comm: mpi4py.MPI.Intracomm) -> None:
         self._comm: mpi4py.MPI.Intracomm = comm
-        self._list: list[petsc4py.PETSc.Mat] | list[petsc4py.PETSc.Vec] = list()  # type: ignore[name-defined]
+        self._list: list[petsc4py.PETSc.Mat] | list[petsc4py.PETSc.Vec] = list()
         self._type: str | None = None
 
     @property
@@ -70,7 +70,7 @@ class TensorsList(abc.ABC):
 
     def append(
         self: typing_extensions.Self,
-        tensor: petsc4py.PETSc.Mat | petsc4py.PETSc.Vec  # type: ignore[name-defined]
+        tensor: petsc4py.PETSc.Mat | petsc4py.PETSc.Vec
     ) -> None:
         """
         Append a PETSc Mat or Vec to the list.
@@ -81,12 +81,12 @@ class TensorsList(abc.ABC):
             Tensor to be appended.
         """
         # Check that tensors of the same type are added
-        if isinstance(tensor, petsc4py.PETSc.Mat):  # type: ignore[attr-defined]
+        if isinstance(tensor, petsc4py.PETSc.Mat):
             if self._type is None:
                 self._type = "Mat"
             else:
                 assert self._type == "Mat"
-        elif isinstance(tensor, petsc4py.PETSc.Vec):  # type: ignore[attr-defined]
+        elif isinstance(tensor, petsc4py.PETSc.Vec):
             if self._type is None:
                 self._type = "Vec"
             else:
@@ -95,11 +95,11 @@ class TensorsList(abc.ABC):
             raise RuntimeError()
 
         # Append to storage
-        self._list.append(tensor)
+        self._list.append(tensor)  # type: ignore[arg-type]
 
     def extend(
         self: typing_extensions.Self,
-        tensors: typing.Iterable[petsc4py.PETSc.Mat] | typing.Iterable[petsc4py.PETSc.Vec]  # type: ignore[name-defined]
+        tensors: typing.Iterable[petsc4py.PETSc.Mat] | typing.Iterable[petsc4py.PETSc.Vec]
     ) -> None:
         """
         Extend the current list with an iterable of PETSc Mat or an iterable of Vec.
@@ -192,8 +192,8 @@ class TensorsList(abc.ABC):
         pass  # pragma: no cover
 
     def __mul__(
-        self: typing_extensions.Self, other: petsc4py.PETSc.Vec  # type: ignore[name-defined]
-    ) -> petsc4py.PETSc.Mat | petsc4py.PETSc.Vec:  # type: ignore[name-defined]
+        self: typing_extensions.Self, other: petsc4py.PETSc.Vec
+    ) -> petsc4py.PETSc.Mat | petsc4py.PETSc.Vec:
         """
         Linearly combine tensors in the list.
 
@@ -207,20 +207,20 @@ class TensorsList(abc.ABC):
         :
             Tensor object storing the result of the linear combination.
         """
-        if isinstance(other, petsc4py.PETSc.Vec):  # type: ignore[attr-defined]
-            assert other.getType() == petsc4py.PETSc.Vec.Type.SEQ  # type: ignore[attr-defined]
+        if isinstance(other, petsc4py.PETSc.Vec):
+            assert other.getType() == petsc4py.PETSc.Vec.Type.SEQ
             assert other.size == len(self._list)
             if other.size == 0:
-                return None
+                return None  # type: ignore[return-value]
             else:
                 output = self._list[0].copy()
                 output.zeroEntries()
                 for i in range(other.size):
-                    output.axpy(other[i], self._list[i])
+                    output.axpy(other[i], self._list[i])  # type: ignore[arg-type,index]
                 if self._type == "Vec":
-                    output.ghostUpdate(
-                        addv=petsc4py.PETSc.InsertMode.INSERT,  # type: ignore[attr-defined]
-                        mode=petsc4py.PETSc.ScatterMode.FORWARD)  # type: ignore[attr-defined]
+                    output.ghostUpdate(  # type: ignore[union-attr]
+                        addv=petsc4py.PETSc.InsertMode.INSERT,  # type: ignore[arg-type]
+                        mode=petsc4py.PETSc.ScatterMode.FORWARD)  # type: ignore[arg-type]
                 return output
         else:
             return NotImplemented
@@ -232,7 +232,7 @@ class TensorsList(abc.ABC):
     @typing.overload
     def __getitem__(
         self: typing_extensions.Self, key: int
-    ) -> petsc4py.PETSc.Mat | petsc4py.PETSc.Vec:   # type: ignore[name-defined] # pragma: no cover
+    ) -> petsc4py.PETSc.Mat | petsc4py.PETSc.Vec: # pragma: no cover
         ...
 
     @typing.overload
@@ -241,7 +241,7 @@ class TensorsList(abc.ABC):
 
     def __getitem__(
         self: typing_extensions.Self, key: int | slice
-    ) -> petsc4py.PETSc.Mat | petsc4py.PETSc.Vec | typing_extensions.Self:   # type: ignore[name-defined]
+    ) -> petsc4py.PETSc.Mat | petsc4py.PETSc.Vec | typing_extensions.Self:
         """
         Extract a single tensor from the list, or slice the list.
 
@@ -267,7 +267,7 @@ class TensorsList(abc.ABC):
 
     def __setitem__(
         self: typing_extensions.Self, key: int,
-        tensor: petsc4py.PETSc.Mat | petsc4py.PETSc.Vec  # type: ignore[name-defined]
+        tensor: petsc4py.PETSc.Mat | petsc4py.PETSc.Vec
     ) -> None:
         """
         Update the content of the list with the provided tensor.
@@ -281,17 +281,17 @@ class TensorsList(abc.ABC):
         """
         # Check that tensors of the same type are set
         assert self._type is not None  # since the user must have used .append() to originally add this item
-        if isinstance(tensor, petsc4py.PETSc.Mat):  # type: ignore[attr-defined]
+        if isinstance(tensor, petsc4py.PETSc.Mat):
             assert self._type == "Mat"
-        elif isinstance(tensor, petsc4py.PETSc.Vec):  # type: ignore[attr-defined]
+        elif isinstance(tensor, petsc4py.PETSc.Vec):
             assert self._type == "Vec"
         else:
             raise RuntimeError()
 
         # Replace storage
-        self._list[key] = tensor
+        self._list[key] = tensor  # type: ignore[assignment]
 
-    def __iter__(self: typing_extensions.Self) -> typing.Iterator[  # type: ignore[name-defined]
+    def __iter__(self: typing_extensions.Self) -> typing.Iterator[
             petsc4py.PETSc.Mat | petsc4py.PETSc.Vec]:
         """Return an iterator over the list."""
         return self._list.__iter__()

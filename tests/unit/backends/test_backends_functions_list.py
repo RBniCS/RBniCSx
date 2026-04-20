@@ -128,8 +128,8 @@ def test_backends_functions_list_save_load(functions_list: rbnicsx.backends.Func
 def test_backends_functions_list_mul(functions_list: rbnicsx.backends.FunctionsList) -> None:
     """Check rbnicsx.backends.FunctionsList.__mul__."""
     online_vec = rbnicsx.online.create_vector(2)
-    online_vec[0] = 3
-    online_vec[1] = 5
+    online_vec[0] = 3  # type: ignore[index]
+    online_vec[1] = 5  # type: ignore[index]
 
     function = functions_list * online_vec
     assert np.allclose(function.x.array, 13)
@@ -149,4 +149,4 @@ def test_backends_functions_list_mul_empty(mesh: dolfinx.mesh.Mesh) -> None:
 def test_backends_functions_list_mul_not_implemented(functions_list: rbnicsx.backends.FunctionsList) -> None:
     """Check rbnicsx.backends.FunctionsList.__mul__ with an incorrect type."""
     with pytest.raises(TypeError):
-        functions_list * None
+        functions_list * None  # type: ignore[operator]

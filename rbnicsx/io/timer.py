@@ -46,11 +46,11 @@ class Timer:
 
     def __init__(
         self: typing_extensions.Self,
-        comm: mpi4py.MPI.Intracomm | petsc4py.PETSc.Comm,  # type: ignore[name-defined]
+        comm: mpi4py.MPI.Intracomm | petsc4py.PETSc.Comm,
         op: mpi4py.MPI.Op,
         store: typing.Callable[[float], None]
     ) -> None:
-        if isinstance(comm, petsc4py.PETSc.Comm):  # type: ignore[attr-defined]
+        if isinstance(comm, petsc4py.PETSc.Comm):
             comm = comm.tompi4py()
 
         self._comm: mpi4py.MPI.Intracomm = comm

@@ -25,7 +25,7 @@ else:  # pragma: no cover
 
 
 @typing.final
-class FunctionsList(FunctionsListBase[petsc4py.PETSc.Vec]):  # type: ignore[name-defined]
+class FunctionsList(FunctionsListBase[petsc4py.PETSc.Vec]):
     """
     A class wrapping a list of online PETSc Vec which represent solutions to online systems.
 
@@ -109,8 +109,8 @@ class FunctionsList(FunctionsListBase[petsc4py.PETSc.Vec]):  # type: ignore[name
             self._list = import_vectors(self._shape, directory, filename)
 
     def _linearly_combine(
-        self: typing_extensions.Self, other: petsc4py.PETSc.Vec  # type: ignore[name-defined]
-    ) -> petsc4py.PETSc.Vec:  # type: ignore[name-defined]
+        self: typing_extensions.Self, other: petsc4py.PETSc.Vec
+    ) -> petsc4py.PETSc.Vec:
         """
         Linearly combine functions in the list using petsc4py API.
 
@@ -128,7 +128,7 @@ class FunctionsList(FunctionsListBase[petsc4py.PETSc.Vec]):  # type: ignore[name
             output = self._list[0].copy()
             output.zeroEntries()
             for i in range(other.size):
-                output.axpy(other[i], self._list[i])
+                output.axpy(other[i], self._list[i])  # type: ignore[index]
             return output
         else:
             if self._is_block:

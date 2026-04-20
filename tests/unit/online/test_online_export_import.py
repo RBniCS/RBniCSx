@@ -79,7 +79,7 @@ def test_online_export_import_vectors_block() -> None:
 
 
 def test_online_export_import_matrix(
-    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+    to_dense_matrix: typing.Callable[  # type: ignore[valid-type]
         [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check I/O for an online petsc4py.PETSc.Mat."""
@@ -98,7 +98,7 @@ def test_online_export_import_matrix(
 
 
 def test_online_export_import_matrix_block(
-    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+    to_dense_matrix: typing.Callable[  # type: ignore[valid-type]
         [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check I/O for an online petsc4py.PETSc.Mat (block version)."""
@@ -117,7 +117,7 @@ def test_online_export_import_matrix_block(
 
 
 def test_online_export_import_matrices(
-    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+    to_dense_matrix: typing.Callable[  # type: ignore[valid-type]
         [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check I/O for a list of online petsc4py.PETSc.Mat."""
@@ -138,7 +138,7 @@ def test_online_export_import_matrices(
 
 
 def test_online_export_import_matrices_block(
-    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+    to_dense_matrix: typing.Callable[  # type: ignore[valid-type]
         [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check I/O for a list of online petsc4py.PETSc.Mat (block version)."""

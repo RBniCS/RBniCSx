@@ -123,8 +123,8 @@ def test_backends_projection_vector_block(functions_list: rbnicsx.backends.Funct
     online_vec = rbnicsx.backends.project_vector_block(
         rbnicsx.backends.block_linear_form_action(linear_forms), basis_functions)
     assert online_vec.size == 5
-    assert np.allclose(online_vec[0:2], [1, 2])
-    assert np.allclose(online_vec[2:5], np.array([3, 4, 5]) * 10)
+    assert np.allclose(online_vec[0:2], [1, 2])  # type: ignore[index]
+    assert np.allclose(online_vec[2:5], np.array([3, 4, 5]) * 10)  # type: ignore[index]
 
     online_vec2 = rbnicsx.backends.project_vector_block(
         rbnicsx.backends.block_linear_form_action([0.4 * linear_form for linear_form in linear_forms]),
@@ -138,7 +138,7 @@ def test_backends_projection_vector_block(functions_list: rbnicsx.backends.Funct
 
 def test_backends_projection_matrix_galerkin(
     functions_list: rbnicsx.backends.FunctionsList,
-    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+    to_dense_matrix: typing.Callable[  # type: ignore[valid-type]
         [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Test projection of a bilinear form onto the reduced basis (for use in Galerkin methods)."""
@@ -152,8 +152,8 @@ def test_backends_projection_matrix_galerkin(
     online_mat = rbnicsx.backends.project_matrix(
         rbnicsx.backends.bilinear_form_action(bilinear_form), basis_functions)
     assert online_mat.size == (2, 2)
-    assert np.allclose(online_mat[0, :], [1, 2])
-    assert np.allclose(online_mat[1, :], np.array([1, 2]) * 2)
+    assert np.allclose(online_mat[0, :], [1, 2])  # type: ignore[index]
+    assert np.allclose(online_mat[1, :], np.array([1, 2]) * 2)  # type: ignore[index]
 
     online_mat2 = rbnicsx.backends.project_matrix(
         rbnicsx.backends.bilinear_form_action(0.4 * bilinear_form), basis_functions)
@@ -165,7 +165,7 @@ def test_backends_projection_matrix_galerkin(
 
 def test_backends_projection_matrix_petrov_galerkin(
     functions_list: rbnicsx.backends.FunctionsList,
-    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+    to_dense_matrix: typing.Callable[  # type: ignore[valid-type]
         [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Test projection of a bilinear form onto the reduced basis (for use in Petrov-Galerkin methods)."""
@@ -179,8 +179,8 @@ def test_backends_projection_matrix_petrov_galerkin(
     online_mat = rbnicsx.backends.project_matrix(
         rbnicsx.backends.bilinear_form_action(bilinear_form), basis_functions)
     assert online_mat.size == (2, 3)
-    assert np.allclose(online_mat[0, :], [3, 4, 5])
-    assert np.allclose(online_mat[1, :], np.array([3, 4, 5]) * 2)
+    assert np.allclose(online_mat[0, :], [3, 4, 5])  # type: ignore[index]
+    assert np.allclose(online_mat[1, :], np.array([3, 4, 5]) * 2)  # type: ignore[index]
 
     online_mat2 = rbnicsx.backends.project_matrix(
         rbnicsx.backends.bilinear_form_action(0.4 * bilinear_form), basis_functions)
@@ -192,7 +192,7 @@ def test_backends_projection_matrix_petrov_galerkin(
 
 def test_backends_projection_matrix_block_galerkin(
     functions_list: rbnicsx.backends.FunctionsList,
-    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+    to_dense_matrix: typing.Callable[  # type: ignore[valid-type]
         [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Test projection of a matrix of bilinear forms onto the reduced basis (for use in Galerkin methods)."""
@@ -206,16 +206,16 @@ def test_backends_projection_matrix_block_galerkin(
     online_mat = rbnicsx.backends.project_matrix_block(
         rbnicsx.backends.block_bilinear_form_action(bilinear_forms), basis_functions)
     assert online_mat.size == (5, 5)
-    assert np.allclose(online_mat[0, 0:2], [1, 2])
-    assert np.allclose(online_mat[0, 2:5], np.array([3, 4, 5]) * -1)
-    assert np.allclose(online_mat[1, 0:2], np.array([1, 2]) * 2)
-    assert np.allclose(online_mat[1, 2:5], np.array([3, 4, 5]) * -2)
-    assert np.allclose(online_mat[2, 0:2], np.array([1, 2]) * 30)
-    assert np.allclose(online_mat[2, 2:5], np.array([3, 4, 5]) * -30)
-    assert np.allclose(online_mat[3, 0:2], np.array([1, 2]) * 40)
-    assert np.allclose(online_mat[3, 2:5], np.array([3, 4, 5]) * -40)
-    assert np.allclose(online_mat[4, 0:2], np.array([1, 2]) * 50)
-    assert np.allclose(online_mat[4, 2:5], np.array([3, 4, 5]) * -50)
+    assert np.allclose(online_mat[0, 0:2], [1, 2])  # type: ignore[index]
+    assert np.allclose(online_mat[0, 2:5], np.array([3, 4, 5]) * -1)  # type: ignore[index]
+    assert np.allclose(online_mat[1, 0:2], np.array([1, 2]) * 2)  # type: ignore[index]
+    assert np.allclose(online_mat[1, 2:5], np.array([3, 4, 5]) * -2)  # type: ignore[index]
+    assert np.allclose(online_mat[2, 0:2], np.array([1, 2]) * 30)  # type: ignore[index]
+    assert np.allclose(online_mat[2, 2:5], np.array([3, 4, 5]) * -30)  # type: ignore[index]
+    assert np.allclose(online_mat[3, 0:2], np.array([1, 2]) * 40)  # type: ignore[index]
+    assert np.allclose(online_mat[3, 2:5], np.array([3, 4, 5]) * -40)  # type: ignore[index]
+    assert np.allclose(online_mat[4, 0:2], np.array([1, 2]) * 50)  # type: ignore[index]
+    assert np.allclose(online_mat[4, 2:5], np.array([3, 4, 5]) * -50)  # type: ignore[index]
 
     online_mat2 = rbnicsx.backends.project_matrix_block(
         rbnicsx.backends.block_bilinear_form_action(
@@ -232,7 +232,7 @@ def test_backends_projection_matrix_block_galerkin(
 
 def test_backends_projection_matrix_block_petrov_galerkin(
     functions_list: rbnicsx.backends.FunctionsList,
-    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+    to_dense_matrix: typing.Callable[  # type: ignore[valid-type]
         [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Test projection of a matrix of bilinear forms onto the reduced basis (for use in Petrov-Galerkin methods)."""
@@ -246,16 +246,16 @@ def test_backends_projection_matrix_block_petrov_galerkin(
     online_mat = rbnicsx.backends.project_matrix_block(
         rbnicsx.backends.block_bilinear_form_action(bilinear_forms), basis_functions)
     assert online_mat.size == (5, 9)
-    assert np.allclose(online_mat[0, 0:4], [6, 7, 8, 9])
-    assert np.allclose(online_mat[0, 4:9], np.array([10, 11, 12, 13, 14]) * -1)
-    assert np.allclose(online_mat[1, 0:4], np.array([6, 7, 8, 9]) * 2)
-    assert np.allclose(online_mat[1, 4:9], np.array([10, 11, 12, 13, 14]) * -2)
-    assert np.allclose(online_mat[2, 0:4], np.array([6, 7, 8, 9]) * 30)
-    assert np.allclose(online_mat[2, 4:9], np.array([10, 11, 12, 13, 14]) * -30)
-    assert np.allclose(online_mat[3, 0:4], np.array([6, 7, 8, 9]) * 40)
-    assert np.allclose(online_mat[3, 4:9], np.array([10, 11, 12, 13, 14]) * -40)
-    assert np.allclose(online_mat[4, 0:4], np.array([6, 7, 8, 9]) * 50)
-    assert np.allclose(online_mat[4, 4:9], np.array([10, 11, 12, 13, 14]) * -50)
+    assert np.allclose(online_mat[0, 0:4], [6, 7, 8, 9])  # type: ignore[index]
+    assert np.allclose(online_mat[0, 4:9], np.array([10, 11, 12, 13, 14]) * -1)  # type: ignore[index]
+    assert np.allclose(online_mat[1, 0:4], np.array([6, 7, 8, 9]) * 2)  # type: ignore[index]
+    assert np.allclose(online_mat[1, 4:9], np.array([10, 11, 12, 13, 14]) * -2)  # type: ignore[index]
+    assert np.allclose(online_mat[2, 0:4], np.array([6, 7, 8, 9]) * 30)  # type: ignore[index]
+    assert np.allclose(online_mat[2, 4:9], np.array([10, 11, 12, 13, 14]) * -30)  # type: ignore[index]
+    assert np.allclose(online_mat[3, 0:4], np.array([6, 7, 8, 9]) * 40)  # type: ignore[index]
+    assert np.allclose(online_mat[3, 4:9], np.array([10, 11, 12, 13, 14]) * -40)  # type: ignore[index]
+    assert np.allclose(online_mat[4, 0:4], np.array([6, 7, 8, 9]) * 50)  # type: ignore[index]
+    assert np.allclose(online_mat[4, 4:9], np.array([10, 11, 12, 13, 14]) * -50)  # type: ignore[index]
 
     online_mat2 = rbnicsx.backends.project_matrix_block(
         rbnicsx.backends.block_bilinear_form_action(

@@ -155,19 +155,19 @@ class TensorsArray(TensorsArrayBase):
         elif self._type == "Vec":
             if self._is_block:
                 assert isinstance(self._content_shape, list)
-                array_flattened = import_vectors_block(self._content_shape, directory, filename)
+                array_flattened = import_vectors_block(self._content_shape, directory, filename)  # type: ignore[assignment]
             else:
                 assert isinstance(self._content_shape, int)
-                array_flattened = import_vectors(self._content_shape, directory, filename)
+                array_flattened = import_vectors(self._content_shape, directory, filename)  # type: ignore[assignment]
         else:
             raise RuntimeError()
 
         for (linear_index, tensor) in enumerate(array_flattened):
-            self._array[np.unravel_index(linear_index, self.shape)] = tensor
+            self._array[np.unravel_index(linear_index, self.shape)] = tensor  # type: ignore[assignment]
 
     def contraction(
-        self: typing_extensions.Self, *args: petsc4py.PETSc.Vec  # type: ignore[name-defined]
-    ) -> petsc4py.PETSc.ScalarType:  # type: ignore[name-defined]
+        self: typing_extensions.Self, *args: petsc4py.PETSc.Vec
+    ) -> petsc4py.PETSc.ScalarType:  # type: ignore[valid-type]
         """
         Contract entries in the array.
 

@@ -154,8 +154,8 @@ def test_online_functions_list_save_load(functions_list: rbnicsx.online.Function
 def test_online_functions_list_mul(functions_list: rbnicsx.online.FunctionsList) -> None:
     """Check rbnicsx.online.FunctionsList.__mul__."""
     online_vec = rbnicsx.online.create_vector(2)
-    online_vec[0] = 3
-    online_vec[1] = 5
+    online_vec[0] = 3  # type: ignore[index]
+    online_vec[1] = 5  # type: ignore[index]
 
     function = functions_list * online_vec
     first_vector = getattr(functions_list, "first_vector")
@@ -177,4 +177,4 @@ def test_online_functions_list_mul_empty(shape: int | list[int]) -> None:
 def test_online_functions_list_mul_not_implemented(functions_list: rbnicsx.online.FunctionsList) -> None:
     """Check rbnicsx.online.FunctionsList.__mul__ with an incorrect type."""
     with pytest.raises(TypeError):
-        functions_list * None
+        functions_list * None  # type: ignore[operator]

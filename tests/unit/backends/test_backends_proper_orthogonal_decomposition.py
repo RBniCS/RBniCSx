@@ -59,7 +59,7 @@ def tensors_list_vec(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsList:
     vectors = [dolfinx.fem.petsc.assemble_vector(linear_form_cpp) for linear_form_cpp in linear_forms_cpp]
     for vector in vectors:
         vector.ghostUpdate(
-            addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)  # type: ignore[attr-defined]
+            addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)  # type: ignore[arg-type]
     tensors_list = rbnicsx.backends.TensorsList(linear_forms_cpp[0], mesh.comm)
     for vector in vectors:
         tensors_list.append(vector)
@@ -198,7 +198,7 @@ def test_backends_proper_orthogonal_decomposition_vectors(
     assert np.isclose(eigenvalues[1], 0)
     assert len(modes) == 2
     assert np.isclose(
-        modes[0].norm(petsc4py.PETSc.NormType.NORM_2),  # type: ignore[attr-defined]
+        modes[0].norm(petsc4py.PETSc.NormType.NORM_2),  # type: ignore[arg-type]
         1 if normalize else np.sqrt(eigenvalues[0]))
     assert len(eigenvectors) == 2
 
@@ -216,7 +216,7 @@ def test_backends_proper_orthogonal_decomposition_matrices(
     assert np.isclose(eigenvalues[1], 0)
     assert len(modes) == 2
     assert np.isclose(
-        modes[0].norm(petsc4py.PETSc.NormType.FROBENIUS),  # type: ignore[attr-defined]
+        modes[0].norm(petsc4py.PETSc.NormType.FROBENIUS),  # type: ignore[arg-type]
         1 if normalize else np.sqrt(eigenvalues[0]))
     assert len(eigenvectors) == 2
 

@@ -93,7 +93,7 @@ def export_functions(
 
 
 def export_matrix(
-    mat: petsc4py.PETSc.Mat, directory: pathlib.Path, filename: str  # type: ignore[name-defined]
+    mat: petsc4py.PETSc.Mat, directory: pathlib.Path, filename: str
 ) -> None:
     """
     Export a petsc4py.PETSc.Mat assembled by dolfinx to file.
@@ -107,11 +107,11 @@ def export_matrix(
     filename
         Name of the file where to export the matrix.
     """
-    export_matrix_super(mat, mat.comm, directory, filename)
+    export_matrix_super(mat, mat.comm, directory, filename)  # type: ignore[arg-type]
 
 
 def export_matrices(
-    mats: list[petsc4py.PETSc.Mat], directory: pathlib.Path, filename: str  # type: ignore[name-defined]
+    mats: list[petsc4py.PETSc.Mat], directory: pathlib.Path, filename: str
 ) -> None:
     """
     Export a list of petsc4py.PETSc.Mat assembled by dolfinx to file.
@@ -125,11 +125,11 @@ def export_matrices(
     filename
         Name of the file where to export the matrix.
     """
-    export_matrices_super(mats, mats[0].comm, directory, filename)
+    export_matrices_super(mats, mats[0].comm, directory, filename)  # type: ignore[arg-type]
 
 
 def export_vector(
-    vec: petsc4py.PETSc.Vec, directory: pathlib.Path, filename: str  # type: ignore[name-defined]
+    vec: petsc4py.PETSc.Vec, directory: pathlib.Path, filename: str
 ) -> None:
     """
     Export a petsc4py.PETSc.Vec assembled by dolfinx to file.
@@ -143,11 +143,11 @@ def export_vector(
     filename
         Name of the file where to export the vector.
     """
-    export_vector_super(vec, vec.comm, directory, filename)
+    export_vector_super(vec, vec.comm, directory, filename)  # type: ignore[arg-type]
 
 
 def export_vectors(
-    vecs: list[petsc4py.PETSc.Vec], directory: pathlib.Path, filename: str  # type: ignore[name-defined]
+    vecs: list[petsc4py.PETSc.Vec], directory: pathlib.Path, filename: str
 ) -> None:
     """
     Export a list of petsc4py.PETSc.Vec assembled by dolfinx to file.
@@ -161,4 +161,4 @@ def export_vectors(
     filename
         Name of the file where to export the vector.
     """
-    export_vectors_super(vecs, vecs[0].comm, directory, filename)
+    export_vectors_super(vecs, vecs[0].comm, directory, filename)  # type: ignore[arg-type]

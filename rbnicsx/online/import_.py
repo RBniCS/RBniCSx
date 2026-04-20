@@ -20,7 +20,7 @@ from rbnicsx._backends.online_tensors import (
 
 def import_matrix(
     M: int, N: int, directory: pathlib.Path, filename: str
-) -> petsc4py.PETSc.Mat:  # type: ignore[name-defined]
+) -> petsc4py.PETSc.Mat:
     """
     Import a dense petsc4py.PETSc.Mat from file.
 
@@ -43,7 +43,7 @@ def import_matrix(
 
 def import_matrix_block(
     M: list[int], N: list[int], directory: pathlib.Path, filename: str
-) -> petsc4py.PETSc.Mat:  # type: ignore[name-defined]
+) -> petsc4py.PETSc.Mat:
     """
     Import a dense petsc4py.PETSc.Mat from file.
 
@@ -66,7 +66,7 @@ def import_matrix_block(
 
 def import_matrices(
     M: int, N: int, directory: pathlib.Path, filename: str
-) -> list[petsc4py.PETSc.Mat]:  # type: ignore[name-defined]
+) -> list[petsc4py.PETSc.Mat]:
     """
     Import a list of dense petsc4py.PETSc.Mat from file.
 
@@ -89,7 +89,7 @@ def import_matrices(
 
 def import_matrices_block(
     M: list[int], N: list[int], directory: pathlib.Path, filename: str
-) -> list[petsc4py.PETSc.Mat]:  # type: ignore[name-defined]
+) -> list[petsc4py.PETSc.Mat]:
     """
     Import a list of dense petsc4py.PETSc.Mat from file.
 
@@ -112,7 +112,7 @@ def import_matrices_block(
 
 def import_vector(
     N: int, directory: pathlib.Path, filename: str
-) -> petsc4py.PETSc.Vec:  # type: ignore[name-defined]
+) -> petsc4py.PETSc.Vec:
     """
     Import a sequential petsc4py.PETSc.Vec from file.
 
@@ -135,7 +135,7 @@ def import_vector(
 
 def import_vector_block(
     N: list[int], directory: pathlib.Path, filename: str
-) -> petsc4py.PETSc.Vec:  # type: ignore[name-defined]
+) -> petsc4py.PETSc.Vec:
     """
     Import a sequential petsc4py.PETSc.Vec from file.
 
@@ -158,7 +158,7 @@ def import_vector_block(
 
 def import_vectors(
     N: int, directory: pathlib.Path, filename: str
-) -> list[petsc4py.PETSc.Vec]:  # type: ignore[name-defined]
+) -> list[petsc4py.PETSc.Vec]:
     """
     Import a list of sequential petsc4py.PETSc.Vec from file.
 
@@ -181,7 +181,7 @@ def import_vectors(
 
 def import_vectors_block(
     N: list[int], directory: pathlib.Path, filename: str
-) -> list[petsc4py.PETSc.Vec]:  # type: ignore[name-defined]
+) -> list[petsc4py.PETSc.Vec]:
     """
     Import a list of sequential petsc4py.PETSc.Vec from file.
 

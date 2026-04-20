@@ -88,14 +88,14 @@ class TensorsList(TensorsListBase):
         """
         if self._type == "Mat":
             if self._is_block:
-                export_matrices_block(self._list, directory, filename)
+                export_matrices_block(self._list, directory, filename)  # type: ignore[arg-type]
             else:
-                export_matrices(self._list, directory, filename)
+                export_matrices(self._list, directory, filename)  # type: ignore[arg-type]
         elif self._type == "Vec":
             if self._is_block:
-                export_vectors_block(self._list, directory, filename)
+                export_vectors_block(self._list, directory, filename)  # type: ignore[arg-type]
             else:
-                export_vectors(self._list, directory, filename)
+                export_vectors(self._list, directory, filename)  # type: ignore[arg-type]
         else:
             raise RuntimeError()
 

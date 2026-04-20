@@ -14,7 +14,7 @@ from rbnicsx._backends.online_tensors import BlockMatSubMatrixWrapper, BlockVecS
 
 
 def project_vector(
-    b: petsc4py.PETSc.Vec, L: typing.Callable[[Function], petsc4py.PETSc.ScalarType],  # type: ignore[name-defined]
+    b: petsc4py.PETSc.Vec, L: typing.Callable[[Function], petsc4py.PETSc.ScalarType],  # type: ignore[valid-type]
     B: FunctionsList[Function]
 ) -> None:
     """
@@ -32,12 +32,12 @@ def project_vector(
     """
     for (n, fun) in enumerate(B):
         b.setValue(  # cannot use setValueLocal due to incompatibility with getSubVector
-            n, L(fun), addv=petsc4py.PETSc.InsertMode.ADD)  # type: ignore[attr-defined]
+            n, L(fun), addv=petsc4py.PETSc.InsertMode.ADD)  # type: ignore[arg-type]
 
 
 def project_vector_block(
-    b: petsc4py.PETSc.Vec,  # type: ignore[name-defined]
-    L: typing.Sequence[typing.Callable[[Function], petsc4py.PETSc.ScalarType]],  # type: ignore[name-defined]
+    b: petsc4py.PETSc.Vec,
+    L: typing.Sequence[typing.Callable[[Function], petsc4py.PETSc.ScalarType]],  # type: ignore[valid-type]
     B: typing.Sequence[FunctionsList[Function]]
 ) -> None:
     """
@@ -63,8 +63,8 @@ def project_vector_block(
 
 
 def project_matrix(
-    A: petsc4py.PETSc.Mat,  # type: ignore[name-defined]
-    a: typing.Callable[[Function], typing.Callable[[Function], petsc4py.PETSc.ScalarType]],  # type: ignore[name-defined]
+    A: petsc4py.PETSc.Mat,
+    a: typing.Callable[[Function], typing.Callable[[Function], petsc4py.PETSc.ScalarType]],  # type: ignore[valid-type]
     B: FunctionsList[Function] | tuple[FunctionsList[Function], FunctionsList[Function]]
 ) -> None:
     """
@@ -90,13 +90,13 @@ def project_matrix(
         a_n = a(fun_n)
         for (m, fun_m) in enumerate(B[0]):
             A.setValueLocal(  # cannot use setValue due to incompatibility with getLocalSubMatrix
-                m, n, a_n(fun_m), addv=petsc4py.PETSc.InsertMode.ADD)  # type: ignore[attr-defined]
+                m, n, a_n(fun_m), addv=petsc4py.PETSc.InsertMode.ADD)  # type: ignore[arg-type]
     A.assemble()
 
 
 def project_matrix_block(
-    A: petsc4py.PETSc.Mat,  # type: ignore[name-defined]
-    a: typing.Sequence[typing.Sequence[  # type: ignore[name-defined]
+    A: petsc4py.PETSc.Mat,
+    a: typing.Sequence[typing.Sequence[  # type: ignore[valid-type]
         typing.Callable[[Function], typing.Callable[[Function], petsc4py.PETSc.ScalarType]]]],
     B: typing.Sequence[FunctionsList[Function]]
        | tuple[typing.Sequence[FunctionsList[Function]], typing.Sequence[FunctionsList[Function]]]

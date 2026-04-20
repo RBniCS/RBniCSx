@@ -21,7 +21,7 @@ else:  # pragma: no cover
     import typing_extensions
 
 
-def create_online_vector(N: int) -> petsc4py.PETSc.Vec:  # type: ignore[name-defined]
+def create_online_vector(N: int) -> petsc4py.PETSc.Vec:
     """
     Create an online vector of the given dimension.
 
@@ -35,9 +35,9 @@ def create_online_vector(N: int) -> petsc4py.PETSc.Vec:  # type: ignore[name-def
     :
         Allocated online vector.
     """
-    vec = petsc4py.PETSc.Vec().createSeq(N, comm=mpi4py.MPI.COMM_SELF)  # type: ignore[attr-defined]
+    vec = petsc4py.PETSc.Vec().createSeq(N, comm=mpi4py.MPI.COMM_SELF)  # type: ignore[arg-type]
     # Attach the identity local-to-global map
-    lgmap = petsc4py.PETSc.LGMap().create(np.arange(N, dtype=np.int32), comm=vec.comm)  # type: ignore[attr-defined]
+    lgmap = petsc4py.PETSc.LGMap().create(np.arange(N, dtype=np.int32), comm=vec.comm)  # type: ignore[arg-type]
     vec.setLGMap(lgmap)
     lgmap.destroy()
     # Setup and return
@@ -45,7 +45,7 @@ def create_online_vector(N: int) -> petsc4py.PETSc.Vec:  # type: ignore[name-def
     return vec
 
 
-def create_online_vector_block(N: list[int]) -> petsc4py.PETSc.Vec:  # type: ignore[name-defined]
+def create_online_vector_block(N: list[int]) -> petsc4py.PETSc.Vec:
     """
     Create an online vector of the given block dimensions.
 
@@ -62,7 +62,7 @@ def create_online_vector_block(N: list[int]) -> petsc4py.PETSc.Vec:  # type: ign
     return create_online_vector(sum(N))
 
 
-def create_online_matrix(M: int, N: int) -> petsc4py.PETSc.Mat:  # type: ignore[name-defined]
+def create_online_matrix(M: int, N: int) -> petsc4py.PETSc.Mat:
     """
     Create an online matrix of the given dimension.
 
@@ -76,10 +76,10 @@ def create_online_matrix(M: int, N: int) -> petsc4py.PETSc.Mat:  # type: ignore[
     :
         Allocated online matrix.
     """
-    mat = petsc4py.PETSc.Mat().createDense((M, N), comm=mpi4py.MPI.COMM_SELF)  # type: ignore[attr-defined]
+    mat = petsc4py.PETSc.Mat().createDense((M, N), comm=mpi4py.MPI.COMM_SELF)  # type: ignore[arg-type]
     # Attach the identity local-to-global map
-    row_lgmap = petsc4py.PETSc.LGMap().create(np.arange(M, dtype=np.int32), comm=mat.comm)  # type: ignore[attr-defined]
-    col_lgmap = petsc4py.PETSc.LGMap().create(np.arange(N, dtype=np.int32), comm=mat.comm)  # type: ignore[attr-defined]
+    row_lgmap = petsc4py.PETSc.LGMap().create(np.arange(M, dtype=np.int32), comm=mat.comm)  # type: ignore[arg-type]
+    col_lgmap = petsc4py.PETSc.LGMap().create(np.arange(N, dtype=np.int32), comm=mat.comm)  # type: ignore[arg-type]
     mat.setLGMap(row_lgmap, col_lgmap)
     row_lgmap.destroy()
     col_lgmap.destroy()
@@ -90,7 +90,7 @@ def create_online_matrix(M: int, N: int) -> petsc4py.PETSc.Mat:  # type: ignore[
 
 def create_online_matrix_block(
     M: list[int], N: list[int]
-) -> petsc4py.PETSc.Mat:  # type: ignore[name-defined]
+) -> petsc4py.PETSc.Mat:
     """
     Create an online matrix of the given block dimensions.
 
@@ -107,7 +107,7 @@ def create_online_matrix_block(
     return create_online_matrix(sum(M), sum(N))
 
 
-class VecSubVectorWrapper(typing.ContextManager[petsc4py.PETSc.Vec]):  # type: ignore[name-defined]
+class VecSubVectorWrapper(typing.ContextManager[petsc4py.PETSc.Vec]):
     """
     Wrap calls to petsc4py.PETSc.Vec.{getSubVector,restoreSubVector} in a context manager.
 
@@ -120,16 +120,16 @@ class VecSubVectorWrapper(typing.ContextManager[petsc4py.PETSc.Vec]):  # type: i
     """
 
     def __init__(
-        self, b: petsc4py.PETSc.Vec, indices: npt.NDArray[np.int32]  # type: ignore[name-defined]
+        self, b: petsc4py.PETSc.Vec, indices: npt.NDArray[np.int32]
     ) -> None:
         self._b = b
-        self._index_set = petsc4py.PETSc.IS().createGeneral(indices, comm=b.comm)  # type: ignore[attr-defined]
+        self._index_set = petsc4py.PETSc.IS().createGeneral(indices, comm=b.comm)  # type: ignore[arg-type]
         self._b_sub = None
 
-    def __enter__(self) -> petsc4py.PETSc.Vec:  # type: ignore[name-defined]
+    def __enter__(self) -> petsc4py.PETSc.Vec:
         """Get subvector on context enter."""
-        self._b_sub = self._b.getSubVector(self._index_set)
-        return self._b_sub
+        self._b_sub = self._b.getSubVector(self._index_set)  # type: ignore[assignment]
+        return self._b_sub  # type: ignore[return-value]
 
     def __exit__(
         self, exception_type: type[BaseException] | None,
@@ -137,13 +137,13 @@ class VecSubVectorWrapper(typing.ContextManager[petsc4py.PETSc.Vec]):  # type: i
         traceback: types.TracebackType | None
     ) -> None:
         """Restore subvector and clean up index set upon leaving the context."""
-        self._b.restoreSubVector(self._index_set, self._b_sub)
+        self._b.restoreSubVector(self._index_set, self._b_sub)  # type: ignore[arg-type]
         del self._b_sub
         self._index_set.destroy()
         del self._index_set
 
 
-class VecSubVectorCopier(typing.ContextManager[petsc4py.PETSc.Vec]):  # type: ignore[name-defined]
+class VecSubVectorCopier(typing.ContextManager[petsc4py.PETSc.Vec]):
     """
     A context manager that create copies of a subvector. Caller should de-allocate the returned vector.
 
@@ -156,15 +156,15 @@ class VecSubVectorCopier(typing.ContextManager[petsc4py.PETSc.Vec]):  # type: ig
     """
 
     def __init__(
-        self, b: petsc4py.PETSc.Vec, indices: npt.NDArray[np.int32]  # type: ignore[name-defined]
+        self, b: petsc4py.PETSc.Vec, indices: npt.NDArray[np.int32]
     ) -> None:
         self._b = b
         self._indices = indices
 
-    def __enter__(self) -> petsc4py.PETSc.Vec:  # type: ignore[name-defined]
+    def __enter__(self) -> petsc4py.PETSc.Vec:
         """Get a copy of the subvector on context enter."""
         b_sub_copy = create_online_vector(len(self._indices))
-        b_sub_copy[:] = self._b[self._indices]
+        b_sub_copy[:] = self._b[self._indices]  # type: ignore[index]
         return b_sub_copy
 
     def __exit__(
@@ -194,13 +194,13 @@ def BlockVecSubVectorContextManager(
         """
 
         def __init__(
-            self: typing_extensions.Self, b: petsc4py.PETSc.Vec, N: list[int]  # type: ignore[name-defined]
+            self: typing_extensions.Self, b: petsc4py.PETSc.Vec, N: list[int]
         ) -> None:
             self._b = b
             blocks = np.hstack((0, np.cumsum([N_ for N_ in N]))).astype(np.int32)
             self._indices = [np.arange(blocks[i], blocks[i + 1], dtype=np.int32) for i in range(len(N))]
 
-        def __iter__(self: typing_extensions.Self) -> typing.Iterator[  # type: ignore[name-defined]
+        def __iter__(self: typing_extensions.Self) -> typing.Iterator[
                 petsc4py.PETSc.Vec]:
             """Iterate over blocks."""
             with contextlib.ExitStack() as wrapper_stack:
@@ -253,7 +253,7 @@ class BlockVecSubVectorCopier(BlockVecSubVectorContextManager(VecSubVectorCopier
     pass
 
 
-class MatSubMatrixWrapper(typing.ContextManager[petsc4py.PETSc.Mat]):  # type: ignore[name-defined]
+class MatSubMatrixWrapper(typing.ContextManager[petsc4py.PETSc.Mat]):
     """
     Wrap calls to petsc4py.PETSc.Mat.{getLocalSubMatrix,restoreLocalSubMatrix} in a context manager.
 
@@ -266,20 +266,20 @@ class MatSubMatrixWrapper(typing.ContextManager[petsc4py.PETSc.Mat]):  # type: i
     """
 
     def __init__(
-        self, A: petsc4py.PETSc.Mat,  # type: ignore[name-defined]
+        self, A: petsc4py.PETSc.Mat,
         row_indices: npt.NDArray[np.int32], col_indices: npt.NDArray[np.int32]
     ) -> None:
         self._A = A
         self._index_sets = (
-            petsc4py.PETSc.IS().createGeneral(row_indices, comm=A.comm),  # type: ignore[attr-defined]
-            petsc4py.PETSc.IS().createGeneral(col_indices, comm=A.comm)  # type: ignore[attr-defined]
+            petsc4py.PETSc.IS().createGeneral(row_indices, comm=A.comm),  # type: ignore[arg-type]
+            petsc4py.PETSc.IS().createGeneral(col_indices, comm=A.comm)  # type: ignore[arg-type]
         )
         self._A_sub = None
 
-    def __enter__(self) -> petsc4py.PETSc.Mat:  # type: ignore[name-defined]
+    def __enter__(self) -> petsc4py.PETSc.Mat:
         """Get submatrix on context enter."""
-        self._A_sub = self._A.getLocalSubMatrix(*self._index_sets)
-        return self._A_sub
+        self._A_sub = self._A.getLocalSubMatrix(*self._index_sets)  # type: ignore[assignment]
+        return self._A_sub  # type: ignore[return-value]
 
     def __exit__(
         self, exception_type: type[BaseException] | None,
@@ -287,13 +287,13 @@ class MatSubMatrixWrapper(typing.ContextManager[petsc4py.PETSc.Mat]):  # type: i
         traceback: types.TracebackType | None
     ) -> None:
         """Restore submatrix and clean up index sets upon leaving the context."""
-        self._A.restoreLocalSubMatrix(*self._index_sets, self._A_sub)
+        self._A.restoreLocalSubMatrix(*self._index_sets, self._A_sub)  # type: ignore[arg-type]
         del self._A_sub
         [index_set.destroy() for index_set in self._index_sets]
         del self._index_sets
 
 
-class MatSubMatrixCopier(typing.ContextManager[petsc4py.PETSc.Mat]):  # type: ignore[name-defined]
+class MatSubMatrixCopier(typing.ContextManager[petsc4py.PETSc.Mat]):
     """
     A context manager that create copies of a submatrix. Caller should de-allocate the returned matrix.
 
@@ -306,17 +306,17 @@ class MatSubMatrixCopier(typing.ContextManager[petsc4py.PETSc.Mat]):  # type: ig
     """
 
     def __init__(
-        self, A: petsc4py.PETSc.Mat,  # type: ignore[name-defined]
+        self, A: petsc4py.PETSc.Mat,
         row_indices: npt.NDArray[np.int32], col_indices: npt.NDArray[np.int32]
     ) -> None:
         self._A = A
         self._row_indices = row_indices
         self._col_indices = col_indices
 
-    def __enter__(self) -> petsc4py.PETSc.Mat:  # type: ignore[name-defined]
+    def __enter__(self) -> petsc4py.PETSc.Mat:
         """Get a copy of the submatrix on context enter."""
         A_sub_copy = create_online_matrix(len(self._row_indices), len(self._col_indices))
-        A_sub_copy[:, :] = self._A[self._row_indices, self._col_indices]
+        A_sub_copy[:, :] = self._A[self._row_indices, self._col_indices]  # type: ignore[index]
         A_sub_copy.assemble()
         return A_sub_copy
 
@@ -347,7 +347,7 @@ def BlockMatSubMatrixContextManager(
         """
 
         def __init__(
-            self: typing_extensions.Self, A: petsc4py.PETSc.Mat,  # type: ignore[name-defined]
+            self: typing_extensions.Self, A: petsc4py.PETSc.Mat,
             M: list[int], N: list[int]
         ) -> None:
             self._A = A
@@ -356,7 +356,7 @@ def BlockMatSubMatrixContextManager(
             self._row_indices = [np.arange(row_blocks[i], row_blocks[i + 1], dtype=np.int32) for i in range(len(M))]
             self._col_indices = [np.arange(col_blocks[j], col_blocks[j + 1], dtype=np.int32) for j in range(len(N))]
 
-        def __iter__(self: typing_extensions.Self) -> typing.Iterator[  # type: ignore[name-defined]
+        def __iter__(self: typing_extensions.Self) -> typing.Iterator[
                 tuple[int, int, petsc4py.PETSc.Mat]]:
             """Iterate over blocks."""
             with contextlib.ExitStack() as wrapper_stack:

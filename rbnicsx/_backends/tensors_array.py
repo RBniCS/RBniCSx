@@ -49,7 +49,7 @@ class TensorsArray(abc.ABC):
         self: typing_extensions.Self, comm: mpi4py.MPI.Intracomm, shape: int | tuple[int, ...]
     ) -> None:
         self._comm: mpi4py.MPI.Intracomm = comm
-        self._array: npt.NDArray[  # type: ignore[name-defined]
+        self._array: npt.NDArray[  # type: ignore[type-var]
             petsc4py.PETSc.Mat | petsc4py.PETSc.Vec] = np.full(shape, fill_value=None, dtype=object)
         self._type: str | None = None
 
@@ -163,9 +163,9 @@ class TensorsArray(abc.ABC):
         """
         pass  # pragma: no cover
 
-    def contraction(
-        self: typing_extensions.Self, *args: petsc4py.PETSc.Vec  # type: ignore[name-defined]
-    ) -> petsc4py.PETSc.ScalarType:  # type: ignore[name-defined]
+    def contraction(  # type: ignore[return]
+        self: typing_extensions.Self, *args: petsc4py.PETSc.Vec
+    ) -> petsc4py.PETSc.ScalarType:  # type: ignore[valid-type]
         """
         Contract entries in the array.
 
@@ -189,7 +189,7 @@ class TensorsArray(abc.ABC):
 
         # Check dimension compatibility for arguments provided for dimensions up to array shape
         for dim in range(len(self.shape)):
-            assert args[dim].getType() == petsc4py.PETSc.Vec.Type.SEQ  # type: ignore[attr-defined]
+            assert args[dim].getType() == petsc4py.PETSc.Vec.Type.SEQ
             assert args[dim].size == self.shape[dim]
 
         # Flatten the cartesian product of arguments provided for dimensions up to array shape
@@ -200,35 +200,35 @@ class TensorsArray(abc.ABC):
 
         # Contract first on the dimensions up to array shape
         first_output = self._array[self._array.flat.coords].copy()
-        first_output.zeroEntries()
+        first_output.zeroEntries()  # type: ignore[attr-defined]
         for (array_it, arg_it) in zip(self._array.flat, first_args):
-            first_output.axpy(arg_it, array_it)
+            first_output.axpy(arg_it, array_it)  # type: ignore[attr-defined]
         if self._type == "Vec":
-            first_output.ghostUpdate(
-                addv=petsc4py.PETSc.InsertMode.INSERT,  # type: ignore[attr-defined]
-                mode=petsc4py.PETSc.ScatterMode.FORWARD)  # type: ignore[attr-defined]
+            first_output.ghostUpdate(  # type: ignore[attr-defined]
+                addv=petsc4py.PETSc.InsertMode.INSERT,
+                mode=petsc4py.PETSc.ScatterMode.FORWARD)
 
         # Check dimension compatibility for arguments provided after the dimensions up to array shape
         if self._type == "Mat":
-            assert isinstance(first_output, petsc4py.PETSc.Mat)  # type: ignore[attr-defined]
+            assert isinstance(first_output, petsc4py.PETSc.Mat)
             assert args[-2].size == first_output.size[0]
             assert args[-1].size == first_output.size[1]
         elif self._type == "Vec":
-            assert isinstance(first_output, petsc4py.PETSc.Vec)  # type: ignore[attr-defined]
+            assert isinstance(first_output, petsc4py.PETSc.Vec)
             assert args[-1].size == first_output.size
 
         # Contract with the dimensions after array shape
         if self._type == "Mat":
-            first_output_dot_last_arg = first_output.createVecLeft()
-            first_output.mult(args[-1], first_output_dot_last_arg)
-            return first_output_dot_last_arg.dot(args[-2])
+            first_output_dot_last_arg = first_output.createVecLeft()  # type: ignore[attr-defined]
+            first_output.mult(args[-1], first_output_dot_last_arg)  # type: ignore[attr-defined]
+            return first_output_dot_last_arg.dot(args[-2])  # type: ignore[no-any-return]
         elif self._type == "Vec":
-            return first_output.dot(args[-1])
+            return first_output.dot(args[-1])  # type: ignore[no-any-return, call-overload]
 
     @typing.overload
     def __getitem__(
         self: typing_extensions.Self, key: int | tuple[int, ...]
-    ) -> petsc4py.PETSc.Mat | petsc4py.PETSc.Vec:  # type: ignore[name-defined] # pragma: no cover
+    ) -> petsc4py.PETSc.Mat | petsc4py.PETSc.Vec: # pragma: no cover
         ...
 
     @typing.overload
@@ -239,7 +239,7 @@ class TensorsArray(abc.ABC):
 
     def __getitem__(
         self: typing_extensions.Self, key: int | tuple[int, ...] | slice | tuple[slice, slice]
-    ) -> petsc4py.PETSc.Mat | petsc4py.PETSc.Vec | typing_extensions.Self:  # type: ignore[name-defined]
+    ) -> petsc4py.PETSc.Mat | petsc4py.PETSc.Vec | typing_extensions.Self:
         """
         Extract a single tensor from the array, or slice the array.
 
@@ -255,7 +255,7 @@ class TensorsArray(abc.ABC):
             storing every element at the indices in the slice `key`.
         """
         if isinstance(key, int) or (isinstance(key, tuple) and all([isinstance(key_, int) for key_ in key])):
-            return self._array[key]
+            return self._array[key]  # type: ignore[return-value]
         elif isinstance(key, slice) or (isinstance(key, tuple) and all([isinstance(key_, slice) for key_ in key])):
             output_array = self._array[key]
             output = self.duplicate(output_array.shape)
@@ -266,7 +266,7 @@ class TensorsArray(abc.ABC):
 
     def __setitem__(
         self: typing_extensions.Self, key: int | tuple[int, ...],
-        tensor: petsc4py.PETSc.Mat | petsc4py.PETSc.Vec  # type: ignore[name-defined]
+        tensor: petsc4py.PETSc.Mat | petsc4py.PETSc.Vec
     ) -> None:
         """
         Update the content of the array with the provided tensor.
@@ -279,12 +279,12 @@ class TensorsArray(abc.ABC):
             Tensor to be stored.
         """
         # Check that tensors of the same type are set
-        if isinstance(tensor, petsc4py.PETSc.Mat):  # type: ignore[attr-defined]
+        if isinstance(tensor, petsc4py.PETSc.Mat):
             if self._type is None:
                 self._type = "Mat"
             else:
                 assert self._type == "Mat"
-        elif isinstance(tensor, petsc4py.PETSc.Vec):  # type: ignore[attr-defined]
+        elif isinstance(tensor, petsc4py.PETSc.Vec):
             if self._type is None:
                 self._type = "Vec"
             else:
@@ -294,4 +294,4 @@ class TensorsArray(abc.ABC):
 
         # Replace storage
         # (and delegate checks on the compatibility of the key arguments with the shape of the storage array to numpy)
-        self._array[key] = tensor
+        self._array[key] = tensor  # type: ignore[assignment]

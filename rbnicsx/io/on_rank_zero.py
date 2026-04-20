@@ -15,11 +15,11 @@ CallableOutput = typing.TypeVar("CallableOutput")
 
 
 def on_rank_zero(
-    comm: mpi4py.MPI.Intracomm | petsc4py.PETSc.Comm,  # type: ignore[name-defined]
+    comm: mpi4py.MPI.Intracomm | petsc4py.PETSc.Comm,
     callable_: typing.Callable[[], CallableOutput]
 ) -> CallableOutput:
     """Execute a function on rank zero and broadcast the result."""
-    if isinstance(comm, petsc4py.PETSc.Comm):  # type: ignore[attr-defined]
+    if isinstance(comm, petsc4py.PETSc.Comm):
         comm = comm.tompi4py()
 
     return_value: CallableOutput | None = None

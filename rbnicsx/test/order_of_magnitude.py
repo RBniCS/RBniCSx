@@ -19,14 +19,14 @@ def order_of_magnitude(numbers: float | np.float32 | np.float64) -> np.int32:  #
 
 @typing.overload
 def order_of_magnitude(
-    numbers: npt.NDArray[np.float32 | np.float64 | petsc4py.PETSc.RealType]  # type: ignore[name-defined]
+    numbers: npt.NDArray[np.float32 | np.float64 | petsc4py.PETSc.RealType]  # type: ignore[valid-type]
             | list[np.float32 | np.float64 | petsc4py.PETSc.RealType]
 ) -> npt.NDArray[np.int32]:  # pragma: no cover
     ...
 
 
 def order_of_magnitude(
-    numbers: float | np.float32 | np.float64  # type: ignore[name-defined]
+    numbers: float | np.float32 | np.float64  # type: ignore[valid-type]
              | npt.NDArray[np.float32 | np.float64 | petsc4py.PETSc.RealType]
              | list[np.float32 | np.float64 | petsc4py.PETSc.RealType]
 ) -> np.int32 | npt.NDArray[np.int32]:

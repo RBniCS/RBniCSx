@@ -16,7 +16,7 @@ import rbnicsx.online
 
 
 @pytest.fixture
-def functions_plain_and_size() -> tuple[  # type: ignore[name-defined]
+def functions_plain_and_size() -> tuple[
         list[petsc4py.PETSc.Vec], int, int]:
     """Generate a list of pairwise linearly independent vectors."""
     vectors = [rbnicsx.online.create_vector(3) for _ in range(4)]
@@ -29,7 +29,7 @@ def functions_plain_and_size() -> tuple[  # type: ignore[name-defined]
 
 
 @pytest.fixture
-def functions_block_and_size() -> tuple[  # type: ignore[name-defined]
+def functions_block_and_size() -> tuple[
         list[petsc4py.PETSc.Vec], list[int], int]:
     """Generate a list of pairwise linearly independent vectors (block version)."""
     vectors = [rbnicsx.online.create_vector_block([3, 4]) for _ in range(4)]
@@ -42,17 +42,17 @@ def functions_block_and_size() -> tuple[  # type: ignore[name-defined]
 
 
 @pytest.fixture(params=["functions_plain_and_size", "functions_block_and_size"])
-def functions_and_size(request: _pytest.fixtures.SubRequest) -> tuple[  # type: ignore[name-defined]
+def functions_and_size(request: _pytest.fixtures.SubRequest) -> tuple[
         list[petsc4py.PETSc.Vec], int | list[int], int]:
     """Parameterize functions generation considering either non-block or block content."""
     return request.getfixturevalue(request.param)  # type: ignore[no-any-return]
 
 
 @pytest.fixture
-def inner_product() -> typing.Callable[  # type: ignore[name-defined]
+def inner_product() -> typing.Callable[
         [int | list[int]], petsc4py.PETSc.Mat]:
     """Return a callable that computes the identity matrix."""
-    def _(N: int | list[int]) -> petsc4py.PETSc.Mat:  # type: ignore[name-defined]
+    def _(N: int | list[int]) -> petsc4py.PETSc.Mat:
         """Return the identity matrix."""
         if isinstance(N, int):
             identity = rbnicsx.online.create_matrix(N, N)
@@ -67,18 +67,18 @@ def inner_product() -> typing.Callable[  # type: ignore[name-defined]
 
 
 def compute_inner_product(
-    inner_product: petsc4py.PETSc.Mat,  # type: ignore[name-defined]
-    function_i: petsc4py.PETSc.Vec, function_j: petsc4py.PETSc.Vec  # type: ignore[name-defined]
-) -> petsc4py.PETSc.ScalarType:  # type: ignore[name-defined]
+    inner_product: petsc4py.PETSc.Mat,
+    function_i: petsc4py.PETSc.Vec, function_j: petsc4py.PETSc.Vec
+) -> petsc4py.PETSc.ScalarType:  # type: ignore[valid-type]
     """Evaluate the inner product between two functions."""
     inner_product_action = rbnicsx.online.matrix_action(inner_product)
     return inner_product_action(function_i)(function_j)
 
 
 def test_online_gram_schmidt(
-    functions_and_size: tuple[  # type: ignore[name-defined]
+    functions_and_size: tuple[
         list[petsc4py.PETSc.Vec], int | list[int], int],
-    inner_product: typing.Callable[[int | list[int]], petsc4py.PETSc.Mat]  # type: ignore[name-defined]
+    inner_product: typing.Callable[[int | list[int]], petsc4py.PETSc.Mat]
 ) -> None:
     """Check rbnicsx.online.gram_schmidt."""
     functions, size, size_int = functions_and_size
@@ -103,7 +103,7 @@ def test_online_gram_schmidt(
 
 
 def test_online_gram_schmidt_zero(
-    inner_product: typing.Callable[[int | list[int]], petsc4py.PETSc.Mat]  # type: ignore[name-defined]
+    inner_product: typing.Callable[[int | list[int]], petsc4py.PETSc.Mat]
 ) -> None:
     """Check rbnicsx.online.gram_schmidt when adding a linearly dependent function (e.g., zero)."""
     functions_list = rbnicsx.online.FunctionsList(3)
@@ -116,9 +116,9 @@ def test_online_gram_schmidt_zero(
 
 
 def test_online_gram_schmidt_block(
-    functions_and_size: tuple[  # type: ignore[name-defined]
+    functions_and_size: tuple[
         list[petsc4py.PETSc.Vec], int | list[int], int],
-    inner_product: typing.Callable[[int | list[int]], petsc4py.PETSc.Mat]  # type: ignore[name-defined]
+    inner_product: typing.Callable[[int | list[int]], petsc4py.PETSc.Mat]
 ) -> None:
     """Check rbnicsx.online.gram_schmidt_block."""
     functions, size, size_int = functions_and_size
@@ -128,25 +128,25 @@ def test_online_gram_schmidt_block(
         assert len(functions_list) == 0
 
     rbnicsx.online.gram_schmidt_block(
-        functions_lists, [functions[0], functions[2]], [inner_product_matrix, 2 * inner_product_matrix])
+        functions_lists, [functions[0], functions[2]], [inner_product_matrix, 2 * inner_product_matrix])  # type: ignore[list-item,operator]
     for (functions_list, factor) in zip(functions_lists, [1, 2]):
         assert len(functions_list) == 1
         assert np.isclose(compute_inner_product(
-            factor * inner_product_matrix, functions_list[0], functions_list[0]), 1)
+            factor * inner_product_matrix, functions_list[0], functions_list[0]), 1)  # type: ignore[arg-type,operator]
         assert np.allclose(functions_list[0].array, 1 / np.sqrt(factor * size_int))
 
     rbnicsx.online.gram_schmidt_block(
-        functions_lists, [functions[1], functions[3]], [inner_product_matrix, 2 * inner_product_matrix])
+        functions_lists, [functions[1], functions[3]], [inner_product_matrix, 2 * inner_product_matrix])  # type: ignore[list-item,operator]
     for (functions_list, factor, expected1_addend) in zip(
             functions_lists, [1, 2], [np.arange(1, size_int + 1), np.arange(size_int, 0, -1)]):
         assert len(functions_list) == 2
         assert np.isclose(compute_inner_product(
-            factor * inner_product_matrix, functions_list[0], functions_list[0]), 1)
+            factor * inner_product_matrix, functions_list[0], functions_list[0]), 1)  # type: ignore[arg-type,operator]
         assert np.allclose(functions_list[0].array, 1 / np.sqrt(factor * size_int))
         assert np.isclose(compute_inner_product(
-            factor * inner_product_matrix, functions_list[1], functions_list[1]), 1)
+            factor * inner_product_matrix, functions_list[1], functions_list[1]), 1)  # type: ignore[arg-type,operator]
         assert np.isclose(compute_inner_product(
-            factor * inner_product_matrix, functions_list[0], functions_list[1]), 0)
+            factor * inner_product_matrix, functions_list[0], functions_list[1]), 0)  # type: ignore[arg-type,operator]
         expected1 = expected1_addend - (size_int + 1) / 2
         expected1 /= np.sqrt(factor) * np.linalg.norm(expected1)
         assert np.allclose(functions_list[1].array, expected1)

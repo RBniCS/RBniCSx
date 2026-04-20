@@ -71,7 +71,7 @@ class FunctionsList(FunctionsListBase[dolfinx.fem.Function]):
         filename
             Name of the file where to export the list.
         """
-        export_functions(self._list, np.arange(len(self._list), dtype=float), directory, filename)
+        export_functions(self._list, np.arange(len(self._list), dtype=float), directory, filename)  # type: ignore[arg-type]
 
     def _load(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
         """
@@ -87,7 +87,7 @@ class FunctionsList(FunctionsListBase[dolfinx.fem.Function]):
         self._list = import_functions(self._function_space, directory, filename)
 
     def _linearly_combine(
-        self: typing_extensions.Self, other: petsc4py.PETSc.Vec  # type: ignore[name-defined]
+        self: typing_extensions.Self, other: petsc4py.PETSc.Vec
     ) -> dolfinx.fem.Function:
         """
         Linearly combine functions in the list using Function's API.
@@ -107,10 +107,10 @@ class FunctionsList(FunctionsListBase[dolfinx.fem.Function]):
             with output.x.petsc_vec.localForm() as output_local:
                 output_local.set(0.0)
             for i in range(other.size):
-                output.x.petsc_vec.axpy(other[i], self._list[i].x.petsc_vec)
+                output.x.petsc_vec.axpy(other[i], self._list[i].x.petsc_vec)  # type: ignore[index]
             output.x.petsc_vec.ghostUpdate(
-                addv=petsc4py.PETSc.InsertMode.INSERT,  # type: ignore[attr-defined]
-                mode=petsc4py.PETSc.ScatterMode.FORWARD)  # type: ignore[attr-defined]
+                addv=petsc4py.PETSc.InsertMode.INSERT,
+                mode=petsc4py.PETSc.ScatterMode.FORWARD)
             return output
         else:
             return dolfinx.fem.Function(self._function_space)

@@ -88,7 +88,7 @@ def import_functions(
 
 def import_matrix(
     form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
-) -> petsc4py.PETSc.Mat:  # type: ignore[name-defined]
+) -> petsc4py.PETSc.Mat:
     """
     Import a petsc4py.PETSc.Mat assembled by dolfinx from file.
 
@@ -113,7 +113,7 @@ def import_matrix(
 
 def import_matrices(
     form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
-) -> list[petsc4py.PETSc.Mat]:  # type: ignore[name-defined]
+) -> list[petsc4py.PETSc.Mat]:
     """
     Import a list of petsc4py.PETSc.Mat assembled by dolfinx from file.
 
@@ -138,7 +138,7 @@ def import_matrices(
 
 def import_vector(
     form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
-) -> petsc4py.PETSc.Vec:  # type: ignore[name-defined]
+) -> petsc4py.PETSc.Vec:
     """
     Import a petsc4py.PETSc.Vec assembled by dolfinx from file.
 
@@ -166,7 +166,7 @@ def import_vector(
 
 def import_vectors(
     form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
-) -> list[petsc4py.PETSc.Vec]:  # type: ignore[name-defined]
+) -> list[petsc4py.PETSc.Vec]:
     """
     Import a list of petsc4py.PETSc.Vec assembled by dolfinx from file.
 

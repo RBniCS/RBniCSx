@@ -111,9 +111,9 @@ class TensorsArray(TensorsArrayBase):
         if self._type == "Mat":
             array_flattened = import_matrices(self._form, self._comm, directory, filename)
         elif self._type == "Vec":
-            array_flattened = import_vectors(self._form, self._comm, directory, filename)
+            array_flattened = import_vectors(self._form, self._comm, directory, filename)  # type: ignore[assignment]
         else:
             raise RuntimeError()
 
         for (linear_index, tensor) in enumerate(array_flattened):
-            self._array[np.unravel_index(linear_index, self.shape)] = tensor
+            self._array[np.unravel_index(linear_index, self.shape)] = tensor  # type: ignore[assignment]

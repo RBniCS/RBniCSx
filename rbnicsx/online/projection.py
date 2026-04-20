@@ -29,7 +29,7 @@ from rbnicsx.online.functions_list import FunctionsList
 
 
 @plum.overload
-def project_vector(L: petsc4py.PETSc.Vec, B: FunctionsList) -> petsc4py.PETSc.Vec:  # type: ignore[name-defined]
+def project_vector(L: petsc4py.PETSc.Vec, B: FunctionsList) -> petsc4py.PETSc.Vec:
     """
     Project a linear form onto the reduced basis.
 
@@ -52,7 +52,7 @@ def project_vector(L: petsc4py.PETSc.Vec, B: FunctionsList) -> petsc4py.PETSc.Ve
 
 @plum.overload
 def project_vector(  # noqa: F811
-    b: petsc4py.PETSc.Vec, L: petsc4py.PETSc.Vec, B: FunctionsList  # type: ignore[name-defined]
+    b: petsc4py.PETSc.Vec, L: petsc4py.PETSc.Vec, B: FunctionsList
 ) -> None:
     """
     Project a linear form onto the reduced basis.
@@ -78,8 +78,8 @@ def project_vector(*args, **kwargs):  # type: ignore[no-untyped-def] # noqa: ANN
 
 @plum.overload
 def project_vector_block(
-    L: petsc4py.PETSc.Vec, B: typing.Sequence[FunctionsList]  # type: ignore[name-defined]
-) -> petsc4py.PETSc.Vec:  # type: ignore[name-defined]
+    L: petsc4py.PETSc.Vec, B: typing.Sequence[FunctionsList]
+) -> petsc4py.PETSc.Vec:
     """
     Project a list of linear forms onto the reduced basis.
 
@@ -102,7 +102,7 @@ def project_vector_block(
 
 @plum.overload
 def project_vector_block(  # noqa: F811
-    b: petsc4py.PETSc.Vec, L: petsc4py.PETSc.Vec, B: typing.Sequence[FunctionsList]  # type: ignore[name-defined]
+    b: petsc4py.PETSc.Vec, L: petsc4py.PETSc.Vec, B: typing.Sequence[FunctionsList]
 ) -> None:
     """
     Project a list of linear forms onto the reduced basis.
@@ -130,9 +130,9 @@ def project_vector_block(*args, **kwargs):  # type: ignore[no-untyped-def] # noq
 
 @plum.overload
 def project_matrix(
-    a: petsc4py.PETSc.Mat,  # type: ignore[name-defined]
+    a: petsc4py.PETSc.Mat,
     B: FunctionsList | tuple[FunctionsList, FunctionsList]
-) -> petsc4py.PETSc.Mat:  # type: ignore[name-defined]
+) -> petsc4py.PETSc.Mat:
     """
     Project a bilinear form onto the reduced basis.
 
@@ -163,7 +163,7 @@ def project_matrix(
 
 @plum.overload
 def project_matrix(  # noqa: F811
-    A: petsc4py.PETSc.Mat, a: petsc4py.PETSc.Mat,  # type: ignore[name-defined]
+    A: petsc4py.PETSc.Mat, a: petsc4py.PETSc.Mat,
     B: FunctionsList | tuple[FunctionsList, FunctionsList]
 ) -> None:
     """
@@ -191,9 +191,9 @@ def project_matrix(*args, **kwargs):  # type: ignore[no-untyped-def] # noqa: ANN
 
 @plum.overload
 def project_matrix_block(
-    a: petsc4py.PETSc.Mat,  # type: ignore[name-defined]
+    a: petsc4py.PETSc.Mat,
     B: typing.Sequence[FunctionsList] | tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]
-) -> petsc4py.PETSc.Mat:  # type: ignore[name-defined]
+) -> petsc4py.PETSc.Mat:
     """
     Project a matrix of bilinear forms onto the reduced basis.
 
@@ -223,8 +223,8 @@ def project_matrix_block(
 
 @plum.overload
 def project_matrix_block(  # noqa: F811
-    A: petsc4py.PETSc.Mat,  # type: ignore[name-defined]
-    a: petsc4py.PETSc.Mat,  # type: ignore[name-defined]
+    A: petsc4py.PETSc.Mat,
+    a: petsc4py.PETSc.Mat,
     B: typing.Sequence[FunctionsList] | tuple[typing.Sequence[FunctionsList], typing.Sequence[FunctionsList]]
 ) -> None:
     """
@@ -260,8 +260,8 @@ def project_matrix_block(*args, **kwargs):  # type: ignore[no-untyped-def] # noq
 
 
 def vector_action(
-    L: petsc4py.PETSc.Vec  # type: ignore[name-defined]
-) -> typing.Callable[[petsc4py.PETSc.Vec], petsc4py.PETSc.ScalarType]:  # type: ignore[name-defined]
+    L: petsc4py.PETSc.Vec
+) -> typing.Callable[[petsc4py.PETSc.Vec], petsc4py.PETSc.ScalarType]:  # type: ignore[valid-type]
     """
     Return a callable that represents the action of the dot product between two vectors.
 
@@ -276,7 +276,7 @@ def vector_action(
         A callable that represents the action of L on a vector.
     """
 
-    def _(vec: petsc4py.PETSc.Vec) -> petsc4py.PETSc.ScalarType:  # type: ignore[name-defined]
+    def _(vec: petsc4py.PETSc.Vec) -> petsc4py.PETSc.ScalarType:  # type: ignore[valid-type]
         """
         Compute the action of the dot product between two vectors.
 
@@ -296,8 +296,8 @@ def vector_action(
 
 
 def matrix_action(
-    a: petsc4py.PETSc.Mat  # type: ignore[name-defined]
-) -> typing.Callable[  # type: ignore[name-defined]
+    a: petsc4py.PETSc.Mat
+) -> typing.Callable[  # type: ignore[valid-type]
     [petsc4py.PETSc.Vec], typing.Callable[[petsc4py.PETSc.Vec], petsc4py.PETSc.ScalarType]
 ]:
     """
@@ -316,8 +316,8 @@ def matrix_action(
     a_dot_vec_1 = a.createVecLeft()
 
     def _trial_action(
-        vec_1: petsc4py.PETSc.Vec  # type: ignore[name-defined]
-    ) -> typing.Callable[[petsc4py.PETSc.Vec], petsc4py.PETSc.ScalarType]:  # type: ignore[name-defined]
+        vec_1: petsc4py.PETSc.Vec
+    ) -> typing.Callable[[petsc4py.PETSc.Vec], petsc4py.PETSc.ScalarType]:  # type: ignore[valid-type]
         """
         Compute the action of a matrix-vector product.
 
@@ -333,7 +333,7 @@ def matrix_action(
         """
         a.mult(vec_1, a_dot_vec_1)
 
-        def _test_action(vec_0: petsc4py.PETSc.Vec) -> petsc4py.PETSc.ScalarType:  # type: ignore[name-defined]
+        def _test_action(vec_0: petsc4py.PETSc.Vec) -> petsc4py.PETSc.ScalarType:  # type: ignore[valid-type]
             """
             Compute the action of a vector-matrix-vector product.
 

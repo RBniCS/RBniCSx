@@ -14,7 +14,7 @@ from rbnicsx.io import on_rank_zero
 
 
 def export_matrix(
-    mat: petsc4py.PETSc.Mat, comm: mpi4py.MPI.Intracomm,  # type: ignore[name-defined]
+    mat: petsc4py.PETSc.Mat, comm: mpi4py.MPI.Intracomm,
     directory: pathlib.Path, filename: str
 ) -> None:
     """
@@ -32,14 +32,14 @@ def export_matrix(
         Name of the file where to export the matrix.
     """
     directory.mkdir(parents=True, exist_ok=True)
-    viewer = petsc4py.PETSc.Viewer().createBinary(  # type: ignore[attr-defined]
-        str(directory / (filename + ".dat")), "w", comm)
+    viewer = petsc4py.PETSc.Viewer().createBinary(
+        str(directory / (filename + ".dat")), "w", comm)  # type: ignore[arg-type]
     viewer.view(mat)
     viewer.destroy()
 
 
 def export_matrices(
-    mats: list[petsc4py.PETSc.Mat], comm: mpi4py.MPI.Intracomm,  # type: ignore[name-defined]
+    mats: list[petsc4py.PETSc.Mat], comm: mpi4py.MPI.Intracomm,
     directory: pathlib.Path, filename: str
 ) -> None:
     """
@@ -66,14 +66,14 @@ def export_matrices(
 
     # Write out the list
     for (index, mat) in enumerate(mats):
-        viewer = petsc4py.PETSc.Viewer().createBinary(  # type: ignore[attr-defined]
-            str(directory / filename / (str(index) + ".dat")), "w", comm)
+        viewer = petsc4py.PETSc.Viewer().createBinary(
+            str(directory / filename / (str(index) + ".dat")), "w", comm)  # type: ignore[arg-type]
         viewer.view(mat)
         viewer.destroy()
 
 
 def export_vector(
-    vec: petsc4py.PETSc.Vec, comm: mpi4py.MPI.Intracomm,  # type: ignore[name-defined]
+    vec: petsc4py.PETSc.Vec, comm: mpi4py.MPI.Intracomm,
     directory: pathlib.Path, filename: str
 ) -> None:
     """
@@ -91,14 +91,14 @@ def export_vector(
         Name of the file where to export the vector.
     """
     directory.mkdir(parents=True, exist_ok=True)
-    viewer = petsc4py.PETSc.Viewer().createBinary(  # type: ignore[attr-defined]
-        str(directory / (filename + ".dat")), "w", comm)
+    viewer = petsc4py.PETSc.Viewer().createBinary(
+        str(directory / (filename + ".dat")), "w", comm)  # type: ignore[arg-type]
     viewer.view(vec)
     viewer.destroy()
 
 
 def export_vectors(
-    vecs: list[petsc4py.PETSc.Vec], comm: mpi4py.MPI.Intracomm,  # type: ignore[name-defined]
+    vecs: list[petsc4py.PETSc.Vec], comm: mpi4py.MPI.Intracomm,
     directory: pathlib.Path, filename: str
 ) -> None:
     """
@@ -125,7 +125,7 @@ def export_vectors(
 
     # Write out the list
     for (index, vec) in enumerate(vecs):
-        viewer = petsc4py.PETSc.Viewer().createBinary(  # type: ignore[attr-defined]
-            str(directory / filename / (str(index) + ".dat")), "w", comm)
+        viewer = petsc4py.PETSc.Viewer().createBinary(
+            str(directory / filename / (str(index) + ".dat")), "w", comm)  # type: ignore[arg-type]
         viewer.view(vec)
         viewer.destroy()

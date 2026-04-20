@@ -26,9 +26,9 @@ from rbnicsx.online.tensors_list import TensorsList
 
 @plum.overload
 def proper_orthogonal_decomposition(
-    functions_list: FunctionsList, inner_product: petsc4py.PETSc.Mat, N: int = -1,  # type: ignore[name-defined]
-    tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True  # type: ignore[name-defined]
-) -> tuple[  # type: ignore[name-defined]
+    functions_list: FunctionsList, inner_product: petsc4py.PETSc.Mat, N: int = -1,
+    tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True  # type: ignore[valid-type]
+) -> tuple[  # type: ignore[valid-type]
     npt.NDArray[petsc4py.PETSc.RealType], FunctionsList, list[petsc4py.PETSc.Vec]
 ]:
     """
@@ -67,8 +67,8 @@ def proper_orthogonal_decomposition(
 @plum.overload
 def proper_orthogonal_decomposition(  # noqa: F811
     tensors_list: TensorsList, N: int = -1,
-    tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True  # type: ignore[name-defined]
-) -> tuple[  # type: ignore[name-defined]
+    tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True  # type: ignore[valid-type]
+) -> tuple[  # type: ignore[valid-type]
     npt.NDArray[petsc4py.PETSc.RealType], TensorsList, list[petsc4py.PETSc.Vec]
 ]:
     """
@@ -108,11 +108,11 @@ def proper_orthogonal_decomposition(  # type: ignore[no-untyped-def] # noqa: ANN
 
 def proper_orthogonal_decomposition_block(
     functions_lists: typing.Sequence[FunctionsList],
-    inner_products: list[petsc4py.PETSc.Mat],  # type: ignore[name-defined]
+    inner_products: list[petsc4py.PETSc.Mat],
     N: int | list[int] = -1,
-    tol: petsc4py.PETSc.RealType | list[petsc4py.PETSc.RealType] = real_zero,  # type: ignore[name-defined]
+    tol: petsc4py.PETSc.RealType | list[petsc4py.PETSc.RealType] = real_zero,  # type: ignore[valid-type]
     normalize: bool = True
-) -> tuple[  # type: ignore[name-defined]
+) -> tuple[  # type: ignore[valid-type]
     list[npt.NDArray[petsc4py.PETSc.RealType]], list[FunctionsList],
     list[list[petsc4py.PETSc.Vec]]
 ]:
@@ -159,7 +159,7 @@ def proper_orthogonal_decomposition_block(
 
 
 def _scale_online_vector(
-    vector: petsc4py.PETSc.Vec, factor: petsc4py.PETSc.RealType  # type: ignore[name-defined]
+    vector: petsc4py.PETSc.Vec, factor: petsc4py.PETSc.RealType  # type: ignore[valid-type]
 ) -> None:
     """Scale an online petsc4py.PETSc.Vec."""
-    vector *= factor
+    vector *= factor  # type: ignore[operator]

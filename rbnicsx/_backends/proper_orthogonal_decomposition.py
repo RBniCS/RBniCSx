@@ -17,17 +17,17 @@ from rbnicsx._backends.online_tensors import create_online_matrix, create_online
 from rbnicsx._backends.tensors_list import TensorsList
 from rbnicsx._cpp import cpp_library
 
-real_zero = petsc4py.PETSc.RealType(0.0)  # type: ignore[attr-defined]
+real_zero = petsc4py.PETSc.RealType(0.0)  # type: ignore[operator]
 
 
 def proper_orthogonal_decomposition_functions(
     functions_list: FunctionsList[Function],
-    compute_inner_product: typing.Callable[  # type: ignore[name-defined]
+    compute_inner_product: typing.Callable[  # type: ignore[valid-type]
         [Function], typing.Callable[[Function], petsc4py.PETSc.RealType]
     ],
-    scale: typing.Callable[[Function, petsc4py.PETSc.RealType], None],  # type: ignore[name-defined]
-    N: int = -1, tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True  # type: ignore[name-defined]
-) -> tuple[  # type: ignore[name-defined]
+    scale: typing.Callable[[Function, petsc4py.PETSc.RealType], None],  # type: ignore[valid-type]
+    N: int = -1, tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True  # type: ignore[valid-type]
+) -> tuple[  # type: ignore[valid-type]
     npt.NDArray[petsc4py.PETSc.RealType], FunctionsList[Function], list[petsc4py.PETSc.Vec]
 ]:
     """
@@ -62,20 +62,20 @@ def proper_orthogonal_decomposition_functions(
     eigenvalues, modes, eigenvectors = _solve_eigenvalue_problem(
         functions_list, compute_inner_product, scale, N, tol, normalize)
     modes_wrapped = functions_list.duplicate()
-    modes_wrapped.extend(modes)
+    modes_wrapped.extend(modes)  # type: ignore[arg-type]
     return eigenvalues, modes_wrapped, eigenvectors
 
 
 def proper_orthogonal_decomposition_functions_block(
     functions_lists: typing.Sequence[FunctionsList[Function]],
-    compute_inner_products: typing.Sequence[  # type: ignore[name-defined]
+    compute_inner_products: typing.Sequence[  # type: ignore[valid-type]
         typing.Callable[[Function], typing.Callable[[Function], petsc4py.PETSc.RealType]]
     ],
-    scale: typing.Callable[[Function, petsc4py.PETSc.RealType], None],  # type: ignore[name-defined]
+    scale: typing.Callable[[Function, petsc4py.PETSc.RealType], None],  # type: ignore[valid-type]
     N: int | list[int] = -1,
-    tol: petsc4py.PETSc.RealType | list[petsc4py.PETSc.RealType] = real_zero,  # type: ignore[name-defined]
+    tol: petsc4py.PETSc.RealType | list[petsc4py.PETSc.RealType] = real_zero,  # type: ignore[valid-type]
     normalize: bool = True
-) -> tuple[  # type: ignore[name-defined]
+) -> tuple[  # type: ignore[valid-type]
     list[npt.NDArray[petsc4py.PETSc.RealType]], list[FunctionsList[Function]], list[list[petsc4py.PETSc.Vec]]
 ]:
     """
@@ -139,8 +139,8 @@ def proper_orthogonal_decomposition_functions_block(
 
 def proper_orthogonal_decomposition_tensors(
     tensors_list: TensorsList, N: int = -1,
-    tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True  # type: ignore[name-defined]
-) -> tuple[  # type: ignore[name-defined]
+    tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True  # type: ignore[valid-type]
+) -> tuple[  # type: ignore[valid-type]
     npt.NDArray[petsc4py.PETSc.RealType], TensorsList, list[petsc4py.PETSc.Vec]
 ]:
     """
@@ -170,33 +170,33 @@ def proper_orthogonal_decomposition_tensors(
     assert tensors_list.type in ("Mat", "Vec")
     if tensors_list.type == "Mat":
         def compute_inner_product(
-            tensor_j: petsc4py.PETSc.Mat  # type: ignore[name-defined]
-        ) -> typing.Callable[[petsc4py.PETSc.Mat], petsc4py.PETSc.RealType]:  # type: ignore[name-defined]
-            def _(tensor_i: petsc4py.PETSc.Mat) -> petsc4py.PETSc.RealType:  # type: ignore[name-defined]
-                return cpp_library._backends.frobenius_inner_product(tensor_i, tensor_j)
+            tensor_j: petsc4py.PETSc.Mat
+        ) -> typing.Callable[[petsc4py.PETSc.Mat], petsc4py.PETSc.RealType]:  # type: ignore[valid-type]
+            def _(tensor_i: petsc4py.PETSc.Mat) -> petsc4py.PETSc.RealType:  # type: ignore[valid-type]
+                return cpp_library._backends.frobenius_inner_product(tensor_i, tensor_j)  # type: ignore[no-any-return]
 
             return _
 
         def scale(
-            tensor: petsc4py.PETSc.Mat, factor: petsc4py.PETSc.RealType  # type: ignore[name-defined]
+            tensor: petsc4py.PETSc.Mat, factor: petsc4py.PETSc.RealType  # type: ignore[valid-type]
         ) -> None:
-            tensor *= factor
+            tensor *= factor  # type: ignore[operator]
     elif tensors_list.type == "Vec":
-        def compute_inner_product(
-            tensor_j: petsc4py.PETSc.Vec  # type: ignore[name-defined]
-        ) -> typing.Callable[[petsc4py.PETSc.Vec], petsc4py.PETSc.RealType]:  # type: ignore[name-defined]
-            def _(tensor_i: petsc4py.PETSc.Vec) -> petsc4py.PETSc.RealType:  # type: ignore[name-defined]
+        def compute_inner_product(  # type: ignore[misc]
+            tensor_j: petsc4py.PETSc.Vec
+        ) -> typing.Callable[[petsc4py.PETSc.Vec], petsc4py.PETSc.RealType]:  # type: ignore[valid-type]
+            def _(tensor_i: petsc4py.PETSc.Vec) -> petsc4py.PETSc.RealType:  # type: ignore[valid-type]
                 return tensor_i.dot(tensor_j)
 
             return _
 
-        def scale(
-            tensor: petsc4py.PETSc.Vec, factor: petsc4py.PETSc.RealType  # type: ignore[name-defined]
+        def scale(  # type: ignore[misc]
+            tensor: petsc4py.PETSc.Vec, factor: petsc4py.PETSc.RealType  # type: ignore[valid-type]
         ) -> None:
             with tensor.localForm() as tensor_local:
                 tensor_local *= factor
 
-    eigenvalues, modes, eigenvectors = _solve_eigenvalue_problem(
+    eigenvalues, modes, eigenvectors = _solve_eigenvalue_problem(  # type: ignore[var-annotated]
         tensors_list, compute_inner_product, scale, N, tol, normalize)
     modes_wrapped = tensors_list.duplicate()
     modes_wrapped.extend(modes)
@@ -205,18 +205,18 @@ def proper_orthogonal_decomposition_tensors(
 
 def _solve_eigenvalue_problem(
     snapshots: FunctionsList[Function] | TensorsList,
-    compute_inner_product: typing.Callable[  # type: ignore[name-defined]
+    compute_inner_product: typing.Callable[  # type: ignore[valid-type]
             [Function], typing.Callable[[Function], petsc4py.PETSc.RealType]
         ] | typing.Callable[
             [petsc4py.PETSc.Mat], typing.Callable[[petsc4py.PETSc.Mat], petsc4py.PETSc.RealType]
         ] | typing.Callable[
             [petsc4py.PETSc.Vec], typing.Callable[[petsc4py.PETSc.Vec], petsc4py.PETSc.RealType]
         ],
-    scale: typing.Callable[[Function, petsc4py.PETSc.RealType], None]  # type: ignore[name-defined]
+    scale: typing.Callable[[Function, petsc4py.PETSc.RealType], None]  # type: ignore[valid-type]
            | typing.Callable[[petsc4py.PETSc.Mat, petsc4py.PETSc.RealType], None]
            | typing.Callable[[petsc4py.PETSc.Vec, petsc4py.PETSc.RealType], None],
-    N: int, tol: petsc4py.PETSc.RealType, normalize: bool  # type: ignore[name-defined]
-) -> tuple[  # type: ignore[name-defined]
+    N: int, tol: petsc4py.PETSc.RealType, normalize: bool  # type: ignore[valid-type]
+) -> tuple[  # type: ignore[valid-type]
     npt.NDArray[petsc4py.PETSc.RealType],
     list[Function] | list[petsc4py.PETSc.Mat] | list[petsc4py.PETSc.Vec],
     list[petsc4py.PETSc.Vec]
@@ -255,9 +255,9 @@ def _solve_eigenvalue_problem(
 
     correlation_matrix = create_online_matrix(len(snapshots), len(snapshots))
     for (j, snapshot_j) in enumerate(snapshots):
-        compute_inner_product_partial_j = compute_inner_product(snapshot_j)
+        compute_inner_product_partial_j = compute_inner_product(snapshot_j)  # type: ignore[arg-type]
         for (i, snapshot_i) in enumerate(snapshots):
-            correlation_matrix[i, j] = compute_inner_product_partial_j(snapshot_i)
+            correlation_matrix[i, j] = compute_inner_product_partial_j(snapshot_i)  # type: ignore[arg-type,index]
     correlation_matrix.assemble()
 
     eps = slepc4py.SLEPc.EPS().create(correlation_matrix.comm)
@@ -294,9 +294,9 @@ def _solve_eigenvalue_problem(
     for eigenvector_n in eigenvectors:
         mode_n = snapshots * eigenvector_n
         if normalize:
-            norm_n = np.sqrt(compute_inner_product(mode_n)(mode_n))
+            norm_n = np.sqrt(compute_inner_product(mode_n)(mode_n))  # type: ignore[arg-type]
             if norm_n != 0.0:
-                scale(mode_n, 1.0 / norm_n)
+                scale(mode_n, 1.0 / norm_n)  # type: ignore[arg-type]
         modes.append(mode_n)
 
-    return np.array(eigenvalues), modes, eigenvectors
+    return np.array(eigenvalues), modes, eigenvectors  # type: ignore[return-value]

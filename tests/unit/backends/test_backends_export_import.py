@@ -195,7 +195,7 @@ def test_backends_export_import_vector(mesh: dolfinx.mesh.Mesh, family: str, deg
     linear_form_cpp = dolfinx.fem.form(linear_form)
     vector = dolfinx.fem.petsc.assemble_vector(linear_form_cpp)
     vector.ghostUpdate(
-        addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)  # type: ignore[attr-defined]
+        addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)  # type: ignore[arg-type]
 
     with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:
         rbnicsx.backends.export_vector(vector, pathlib.Path(tempdir), "vector")
@@ -215,7 +215,7 @@ def test_backends_export_import_vectors(mesh: dolfinx.mesh.Mesh, family: str, de
     vectors = [dolfinx.fem.petsc.assemble_vector(linear_form_cpp) for linear_form_cpp in linear_forms_cpp]
     for vector in vectors:
         vector.ghostUpdate(
-            addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)  # type: ignore[attr-defined]
+            addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)  # type: ignore[arg-type]
 
     with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:
         rbnicsx.backends.export_vectors(vectors, pathlib.Path(tempdir), "vectors")
@@ -230,7 +230,7 @@ def test_backends_export_import_vectors(mesh: dolfinx.mesh.Mesh, family: str, de
 @pytest.mark.parametrize("degree", all_degrees)
 def test_backends_export_import_matrix(
     mesh: dolfinx.mesh.Mesh,
-    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+    to_dense_matrix: typing.Callable[  # type: ignore[valid-type]
         [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]],
     family: str, degree: str
 ) -> None:
@@ -254,7 +254,7 @@ def test_backends_export_import_matrix(
 @pytest.mark.parametrize("degree", all_degrees)
 def test_backends_export_import_matrices(
     mesh: dolfinx.mesh.Mesh,
-    to_dense_matrix: typing.Callable[  # type: ignore[name-defined]
+    to_dense_matrix: typing.Callable[  # type: ignore[valid-type]
         [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]],
     family: str, degree: str
 ) -> None:

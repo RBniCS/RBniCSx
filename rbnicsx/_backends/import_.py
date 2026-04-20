@@ -15,9 +15,9 @@ from rbnicsx.io import on_rank_zero
 
 
 def import_matrix(
-    allocate: typing.Callable[[], petsc4py.PETSc.Mat],  # type: ignore[name-defined]
+    allocate: typing.Callable[[], petsc4py.PETSc.Mat],
     comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
-) -> petsc4py.PETSc.Mat:  # type: ignore[name-defined]
+) -> petsc4py.PETSc.Mat:
     """
     Import a petsc4py.PETSc.Mat from file.
 
@@ -37,8 +37,8 @@ def import_matrix(
     :
         Matrix imported from file.
     """
-    viewer = petsc4py.PETSc.Viewer().createBinary(  # type: ignore[attr-defined]
-        str(directory / (filename + ".dat")), "r", comm)
+    viewer = petsc4py.PETSc.Viewer().createBinary(
+        str(directory / (filename + ".dat")), "r", comm)  # type: ignore[arg-type]
     mat = allocate()
     mat.load(viewer)
     viewer.destroy()
@@ -46,9 +46,9 @@ def import_matrix(
 
 
 def import_matrices(
-    allocate: typing.Callable[[], petsc4py.PETSc.Mat],  # type: ignore[name-defined]
+    allocate: typing.Callable[[], petsc4py.PETSc.Mat],
     comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
-) -> list[petsc4py.PETSc.Mat]:  # type: ignore[name-defined]
+) -> list[petsc4py.PETSc.Mat]:
     """
     Import a list of petsc4py.PETSc.Mat from file.
 
@@ -77,8 +77,8 @@ def import_matrices(
     # Read in the list
     mats = list()
     for index in range(length):
-        viewer = petsc4py.PETSc.Viewer().createBinary(  # type: ignore[attr-defined]
-            str(directory / filename / (str(index) + ".dat")), "r", comm)
+        viewer = petsc4py.PETSc.Viewer().createBinary(
+            str(directory / filename / (str(index) + ".dat")), "r", comm)  # type: ignore[arg-type]
         mat = allocate()
         mat.load(viewer)
         mats.append(mat)
@@ -87,9 +87,9 @@ def import_matrices(
 
 
 def import_vector(
-    allocate: typing.Callable[[], petsc4py.PETSc.Vec],  # type: ignore[name-defined]
+    allocate: typing.Callable[[], petsc4py.PETSc.Vec],
     comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
-) -> petsc4py.PETSc.Vec:  # type: ignore[name-defined]
+) -> petsc4py.PETSc.Vec:
     """
     Import a petsc4py.PETSc.Vec from file.
 
@@ -109,8 +109,8 @@ def import_vector(
     :
         Vector imported from file.
     """
-    viewer = petsc4py.PETSc.Viewer().createBinary(  # type: ignore[attr-defined]
-        str(directory / (filename + ".dat")), "r", comm)
+    viewer = petsc4py.PETSc.Viewer().createBinary(
+        str(directory / (filename + ".dat")), "r", comm)  # type: ignore[arg-type]
     vec = allocate()
     vec.load(viewer)
     viewer.destroy()
@@ -118,9 +118,9 @@ def import_vector(
 
 
 def import_vectors(
-    allocate: typing.Callable[[], petsc4py.PETSc.Vec],  # type: ignore[name-defined]
+    allocate: typing.Callable[[], petsc4py.PETSc.Vec],
     comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
-) -> list[petsc4py.PETSc.Vec]:  # type: ignore[name-defined]
+) -> list[petsc4py.PETSc.Vec]:
     """
     Import a list of petsc4py.PETSc.Vec from file.
 
@@ -149,8 +149,8 @@ def import_vectors(
     # Read in the list
     vecs = list()
     for index in range(length):
-        viewer = petsc4py.PETSc.Viewer().createBinary(  # type: ignore[attr-defined]
-            str(directory / filename / (str(index) + ".dat")), "r", comm)
+        viewer = petsc4py.PETSc.Viewer().createBinary(
+            str(directory / filename / (str(index) + ".dat")), "r", comm)  # type: ignore[arg-type]
         vec = allocate()
         vec.load(viewer)
         vecs.append(vec)

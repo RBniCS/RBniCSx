@@ -16,8 +16,8 @@ from rbnicsx.online.projection import matrix_action
 
 def gram_schmidt(
     functions_list: FunctionsList,
-    new_function: petsc4py.PETSc.Vec,  # type: ignore[name-defined]
-    inner_product: petsc4py.PETSc.Mat  # type: ignore[name-defined]
+    new_function: petsc4py.PETSc.Vec,
+    inner_product: petsc4py.PETSc.Mat
 ) -> None:
     """
     Perform a step of the Gram-Schmidt process on online functions.
@@ -38,7 +38,7 @@ def gram_schmidt(
     orthonormalized = new_function.copy()
     for function_n in functions_list:
         orthonormalized.axpy(
-            - compute_inner_product(function_n)(orthonormalized), function_n)
+            - compute_inner_product(function_n)(orthonormalized), function_n)  # type: ignore[operator]
     norm = np.sqrt(compute_inner_product(orthonormalized)(orthonormalized))
     if norm != 0.0:
         orthonormalized *= 1.0 / norm
@@ -47,8 +47,8 @@ def gram_schmidt(
 
 def gram_schmidt_block(
     functions_lists: typing.Sequence[FunctionsList],
-    new_functions: typing.Sequence[petsc4py.PETSc.Vec],  # type: ignore[name-defined]
-    inner_products: list[petsc4py.PETSc.Mat]  # type: ignore[name-defined]
+    new_functions: typing.Sequence[petsc4py.PETSc.Vec],
+    inner_products: list[petsc4py.PETSc.Mat]
 ) -> None:
     """
     Perform a step of the Gram-Schmidt process on online functions, where each function is made of several blocks.

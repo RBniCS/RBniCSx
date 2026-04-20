@@ -73,9 +73,9 @@ class TensorsList(TensorsListBase):
             Name of the file where to export the list.
         """
         if self._type == "Mat":
-            export_matrices(self._list, directory, filename)
+            export_matrices(self._list, directory, filename)  # type: ignore[arg-type]
         elif self._type == "Vec":
-            export_vectors(self._list, directory, filename)
+            export_vectors(self._list, directory, filename)  # type: ignore[arg-type]
         else:
             raise RuntimeError()
 

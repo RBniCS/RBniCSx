@@ -20,10 +20,10 @@ import scipy.sparse
 
 
 @pytest.fixture(scope="module")
-def to_dense_matrix() -> typing.Callable[  # type: ignore[name-defined]
+def to_dense_matrix() -> typing.Callable[  # type: ignore[valid-type]
         [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]:
     """Fixture that returns a function to convert the local part of a sparse PETSc Mat into a dense numpy ndarray."""
-    def _(mat: petsc4py.PETSc.Mat) -> npt.NDArray[petsc4py.PETSc.ScalarType]:  # type: ignore[name-defined]
+    def _(mat: petsc4py.PETSc.Mat) -> npt.NDArray[petsc4py.PETSc.ScalarType]:  # type: ignore[valid-type]
         """Convert the local part of a sparse PETSc Mat into a dense numpy ndarray."""
         ai, aj, av = mat.getValuesCSR()
         return scipy.sparse.csr_matrix(  # type: ignore[no-any-return]

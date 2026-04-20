@@ -16,7 +16,7 @@ from rbnicsx.backends.functions_list import FunctionsList
 
 def gram_schmidt(
     functions_list: FunctionsList, new_function: dolfinx.fem.Function,
-    compute_inner_product: typing.Callable[  # type: ignore[name-defined]
+    compute_inner_product: typing.Callable[  # type: ignore[valid-type]
         [dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]
 ) -> None:
     """
@@ -39,9 +39,9 @@ def gram_schmidt(
     orthonormalized.x.array[:] = new_function.x.array
     for function_n in functions_list:
         orthonormalized.x.petsc_vec.axpy(
-            - compute_inner_product(function_n)(orthonormalized), function_n.x.petsc_vec)
+            - compute_inner_product(function_n)(orthonormalized), function_n.x.petsc_vec)  # type: ignore[operator]
     orthonormalized.x.petsc_vec.ghostUpdate(
-        addv=petsc4py.PETSc.InsertMode.INSERT, mode=petsc4py.PETSc.ScatterMode.FORWARD)  # type: ignore[attr-defined]
+        addv=petsc4py.PETSc.InsertMode.INSERT, mode=petsc4py.PETSc.ScatterMode.FORWARD)
     norm = np.sqrt(compute_inner_product(orthonormalized)(orthonormalized))
     if norm != 0.0:
         with orthonormalized.x.petsc_vec.localForm() as orthonormalized_local:
@@ -51,7 +51,7 @@ def gram_schmidt(
 
 def gram_schmidt_block(
     functions_lists: typing.Sequence[FunctionsList], new_functions: typing.Sequence[dolfinx.fem.Function],
-    compute_inner_products: typing.Sequence[  # type: ignore[name-defined]
+    compute_inner_products: typing.Sequence[  # type: ignore[valid-type]
         typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]]
 ) -> None:
     """
