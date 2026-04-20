@@ -10,7 +10,6 @@ import typing
 import dolfinx.fem
 import mpi4py.MPI
 import numpy as np
-import packaging.version
 import petsc4py.PETSc
 import plum
 import ufl
@@ -351,10 +350,7 @@ class FormArgumentsReplacer:
         source: ufl.core.expr.Expr, destination: dolfinx.fem.Function
     ) -> None:
         """Interpolate a field which is provided as a UFL expression."""
-        if packaging.version.Version(dolfinx.__version__) >= packaging.version.Version("0.10.0"):  # pragma: no cover
-            interpolation_points = destination.function_space.element.interpolation_points
-        else:  # pragma: no cover
-            interpolation_points = destination.function_space.element.interpolation_points()  # type: ignore[operator, unused-ignore]
+        interpolation_points = destination.function_space.element.interpolation_points
         destination.interpolate(dolfinx.fem.Expression(source, interpolation_points))
 
     @staticmethod

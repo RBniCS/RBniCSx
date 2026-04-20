@@ -17,13 +17,12 @@ maintainers = [
 ]
 description = "Reduced order modelling in FEniCSx"
 readme = "README.md"
-license = {file = "COPYING"}
+license = "LGPL-3.0-or-later"
 requires-python = ">=3.10"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
     "Operating System :: POSIX",
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS :: MacOS X",
@@ -40,7 +39,6 @@ classifiers = [
 dependencies = [
     "mpi4py",
     "numpy >= 1.21.0",
-    "packaging",
     "petsc4py",
     "plum-dispatch",
     "slepc4py",
@@ -56,7 +54,7 @@ funding = "https://github.com/sponsors/francesco-ballarin"
 [project.optional-dependencies]
 backends = [
     "adios4dolfinx",
-    "fenics-dolfinx >= 0.8.0"
+    "fenics-dolfinx >= 0.10.0"
 ]
 docs = [
     "sphinx"
