@@ -12,6 +12,7 @@ import _pytest.fixtures
 import dolfinx.fem
 import dolfinx.fem.petsc
 import dolfinx.mesh
+import dolfinx.typing
 import mpi4py.MPI
 import nbvalx.tempfile
 import numpy as np
@@ -25,14 +26,14 @@ import rbnicsx.online
 
 
 @pytest.fixture
-def mesh() -> dolfinx.mesh.Mesh:
+def mesh() -> dolfinx.mesh.Mesh[dolfinx.typing.Real]:
     """Generate a unit square mesh for use in tests in this file."""
     comm = mpi4py.MPI.COMM_WORLD
     return dolfinx.mesh.create_unit_square(comm, 2 * comm.size, 2 * comm.size)
 
 
 @pytest.fixture
-def tensors_list_vec(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsList:
+def tensors_list_vec(mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real]) -> rbnicsx.backends.TensorsList:
     """Generate a rbnicsx.backends.TensorsList with two petsc4py.PETSc.Vec entries."""
     V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     v = ufl.TestFunction(V)
@@ -50,7 +51,7 @@ def tensors_list_vec(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsList:
 
 
 @pytest.fixture
-def tensors_list_mat(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsList:
+def tensors_list_mat(mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real]) -> rbnicsx.backends.TensorsList:
     """Generate a rbnicsx.backends.TensorsList with two petsc4py.PETSc.Mat entries."""
     V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     u = ufl.TrialFunction(V)

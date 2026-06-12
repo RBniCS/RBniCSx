@@ -8,11 +8,12 @@
 
 import dolfinx.fem
 import dolfinx.mesh
+import dolfinx.typing
 import numpy as np
 import petsc4py.PETSc
 
 
-class SymbolicParameters(dolfinx.fem.Constant):
+class SymbolicParameters(dolfinx.fem.Constant[dolfinx.typing.Scalar]):
     """
     A class to store parameters for use inside UFL expressions.
 
@@ -22,5 +23,5 @@ class SymbolicParameters(dolfinx.fem.Constant):
         Domain of integration of forms which will use the symbolic parameters.
     """
 
-    def __init__(self, mesh: dolfinx.mesh.Mesh, shape: tuple[int, ...]) -> None:
+    def __init__(self, mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real], shape: tuple[int, ...]) -> None:
         super().__init__(mesh, np.zeros(shape, dtype=petsc4py.PETSc.ScalarType))  # type: ignore[arg-type,unused-ignore]

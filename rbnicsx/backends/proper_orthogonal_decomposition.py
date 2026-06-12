@@ -8,6 +8,7 @@
 import typing
 
 import dolfinx.fem
+import dolfinx.typing
 import numpy.typing as npt
 import petsc4py.PETSc
 import plum
@@ -26,12 +27,13 @@ from rbnicsx.backends.tensors_list import TensorsList
 
 @plum.overload
 def proper_orthogonal_decomposition(
-    functions_list: FunctionsList,
+    functions_list: FunctionsList[dolfinx.typing.Scalar],
     compute_inner_product: typing.Callable[  # type: ignore[valid-type]
-        [dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.RealType]],
+        [dolfinx.fem.Function[dolfinx.typing.Scalar]],
+        typing.Callable[[dolfinx.fem.Function[dolfinx.typing.Scalar]], petsc4py.PETSc.RealType]],
     N: int = -1, tol: petsc4py.PETSc.RealType = real_zero, normalize: bool = True  # type: ignore[valid-type]
 ) -> tuple[  # type: ignore[valid-type]
-    npt.NDArray[petsc4py.PETSc.RealType], FunctionsList, list[petsc4py.PETSc.Vec]
+    npt.NDArray[petsc4py.PETSc.RealType], FunctionsList[dolfinx.typing.Scalar], list[petsc4py.PETSc.Vec]
 ]:
     """
     Compute the proper orthogonal decomposition of a set of snapshots.
@@ -108,14 +110,15 @@ def proper_orthogonal_decomposition(  # type: ignore[no-untyped-def] # noqa: ANN
 
 
 def proper_orthogonal_decomposition_block(
-    functions_lists: typing.Sequence[FunctionsList],
+    functions_lists: typing.Sequence[FunctionsList[dolfinx.typing.Scalar]],
     compute_inner_products: typing.Sequence[  # type: ignore[valid-type]
-        typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.RealType]]],
+        typing.Callable[[dolfinx.fem.Function[dolfinx.typing.Scalar]],
+        typing.Callable[[dolfinx.fem.Function[dolfinx.typing.Scalar]], petsc4py.PETSc.RealType]]],
     N: int | list[int] = -1,
     tol: petsc4py.PETSc.RealType | list[petsc4py.PETSc.RealType] = real_zero,  # type: ignore[valid-type]
     normalize: bool = True
 ) -> tuple[  # type: ignore[valid-type]
-    list[npt.NDArray[petsc4py.PETSc.RealType]], list[FunctionsList],
+    list[npt.NDArray[petsc4py.PETSc.RealType]], list[FunctionsList[dolfinx.typing.Scalar]],
     list[list[petsc4py.PETSc.Vec]]
 ]:
     """
@@ -161,7 +164,7 @@ def proper_orthogonal_decomposition_block(
 
 
 def _scale_function(
-    function: dolfinx.fem.Function, factor: petsc4py.PETSc.RealType  # type: ignore[valid-type]
+    function: dolfinx.fem.Function[dolfinx.typing.Scalar], factor: petsc4py.PETSc.RealType  # type: ignore[valid-type]
 ) -> None:
     """Scale a dolfinx Function."""
     with function.x.petsc_vec.localForm() as function_local:

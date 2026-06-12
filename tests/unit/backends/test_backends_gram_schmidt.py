@@ -7,6 +7,7 @@
 
 import dolfinx.fem
 import dolfinx.mesh
+import dolfinx.typing
 import mpi4py.MPI
 import numpy as np
 import petsc4py.PETSc
@@ -17,14 +18,14 @@ import rbnicsx.backends
 
 
 @pytest.fixture
-def mesh() -> dolfinx.mesh.Mesh:
+def mesh() -> dolfinx.mesh.Mesh[dolfinx.typing.Real]:
     """Generate a unit square mesh for use in tests in this file."""
     comm = mpi4py.MPI.COMM_WORLD
     return dolfinx.mesh.create_unit_square(comm, 2 * comm.size, 2 * comm.size)
 
 
 @pytest.fixture
-def functions(mesh: dolfinx.mesh.Mesh) -> list[dolfinx.fem.Function]:
+def functions(mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real]) -> list[dolfinx.fem.Function[dolfinx.typing.Scalar]]:
     """Generate a list of pairwise linearly independent functions."""
     V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     function0 = dolfinx.fem.Function(V)
@@ -41,7 +42,7 @@ def functions(mesh: dolfinx.mesh.Mesh) -> list[dolfinx.fem.Function]:
 
 
 @pytest.fixture
-def inner_product(mesh: dolfinx.mesh.Mesh) -> ufl.Form:  # type: ignore[no-any-unimported]
+def inner_product(mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real]) -> ufl.Form:  # type: ignore[no-any-unimported]
     """Generate a UFL form storing the L^2 inner product."""
     V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     u = ufl.TrialFunction(V)
@@ -50,11 +51,11 @@ def inner_product(mesh: dolfinx.mesh.Mesh) -> ufl.Form:  # type: ignore[no-any-u
 
 
 def test_backends_gram_schmidt(  # type: ignore[no-any-unimported]
-    functions: list[dolfinx.fem.Function], inner_product: ufl.Form
+    functions: list[dolfinx.fem.Function[dolfinx.typing.Scalar]], inner_product: ufl.Form
 ) -> None:
     """Check rbnicsx.backends.gram_schmidt."""
     V = functions[0].function_space
-    functions_list = rbnicsx.backends.FunctionsList(V)
+    functions_list: rbnicsx.backends.FunctionsList[dolfinx.typing.Scalar] = rbnicsx.backends.FunctionsList(V)
     assert len(functions_list) == 0
 
     compute_inner_product = rbnicsx.backends.bilinear_form_action(inner_product)
@@ -79,7 +80,7 @@ def test_backends_gram_schmidt(  # type: ignore[no-any-unimported]
 
 
 def test_backends_gram_schmidt_zero(  # type: ignore[no-any-unimported]
-    mesh: dolfinx.mesh.Mesh, inner_product: ufl.Form
+    mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real], inner_product: ufl.Form
 ) -> None:
     """Check rbnicsx.backends.gram_schmidt when adding a linearly dependent function (e.g., zero)."""
     V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
@@ -95,11 +96,12 @@ def test_backends_gram_schmidt_zero(  # type: ignore[no-any-unimported]
 
 
 def test_backends_gram_schmidt_block(  # type: ignore[no-any-unimported]
-    functions: list[dolfinx.fem.Function], inner_product: ufl.Form
+    functions: list[dolfinx.fem.Function[dolfinx.typing.Scalar]], inner_product: ufl.Form
 ) -> None:
     """Check rbnicsx.backends.gram_schmidt_block."""
     V = functions[0].function_space
-    functions_lists = [rbnicsx.backends.FunctionsList(V) for _ in range(2)]
+    functions_lists: list[rbnicsx.backends.FunctionsList[dolfinx.typing.Scalar]] = [
+        rbnicsx.backends.FunctionsList(V) for _ in range(2)]
     for functions_list in functions_lists:
         assert len(functions_list) == 0
 

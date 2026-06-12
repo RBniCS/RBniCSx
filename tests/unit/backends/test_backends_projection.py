@@ -10,6 +10,7 @@ import typing
 import dolfinx.fem
 import dolfinx.fem.petsc
 import dolfinx.mesh
+import dolfinx.typing
 import mpi4py.MPI
 import numpy as np
 import numpy.typing as npt
@@ -21,14 +22,16 @@ import rbnicsx.backends
 
 
 @pytest.fixture
-def mesh() -> dolfinx.mesh.Mesh:
+def mesh() -> dolfinx.mesh.Mesh[dolfinx.typing.Real]:
     """Generate a unit square mesh for use in tests in this file."""
     comm = mpi4py.MPI.COMM_WORLD
     return dolfinx.mesh.create_unit_square(comm, 2 * comm.size, 2 * comm.size)
 
 
 @pytest.fixture
-def functions_list(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.FunctionsList:
+def functions_list(
+    mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real]
+) -> rbnicsx.backends.FunctionsList[dolfinx.typing.Scalar]:
     """Generate a rbnicsx.backends.FunctionsList with several entries."""
     V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     functions_list = rbnicsx.backends.FunctionsList(V)
@@ -37,10 +40,12 @@ def functions_list(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.FunctionsList:
         with function.x.petsc_vec.localForm() as function_local:
             function_local.set(i + 1)
         functions_list.append(function)
-    return functions_list
+    return functions_list  # type: ignore[return-value]
 
 
-def test_backends_forms_argument_replacer_linear_form(functions_list: rbnicsx.backends.FunctionsList) -> None:
+def test_backends_forms_argument_replacer_linear_form(
+    functions_list: rbnicsx.backends.FunctionsList[dolfinx.typing.Scalar]
+) -> None:
     """Test FormArgumentsReplacer with a linear form."""
     V = functions_list.function_space
     v = ufl.TestFunction(V)
@@ -56,7 +61,9 @@ def test_backends_forms_argument_replacer_linear_form(functions_list: rbnicsx.ba
             dolfinx.fem.assemble_scalar(dolfinx.fem.form(forms_argument_replacer.form)), op=mpi4py.MPI.SUM), 1)
 
 
-def test_backends_forms_argument_replacer_bilinear_form(functions_list: rbnicsx.backends.FunctionsList) -> None:
+def test_backends_forms_argument_replacer_bilinear_form(
+    functions_list: rbnicsx.backends.FunctionsList[dolfinx.typing.Scalar]
+) -> None:
     """Test FormArgumentsReplacer with a bilinear form."""
     V = functions_list.function_space
     u = ufl.TrialFunction(V)
@@ -91,7 +98,7 @@ def test_backends_forms_argument_replacer_bilinear_form(functions_list: rbnicsx.
         dolfinx.fem.petsc.assemble_vector(dolfinx.fem.form(6 * linear_form)).array)
 
 
-def test_backends_projection_vector(functions_list: rbnicsx.backends.FunctionsList) -> None:
+def test_backends_projection_vector(functions_list: rbnicsx.backends.FunctionsList[dolfinx.typing.Scalar]) -> None:
     """Test projection of a linear form onto the reduced basis."""
     basis_functions = functions_list[:2]
 
@@ -112,7 +119,9 @@ def test_backends_projection_vector(functions_list: rbnicsx.backends.FunctionsLi
     assert np.allclose(online_vec2.array, online_vec.array)
 
 
-def test_backends_projection_vector_block(functions_list: rbnicsx.backends.FunctionsList) -> None:
+def test_backends_projection_vector_block(
+    functions_list: rbnicsx.backends.FunctionsList[dolfinx.typing.Scalar]
+) -> None:
     """Test projection of a list of linear forms onto the reduced basis."""
     basis_functions = [functions_list[:2], functions_list[2:5]]
 
@@ -137,7 +146,7 @@ def test_backends_projection_vector_block(functions_list: rbnicsx.backends.Funct
 
 
 def test_backends_projection_matrix_galerkin(
-    functions_list: rbnicsx.backends.FunctionsList,
+    functions_list: rbnicsx.backends.FunctionsList[dolfinx.typing.Scalar],
     to_dense_matrix: typing.Callable[  # type: ignore[valid-type]
         [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
@@ -164,7 +173,7 @@ def test_backends_projection_matrix_galerkin(
 
 
 def test_backends_projection_matrix_petrov_galerkin(
-    functions_list: rbnicsx.backends.FunctionsList,
+    functions_list: rbnicsx.backends.FunctionsList[dolfinx.typing.Scalar],
     to_dense_matrix: typing.Callable[  # type: ignore[valid-type]
         [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
@@ -191,7 +200,7 @@ def test_backends_projection_matrix_petrov_galerkin(
 
 
 def test_backends_projection_matrix_block_galerkin(
-    functions_list: rbnicsx.backends.FunctionsList,
+    functions_list: rbnicsx.backends.FunctionsList[dolfinx.typing.Scalar],
     to_dense_matrix: typing.Callable[  # type: ignore[valid-type]
         [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
@@ -231,7 +240,7 @@ def test_backends_projection_matrix_block_galerkin(
 
 
 def test_backends_projection_matrix_block_petrov_galerkin(
-    functions_list: rbnicsx.backends.FunctionsList,
+    functions_list: rbnicsx.backends.FunctionsList[dolfinx.typing.Scalar],
     to_dense_matrix: typing.Callable[  # type: ignore[valid-type]
         [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:

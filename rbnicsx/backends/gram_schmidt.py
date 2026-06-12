@@ -8,6 +8,7 @@
 import typing
 
 import dolfinx.fem
+import dolfinx.typing
 import numpy as np
 import petsc4py.PETSc
 
@@ -15,9 +16,10 @@ from rbnicsx.backends.functions_list import FunctionsList
 
 
 def gram_schmidt(
-    functions_list: FunctionsList, new_function: dolfinx.fem.Function,
+    functions_list: FunctionsList[dolfinx.typing.Scalar], new_function: dolfinx.fem.Function[dolfinx.typing.Scalar],
     compute_inner_product: typing.Callable[  # type: ignore[valid-type]
-        [dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]
+        [dolfinx.fem.Function[dolfinx.typing.Scalar]],
+        typing.Callable[[dolfinx.fem.Function[dolfinx.typing.Scalar]], petsc4py.PETSc.ScalarType]]
 ) -> None:
     """
     Perform a step of the Gram-Schmidt process on functions.
@@ -50,9 +52,11 @@ def gram_schmidt(
 
 
 def gram_schmidt_block(
-    functions_lists: typing.Sequence[FunctionsList], new_functions: typing.Sequence[dolfinx.fem.Function],
+    functions_lists: typing.Sequence[FunctionsList[dolfinx.typing.Scalar]],
+    new_functions: typing.Sequence[dolfinx.fem.Function[dolfinx.typing.Scalar]],
     compute_inner_products: typing.Sequence[  # type: ignore[valid-type]
-        typing.Callable[[dolfinx.fem.Function], typing.Callable[[dolfinx.fem.Function], petsc4py.PETSc.ScalarType]]]
+        typing.Callable[[dolfinx.fem.Function[dolfinx.typing.Scalar]],
+        typing.Callable[[dolfinx.fem.Function[dolfinx.typing.Scalar]], petsc4py.PETSc.ScalarType]]]
 ) -> None:
     """
     Perform a step of the Gram-Schmidt process on functions, where each function is made of several blocks.

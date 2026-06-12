@@ -9,6 +9,7 @@ import pathlib
 import typing
 
 import dolfinx.fem
+import dolfinx.typing
 import mpi4py.MPI
 
 from rbnicsx._backends.tensors_list import TensorsList as TensorsListBase
@@ -34,14 +35,14 @@ class TensorsList(TensorsListBase):
         Form provided as input.
     """
 
-    def __init__(self: typing.Self, form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm) -> None:
-        self._form: dolfinx.fem.Form = form
+    def __init__(self: typing.Self, form: dolfinx.fem.Form[dolfinx.typing.Scalar], comm: mpi4py.MPI.Intracomm) -> None:
+        self._form: dolfinx.fem.Form[dolfinx.typing.Scalar] = form  # type: ignore[assignment]
         super().__init__(comm)
 
     @property
-    def form(self: typing.Self) -> dolfinx.fem.Form:
+    def form(self: typing.Self) -> dolfinx.fem.Form[dolfinx.typing.Scalar]:
         """Return the form which is used to assemble the tensors."""
-        return self._form
+        return self._form  # type: ignore[return-value]
 
     def duplicate(self: typing.Self) -> typing.Self:
         """

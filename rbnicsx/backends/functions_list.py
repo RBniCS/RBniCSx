@@ -9,6 +9,7 @@ import pathlib
 import typing
 
 import dolfinx.fem
+import dolfinx.typing
 import numpy as np
 import petsc4py.PETSc
 
@@ -18,7 +19,7 @@ from rbnicsx.backends.import_ import import_functions
 
 
 @typing.final
-class FunctionsList(FunctionsListBase[dolfinx.fem.Function]):
+class FunctionsList(FunctionsListBase[dolfinx.fem.Function[dolfinx.typing.Scalar]]):
     """
     A class wrapping a list of dolfinx Functions.
 
@@ -33,12 +34,12 @@ class FunctionsList(FunctionsListBase[dolfinx.fem.Function]):
         Finite element space provided as input.
     """
 
-    def __init__(self: typing.Self, function_space: dolfinx.fem.FunctionSpace) -> None:
-        self._function_space: dolfinx.fem.FunctionSpace = function_space
+    def __init__(self: typing.Self, function_space: dolfinx.fem.FunctionSpace[dolfinx.typing.Real]) -> None:
+        self._function_space: dolfinx.fem.FunctionSpace[dolfinx.typing.Real] = function_space
         super().__init__(function_space.mesh.comm)
 
     @property
-    def function_space(self: typing.Self) -> dolfinx.fem.FunctionSpace:
+    def function_space(self: typing.Self) -> dolfinx.fem.FunctionSpace[dolfinx.typing.Real]:
         """Return the common finite element space of any Function that will be added to this list."""
         return self._function_space
 
@@ -82,7 +83,7 @@ class FunctionsList(FunctionsListBase[dolfinx.fem.Function]):
 
     def _linearly_combine(
         self: typing.Self, other: petsc4py.PETSc.Vec
-    ) -> dolfinx.fem.Function:
+    ) -> dolfinx.fem.Function[dolfinx.typing.Scalar]:
         """
         Linearly combine functions in the list using Function's API.
 

@@ -10,6 +10,7 @@ import pathlib
 import adios4dolfinx
 import dolfinx.fem
 import dolfinx.fem.petsc
+import dolfinx.typing
 import mpi4py.MPI
 import petsc4py.PETSc
 
@@ -20,8 +21,8 @@ from rbnicsx.io import on_rank_zero
 
 
 def import_function(
-    function_space: dolfinx.fem.FunctionSpace, directory: pathlib.Path, filename: str
-) -> dolfinx.fem.Function:
+    function_space: dolfinx.fem.FunctionSpace[dolfinx.typing.Real], directory: pathlib.Path, filename: str
+) -> dolfinx.fem.Function[dolfinx.typing.Scalar]:
     """
     Import a dolfinx.fem.Function from file.
 
@@ -46,8 +47,8 @@ def import_function(
 
 
 def import_functions(
-    function_space: dolfinx.fem.FunctionSpace, directory: pathlib.Path, filename: str
-) -> list[dolfinx.fem.Function]:
+    function_space: dolfinx.fem.FunctionSpace[dolfinx.typing.Real], directory: pathlib.Path, filename: str
+) -> list[dolfinx.fem.Function[dolfinx.typing.Scalar]]:
     """
     Import a list of dolfinx.fem.Function from file.
 
@@ -87,7 +88,7 @@ def import_functions(
 
 
 def import_matrix(
-    form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
+    form: dolfinx.fem.Form[dolfinx.typing.Scalar], comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
 ) -> petsc4py.PETSc.Mat:
     """
     Import a petsc4py.PETSc.Mat assembled by dolfinx from file.
@@ -112,7 +113,7 @@ def import_matrix(
 
 
 def import_matrices(
-    form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
+    form: dolfinx.fem.Form[dolfinx.typing.Scalar], comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
 ) -> list[petsc4py.PETSc.Mat]:
     """
     Import a list of petsc4py.PETSc.Mat assembled by dolfinx from file.
@@ -137,7 +138,7 @@ def import_matrices(
 
 
 def import_vector(
-    form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
+    form: dolfinx.fem.Form[dolfinx.typing.Scalar], comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
 ) -> petsc4py.PETSc.Vec:
     """
     Import a petsc4py.PETSc.Vec assembled by dolfinx from file.
@@ -158,14 +159,14 @@ def import_vector(
     :
         Vector imported from file.
     """
-    function_space: dolfinx.fem.FunctionSpace = dolfinx.fem.extract_function_spaces(form)  # type: ignore
+    function_space: dolfinx.fem.FunctionSpace[dolfinx.typing.Real] = dolfinx.fem.extract_function_spaces(form)  # type: ignore
     return import_vector_super(
         lambda: dolfinx.fem.petsc.create_vector(function_space),  # type: ignore[arg-type, unused-ignore]
         comm, directory, filename)
 
 
 def import_vectors(
-    form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
+    form: dolfinx.fem.Form[dolfinx.typing.Scalar], comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
 ) -> list[petsc4py.PETSc.Vec]:
     """
     Import a list of petsc4py.PETSc.Vec assembled by dolfinx from file.
@@ -186,7 +187,7 @@ def import_vectors(
     :
         Vectors imported from file.
     """
-    function_space: dolfinx.fem.FunctionSpace = dolfinx.fem.extract_function_spaces(form)  # type: ignore
+    function_space: dolfinx.fem.FunctionSpace[dolfinx.typing.Real] = dolfinx.fem.extract_function_spaces(form)  # type: ignore
     return import_vectors_super(
         lambda: dolfinx.fem.petsc.create_vector(function_space),  # type: ignore[arg-type, unused-ignore]
         comm, directory, filename)

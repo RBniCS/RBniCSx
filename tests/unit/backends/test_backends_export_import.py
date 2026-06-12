@@ -12,6 +12,7 @@ import dolfinx.fem
 import dolfinx.fem.petsc
 import dolfinx.io
 import dolfinx.mesh
+import dolfinx.typing
 import mpi4py.MPI
 import nbvalx.tempfile
 import numpy as np
@@ -28,32 +29,40 @@ all_repeat = [1, 2]
 
 
 @pytest.fixture
-def mesh() -> dolfinx.mesh.Mesh:
+def mesh() -> dolfinx.mesh.Mesh[dolfinx.typing.Real]:
     """Generate a unit square mesh for use in tests in this file."""
     comm = mpi4py.MPI.COMM_WORLD
     return dolfinx.mesh.create_unit_square(
         comm, 4 * comm.size, 4 * comm.size, ghost_mode=dolfinx.mesh.GhostMode.shared_facet)
 
 
-def mesh_generator_do_nothing(mesh: dolfinx.mesh.Mesh, path: pathlib.Path) -> dolfinx.mesh.Mesh:
+def mesh_generator_do_nothing(
+    mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real], path: pathlib.Path
+) -> dolfinx.mesh.Mesh[dolfinx.typing.Real]:
     """Return the provided mesh."""
     return mesh
 
 
-def mesh_generator_save_to_file(mesh: dolfinx.mesh.Mesh, path: pathlib.Path) -> dolfinx.mesh.Mesh:
+def mesh_generator_save_to_file(
+    mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real], path: pathlib.Path
+) -> dolfinx.mesh.Mesh[dolfinx.typing.Real]:
     """Save the mesh to file and return the provided mesh."""
     with dolfinx.io.XDMFFile(mesh.comm, path, "w") as xdmf_file:
         xdmf_file.write_mesh(mesh)
     return mesh
 
 
-def mesh_generator_load_from_file(mesh: dolfinx.mesh.Mesh, path: pathlib.Path) -> dolfinx.mesh.Mesh:
+def mesh_generator_load_from_file(
+    mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real], path: pathlib.Path
+) -> dolfinx.mesh.Mesh[dolfinx.typing.Real]:
     """Load the mesh from file and return the loaded mesh."""
     with dolfinx.io.XDMFFile(mesh.comm, path, "r") as xdmf_file:
         return xdmf_file.read_mesh()  # type: ignore[no-any-return]
 
 
-def mesh_generator_save_to_and_load_from_file(mesh: dolfinx.mesh.Mesh, path: pathlib.Path) -> dolfinx.mesh.Mesh:
+def mesh_generator_save_to_and_load_from_file(
+    mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real], path: pathlib.Path
+) -> dolfinx.mesh.Mesh[dolfinx.typing.Real]:
     """Save the mesh to file, load it back in, and return the loaded mesh."""
     mesh_generator_save_to_file(mesh, path)
     return mesh_generator_load_from_file(mesh, path)
@@ -99,14 +108,18 @@ all_mesh_generators_ids = [
 @pytest.mark.parametrize(
     "mesh_out_generator,mesh_in_generator,expected_success", all_mesh_generators, ids=all_mesh_generators_ids)
 def test_backends_export_import_function(
-    mesh: dolfinx.mesh.Mesh, family: str, degree: str, repeat: int,
-    mesh_out_generator: typing.Callable[[dolfinx.mesh.Mesh, str], dolfinx.mesh.Mesh],
-    mesh_in_generator: typing.Callable[[dolfinx.mesh.Mesh, str], dolfinx.mesh.Mesh],
+    mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real], family: str, degree: str, repeat: int,
+    mesh_out_generator: typing.Callable[
+        [dolfinx.mesh.Mesh[dolfinx.typing.Real], str], dolfinx.mesh.Mesh[dolfinx.typing.Real]],
+    mesh_in_generator: typing.Callable[
+        [dolfinx.mesh.Mesh[dolfinx.typing.Real], str], dolfinx.mesh.Mesh[dolfinx.typing.Real]],
     expected_success: bool
 ) -> None:
     """Check I/O for a dolfinx.fem.Function."""
     with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:
-        def function_space_generator(mesh: dolfinx.mesh.Mesh) -> dolfinx.fem.FunctionSpace:
+        def function_space_generator(
+            mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real]
+        ) -> dolfinx.fem.FunctionSpace[dolfinx.typing.Real]:
             """Create a function space on the provided mesh."""
             return dolfinx.fem.functionspace(mesh, (family, degree))
 
@@ -140,14 +153,18 @@ def test_backends_export_import_function(
 @pytest.mark.parametrize(
     "mesh_out_generator,mesh_in_generator,expected_success", all_mesh_generators, ids=all_mesh_generators_ids)
 def test_backends_export_import_functions(
-    mesh: dolfinx.mesh.Mesh, family: str, degree: str, repeat: int,
-    mesh_out_generator: typing.Callable[[dolfinx.mesh.Mesh, str], dolfinx.mesh.Mesh],
-    mesh_in_generator: typing.Callable[[dolfinx.mesh.Mesh, str], dolfinx.mesh.Mesh],
+    mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real], family: str, degree: str, repeat: int,
+    mesh_out_generator: typing.Callable[
+        [dolfinx.mesh.Mesh[dolfinx.typing.Real], str], dolfinx.mesh.Mesh[dolfinx.typing.Real]],
+    mesh_in_generator: typing.Callable[
+        [dolfinx.mesh.Mesh[dolfinx.typing.Real], str], dolfinx.mesh.Mesh[dolfinx.typing.Real]],
     expected_success: bool
 ) -> None:
     """Check I/O for a list of dolfinx.fem.Function."""
     with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:
-        def function_space_generator(mesh: dolfinx.mesh.Mesh) -> dolfinx.fem.FunctionSpace:
+        def function_space_generator(
+            mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real]
+        ) -> dolfinx.fem.FunctionSpace[dolfinx.typing.Real]:
             """Create a function space on the provided mesh."""
             return dolfinx.fem.functionspace(mesh, (family, degree))
 
@@ -187,7 +204,7 @@ def test_backends_export_import_functions(
 
 @pytest.mark.parametrize("family", all_families)
 @pytest.mark.parametrize("degree", all_degrees)
-def test_backends_export_import_vector(mesh: dolfinx.mesh.Mesh, family: str, degree: str) -> None:
+def test_backends_export_import_vector(mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real], family: str, degree: str) -> None:
     """Check I/O for a petsc4py.PETSc.Vec."""
     V = dolfinx.fem.functionspace(mesh, (family, degree))
     v = ufl.TestFunction(V)
@@ -206,7 +223,7 @@ def test_backends_export_import_vector(mesh: dolfinx.mesh.Mesh, family: str, deg
 
 @pytest.mark.parametrize("family", all_families)
 @pytest.mark.parametrize("degree", all_degrees)
-def test_backends_export_import_vectors(mesh: dolfinx.mesh.Mesh, family: str, degree: str) -> None:
+def test_backends_export_import_vectors(mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real], family: str, degree: str) -> None:
     """Check I/O for a list of petsc4py.PETSc.Vec."""
     V = dolfinx.fem.functionspace(mesh, (family, degree))
     v = ufl.TestFunction(V)
@@ -229,7 +246,7 @@ def test_backends_export_import_vectors(mesh: dolfinx.mesh.Mesh, family: str, de
 @pytest.mark.parametrize("family", all_families)
 @pytest.mark.parametrize("degree", all_degrees)
 def test_backends_export_import_matrix(
-    mesh: dolfinx.mesh.Mesh,
+    mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real],
     to_dense_matrix: typing.Callable[  # type: ignore[valid-type]
         [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]],
     family: str, degree: str
@@ -253,7 +270,7 @@ def test_backends_export_import_matrix(
 @pytest.mark.parametrize("family", all_families)
 @pytest.mark.parametrize("degree", all_degrees)
 def test_backends_export_import_matrices(
-    mesh: dolfinx.mesh.Mesh,
+    mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real],
     to_dense_matrix: typing.Callable[  # type: ignore[valid-type]
         [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]],
     family: str, degree: str

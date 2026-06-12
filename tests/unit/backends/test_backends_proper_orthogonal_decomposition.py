@@ -10,6 +10,7 @@ import typing
 import dolfinx.fem
 import dolfinx.fem.petsc
 import dolfinx.mesh
+import dolfinx.typing
 import mpi4py.MPI
 import numpy as np
 import petsc4py.PETSc
@@ -21,14 +22,16 @@ import rbnicsx.backends
 
 
 @pytest.fixture
-def mesh() -> dolfinx.mesh.Mesh:
+def mesh() -> dolfinx.mesh.Mesh[dolfinx.typing.Real]:
     """Generate a unit square mesh for use in tests in this file."""
     comm = mpi4py.MPI.COMM_WORLD
     return dolfinx.mesh.create_unit_square(comm, 2 * comm.size, 2 * comm.size)
 
 
 @pytest.fixture
-def functions_list(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.FunctionsList:
+def functions_list(
+    mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real]
+) -> rbnicsx.backends.FunctionsList[dolfinx.typing.Scalar]:
     """Generate a rbnicsx.backends.FunctionsList with four linearly dependent entries."""
     V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     functions_list = rbnicsx.backends.FunctionsList(V)
@@ -37,11 +40,11 @@ def functions_list(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.FunctionsList:
         with function.x.petsc_vec.localForm() as function_local:
             function_local.set(i + 1)
         functions_list.append(function)
-    return functions_list
+    return functions_list  # type: ignore[return-value]
 
 
 @pytest.fixture
-def inner_product(mesh: dolfinx.mesh.Mesh) -> ufl.Form:  # type: ignore[no-any-unimported]
+def inner_product(mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real]) -> ufl.Form:  # type: ignore[no-any-unimported]
     """Generate a UFL form storing the L^2 inner product."""
     V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     u = ufl.TrialFunction(V)
@@ -50,7 +53,7 @@ def inner_product(mesh: dolfinx.mesh.Mesh) -> ufl.Form:  # type: ignore[no-any-u
 
 
 @pytest.fixture
-def tensors_list_vec(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsList:
+def tensors_list_vec(mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real]) -> rbnicsx.backends.TensorsList:
     """Generate a rbnicsx.backends.TensorsList with two linearly dependent petsc4py.PETSc.Vec entries."""
     V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     v = ufl.TestFunction(V)
@@ -67,7 +70,7 @@ def tensors_list_vec(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsList:
 
 
 @pytest.fixture
-def tensors_list_mat(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsList:
+def tensors_list_mat(mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real]) -> rbnicsx.backends.TensorsList:
     """Generate a rbnicsx.backends.TensorsList with two linearly dependent petsc4py.PETSc.Mat entries."""
     V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))
     u = ufl.TrialFunction(V)
@@ -85,7 +88,7 @@ def tensors_list_mat(mesh: dolfinx.mesh.Mesh) -> rbnicsx.backends.TensorsList:
 
 @pytest.mark.parametrize("normalize", [True, False])
 def test_backends_proper_orthogonal_decomposition_functions(  # type: ignore[no-any-unimported]
-    functions_list: rbnicsx.backends.FunctionsList, inner_product: ufl.Form, normalize: bool
+    functions_list: rbnicsx.backends.FunctionsList[dolfinx.typing.Scalar], inner_product: ufl.Form, normalize: bool
 ) -> None:
     """
     Check rbnicsx.backends.proper_orthogonal_decomposition for the case of dolfinx.fem.Function snapshots.
@@ -108,7 +111,7 @@ def test_backends_proper_orthogonal_decomposition_functions(  # type: ignore[no-
 
 @pytest.mark.parametrize("normalize", [True, False])
 def test_backends_proper_orthogonal_decomposition_functions_N(  # type: ignore[no-any-unimported]
-    functions_list: rbnicsx.backends.FunctionsList, inner_product: ufl.Form, normalize: bool
+    functions_list: rbnicsx.backends.FunctionsList[dolfinx.typing.Scalar], inner_product: ufl.Form, normalize: bool
 ) -> None:
     """
     Check rbnicsx.backends.proper_orthogonal_decomposition for the case of dolfinx.fem.Function snapshots.
@@ -131,7 +134,7 @@ def test_backends_proper_orthogonal_decomposition_functions_N(  # type: ignore[n
 
 @pytest.mark.parametrize("normalize", [True, False])
 def test_backends_proper_orthogonal_decomposition_functions_N_tol(  # type: ignore[no-any-unimported]
-    functions_list: rbnicsx.backends.FunctionsList, inner_product: ufl.Form, normalize: bool
+    functions_list: rbnicsx.backends.FunctionsList[dolfinx.typing.Scalar], inner_product: ufl.Form, normalize: bool
 ) -> None:
     """
     Check rbnicsx.backends.proper_orthogonal_decomposition for the case of dolfinx.fem.Function snapshots.
@@ -156,7 +159,7 @@ def test_backends_proper_orthogonal_decomposition_functions_N_tol(  # type: igno
     "stopping_criterion_generator",
     [lambda arg: arg, lambda arg: [arg, arg]])
 def test_backends_proper_orthogonal_decomposition_block(  # type: ignore[no-any-unimported]
-    functions_list: rbnicsx.backends.FunctionsList, inner_product: ufl.Form, normalize: bool,
+    functions_list: rbnicsx.backends.FunctionsList[dolfinx.typing.Scalar], inner_product: ufl.Form, normalize: bool,
     stopping_criterion_generator: typing.Callable[
         [typing.Any], typing.Any | tuple[typing.Any, typing.Any]]
 ) -> None:
@@ -223,7 +226,7 @@ def test_backends_proper_orthogonal_decomposition_matrices(
 
 @pytest.mark.parametrize("normalize", [True, False])
 def test_backends_proper_orthogonal_decomposition_zero(  # type: ignore[no-any-unimported]
-    mesh: dolfinx.mesh.Mesh, inner_product: ufl.Form, normalize: bool
+    mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real], inner_product: ufl.Form, normalize: bool
 ) -> None:
     """Check rbnicsx.backends.proper_orthogonal_decomposition for the case of all zero snapshots."""
     V = dolfinx.fem.functionspace(mesh, ("Lagrange", 1))

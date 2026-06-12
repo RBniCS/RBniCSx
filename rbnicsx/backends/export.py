@@ -10,6 +10,7 @@ import pathlib
 import adios4dolfinx
 import dolfinx.fem
 import dolfinx.io
+import dolfinx.typing
 import numpy as np
 import numpy.typing as npt
 import petsc4py.PETSc
@@ -20,7 +21,9 @@ from rbnicsx._backends.export import (
 from rbnicsx.io import on_rank_zero
 
 
-def export_function(function: dolfinx.fem.Function, directory: pathlib.Path, filename: str) -> None:
+def export_function(
+    function: dolfinx.fem.Function[dolfinx.typing.Scalar], directory: pathlib.Path, filename: str
+) -> None:
     """
     Export a dolfinx.fem.Function to file.
 
@@ -47,7 +50,7 @@ def export_function(function: dolfinx.fem.Function, directory: pathlib.Path, fil
 
 
 def export_functions(
-    functions: list[dolfinx.fem.Function], indices: npt.NDArray[np.float32],
+    functions: list[dolfinx.fem.Function[dolfinx.typing.Scalar]], indices: npt.NDArray[np.float32],
     directory: pathlib.Path, filename: str
 ) -> None:
     """
