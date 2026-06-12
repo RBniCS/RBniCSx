@@ -37,11 +37,11 @@ jobs:
           - backend: none-complex
             container: debian:testing
             petsc_arch: complex
-          - backend: dolfinx-v0.10.0-real
-            container: ghcr.io/fenics/dolfinx/dolfinx:v0.10.0
+          - backend: dolfinx-v0.11.0-real
+            container: ghcr.io/fenics/dolfinx/dolfinx:v0.11.0
             petsc_arch: real
-          - backend: dolfinx-v0.10.0-complex
-            container: ghcr.io/fenics/dolfinx/dolfinx:v0.10.0
+          - backend: dolfinx-v0.11.0-complex
+            container: ghcr.io/fenics/dolfinx/dolfinx:v0.11.0
             petsc_arch: complex
           - backend: dolfinx-stable-real
             container: ghcr.io/fenics/dolfinx/dolfinx:stable
@@ -182,7 +182,6 @@ jobs:
         run: |
           python3 -m isort --check --diff .
       - name: Run mypy on python files
-        if: matrix.container == 'ghcr.io/fenics/dolfinx/dolfinx:nightly'
         run: |
           python3 -m mypy --exclude=conftest.py .
           python3 -m mypy tests/unit/conftest.py
@@ -254,7 +253,7 @@ jobs:
         run: |
           python3 -m nbqa isort --check --diff .
       - name: Run mypy on tutorial files
-        if: startsWith(matrix.backend, 'dolfinx') == true && matrix.container == 'ghcr.io/fenics/dolfinx/dolfinx:nightly'
+        if: startsWith(matrix.backend, 'dolfinx') == true
         run: |
           python3 -m nbqa mypy .
       - name: Check for stray outputs, counts and metadata in tutorial files
