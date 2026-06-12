@@ -182,6 +182,7 @@ jobs:
         run: |
           python3 -m isort --check --diff .
       - name: Run mypy on python files
+        if: startsWith(matrix.backend, 'dolfinx') == true
         run: |
           python3 -m mypy --exclude=conftest.py .
           python3 -m mypy tests/unit/conftest.py
