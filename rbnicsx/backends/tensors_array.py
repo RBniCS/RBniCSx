@@ -6,7 +6,6 @@
 """Backend to wrap an array of PETSc Mat or Vec assembled by dolfinx."""
 
 import pathlib
-import sys
 import typing
 
 import dolfinx.fem
@@ -16,11 +15,6 @@ import numpy as np
 from rbnicsx._backends.tensors_array import TensorsArray as TensorsArrayBase
 from rbnicsx.backends.export import export_matrices, export_vectors
 from rbnicsx.backends.import_ import import_matrices, import_vectors
-
-if sys.version_info >= (3, 11):  # pragma: no cover
-    import typing as typing_extensions
-else:  # pragma: no cover
-    import typing_extensions
 
 
 @typing.final
@@ -44,20 +38,20 @@ class TensorsArray(TensorsArrayBase):
     """
 
     def __init__(
-        self: typing_extensions.Self, form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm,
+        self: typing.Self, form: dolfinx.fem.Form, comm: mpi4py.MPI.Intracomm,
         shape: int | tuple[int, ...]
     ) -> None:
         self._form: dolfinx.fem.Form = form
         super().__init__(comm, shape)
 
     @property
-    def form(self: typing_extensions.Self) -> dolfinx.fem.Form:
+    def form(self: typing.Self) -> dolfinx.fem.Form:
         """Return the form which is used to assemble the tensors."""
         return self._form
 
     def duplicate(
-        self: typing_extensions.Self, shape: int | tuple[int, ...] | None = None
-    ) -> typing_extensions.Self:
+        self: typing.Self, shape: int | tuple[int, ...] | None = None
+    ) -> typing.Self:
         """
         Duplicate this object to a new empty TensorsArray.
 
@@ -77,7 +71,7 @@ class TensorsArray(TensorsArrayBase):
 
         return TensorsArray(self._form, self._comm, shape)
 
-    def _save(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
+    def _save(self: typing.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Save this array to file querying the I/O functions in the backend.
 
@@ -97,7 +91,7 @@ class TensorsArray(TensorsArrayBase):
         else:
             raise RuntimeError()
 
-    def _load(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
+    def _load(self: typing.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Load an array from file into this object querying the I/O functions in the backend.
 

@@ -6,7 +6,6 @@
 """Online backend to wrap an array of PETSc Mat or Vec used to assemble online systems."""
 
 import pathlib
-import sys
 import typing
 
 import mpi4py.MPI
@@ -17,11 +16,6 @@ from rbnicsx._backends.online_tensors import create_online_vector as create_vect
 from rbnicsx._backends.tensors_array import TensorsArray as TensorsArrayBase
 from rbnicsx.online.export import export_matrices, export_matrices_block, export_vectors, export_vectors_block
 from rbnicsx.online.import_ import import_matrices, import_matrices_block, import_vectors, import_vectors_block
-
-if sys.version_info >= (3, 11):  # pragma: no cover
-    import typing as typing_extensions
-else:  # pragma: no cover
-    import typing_extensions
 
 
 @typing.final
@@ -48,7 +42,7 @@ class TensorsArray(TensorsArrayBase):
     _vector_with_one_entry.setValue(0, 1)
 
     def __init__(
-        self: typing_extensions.Self, content_shape: int | tuple[int, int] | list[int] | tuple[list[int], list[int]],
+        self: typing.Self, content_shape: int | tuple[int, int] | list[int] | tuple[list[int], list[int]],
         array_shape: int | tuple[int, ...]
     ) -> None:
         self._content_shape: int | tuple[int, int] | list[int] | tuple[list[int], list[int]] = content_shape
@@ -64,7 +58,7 @@ class TensorsArray(TensorsArrayBase):
         super().__init__(mpi4py.MPI.COMM_WORLD, array_shape)
 
     @property
-    def flattened_shape(self: typing_extensions.Self) -> tuple[int | list[int], ...]:
+    def flattened_shape(self: typing.Self) -> tuple[int | list[int], ...]:
         """Return the union of the shape of the array and the content shape."""
         if isinstance(self._content_shape, tuple):
             return self.shape + self.content_shape  # type: ignore[operator]
@@ -72,18 +66,18 @@ class TensorsArray(TensorsArrayBase):
             return self.shape + (self.content_shape, )  # type: ignore[operator] # noqa: RUF005
 
     @property
-    def content_shape(self: typing_extensions.Self) -> int | tuple[int, int] | list[int] | tuple[list[int], list[int]]:
+    def content_shape(self: typing.Self) -> int | tuple[int, int] | list[int] | tuple[list[int], list[int]]:
         """Return the shape of the tensors in the array."""
         return self._content_shape
 
     @property
-    def is_block(self: typing_extensions.Self) -> bool:
+    def is_block(self: typing.Self) -> bool:
         """Return whether the tensor has a block structure or not."""
         return self._is_block
 
     def duplicate(
         self, array_shape: int | tuple[int, ...] | None = None
-    ) -> typing_extensions.Self:
+    ) -> typing.Self:
         """
         Duplicate this object to a new empty TensorsArray.
 
@@ -103,7 +97,7 @@ class TensorsArray(TensorsArrayBase):
 
         return TensorsArray(self._content_shape, array_shape)
 
-    def _save(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
+    def _save(self: typing.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Save this array to file querying the I/O functions in the online backend.
 
@@ -129,7 +123,7 @@ class TensorsArray(TensorsArrayBase):
         else:
             raise RuntimeError()
 
-    def _load(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
+    def _load(self: typing.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Load an array from file into this object querying the I/O functions in the online backend.
 
@@ -166,7 +160,7 @@ class TensorsArray(TensorsArrayBase):
             self._array[np.unravel_index(linear_index, self.shape)] = tensor  # type: ignore[assignment]
 
     def contraction(
-        self: typing_extensions.Self, *args: petsc4py.PETSc.Vec
+        self: typing.Self, *args: petsc4py.PETSc.Vec
     ) -> petsc4py.PETSc.ScalarType:  # type: ignore[valid-type]
         """
         Contract entries in the array.

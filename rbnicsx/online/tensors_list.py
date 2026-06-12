@@ -6,7 +6,6 @@
 """Online backend to wrap a list of PETSc Mat or Vec used to assemble online systems."""
 
 import pathlib
-import sys
 import typing
 
 import mpi4py.MPI
@@ -14,11 +13,6 @@ import mpi4py.MPI
 from rbnicsx._backends.tensors_list import TensorsList as TensorsListBase
 from rbnicsx.online.export import export_matrices, export_matrices_block, export_vectors, export_vectors_block
 from rbnicsx.online.import_ import import_matrices, import_matrices_block, import_vectors, import_vectors_block
-
-if sys.version_info >= (3, 11):  # pragma: no cover
-    import typing as typing_extensions
-else:  # pragma: no cover
-    import typing_extensions
 
 
 @typing.final
@@ -40,7 +34,7 @@ class TensorsList(TensorsListBase):
     """
 
     def __init__(
-        self: typing_extensions.Self, shape: int | tuple[int, int] | list[int] | tuple[list[int], list[int]]
+        self: typing.Self, shape: int | tuple[int, int] | list[int] | tuple[list[int], list[int]]
     ) -> None:
         self._shape: int | tuple[int, int] | list[int] | tuple[list[int], list[int]] = shape
         if isinstance(shape, list):
@@ -54,16 +48,16 @@ class TensorsList(TensorsListBase):
         super().__init__(mpi4py.MPI.COMM_WORLD)
 
     @property
-    def shape(self: typing_extensions.Self) -> int | tuple[int, int] | list[int] | tuple[list[int], list[int]]:
+    def shape(self: typing.Self) -> int | tuple[int, int] | list[int] | tuple[list[int], list[int]]:
         """Return the shape of the tensors in the list."""
         return self._shape
 
     @property
-    def is_block(self: typing_extensions.Self) -> bool:
+    def is_block(self: typing.Self) -> bool:
         """Return whether the tensor has a block structure or not."""
         return self._is_block
 
-    def duplicate(self: typing_extensions.Self) -> typing_extensions.Self:
+    def duplicate(self: typing.Self) -> typing.Self:
         """
         Duplicate this object to a new empty TensorsList.
 
@@ -75,7 +69,7 @@ class TensorsList(TensorsListBase):
         """
         return TensorsList(self._shape)
 
-    def _save(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
+    def _save(self: typing.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Save this list to file querying the I/O functions in the online backend.
 
@@ -99,7 +93,7 @@ class TensorsList(TensorsListBase):
         else:
             raise RuntimeError()
 
-    def _load(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
+    def _load(self: typing.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Load a list from file into this object querying the I/O functions in the online backend.
 

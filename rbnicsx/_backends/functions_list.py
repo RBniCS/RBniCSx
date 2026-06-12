@@ -7,18 +7,12 @@
 
 import abc
 import pathlib
-import sys
 import typing
 
 import mpi4py.MPI
 import petsc4py.PETSc
 
 Function = typing.TypeVar("Function")
-
-if sys.version_info >= (3, 11):  # pragma: no cover
-    import typing as typing_extensions
-else:  # pragma: no cover
-    import typing_extensions
 
 
 class FunctionsList(abc.ABC, typing.Generic[Function]):
@@ -38,17 +32,17 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
         Internal storage.
     """
 
-    def __init__(self: typing_extensions.Self, comm: mpi4py.MPI.Intracomm) -> None:
+    def __init__(self: typing.Self, comm: mpi4py.MPI.Intracomm) -> None:
         self._comm: mpi4py.MPI.Intracomm = comm
         self._list: list[Function] = list()
 
     @property
-    def comm(self: typing_extensions.Self) -> mpi4py.MPI.Intracomm:
+    def comm(self: typing.Self) -> mpi4py.MPI.Intracomm:
         """Return the common MPI communicator that the Function objects will use."""
         return self._comm
 
     @abc.abstractmethod
-    def duplicate(self: typing_extensions.Self) -> typing_extensions.Self:
+    def duplicate(self: typing.Self) -> typing.Self:
         """
         Duplicate this object to a new empty FunctionsList.
 
@@ -60,7 +54,7 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
         """
         pass  # pragma: no cover
 
-    def append(self: typing_extensions.Self, function: Function) -> None:
+    def append(self: typing.Self, function: Function) -> None:
         """
         Append a Function to the list.
 
@@ -71,7 +65,7 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
         """
         self._list.append(function)
 
-    def extend(self: typing_extensions.Self, functions: typing.Iterable[Function]) -> None:
+    def extend(self: typing.Self, functions: typing.Iterable[Function]) -> None:
         """
         Extend the current list with an iterable of Function.
 
@@ -82,11 +76,11 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
         """
         self._list.extend(functions)
 
-    def clear(self: typing_extensions.Self) -> None:
+    def clear(self: typing.Self) -> None:
         """Clear the storage."""
         self._list = list()
 
-    def save(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
+    def save(self: typing.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Save this list to file.
 
@@ -100,7 +94,7 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
         self._save(directory, filename)
 
     @abc.abstractmethod
-    def _save(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
+    def _save(self: typing.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Save this list to file querying the I/O functions in the backend.
 
@@ -113,7 +107,7 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
         """
         pass  # pragma: no cover
 
-    def load(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
+    def load(self: typing.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Load a list from file into this object.
 
@@ -128,7 +122,7 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
         self._load(directory, filename)
 
     @abc.abstractmethod
-    def _load(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
+    def _load(self: typing.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Load a list from file into this object querying the I/O functions in the backend.
 
@@ -141,7 +135,7 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
         """
         pass  # pragma: no cover
 
-    def __mul__(self: typing_extensions.Self, other: petsc4py.PETSc.Vec) -> Function:
+    def __mul__(self: typing.Self, other: petsc4py.PETSc.Vec) -> Function:
         """
         Linearly combine functions in the list.
 
@@ -164,7 +158,7 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
 
     @abc.abstractmethod
     def _linearly_combine(
-        self: typing_extensions.Self, coefficients: petsc4py.PETSc.Vec
+        self: typing.Self, coefficients: petsc4py.PETSc.Vec
     ) -> Function:
         """
         Linearly combine functions in the list using Function's API.
@@ -181,19 +175,19 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
         """
         pass  # pragma: no cover
 
-    def __len__(self: typing_extensions.Self) -> int:
+    def __len__(self: typing.Self) -> int:
         """Return the number of functions currently stored in the list."""
         return len(self._list)
 
     @typing.overload
-    def __getitem__(self: typing_extensions.Self, key: int) -> Function:  # pragma: no cover
+    def __getitem__(self: typing.Self, key: int) -> Function:  # pragma: no cover
         ...
 
     @typing.overload
-    def __getitem__(self: typing_extensions.Self, key: slice) -> typing_extensions.Self:  # pragma: no cover
+    def __getitem__(self: typing.Self, key: slice) -> typing.Self:  # pragma: no cover
         ...
 
-    def __getitem__(self: typing_extensions.Self, key: int | slice) -> Function | typing_extensions.Self:
+    def __getitem__(self: typing.Self, key: int | slice) -> Function | typing.Self:
         """
         Extract a single function from the list, or slice the list.
 
@@ -217,7 +211,7 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
         else:
             raise NotImplementedError()
 
-    def __setitem__(self: typing_extensions.Self, key: int, item: Function) -> None:
+    def __setitem__(self: typing.Self, key: int, item: Function) -> None:
         """
         Update the content of the list with the provided function.
 
@@ -230,6 +224,6 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
         """
         self._list[key] = item
 
-    def __iter__(self: typing_extensions.Self) -> typing.Iterator[Function]:
+    def __iter__(self: typing.Self) -> typing.Iterator[Function]:
         """Return an iterator over the list."""
         return self._list.__iter__()

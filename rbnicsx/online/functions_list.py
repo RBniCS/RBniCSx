@@ -6,7 +6,6 @@
 """Online backend to wrap a list of PETSc Vec which represent solutions to online systems."""
 
 import pathlib
-import sys
 import typing
 
 import mpi4py.MPI
@@ -17,11 +16,6 @@ from rbnicsx._backends.online_tensors import (
     create_online_vector as create_vector, create_online_vector_block as create_vector_block)
 from rbnicsx.online.export import export_vectors, export_vectors_block
 from rbnicsx.online.import_ import import_vectors, import_vectors_block
-
-if sys.version_info >= (3, 11):  # pragma: no cover
-    import typing as typing_extensions
-else:  # pragma: no cover
-    import typing_extensions
 
 
 @typing.final
@@ -42,7 +36,7 @@ class FunctionsList(FunctionsListBase[petsc4py.PETSc.Vec]):
         Whether the vector has a block structure or not.
     """
 
-    def __init__(self: typing_extensions.Self, shape: int | list[int]) -> None:
+    def __init__(self: typing.Self, shape: int | list[int]) -> None:
         self._shape: int | list[int] = shape
         if isinstance(shape, list):
             is_block = True
@@ -53,16 +47,16 @@ class FunctionsList(FunctionsListBase[petsc4py.PETSc.Vec]):
         super().__init__(mpi4py.MPI.COMM_WORLD)
 
     @property
-    def shape(self: typing_extensions.Self) -> int | list[int]:
+    def shape(self: typing.Self) -> int | list[int]:
         """Return the shape of the vectors in the list."""
         return self._shape
 
     @property
-    def is_block(self: typing_extensions.Self) -> bool:
+    def is_block(self: typing.Self) -> bool:
         """Return whether the vector has a block structure or not."""
         return self._is_block
 
-    def duplicate(self: typing_extensions.Self) -> typing_extensions.Self:
+    def duplicate(self: typing.Self) -> typing.Self:
         """
         Duplicate this object to a new empty FunctionsList.
 
@@ -74,7 +68,7 @@ class FunctionsList(FunctionsListBase[petsc4py.PETSc.Vec]):
         """
         return FunctionsList(self._shape)
 
-    def _save(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
+    def _save(self: typing.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Save this list to file querying the I/O functions in the online backend.
 
@@ -90,7 +84,7 @@ class FunctionsList(FunctionsListBase[petsc4py.PETSc.Vec]):
         else:
             export_vectors(self._list, directory, filename)
 
-    def _load(self: typing_extensions.Self, directory: pathlib.Path, filename: str) -> None:
+    def _load(self: typing.Self, directory: pathlib.Path, filename: str) -> None:
         """
         Load a list from file into this object querying the I/O functions in the online backend.
 
@@ -109,7 +103,7 @@ class FunctionsList(FunctionsListBase[petsc4py.PETSc.Vec]):
             self._list = import_vectors(self._shape, directory, filename)
 
     def _linearly_combine(
-        self: typing_extensions.Self, other: petsc4py.PETSc.Vec
+        self: typing.Self, other: petsc4py.PETSc.Vec
     ) -> petsc4py.PETSc.Vec:
         """
         Linearly combine functions in the list using petsc4py API.

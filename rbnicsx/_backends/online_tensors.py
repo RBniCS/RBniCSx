@@ -6,7 +6,6 @@
 """Online tensor data structures using PETSc."""
 
 import contextlib
-import sys
 import types
 import typing
 
@@ -14,11 +13,6 @@ import mpi4py.MPI
 import numpy as np
 import numpy.typing as npt
 import petsc4py.PETSc
-
-if sys.version_info >= (3, 11):  # pragma: no cover
-    import typing as typing_extensions
-else:  # pragma: no cover
-    import typing_extensions
 
 
 def create_online_vector(N: int) -> petsc4py.PETSc.Vec:
@@ -194,13 +188,13 @@ def BlockVecSubVectorContextManager(
         """
 
         def __init__(
-            self: typing_extensions.Self, b: petsc4py.PETSc.Vec, N: list[int]
+            self: typing.Self, b: petsc4py.PETSc.Vec, N: list[int]
         ) -> None:
             self._b = b
             blocks = np.hstack((0, np.cumsum([N_ for N_ in N]))).astype(np.int32)
             self._indices = [np.arange(blocks[i], blocks[i + 1], dtype=np.int32) for i in range(len(N))]
 
-        def __iter__(self: typing_extensions.Self) -> typing.Iterator[
+        def __iter__(self: typing.Self) -> typing.Iterator[
                 petsc4py.PETSc.Vec]:
             """Iterate over blocks."""
             with contextlib.ExitStack() as wrapper_stack:
@@ -208,12 +202,12 @@ def BlockVecSubVectorContextManager(
                     wrapper = VecSubVectorContextManager(self._b, indices_)
                     yield wrapper_stack.enter_context(wrapper)
 
-        def __enter__(self: typing_extensions.Self) -> typing_extensions.Self:
+        def __enter__(self: typing.Self) -> typing.Self:
             """Return this context manager."""
             return self
 
         def __exit__(
-            self: typing_extensions.Self, exception_type: type[BaseException] | None,
+            self: typing.Self, exception_type: type[BaseException] | None,
             exception_value: BaseException | None,
             traceback: types.TracebackType | None
         ) -> None:
@@ -347,7 +341,7 @@ def BlockMatSubMatrixContextManager(
         """
 
         def __init__(
-            self: typing_extensions.Self, A: petsc4py.PETSc.Mat,
+            self: typing.Self, A: petsc4py.PETSc.Mat,
             M: list[int], N: list[int]
         ) -> None:
             self._A = A
@@ -356,7 +350,7 @@ def BlockMatSubMatrixContextManager(
             self._row_indices = [np.arange(row_blocks[i], row_blocks[i + 1], dtype=np.int32) for i in range(len(M))]
             self._col_indices = [np.arange(col_blocks[j], col_blocks[j + 1], dtype=np.int32) for j in range(len(N))]
 
-        def __iter__(self: typing_extensions.Self) -> typing.Iterator[
+        def __iter__(self: typing.Self) -> typing.Iterator[
                 tuple[int, int, petsc4py.PETSc.Mat]]:
             """Iterate over blocks."""
             with contextlib.ExitStack() as wrapper_stack:
@@ -365,12 +359,12 @@ def BlockMatSubMatrixContextManager(
                         wrapper = MatSubMatrixContextManager(self._A, row_indices_, col_indices_)
                         yield (I, J, wrapper_stack.enter_context(wrapper))
 
-        def __enter__(self: typing_extensions.Self) -> typing_extensions.Self:
+        def __enter__(self: typing.Self) -> typing.Self:
             """Return this context manager."""
             return self
 
         def __exit__(
-            self: typing_extensions.Self, exception_type: type[BaseException] | None,
+            self: typing.Self, exception_type: type[BaseException] | None,
             exception_value: BaseException | None,
             traceback: types.TracebackType | None
         ) -> None:
