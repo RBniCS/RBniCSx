@@ -8,6 +8,7 @@
 .cmake-format
 .coverage*
 .eggs
+.mypy_cache
 .pytest_cache
 build
 dist
