@@ -82,7 +82,7 @@ all_mesh_generators = [
         lambda mesh, tempdir: mesh_generator_save_to_file(mesh, pathlib.Path(tempdir) / "mesh.xdmf"),
         # and also use mesh from a standalone mesh checkpoint when loading input files
         lambda mesh, tempdir: mesh_generator_load_from_file(mesh, pathlib.Path(tempdir) / "mesh.xdmf"),
-        # adios4dolfinx original checkpoint was not designed to support this case
+        # adios4dolfinx (and thus io4dolfinx) original checkpoint was not designed to support this case
         # see https://github.com/jorgensd/adios4dolfinx/issues/62
         False
     ),
@@ -133,14 +133,14 @@ def test_backends_export_import_function(
         for r in range(repeat):
             function_out = dolfinx.fem.Function(V_out)
             function_out.interpolate(expression_generator(r))
-            rbnicsx.backends.export_function(function_out, pathlib.Path(tempdir), f"adios_{r}")
+            rbnicsx.backends.export_function(function_out, pathlib.Path(tempdir), f"io_{r}")
 
         mesh_in = mesh_in_generator(mesh, tempdir)
         V_in = function_space_generator(mesh_in)
         for r in range(repeat):
             function_ex = dolfinx.fem.Function(V_in)
             function_ex.interpolate(expression_generator(r))
-            function_in = rbnicsx.backends.import_function(V_in, pathlib.Path(tempdir), f"adios_{r}")
+            function_in = rbnicsx.backends.import_function(V_in, pathlib.Path(tempdir), f"io_{r}")
             if expected_success:
                 assert np.allclose(function_in.x.array, function_ex.x.array)
             else:
@@ -186,12 +186,12 @@ def test_backends_export_import_functions(
                 functions_out_r.append(function_out)
                 indices_out_r.append(t)
             rbnicsx.backends.export_functions(
-                functions_out_r, np.array(indices_out_r, dtype=float), pathlib.Path(tempdir), f"adios_{r}")
+                functions_out_r, np.array(indices_out_r, dtype=float), pathlib.Path(tempdir), f"io_{r}")
 
         mesh_in = mesh_in_generator(mesh, tempdir)
         V_in = function_space_generator(mesh_in)
         for r in range(repeat):
-            functions_in = rbnicsx.backends.import_functions(V_in, pathlib.Path(tempdir), f"adios_{r}")
+            functions_in = rbnicsx.backends.import_functions(V_in, pathlib.Path(tempdir), f"io_{r}")
             assert len(functions_in) == T
             for t in range(T):
                 function_ex_t = dolfinx.fem.Function(V_in)

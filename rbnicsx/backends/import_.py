@@ -7,10 +7,10 @@
 
 import pathlib
 
-import adios4dolfinx
 import dolfinx.fem
 import dolfinx.fem.petsc
 import dolfinx.typing
+import io4dolfinx
 import mpi4py.MPI
 import petsc4py.PETSc
 
@@ -41,8 +41,8 @@ def import_function(
         Function imported from file.
     """
     function = dolfinx.fem.Function(function_space)
-    checkpointing_directory = directory / filename / "checkpoint.bp"
-    adios4dolfinx.read_function(checkpointing_directory, function, "bp4")
+    checkpointing_file = directory / filename / "checkpoint.h5"
+    io4dolfinx.read_function(checkpointing_file, function, backend="h5py")
     return function
 
 
@@ -67,13 +67,13 @@ def import_functions(
         Functions imported from file.
     """
     comm = function_space.mesh.comm
-    checkpointing_directory = directory / filename / "checkpoint.bp"
-    length_directory = directory / filename / "checkpoint.length"
+    checkpointing_file = directory / filename / "checkpoint.h5"
+    length_file = directory / filename / "checkpoint.length"
 
     # Read in length of the list
     def read_length() -> int:
-        with open(length_directory / "length.dat") as length_file:
-            return int(length_file.readline())
+        with open(length_file) as length_file_:
+            return int(length_file_.readline())
     length = on_rank_zero(comm, read_length)
 
     # Read in the list
@@ -81,7 +81,7 @@ def import_functions(
     functions = list()
     for index in range(length):
         function = function_placeholder.copy()
-        adios4dolfinx.read_function(checkpointing_directory, function, "bp4", time=index)
+        io4dolfinx.read_function(checkpointing_file, function, backend="h5py", time=index)
         functions.append(function)
     del function_placeholder
     return functions

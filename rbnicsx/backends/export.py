@@ -7,10 +7,10 @@
 
 import pathlib
 
-import adios4dolfinx
 import dolfinx.fem
 import dolfinx.io
 import dolfinx.typing
+import io4dolfinx
 import numpy as np
 import numpy.typing as npt
 import petsc4py.PETSc
@@ -39,14 +39,14 @@ def export_function(
     comm = function.function_space.mesh.comm
     (directory / filename).mkdir(parents=True, exist_ok=True)
     visualization_directory = directory / filename / "visualization.bp"
-    checkpointing_directory = directory / filename / "checkpoint.bp"
+    checkpointing_file = directory / filename / "checkpoint.h5"
 
     # Export for visualization
     with dolfinx.io.VTXWriter(comm, visualization_directory, function, "bp4") as vtx_file:
         vtx_file.write(0)
 
     # Export for checkpointing
-    adios4dolfinx.write_function_on_input_mesh(checkpointing_directory, function, "bp4")
+    io4dolfinx.write_function_on_input_mesh(checkpointing_file, function, backend="h5py")
 
 
 def export_functions(
@@ -70,8 +70,8 @@ def export_functions(
     comm = functions[0].function_space.mesh.comm
     (directory / filename).mkdir(parents=True, exist_ok=True)
     visualization_directory = directory / filename / "visualization.bp"
-    checkpointing_directory = directory / filename / "checkpoint.bp"
-    length_directory = directory / filename / "checkpoint.length"
+    checkpointing_file = directory / filename / "checkpoint.h5"
+    length_file = directory / filename / "checkpoint.length"
 
     # Export for visualization
     output = functions[0].copy()
@@ -84,15 +84,14 @@ def export_functions(
 
     # Export for checkpointing: write out length of the list
     def write_length() -> None:
-        length_directory.mkdir(parents=True, exist_ok=True)
-        with open(length_directory / "length.dat", "w") as length_file:
-            length_file.write(str(len(functions)))
+        with open(length_file, "w") as length_file_:
+            length_file_.write(str(len(functions)))
     on_rank_zero(comm, write_length)
 
     # Export for checkpointing: write out the list
     # Note that here index is an integer counter, rather than an entry of the input array indices.
     for (index, function) in enumerate(functions):
-        adios4dolfinx.write_function_on_input_mesh(checkpointing_directory, function, "bp4", time=index)
+        io4dolfinx.write_function_on_input_mesh(checkpointing_file, function, backend="h5py", time=index)
 
 
 def export_matrix(

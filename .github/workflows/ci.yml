@@ -72,6 +72,8 @@ jobs:
           apt update -y -q
           apt install -y -qq libegl1 libgl1-mesa-dri
           if [[ "${{ matrix.backend }}" == "dolfinx"* ]]; then
+            pip install pkgconfig
+            HDF5_MPI=ON python3 -m pip install h5py --no-build-isolation --no-binary=h5py
             . /usr/local/bin/dolfinx-${{ matrix.petsc_arch }}-mode
             echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
             echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> $GITHUB_ENV
