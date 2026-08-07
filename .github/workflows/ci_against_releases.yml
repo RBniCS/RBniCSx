@@ -40,6 +40,26 @@ jobs:
       index: PyPI
       expected_index_version: 0.1.0
 
+  test_0_1_1_installing_from_github:
+    uses: RBniCS/RBniCSx/.github/workflows/ci.yml@v0.1.1
+    with:
+      ref: v0.1.1
+
+  test_0_1_1_installing_from_pypi_versioned:
+    uses: RBniCS/RBniCSx/.github/workflows/ci.yml@v0.1.1
+    with:
+      ref: v0.1.1
+      index: PyPI
+      index_version: 0.1.1
+      expected_index_version: 0.1.1
+
+  test_0_1_1_installing_from_pypi_unversioned:
+    uses: RBniCS/RBniCSx/.github/workflows/ci.yml@v0.1.1
+    with:
+      ref: v0.1.1
+      index: PyPI
+      expected_index_version: 0.1.1
+
   warn:
     runs-on: ubuntu-latest
     if: github.repository == 'RBniCS/RBniCSx' && github.ref == 'refs/heads/main' && github.event_name == 'schedule'
