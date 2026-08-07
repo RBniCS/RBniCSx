@@ -52,7 +52,7 @@ funding = "https://github.com/sponsors/francesco-ballarin"
 [project.optional-dependencies]
 backends = [
     "fenics-dolfinx >= 0.11.0",
-    "io4dolfinx[h5py] @ git+https://github.com/scientificcomputing/io4dolfinx.git@main"
+    "io4dolfinx[h5py] >= 1.3.0"
 ]
 docs = [
     "sphinx"
