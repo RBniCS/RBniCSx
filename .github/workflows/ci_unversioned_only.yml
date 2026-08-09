@@ -1,0 +1,259 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      ref:
+        description: "The branch, tag or SHA to checkout"
+        type: string
+      index:
+        description: "The package index, e.g. PyPI or TestPyPI, from which to install the package. If empty, the package will not be installed from any package index, but from the current git clone"
+        type: string
+      index_version:
+        description: "The version of the package to be installed from the package index. If empty, the latest compatible version will be installed. Only used when index is non empty."
+        type: string
+      expected_index_version:
+        description: "The expected version of the package when installed from the package index. If emtpy, no check is carried out. Only used when index is non empty."
+        type: string
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - backend: dolfinx-v0.8.0-real
+            container: ghcr.io/fenics/dolfinx/dolfinx:v0.8.0
+            petsc_arch: real
+          - backend: dolfinx-v0.8.0-complex
+            container: ghcr.io/fenics/dolfinx/dolfinx:v0.8.0
+            petsc_arch: complex
+          - backend: dolfinx-v0.9.0-real
+            container: ghcr.io/fenics/dolfinx/dolfinx:v0.9.0
+            petsc_arch: real
+          - backend: dolfinx-v0.9.0-complex
+            container: ghcr.io/fenics/dolfinx/dolfinx:v0.9.0
+            petsc_arch: complex
+          - backend: dolfinx-v0.10.0-real
+            container: ghcr.io/fenics/dolfinx/dolfinx:v0.10.0
+            petsc_arch: real
+          - backend: dolfinx-v0.10.0-complex
+            container: ghcr.io/fenics/dolfinx/dolfinx:v0.10.0
+            petsc_arch: complex
+      fail-fast: false
+    container: ${{ matrix.container }}
+    steps:
+      - name: Install git
+        run: |
+          export DEBIAN_FRONTEND="noninteractive"
+          apt update -y -q
+          apt install -y -qq ca-certificates git
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          ref: ${{ inputs.ref }}
+      - name: Setup container
+        run: |
+          export DEBIAN_FRONTEND="noninteractive"
+          apt update -y -q
+          apt install -y -qq libegl1 libgl1-mesa-dri
+          if [[ "${{ matrix.backend }}" == "dolfinx"* ]]; then
+            . /usr/local/bin/dolfinx-${{ matrix.petsc_arch }}-mode
+            echo "PETSC_ARCH=$PETSC_ARCH" >> $GITHUB_ENV
+            echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> $GITHUB_ENV
+            echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
+            echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
+            echo "CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH" >> $GITHUB_ENV
+            rm -f /dolfinx-env/lib/python3.*/site-packages/ufl/py.typed
+          else
+            apt install -y -qq cmake gcc g++ python3-mpi4py python3-nanobind python3-dev python3-pip python3-scikit-build-core python3-setuptools wget
+            echo "OMPI_ALLOW_RUN_AS_ROOT=1" >> $GITHUB_ENV
+            echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> $GITHUB_ENV
+            rm /usr/lib/python3.*/EXTERNALLY-MANAGED
+            apt install -y -qq libpetsc-${{ matrix.petsc_arch }}-dev libslepc-${{ matrix.petsc_arch }}-dev python3-petsc4py-${{ matrix.petsc_arch }} python3-slepc4py-${{ matrix.petsc_arch }}
+            PETSC_DIR=/usr/lib/petscdir/petsc-${{ matrix.petsc_arch }}
+            echo "PETSC_DIR=$PETSC_DIR" >> $GITHUB_ENV
+            SLEPC_DIR=/usr/lib/slepcdir/slepc-${{ matrix.petsc_arch }}
+            echo "SLEPC_DIR=$SLEPC_DIR" >> $GITHUB_ENV
+          fi
+          if [[ "${{ matrix.backend }}" == "dolfinx-v0.8.0"* ]]; then
+            python3 -m pip uninstall -y ruff
+          fi
+        shell: bash
+      - name: Wait for package index availability (PyPI and TestPyPI only)
+        if: inputs.index != '' && inputs.index_version != ''
+        run: |
+          INDEX=${{ inputs.index }}
+          INDEX_VERSION=${{ inputs.index_version }}
+          PACKAGE_NAME="RBniCSx"
+          if [[ "${INDEX}" == "TestPyPI" ]]; then
+            INDEX_URL=https://test.pypi.org
+          elif [[ "${INDEX}" == "PyPI" ]]; then
+            INDEX_URL=https://pypi.org
+          else
+            echo "Invalid package index" && exit 1
+          fi
+          COUNTER=0
+          INDEX_VERSION_FOUND=0
+          while [[ ${INDEX_VERSION_FOUND} -ne 1 ]]; do
+            python3 -m pip install --no-cache-dir --index-url ${INDEX_URL}/simple/ ${PACKAGE_NAME}==0 2> all_${PACKAGE_NAME}_versions || true
+            if grep -q ${INDEX_VERSION} all_${PACKAGE_NAME}_versions; then
+              INDEX_VERSION_FOUND=1
+            fi
+            [[ ${INDEX_VERSION_FOUND} -ne 1 && ${COUNTER} -eq 5 ]] && echo "Giving up on finding version ${INDEX_VERSION} on ${INDEX_URL}" && exit 1
+            [[ ${INDEX_VERSION_FOUND} -ne 1 ]] && echo "Cannot find version ${INDEX_VERSION} on ${INDEX_URL}, attempt ${COUNTER}: trying again after a short pause" && sleep 10
+            [[ ${INDEX_VERSION_FOUND} -eq 1 ]] && echo "Found version ${INDEX_VERSION} on ${INDEX_URL}, attempt ${COUNTER}"
+            COUNTER=$((COUNTER+1))
+          done
+        shell: bash
+      - name: Install RBniCSx (PyPI and TestPyPI only)
+        if: inputs.index != ''
+        run: |
+          INDEX=${{ inputs.index }}
+          INDEX_VERSION=${{ inputs.index_version }}
+          EXPECTED_INDEX_VERSION=${{ inputs.expected_index_version }}
+          PACKAGE_NAME="RBniCSx"
+          if [[ "${INDEX}" == "TestPyPI" ]]; then
+            INDEX_FLAGS="--no-cache-dir --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/"
+          elif [[ "${INDEX}" == "PyPI" ]]; then
+            INDEX_FLAGS="--no-cache-dir"
+          else
+            echo "Invalid package index" && exit 1
+          fi
+          if [[ -n "${INDEX_VERSION}" ]]; then
+            PACKAGE_VERSION="==${INDEX_VERSION}"
+            echo "Installing version ${INDEX_VERSION} from ${INDEX}"
+          else
+            PACKAGE_VERSION=""
+            echo "Installing latest compatible version from ${INDEX}"
+          fi
+          if [[ "${{ matrix.backend }}" == "dolfinx"* ]]; then
+            PACKAGE_EXTRAS="docs,lint,tests,tutorials"
+          else
+            PACKAGE_EXTRAS="docs,lint,tests"
+          fi
+          python3 -m pip install ${INDEX_FLAGS} --no-build-isolation --config-settings=build-dir="build" --config-settings=cmake.build-type="Debug" --verbose ${PACKAGE_NAME}[${PACKAGE_EXTRAS}]${PACKAGE_VERSION}
+          if [[ -n "${EXPECTED_INDEX_VERSION}" ]]; then
+            ACTUAL_INDEX_VERSION=$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("RBniCSx"))')
+            if [[ "${ACTUAL_INDEX_VERSION}" != "${EXPECTED_INDEX_VERSION}" ]]; then
+              echo "Error: installed ${PACKAGE_NAME} version is ${ACTUAL_INDEX_VERSION}, while expected version is ${EXPECTED_INDEX_VERSION}"
+              exit 1
+            fi
+          fi
+        shell: bash
+      - name: Install RBniCSx (git clone only)
+        if: inputs.index == ''
+        run: |
+          if [[ "${{ matrix.backend }}" == "dolfinx"* ]]; then
+            PACKAGE_EXTRAS="docs,lint,tests,tutorials"
+          else
+            PACKAGE_EXTRAS="docs,lint,tests"
+          fi
+          python3 -m pip install --check-build-dependencies --no-build-isolation --config-settings=build-dir="build" --config-settings=cmake.build-type="Debug" --verbose .[${PACKAGE_EXTRAS}]
+        shell: bash
+      - name: Clean build files (git clone only)
+        if: inputs.index == ''
+        run: |
+          git config --global --add safe.directory $PWD
+          git clean -xdf
+      - name: Run ruff on python files
+        run: |
+          python3 -m ruff check .
+      - name: Run isort on python files
+        run: |
+          python3 -m isort --check --diff .
+      - name: Run yamllint on workflows
+        run: |
+          python3 -m yamllint -d "{extends: default, rules: {document-start: {present: false}, line-length: disable, truthy: {check-keys: false}}}" .
+      - name: Run clang-format on C++ files
+        run: |
+          wget https://raw.githubusercontent.com/FEniCS/dolfinx/main/.clang-format
+          find . -type f \( -name "*.cpp" -o -name "*.h" \) | xargs clang-format --dry-run --Werror
+      - name: Run cmake-format on cmake files
+        run: |
+          wget https://raw.githubusercontent.com/FEniCS/dolfinx/main/.cmake-format
+          find . -type f \( -name "*.cmake" -o -name "*.cmake.in" -o -name "CMakeLists.txt" \) | xargs cmake-format --check
+      - name: Run documentation generation
+        run: |
+          cd docs
+          if [[ "${{ matrix.backend }}" == none* ]]; then
+            sed -i "s@rbnicsx.backends@@g" api.rst
+          fi
+          python3 -m sphinx -W -b html . build/html
+        shell: bash
+      - name: Remove source directory to ensure that package from installation directory is used
+        run: |
+          rm -rf rbnicsx
+      - name: Determine coverage and pytest options for unit tests
+        id: unit_options
+        run: |
+          if [[ "${{ matrix.backend }}" == none* ]]; then
+            COVERAGE_UNIT_OMIT="*/rbnicsx/backends/*.py,*/rbnicsx/_cpp/backends/*.py"
+            PYTEST_UNIT_OPTIONS="--skip-backends"
+          else
+            COVERAGE_UNIT_OMIT=""
+            PYTEST_UNIT_OPTIONS=""
+          fi
+          echo "coverage_omit=${COVERAGE_UNIT_OMIT}" >> ${GITHUB_OUTPUT}
+          echo "pytest_options=${PYTEST_UNIT_OPTIONS}" >> ${GITHUB_OUTPUT}
+        shell: bash
+      - name: Run unit tests (serial)
+        run: |
+          COVERAGE_UNIT_OMIT="${{ steps.unit_options.outputs.coverage_omit }}"
+          PYTEST_UNIT_OPTIONS="${{ steps.unit_options.outputs.pytest_options }}"
+          COVERAGE_FILE=.coverage_unit_serial python3 -m coverage run --source=rbnicsx --omit="${COVERAGE_UNIT_OMIT}" -m pytest  ${PYTEST_UNIT_OPTIONS} tests/unit
+      - name: Run unit tests (parallel)
+        run: |
+          COVERAGE_UNIT_OMIT="${{ steps.unit_options.outputs.coverage_omit }}"
+          PYTEST_UNIT_OPTIONS="${{ steps.unit_options.outputs.pytest_options }}"
+          COVERAGE_FILE=.coverage_unit_parallel mpirun -n 2 python3 -m coverage run --source=rbnicsx --parallel-mode --omit="${COVERAGE_UNIT_OMIT}" -m pytest ${PYTEST_UNIT_OPTIONS} tests/unit
+      - name: Combine coverage reports
+        run: |
+          python3 -m coverage combine .coverage*
+          python3 -m coverage report --fail-under=100 --show-missing --skip-covered
+      - name: Generate tutorial files
+        if: startsWith(matrix.backend, 'dolfinx') == true
+        run: |
+          NO_TESTS_COLLECTED=5
+          python3 -m pytest --ipynb-action=create-notebooks tutorials || (($?==$NO_TESTS_COLLECTED))
+          python3 -m pytest --ipynb-action=create-notebooks --collapse tutorials || (($?==$NO_TESTS_COLLECTED))
+          python3 -m pytest --ipynb-action=create-notebooks --np=2 tutorials || (($?==$NO_TESTS_COLLECTED))
+          python3 -m pytest --ipynb-action=create-notebooks --collapse --np=2 tutorials || (($?==$NO_TESTS_COLLECTED))
+        shell: bash
+      - name: Run ruff on tutorial files
+        if: startsWith(matrix.backend, 'dolfinx') == true
+        run: |
+          python3 -m nbqa ruff .
+      - name: Run isort on tutorial files
+        if: startsWith(matrix.backend, 'dolfinx') == true
+        run: |
+          python3 -m nbqa isort --check --diff .
+      - name: Check for stray outputs, counts and metadata in tutorial files
+        if: startsWith(matrix.backend, 'dolfinx') == true
+        uses: RBniCS/check-jupyter-metadata-action@6df653e5d45f7620d888c6a1bd85d07b4f903045  # v1.0.0
+        with:
+          pattern: "tutorials/**/*.ipynb"
+      - name: Run tutorials (serial)
+        if: startsWith(matrix.backend, 'dolfinx') == true
+        run: |
+          VISKEX_PYVISTA_BACKEND="static" python3 -m pytest --collapse --durations=0 --durations-min=1.0 tutorials
+      - name: Run tutorials (parallel)
+        if: startsWith(matrix.backend, 'dolfinx') == true
+        run: |
+          VISKEX_PYVISTA_BACKEND="static" python3 -m pytest --collapse --np=2 --durations=0 --durations-min=1.0 tutorials
+      - name: Upload tutorials logs as an artifact in case of failure
+        if: startsWith(matrix.backend, 'dolfinx') == true && (failure() || cancelled())
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: "tutorials-logs-${{ matrix.backend }}"
+          path: |
+            tutorials/**/.ipynb_pytest/**/*.log*
+          include-hidden-files: true
