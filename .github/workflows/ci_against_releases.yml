@@ -34,7 +34,7 @@ jobs:
       expected_index_version: 0.1.0
 
   test_0_1_0_installing_from_pypi_unversioned:
-    uses: RBniCS/RBniCSx/.github/workflows/ci_unversioned_only.yml@v0.1.0.post5
+    uses: RBniCS/RBniCSx/.github/workflows/ci_unversioned_only.yml@v0.1.1
     with:
       ref: v0.1.0.post5
       index: PyPI
