@@ -7,3 +7,4 @@ updates:
       day: "monday"
     ignore:
       - dependency-name: "RBniCS/RBniCSx/.github/workflows/ci.yml"
+      - dependency-name: "RBniCS/RBniCSx/.github/workflows/ci_unversioned_only.yml"
