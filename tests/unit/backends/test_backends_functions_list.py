@@ -129,7 +129,7 @@ def test_backends_functions_list_save_load(
     functions_list: rbnicsx.backends.FunctionsList[dolfinx.typing.Scalar]
 ) -> None:
     """Check I/O for a rbnicsx.backends.FunctionsList."""
-    with nbvalx.tempfile.TemporaryDirectory(functions_list.comm) as tempdir:
+    with nbvalx.tempfile.TemporaryDirectory(functions_list.comm) as tempdir:  # type: ignore[arg-type]
         functions_list.save(pathlib.Path(tempdir), "functions_list")
 
         functions_list2 = functions_list.duplicate()

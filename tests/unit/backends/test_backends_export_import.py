@@ -57,7 +57,7 @@ def mesh_generator_load_from_file(
 ) -> dolfinx.mesh.Mesh[dolfinx.typing.Real]:
     """Load the mesh from file and return the loaded mesh."""
     with dolfinx.io.XDMFFile(mesh.comm, path, "r") as xdmf_file:
-        return xdmf_file.read_mesh()  # type: ignore[no-any-return]
+        return xdmf_file.read_mesh()
 
 
 def mesh_generator_save_to_and_load_from_file(
@@ -116,7 +116,7 @@ def test_backends_export_import_function(
     expected_success: bool
 ) -> None:
     """Check I/O for a dolfinx.fem.Function."""
-    with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:
+    with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:  # type: ignore[arg-type]
         def function_space_generator(
             mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real]
         ) -> dolfinx.fem.FunctionSpace[dolfinx.typing.Real]:
@@ -161,7 +161,7 @@ def test_backends_export_import_functions(
     expected_success: bool
 ) -> None:
     """Check I/O for a list of dolfinx.fem.Function."""
-    with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:
+    with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:  # type: ignore[arg-type]
         def function_space_generator(
             mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real]
         ) -> dolfinx.fem.FunctionSpace[dolfinx.typing.Real]:
@@ -214,7 +214,7 @@ def test_backends_export_import_vector(mesh: dolfinx.mesh.Mesh[dolfinx.typing.Re
     vector.ghostUpdate(
         addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)  # type: ignore[arg-type]
 
-    with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:
+    with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:  # type: ignore[arg-type]
         rbnicsx.backends.export_vector(vector, pathlib.Path(tempdir), "vector")
 
         vector2 = rbnicsx.backends.import_vector(linear_form_cpp, mesh.comm, pathlib.Path(tempdir), "vector")
@@ -234,7 +234,7 @@ def test_backends_export_import_vectors(mesh: dolfinx.mesh.Mesh[dolfinx.typing.R
         vector.ghostUpdate(
             addv=petsc4py.PETSc.InsertMode.ADD, mode=petsc4py.PETSc.ScatterMode.REVERSE)  # type: ignore[arg-type]
 
-    with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:
+    with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:  # type: ignore[arg-type]
         rbnicsx.backends.export_vectors(vectors, pathlib.Path(tempdir), "vectors")
 
         vectors2 = rbnicsx.backends.import_vectors(linear_forms_cpp[0], mesh.comm, pathlib.Path(tempdir), "vectors")
@@ -260,7 +260,7 @@ def test_backends_export_import_matrix(
     matrix = dolfinx.fem.petsc.assemble_matrix(bilinear_form_cpp)
     matrix.assemble()
 
-    with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:
+    with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:  # type: ignore[arg-type]
         rbnicsx.backends.export_matrix(matrix, pathlib.Path(tempdir), "matrix")
 
         matrix2 = rbnicsx.backends.import_matrix(bilinear_form_cpp, mesh.comm, pathlib.Path(tempdir), "matrix")
@@ -285,7 +285,7 @@ def test_backends_export_import_matrices(
     for matrix in matrices:
         matrix.assemble()
 
-    with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:
+    with nbvalx.tempfile.TemporaryDirectory(mesh.comm) as tempdir:  # type: ignore[arg-type]
         rbnicsx.backends.export_matrices(matrices, pathlib.Path(tempdir), "matrices")
 
         matrices2 = rbnicsx.backends.import_matrices(

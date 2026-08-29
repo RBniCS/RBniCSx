@@ -326,7 +326,7 @@ def test_online_tensors_list_setitem_wrong_type(tensors_list_vec: rbnicsx.online
 
 def test_online_tensors_list_save_load_vec(tensors_list_vec: rbnicsx.online.TensorsList) -> None:
     """Check I/O for a rbnicsx.online.TensorsList in the case of petsc4py.PETSc.Vec content."""
-    with nbvalx.tempfile.TemporaryDirectory(tensors_list_vec.comm) as tempdir:
+    with nbvalx.tempfile.TemporaryDirectory(tensors_list_vec.comm) as tempdir:  # type: ignore[arg-type]
         tensors_list_vec.save(pathlib.Path(tempdir), "tensors_list_vec")
 
         tensors_list_vec2 = tensors_list_vec.duplicate()
@@ -343,7 +343,7 @@ def test_online_tensors_list_save_load_mat(
         [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check I/O for a rbnicsx.online.TensorsList in the case of petsc4py.PETSc.Mat content."""
-    with nbvalx.tempfile.TemporaryDirectory(tensors_list_mat.comm) as tempdir:
+    with nbvalx.tempfile.TemporaryDirectory(tensors_list_mat.comm) as tempdir:  # type: ignore[arg-type]
         tensors_list_mat.save(pathlib.Path(tempdir), "tensors_list_mat")
 
         tensors_list_mat2 = tensors_list_mat.duplicate()
@@ -358,7 +358,7 @@ def test_online_tensors_list_save_load_empty() -> None:
     """Check I/O for rbnicsx.online.TensorsList when providing neither a Mat nor a Vec object."""
     empty_tensors_list = rbnicsx.online.TensorsList(0)
 
-    with nbvalx.tempfile.TemporaryDirectory(empty_tensors_list.comm) as tempdir:
+    with nbvalx.tempfile.TemporaryDirectory(empty_tensors_list.comm) as tempdir:  # type: ignore[arg-type]
         with pytest.raises(RuntimeError):
             empty_tensors_list.save(pathlib.Path(tempdir), "empty_tensors_list")
 

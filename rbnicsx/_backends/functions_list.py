@@ -32,12 +32,12 @@ class FunctionsList(abc.ABC, typing.Generic[Function]):
         Internal storage.
     """
 
-    def __init__(self: typing.Self, comm: mpi4py.MPI.Intracomm) -> None:
-        self._comm: mpi4py.MPI.Intracomm = comm
+    def __init__(self: typing.Self, comm: mpi4py.MPI.Comm) -> None:
+        self._comm: mpi4py.MPI.Comm = comm
         self._list: list[Function] = list()
 
     @property
-    def comm(self: typing.Self) -> mpi4py.MPI.Intracomm:
+    def comm(self: typing.Self) -> mpi4py.MPI.Comm:
         """Return the common MPI communicator that the Function objects will use."""
         return self._comm
 

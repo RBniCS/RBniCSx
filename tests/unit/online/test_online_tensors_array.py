@@ -509,7 +509,7 @@ def test_online_tensors_array_setitem_wrong_type(tensors_1d_array_vec: rbnicsx.o
 
 def test_online_tensors_array_save_load_1d_vec(tensors_1d_array_vec: rbnicsx.online.TensorsArray) -> None:
     """Check I/O for a rbnicsx.online.TensorsArray in the case of 1d array and petsc4py.PETSc.Vec content."""
-    with nbvalx.tempfile.TemporaryDirectory(tensors_1d_array_vec.comm) as tempdir:
+    with nbvalx.tempfile.TemporaryDirectory(tensors_1d_array_vec.comm) as tempdir:  # type: ignore[arg-type]
         tensors_1d_array_vec.save(pathlib.Path(tempdir), "tensors_1d_array_vec")
 
         tensors_1d_array_vec2 = tensors_1d_array_vec.duplicate()
@@ -522,7 +522,7 @@ def test_online_tensors_array_save_load_1d_vec(tensors_1d_array_vec: rbnicsx.onl
 
 def test_online_tensors_array_save_load_2d_vec(tensors_2d_array_vec: rbnicsx.online.TensorsArray) -> None:
     """Check I/O for a rbnicsx.online.TensorsArray in the case of 2d array and petsc4py.PETSc.Vec content."""
-    with nbvalx.tempfile.TemporaryDirectory(tensors_2d_array_vec.comm) as tempdir:
+    with nbvalx.tempfile.TemporaryDirectory(tensors_2d_array_vec.comm) as tempdir:  # type: ignore[arg-type]
         tensors_2d_array_vec.save(pathlib.Path(tempdir), "tensors_2d_array_vec")
 
         tensors_2d_array_vec2 = tensors_2d_array_vec.duplicate()
@@ -540,7 +540,7 @@ def test_online_tensors_array_save_load_1d_mat(
         [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check I/O for a rbnicsx.online.TensorsArray in the case of 1d array and petsc4py.PETSc.Mat content."""
-    with nbvalx.tempfile.TemporaryDirectory(tensors_1d_array_mat.comm) as tempdir:
+    with nbvalx.tempfile.TemporaryDirectory(tensors_1d_array_mat.comm) as tempdir:  # type: ignore[arg-type]
         tensors_1d_array_mat.save(pathlib.Path(tempdir), "tensors_1d_array_mat")
 
         tensors_1d_array_mat2 = tensors_1d_array_mat.duplicate()
@@ -557,7 +557,7 @@ def test_online_tensors_array_save_load_2d_mat(
         [petsc4py.PETSc.Mat], npt.NDArray[petsc4py.PETSc.ScalarType]]
 ) -> None:
     """Check I/O for a rbnicsx.online.TensorsArray in the case of 2d array and petsc4py.PETSc.Mat content."""
-    with nbvalx.tempfile.TemporaryDirectory(tensors_2d_array_mat.comm) as tempdir:
+    with nbvalx.tempfile.TemporaryDirectory(tensors_2d_array_mat.comm) as tempdir:  # type: ignore[arg-type]
         tensors_2d_array_mat.save(pathlib.Path(tempdir), "tensors_2d_array_mat")
 
         tensors_2d_array_mat2 = tensors_2d_array_mat.duplicate()
@@ -574,7 +574,7 @@ def test_online_tensors_array_save_load_empty() -> None:
     """Check I/O for rbnicsx.online.TensorsArray when providing neither a Mat nor a Vec object."""
     empty_tensors_array = rbnicsx.online.TensorsArray(0, 0)
 
-    with nbvalx.tempfile.TemporaryDirectory(empty_tensors_array.comm) as tempdir:
+    with nbvalx.tempfile.TemporaryDirectory(empty_tensors_array.comm) as tempdir:  # type: ignore[arg-type]
         with pytest.raises(RuntimeError):
             empty_tensors_array.save(pathlib.Path(tempdir), "empty_tensors_array")
 

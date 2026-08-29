@@ -34,13 +34,13 @@ class TensorsList(abc.ABC):
         A string representing the type of tensors (Mat or Vec) currently stored.
     """
 
-    def __init__(self: typing.Self, comm: mpi4py.MPI.Intracomm) -> None:
-        self._comm: mpi4py.MPI.Intracomm = comm
+    def __init__(self: typing.Self, comm: mpi4py.MPI.Comm) -> None:
+        self._comm: mpi4py.MPI.Comm = comm
         self._list: list[petsc4py.PETSc.Mat] | list[petsc4py.PETSc.Vec] = list()
         self._type: str | None = None
 
     @property
-    def comm(self: typing.Self) -> mpi4py.MPI.Intracomm:
+    def comm(self: typing.Self) -> mpi4py.MPI.Comm:
         """Return the common MPI communicator that the PETSc objects will use."""
         return self._comm
 

@@ -40,22 +40,22 @@ class TensorsArray(abc.ABC):
     """
 
     def __init__(
-        self: typing.Self, comm: mpi4py.MPI.Intracomm, shape: int | tuple[int, ...]
+        self: typing.Self, comm: mpi4py.MPI.Comm, shape: int | tuple[int, ...]
     ) -> None:
-        self._comm: mpi4py.MPI.Intracomm = comm
+        self._comm: mpi4py.MPI.Comm = comm
         self._array: npt.NDArray[  # type: ignore[type-var]
             petsc4py.PETSc.Mat | petsc4py.PETSc.Vec] = np.full(shape, fill_value=None, dtype=object)
         self._type: str | None = None
 
     @property
-    def comm(self: typing.Self) -> mpi4py.MPI.Intracomm:
+    def comm(self: typing.Self) -> mpi4py.MPI.Comm:
         """Return the common MPI communicator that the PETSc objects will use."""
         return self._comm
 
     @property
     def shape(self: typing.Self) -> tuple[int, ...]:
         """Return the shape of the array."""
-        return self._array.shape  # type: ignore[no-any-return, unused-ignore]
+        return self._array.shape
 
     @property
     def type(self: typing.Self) -> str | None:
@@ -194,11 +194,11 @@ class TensorsArray(abc.ABC):
 
         # Contract first on the dimensions up to array shape
         first_output = self._array[self._array.flat.coords].copy()
-        first_output.zeroEntries()  # type: ignore[attr-defined]
+        first_output.zeroEntries()
         for (array_it, arg_it) in zip(self._array.flat, first_args):
-            first_output.axpy(arg_it, array_it)  # type: ignore[attr-defined]
+            first_output.axpy(arg_it, array_it)
         if self._type == "Vec":
-            first_output.ghostUpdate(  # type: ignore[attr-defined]
+            first_output.ghostUpdate(
                 addv=petsc4py.PETSc.InsertMode.INSERT,
                 mode=petsc4py.PETSc.ScatterMode.FORWARD)
 
@@ -213,11 +213,11 @@ class TensorsArray(abc.ABC):
 
         # Contract with the dimensions after array shape
         if self._type == "Mat":
-            first_output_dot_last_arg = first_output.createVecLeft()  # type: ignore[attr-defined]
-            first_output.mult(args[-1], first_output_dot_last_arg)  # type: ignore[attr-defined]
+            first_output_dot_last_arg = first_output.createVecLeft()
+            first_output.mult(args[-1], first_output_dot_last_arg)
             return first_output_dot_last_arg.dot(args[-2])  # type: ignore[no-any-return]
         elif self._type == "Vec":
-            return first_output.dot(args[-1])  # type: ignore[no-any-return, call-overload]
+            return first_output.dot(args[-1])  # type: ignore[no-any-return]
 
     @typing.overload
     def __getitem__(

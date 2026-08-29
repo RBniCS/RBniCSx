@@ -306,13 +306,13 @@ class FormArgumentsReplacer(typing.Generic[dolfinx.typing.Scalar]):
         self._form = ufl.replace(form, dict_replacement)
         self._form_cpp: dolfinx.fem.Form[dolfinx.typing.Scalar] = dolfinx.fem.form(self._form)
 
-        self._comm: mpi4py.MPI.Intracomm = form_arguments[0].ufl_function_space().mesh.comm
+        self._comm: mpi4py.MPI.Comm = form_arguments[0].ufl_function_space().mesh.comm
         if len(form_arguments) > 1:
             assert all(
                 [form_argument.ufl_function_space().mesh.comm == self._comm for form_argument in form_arguments])
 
     @property
-    def comm(self) -> mpi4py.MPI.Intracomm:
+    def comm(self) -> mpi4py.MPI.Comm:
         """Return the common MPI communicator of the mesh of this form."""
         return self._comm
 

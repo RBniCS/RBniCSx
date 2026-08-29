@@ -250,7 +250,7 @@ def project_matrix_block(  # noqa: F811
         matrix_action_a = np.zeros((len(N_a), len(M_a)), dtype=object)
         for (i, j, a_ij) in a_copier:
             matrix_action_a[i][j] = matrix_action(a_ij)
-        project_matrix_block_super(A, matrix_action_a.tolist(), B)  # type: ignore[arg-type, unused-ignore]
+        project_matrix_block_super(A, matrix_action_a.tolist(), B)
 
 
 @plum.dispatch

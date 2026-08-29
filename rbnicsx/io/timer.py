@@ -40,14 +40,14 @@ class Timer:
 
     def __init__(
         self: typing.Self,
-        comm: mpi4py.MPI.Intracomm | petsc4py.PETSc.Comm,
+        comm: mpi4py.MPI.Comm | petsc4py.PETSc.Comm,
         op: mpi4py.MPI.Op,
         store: typing.Callable[[float], None]
     ) -> None:
         if isinstance(comm, petsc4py.PETSc.Comm):
             comm = comm.tompi4py()
 
-        self._comm: mpi4py.MPI.Intracomm = comm
+        self._comm: mpi4py.MPI.Comm = comm
         self._op: mpi4py.MPI.Op = op
         self._store: typing.Callable[[float], None] = store
         self._start: float | None = None

@@ -39,7 +39,7 @@ class TensorsArray(TensorsArrayBase):
     """
 
     def __init__(
-        self: typing.Self, form: dolfinx.fem.Form[dolfinx.typing.Scalar], comm: mpi4py.MPI.Intracomm,
+        self: typing.Self, form: dolfinx.fem.Form[dolfinx.typing.Scalar], comm: mpi4py.MPI.Comm,
         shape: int | tuple[int, ...]
     ) -> None:
         self._form: dolfinx.fem.Form[dolfinx.typing.Scalar] = form  # type: ignore[assignment]

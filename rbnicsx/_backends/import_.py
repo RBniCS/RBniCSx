@@ -16,7 +16,7 @@ from rbnicsx.io import on_rank_zero
 
 def import_matrix(
     allocate: typing.Callable[[], petsc4py.PETSc.Mat],
-    comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
+    comm: mpi4py.MPI.Comm, directory: pathlib.Path, filename: str
 ) -> petsc4py.PETSc.Mat:
     """
     Import a petsc4py.PETSc.Mat from file.
@@ -47,7 +47,7 @@ def import_matrix(
 
 def import_matrices(
     allocate: typing.Callable[[], petsc4py.PETSc.Mat],
-    comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
+    comm: mpi4py.MPI.Comm, directory: pathlib.Path, filename: str
 ) -> list[petsc4py.PETSc.Mat]:
     """
     Import a list of petsc4py.PETSc.Mat from file.
@@ -88,7 +88,7 @@ def import_matrices(
 
 def import_vector(
     allocate: typing.Callable[[], petsc4py.PETSc.Vec],
-    comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
+    comm: mpi4py.MPI.Comm, directory: pathlib.Path, filename: str
 ) -> petsc4py.PETSc.Vec:
     """
     Import a petsc4py.PETSc.Vec from file.
@@ -119,7 +119,7 @@ def import_vector(
 
 def import_vectors(
     allocate: typing.Callable[[], petsc4py.PETSc.Vec],
-    comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
+    comm: mpi4py.MPI.Comm, directory: pathlib.Path, filename: str
 ) -> list[petsc4py.PETSc.Vec]:
     """
     Import a list of petsc4py.PETSc.Vec from file.

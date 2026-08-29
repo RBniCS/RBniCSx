@@ -88,7 +88,7 @@ def import_functions(
 
 
 def import_matrix(
-    form: dolfinx.fem.Form[dolfinx.typing.Scalar], comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
+    form: dolfinx.fem.Form[dolfinx.typing.Scalar], comm: mpi4py.MPI.Comm, directory: pathlib.Path, filename: str
 ) -> petsc4py.PETSc.Mat:
     """
     Import a petsc4py.PETSc.Mat assembled by dolfinx from file.
@@ -113,7 +113,7 @@ def import_matrix(
 
 
 def import_matrices(
-    form: dolfinx.fem.Form[dolfinx.typing.Scalar], comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
+    form: dolfinx.fem.Form[dolfinx.typing.Scalar], comm: mpi4py.MPI.Comm, directory: pathlib.Path, filename: str
 ) -> list[petsc4py.PETSc.Mat]:
     """
     Import a list of petsc4py.PETSc.Mat assembled by dolfinx from file.
@@ -138,7 +138,7 @@ def import_matrices(
 
 
 def import_vector(
-    form: dolfinx.fem.Form[dolfinx.typing.Scalar], comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
+    form: dolfinx.fem.Form[dolfinx.typing.Scalar], comm: mpi4py.MPI.Comm, directory: pathlib.Path, filename: str
 ) -> petsc4py.PETSc.Vec:
     """
     Import a petsc4py.PETSc.Vec assembled by dolfinx from file.
@@ -161,12 +161,12 @@ def import_vector(
     """
     function_space: dolfinx.fem.FunctionSpace[dolfinx.typing.Real] = dolfinx.fem.extract_function_spaces(form)  # type: ignore
     return import_vector_super(
-        lambda: dolfinx.fem.petsc.create_vector(function_space),  # type: ignore[arg-type, unused-ignore]
+        lambda: dolfinx.fem.petsc.create_vector(function_space),
         comm, directory, filename)
 
 
 def import_vectors(
-    form: dolfinx.fem.Form[dolfinx.typing.Scalar], comm: mpi4py.MPI.Intracomm, directory: pathlib.Path, filename: str
+    form: dolfinx.fem.Form[dolfinx.typing.Scalar], comm: mpi4py.MPI.Comm, directory: pathlib.Path, filename: str
 ) -> list[petsc4py.PETSc.Vec]:
     """
     Import a list of petsc4py.PETSc.Vec assembled by dolfinx from file.
@@ -189,5 +189,5 @@ def import_vectors(
     """
     function_space: dolfinx.fem.FunctionSpace[dolfinx.typing.Real] = dolfinx.fem.extract_function_spaces(form)  # type: ignore
     return import_vectors_super(
-        lambda: dolfinx.fem.petsc.create_vector(function_space),  # type: ignore[arg-type, unused-ignore]
+        lambda: dolfinx.fem.petsc.create_vector(function_space),
         comm, directory, filename)

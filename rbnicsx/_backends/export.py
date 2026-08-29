@@ -14,7 +14,7 @@ from rbnicsx.io import on_rank_zero
 
 
 def export_matrix(
-    mat: petsc4py.PETSc.Mat, comm: mpi4py.MPI.Intracomm,
+    mat: petsc4py.PETSc.Mat, comm: mpi4py.MPI.Comm,
     directory: pathlib.Path, filename: str
 ) -> None:
     """
@@ -39,7 +39,7 @@ def export_matrix(
 
 
 def export_matrices(
-    mats: list[petsc4py.PETSc.Mat], comm: mpi4py.MPI.Intracomm,
+    mats: list[petsc4py.PETSc.Mat], comm: mpi4py.MPI.Comm,
     directory: pathlib.Path, filename: str
 ) -> None:
     """
@@ -73,7 +73,7 @@ def export_matrices(
 
 
 def export_vector(
-    vec: petsc4py.PETSc.Vec, comm: mpi4py.MPI.Intracomm,
+    vec: petsc4py.PETSc.Vec, comm: mpi4py.MPI.Comm,
     directory: pathlib.Path, filename: str
 ) -> None:
     """
@@ -98,7 +98,7 @@ def export_vector(
 
 
 def export_vectors(
-    vecs: list[petsc4py.PETSc.Vec], comm: mpi4py.MPI.Intracomm,
+    vecs: list[petsc4py.PETSc.Vec], comm: mpi4py.MPI.Comm,
     directory: pathlib.Path, filename: str
 ) -> None:
     """

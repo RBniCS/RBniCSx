@@ -66,7 +66,7 @@ class FunctionsList(FunctionsListBase[dolfinx.fem.Function[dolfinx.typing.Scalar
         filename
             Name of the file where to export the list.
         """
-        export_functions(self._list, np.arange(len(self._list), dtype=float), directory, filename)  # type: ignore[arg-type]
+        export_functions(self._list, np.arange(len(self._list), dtype=float), directory, filename)
 
     def _load(self: typing.Self, directory: pathlib.Path, filename: str) -> None:
         """
@@ -104,8 +104,8 @@ class FunctionsList(FunctionsListBase[dolfinx.fem.Function[dolfinx.typing.Scalar
             for i in range(other.size):
                 output.x.petsc_vec.axpy(other[i], self._list[i].x.petsc_vec)  # type: ignore[index]
             output.x.petsc_vec.ghostUpdate(
-                addv=petsc4py.PETSc.InsertMode.INSERT,
-                mode=petsc4py.PETSc.ScatterMode.FORWARD)
+                addv=petsc4py.PETSc.InsertMode.INSERT,  # type: ignore[arg-type]
+                mode=petsc4py.PETSc.ScatterMode.FORWARD)  # type: ignore[arg-type]
             return output
         else:
             return dolfinx.fem.Function(self._function_space)

@@ -43,7 +43,8 @@ def gram_schmidt(
         orthonormalized.x.petsc_vec.axpy(
             - compute_inner_product(function_n)(orthonormalized), function_n.x.petsc_vec)  # type: ignore[operator]
     orthonormalized.x.petsc_vec.ghostUpdate(
-        addv=petsc4py.PETSc.InsertMode.INSERT, mode=petsc4py.PETSc.ScatterMode.FORWARD)
+        addv=petsc4py.PETSc.InsertMode.INSERT,  # type: ignore[arg-type]
+        mode=petsc4py.PETSc.ScatterMode.FORWARD)  # type: ignore[arg-type]
     norm = np.sqrt(compute_inner_product(orthonormalized)(orthonormalized))
     if norm != 0.0:
         with orthonormalized.x.petsc_vec.localForm() as orthonormalized_local:

@@ -35,7 +35,7 @@ class TensorsList(TensorsListBase):
         Form provided as input.
     """
 
-    def __init__(self: typing.Self, form: dolfinx.fem.Form[dolfinx.typing.Scalar], comm: mpi4py.MPI.Intracomm) -> None:
+    def __init__(self: typing.Self, form: dolfinx.fem.Form[dolfinx.typing.Scalar], comm: mpi4py.MPI.Comm) -> None:
         self._form: dolfinx.fem.Form[dolfinx.typing.Scalar] = form  # type: ignore[assignment]
         super().__init__(comm)
 
