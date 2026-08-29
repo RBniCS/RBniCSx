@@ -20,6 +20,6 @@ void rbnicsx::_backends::petsc_error(int error_code, std::string filename,
   // Log detailed error info
   throw std::runtime_error(
       "Failed to successfully call PETSc function '" + petsc_function + "' in '"
-      + filename + "'. " + "PETSc error code is: " + std ::to_string(error_code)
+      + filename + "'. " + "PETSc error code is: " + std::to_string(error_code)
       + ", " + std::string(desc));
 }
