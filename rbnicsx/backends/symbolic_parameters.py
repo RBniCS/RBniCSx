@@ -24,4 +24,4 @@ class SymbolicParameters(dolfinx.fem.Constant[dolfinx.typing.Scalar]):
     """
 
     def __init__(self, mesh: dolfinx.mesh.Mesh[dolfinx.typing.Real], shape: tuple[int, ...]) -> None:
-        super().__init__(mesh, np.zeros(shape, dtype=petsc4py.PETSc.ScalarType))  # type: ignore[arg-type,unused-ignore]
+        super().__init__(mesh, np.zeros(shape, dtype=petsc4py.PETSc.ScalarType))
