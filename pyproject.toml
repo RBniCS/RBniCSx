@@ -63,7 +63,6 @@ docs = [
 ]
 lint = [
     "clang-format",
-    "cmakelang",
     "isort",
     "mypy",
     "nbqa",
